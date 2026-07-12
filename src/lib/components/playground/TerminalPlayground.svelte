@@ -7,7 +7,8 @@
 		Lightbulb,
 		ChevronRight,
 		ChevronDown,
-		X
+		X,
+		ArrowLeft
 	} from 'lucide-svelte';
 	import FsTreeView from '$lib/components/playground/FsTreeView.svelte';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
@@ -78,6 +79,9 @@
 	let historyIndex = $state(-1);
 	let inputEl: HTMLInputElement | undefined = $state(undefined);
 	let terminalEl: HTMLDivElement | undefined = $state(undefined);
+	let inputFocused = $state(false);
+	/** First focus dismisses the type-here hint for good. */
+	let hasInteracted = $state(false);
 
 	let scenario = $derived(getScenario(activeScenarioId));
 
@@ -471,7 +475,10 @@
 {#snippet terminalHistory()}
 	{#each history as line, i (i)}
 		{#if line.type === 'input'}
-			<div class="mb-1.5 flex gap-2" style="font-family: var(--font-mono); font-size: 12.5px;">
+			<div
+				class="mb-1.5 flex gap-[0.6ch]"
+				style="font-family: var(--font-mono); font-size: 12.5px;"
+			>
 				<span class="shrink-0">{@render promptLabel(line.promptCwd ?? '~')}</span>
 				<span style="color: var(--color-terminal-command);">{@render commandLabel(line.text)}</span>
 			</div>
@@ -516,18 +523,34 @@
 {#snippet promptForm()}
 	<form onsubmit={handleSubmit} class="pg-prompt-line">
 		{@render promptLabel(promptCwd)}
-		<input
-			bind:this={inputEl}
-			bind:value={input}
-			onkeydown={handleKeydown}
-			disabled={loading}
-			placeholder="ls"
-			class="pg-input"
-			autocomplete="off"
-			spellcheck="false"
-			enterkeyhint="send"
-			aria-label="Shell command"
-		/>
+		<span class="pg-input-wrap">
+			<input
+				bind:this={inputEl}
+				bind:value={input}
+				onkeydown={handleKeydown}
+				onfocus={() => {
+					inputFocused = true;
+					hasInteracted = true;
+				}}
+				onblur={() => (inputFocused = false)}
+				disabled={loading}
+				placeholder="ls"
+				class="pg-input"
+				autocomplete="off"
+				spellcheck="false"
+				enterkeyhint="send"
+				aria-label="Shell command"
+			/>
+			{#if !inputFocused && !input}
+				<span class="pg-caret" aria-hidden="true"></span>
+			{/if}
+			{#if !hasInteracted && !loading && !input}
+				<span class="pg-type-hint" aria-hidden="true">
+					<ArrowLeft size={10} />
+					type here
+				</span>
+			{/if}
+		</span>
 	</form>
 {/snippet}
 
@@ -860,9 +883,70 @@
 	.pg-prompt-line {
 		display: flex;
 		align-items: baseline;
-		gap: 0.5rem;
+		/* exactly one character cell after the $, like a real shell */
+		gap: 0.6ch;
 		padding: 0;
 		background: transparent;
+	}
+
+	.pg-input-wrap {
+		position: relative;
+		display: flex;
+		flex: 1;
+		min-width: 0;
+		align-items: center;
+	}
+
+	/* Idle block cursor: a real terminal blinks even before you click. The
+	   native caret takes over on focus. */
+	.pg-caret {
+		position: absolute;
+		left: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 0.55ch;
+		height: 1.15em;
+		background: var(--color-terminal-prompt);
+		animation: pg-blink 1.1s step-end infinite;
+		pointer-events: none;
+	}
+
+	@keyframes pg-blink {
+		0%,
+		49% {
+			opacity: 0.9;
+		}
+		50%,
+		100% {
+			opacity: 0;
+		}
+	}
+
+	/* One-time, whisper-quiet nudge toward the prompt. Gone after first focus. */
+	.pg-type-hint {
+		position: absolute;
+		left: 1.4ch;
+		display: inline-flex;
+		align-items: center;
+		gap: 3px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-style: italic;
+		color: var(--color-text-muted);
+		opacity: 0.55;
+		animation: pg-beckon 1.6s ease-in-out infinite alternate;
+		pointer-events: none;
+		user-select: none;
+		white-space: nowrap;
+	}
+
+	@keyframes pg-beckon {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(4px);
+		}
 	}
 
 	:global(:root.dark) .pg-terminal {
@@ -917,6 +1001,7 @@
 	.pg-input {
 		flex: 1;
 		min-width: 0;
+		padding: 0;
 		border: none;
 		outline: none;
 		box-shadow: none;
@@ -938,6 +1023,10 @@
 
 	.pg-input::placeholder {
 		color: color-mix(in srgb, var(--color-terminal-output) 55%, transparent);
+	}
+
+	.pg-input:not(:focus)::placeholder {
+		color: transparent;
 	}
 
 	.pg-input:focus {
