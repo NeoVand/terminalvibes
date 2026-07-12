@@ -7,8 +7,7 @@
 		Lightbulb,
 		ChevronRight,
 		ChevronDown,
-		X,
-		CornerDownLeft
+		X
 	} from 'lucide-svelte';
 	import FsTreeView from '$lib/components/playground/FsTreeView.svelte';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
@@ -31,6 +30,8 @@
 		text: string;
 		error?: boolean;
 		colored?: boolean;
+		/** For input lines: the cwd shown in the prompt when this was typed. */
+		promptCwd?: string;
 	}
 
 	let {
@@ -286,7 +287,7 @@
 		const command = input.trim();
 		if (!command) return;
 
-		history = [...history, { type: 'input', text: command }];
+		history = [...history, { type: 'input', text: command, promptCwd }];
 		input = '';
 		historyIndex = -1;
 
@@ -431,6 +432,13 @@
 		input = command;
 		inputEl?.focus();
 	}
+
+	/** Clicking terminal whitespace focuses the prompt — unless the user is
+	 *  selecting output text to copy it. */
+	function focusIfIdle() {
+		if (window.getSelection()?.toString()) return;
+		inputEl?.focus();
+	}
 </script>
 
 {#snippet scenarioSelect()}
@@ -464,7 +472,7 @@
 	{#each history as line, i (i)}
 		{#if line.type === 'input'}
 			<div class="mb-1.5 flex gap-2" style="font-family: var(--font-mono); font-size: 12.5px;">
-				<span style="color: var(--color-terminal-prompt);">$</span>
+				<span class="shrink-0">{@render promptLabel(line.promptCwd ?? '~')}</span>
 				<span style="color: var(--color-terminal-command);">{@render commandLabel(line.text)}</span>
 			</div>
 		{:else if line.type === 'output'}
@@ -497,11 +505,17 @@
 	{/if}
 {/snippet}
 
+{#snippet promptLabel(cwd: string)}
+	<span class="pg-prompt" aria-hidden="true"
+		><span class="pp-user">vibe@sandbox</span><span class="pp-sep">:</span><span class="pp-path"
+			>{cwd}</span
+		><span class="pp-dollar">$</span></span
+	>
+{/snippet}
+
 {#snippet promptForm()}
 	<form onsubmit={handleSubmit} class="pg-prompt-line">
-		<span class="pg-prompt" aria-hidden="true"
-			><span class="pg-prompt-cwd">{promptCwd}</span> $</span
-		>
+		{@render promptLabel(promptCwd)}
 		<input
 			bind:this={inputEl}
 			bind:value={input}
@@ -514,14 +528,6 @@
 			enterkeyhint="send"
 			aria-label="Shell command"
 		/>
-		<button
-			type="submit"
-			class="pg-return-hint"
-			disabled={loading || !input.trim()}
-			aria-label="Run command (Enter)"
-		>
-			<CornerDownLeft size={12} />
-		</button>
 	</form>
 {/snippet}
 
@@ -616,15 +622,16 @@
 					</span>
 				</div>
 
+				<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
 				<div
 					bind:this={terminalEl}
 					use:autohideScroll
-					class="pg-terminal min-h-0 flex-1 overflow-y-auto px-4 py-3"
+					class="pg-terminal min-h-0 flex-1 cursor-text overflow-y-auto px-4 py-3"
+					onclick={focusIfIdle}
 				>
 					{@render terminalHistory()}
+					{@render promptForm()}
 				</div>
-
-				{@render promptForm()}
 			</section>
 
 			<section
@@ -702,18 +709,19 @@
 					>
 				</div>
 
+				<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
 				<div
 					bind:this={terminalEl}
 					use:autohideScroll
-					class="pg-terminal flex-1 overflow-y-auto p-4"
+					class="pg-terminal flex-1 cursor-text overflow-y-auto p-4"
 					style="min-height: {embedded ? '220px' : '280px'}; max-height: {embedded
 						? '300px'
 						: '360px'};"
+					onclick={focusIfIdle}
 				>
 					{@render terminalHistory()}
+					{@render promptForm()}
 				</div>
-
-				{@render promptForm()}
 			</div>
 
 			<div class="order-1 flex flex-col lg:order-2">
@@ -847,30 +855,23 @@
 		color: var(--color-terminal-text);
 	}
 
+	/* The prompt is part of the terminal itself, exactly like a real shell:
+	   the last line of the scrollback is where you type. */
 	.pg-prompt-line {
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		gap: 0.5rem;
-		padding: 0.75rem 1.25rem;
-		border-top: 1px solid color-mix(in srgb, var(--color-playground-border) 55%, transparent);
-		background: var(--color-terminal-header);
+		padding: 0;
+		background: transparent;
 	}
 
 	:global(:root.dark) .pg-terminal {
 		background: #090d07;
 	}
 
-	:global(:root.dark) .pg-prompt-line {
-		background: #0f150b;
-	}
-
 	@media (prefers-color-scheme: dark) {
 		:global(:root:not(.light)) .pg-terminal {
 			background: #090d07;
-		}
-
-		:global(:root:not(.light)) .pg-prompt-line {
-			background: #0f150b;
 		}
 	}
 
@@ -879,29 +880,38 @@
 		font-family: var(--font-mono);
 		font-size: 16px;
 		font-weight: 600;
-		color: var(--color-terminal-prompt);
 		user-select: none;
 	}
 
-	.pg-prompt-cwd {
-		font-weight: 500;
-		opacity: 0.75;
+	.pp-user,
+	.pp-dollar {
+		color: var(--color-terminal-prompt);
+	}
+
+	.pp-sep {
+		color: var(--color-terminal-output);
+		font-weight: 400;
+	}
+
+	.pp-path {
+		color: var(--color-vibe-text);
+		/* Deep paths would squeeze the input off the line */
+		max-width: 11rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		display: inline-block;
+		vertical-align: bottom;
+	}
+
+	.pp-dollar {
+		margin-left: 0.15rem;
 	}
 
 	@media (min-width: 640px) {
 		.pg-prompt {
 			font-size: 12.5px;
 		}
-	}
-
-	/* Deep paths would squeeze the input out of the prompt line */
-	.pg-prompt-cwd {
-		max-width: 9rem;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		display: inline-block;
-		vertical-align: bottom;
 	}
 
 	.pg-input {
@@ -938,40 +948,6 @@
 	.pg-input:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
-	}
-
-	.pg-return-hint {
-		display: inline-flex;
-		flex-shrink: 0;
-		align-items: center;
-		justify-content: center;
-		padding: 0.25rem 0.45rem;
-		border-radius: 0.3rem;
-		border: 1px solid color-mix(in srgb, var(--color-terminal-text) 18%, transparent);
-		background: color-mix(in srgb, var(--color-terminal-text) 6%, transparent);
-		color: var(--color-terminal-output);
-		opacity: 0.5;
-		font-size: 10px;
-		user-select: none;
-		cursor: pointer;
-		transition:
-			opacity 0.15s ease,
-			border-color 0.15s ease;
-	}
-
-	.pg-return-hint:hover:not(:disabled) {
-		opacity: 0.8;
-		border-color: var(--color-terminal-prompt);
-		color: var(--color-terminal-prompt);
-	}
-
-	.pg-return-hint:active:not(:disabled) {
-		opacity: 1;
-	}
-
-	.pg-return-hint:disabled {
-		opacity: 0.25;
-		cursor: default;
 	}
 
 	.pg-chip {
@@ -1011,10 +987,6 @@
 		.pg-suggestions .pg-chip {
 			font-size: 10px;
 			padding: 0.2rem 0.5rem;
-		}
-
-		.pg-prompt-line {
-			padding: 0.5rem 0.75rem;
 		}
 
 		.pg-chip {
