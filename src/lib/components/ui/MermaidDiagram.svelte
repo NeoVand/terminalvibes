@@ -82,9 +82,9 @@
 			themeVariables: dark
 				? {
 						// Dark mode — flowcharts
-						primaryColor: '#1d3323',
+						primaryColor: '#1c2818',
 						primaryTextColor: '#e2ede2',
-						primaryBorderColor: '#4ade80',
+						primaryBorderColor: '#67b177',
 						secondaryColor: '#332614',
 						secondaryTextColor: '#e7cfa8',
 						secondaryBorderColor: '#b48a52',
@@ -94,7 +94,7 @@
 						lineColor: '#6b7a5f',
 						textColor: '#e2ede2',
 						mainBkg: '#171107',
-						nodeBorder: '#4ade80',
+						nodeBorder: '#67b177',
 						clusterBkg: '#110c06',
 						clusterBorder: '#3a2e1c',
 						titleColor: '#e2ede2',
@@ -114,7 +114,7 @@
 						activationBorderColor: '#5c6b52',
 						sequenceNumberColor: '#9caf8e',
 						// gitGraph (unused by the fs-tree, kept theme-consistent)
-						git0: '#4ade80',
+						git0: '#67b177',
 						git1: '#b48a52',
 						git2: '#fdba74',
 						git3: '#d97706',
@@ -130,7 +130,7 @@
 						gitBranchLabel5: '#e2ede2',
 						gitBranchLabel6: '#e2ede2',
 						gitBranchLabel7: '#e2ede2',
-						gitInv0: '#4ade80',
+						gitInv0: '#67b177',
 						commitLabelColor: '#9caf8e',
 						// Near-opaque, not fully: rotated labels sometimes cross the
 						// lane below, and the label text must stay easy to read (a
@@ -147,9 +147,9 @@
 					}
 				: {
 						// Light mode — flowcharts
-						primaryColor: '#e9f7ee',
+						primaryColor: '#eaf2e4',
 						primaryTextColor: '#14301c',
-						primaryBorderColor: '#86d8a2',
+						primaryBorderColor: '#8fbe90',
 						secondaryColor: '#faf3ea',
 						secondaryTextColor: '#5c3d1e',
 						secondaryBorderColor: '#d9b98c',
@@ -179,7 +179,7 @@
 						activationBorderColor: '#9aab90',
 						sequenceNumberColor: '#6b7a5f',
 						// gitGraph (unused by the fs-tree, kept theme-consistent)
-						git0: '#15803d',
+						git0: '#3e6f3a',
 						git1: '#8b5e34',
 						git2: '#d97706',
 						git3: '#0891b2',
@@ -195,7 +195,7 @@
 						gitBranchLabel5: '#ffffff',
 						gitBranchLabel6: '#ffffff',
 						gitBranchLabel7: '#ffffff',
-						gitInv0: '#166534',
+						gitInv0: '#35562e',
 						commitLabelColor: '#6b7a5f',
 						commitLabelBackground: 'rgba(241, 236, 225, 0.94)',
 						commitLabelFontSize: '12px',

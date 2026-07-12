@@ -775,7 +775,7 @@ npm test && echo "all green" || echo "tests failed"`}
   A(["npm test"]) --> B{"exit code?"}
   B -->|"0 — success"| C(["npm run deploy"])
   B -->|"non-zero — failure"| D(["echo 'tests failed'"])
-  classDef success stroke:#4ade80,stroke-width:2px;
+  classDef success stroke:#67b177,stroke-width:2px;
   classDef danger stroke:#9a3412,stroke-width:2px;
   class C success;
   class D danger;`}
