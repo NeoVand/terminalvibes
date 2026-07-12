@@ -7,16 +7,16 @@
 @plugin '@tailwindcss/typography';
 
 :root {
-	--color-bg: #f7f8f4;
-	--color-bg-secondary: #eff2ea;
-	--color-bg-tertiary: #e6ebde;
+	--color-bg: #f8f5ef;
+	--color-bg-secondary: #f1ece2;
+	--color-bg-tertiary: #e9e2d3;
 	--color-surface: #ffffff;
-	--color-surface-hover: #f2f5ec;
-	--color-border: #dde3d2;
-	--color-border-light: #e9eee0;
-	--color-text: #1b2314;
-	--color-text-secondary: #4c5540;
-	--color-text-muted: #939c85;
+	--color-surface-hover: #f4efe6;
+	--color-border: #e3dbc9;
+	--color-border-light: #ece6d8;
+	--color-text: #231c11;
+	--color-text-secondary: #564b38;
+	--color-text-muted: #9d9280;
 	--color-text-inverse: #ffffff;
 
 	--color-primary: #15803d;
@@ -65,8 +65,8 @@
 	--color-diff-hash: #92400e;
 	--color-diff-meta: #166534;
 
-	--color-code-bg: #edf1e4;
-	--color-code-text: #22301c;
+	--color-code-bg: #f0ebdf;
+	--color-code-text: #2a2315;
 
 	--color-vibe: #8b5e34;
 	--color-vibe-text: #7c4a1e;
@@ -83,17 +83,17 @@
 
 @media (prefers-color-scheme: dark) {
 	:root:not(.light) {
-		--color-bg: #0c110a;
-		--color-bg-secondary: #10160d;
-		--color-bg-tertiary: #171f12;
-		--color-surface: #121810;
-		--color-surface-hover: #171f12;
-		--color-border: #24301d;
-		--color-border-light: #1c2616;
-		--color-text: #e6ecdf;
-		--color-text-secondary: #a3ad97;
-		--color-text-muted: #5f6b54;
-		--color-text-inverse: #0c110a;
+		--color-bg: #120d08;
+		--color-bg-secondary: #171009;
+		--color-bg-tertiary: #201810;
+		--color-surface: #18120b;
+		--color-surface-hover: #201810;
+		--color-border: #302517;
+		--color-border-light: #251c11;
+		--color-text: #ece5d8;
+		--color-text-secondary: #b3a68f;
+		--color-text-muted: #6f6250;
+		--color-text-inverse: #120d08;
 
 		--color-primary: #4ade80;
 		--color-primary-light: #86efac;
@@ -132,8 +132,8 @@
 		--color-diff-hash: #e3b341;
 		--color-diff-meta: #7ee787;
 
-		--color-code-bg: #171f12;
-		--color-code-text: #e6ecdf;
+		--color-code-bg: #201810;
+		--color-code-text: #ece5d8;
 
 		--color-vibe: #c89b6d;
 		--color-vibe-text: #dfc09a;
@@ -142,16 +142,16 @@
 }
 
 :root.light {
-	--color-bg: #f7f8f4;
-	--color-bg-secondary: #eff2ea;
-	--color-bg-tertiary: #e6ebde;
+	--color-bg: #f8f5ef;
+	--color-bg-secondary: #f1ece2;
+	--color-bg-tertiary: #e9e2d3;
 	--color-surface: #ffffff;
-	--color-surface-hover: #f2f5ec;
-	--color-border: #dde3d2;
-	--color-border-light: #e9eee0;
-	--color-text: #1b2314;
-	--color-text-secondary: #4c5540;
-	--color-text-muted: #939c85;
+	--color-surface-hover: #f4efe6;
+	--color-border: #e3dbc9;
+	--color-border-light: #ece6d8;
+	--color-text: #231c11;
+	--color-text-secondary: #564b38;
+	--color-text-muted: #9d9280;
 	--color-text-inverse: #ffffff;
 	--color-primary: #15803d;
 	--color-primary-light: #22c55e;
@@ -178,8 +178,8 @@
 	--color-playground-bg: #f6efe3;
 	--color-playground-border: #cfa86a;
 	--color-playground-header: #efe4cf;
-	--color-code-bg: #edf1e4;
-	--color-code-text: #22301c;
+	--color-code-bg: #f0ebdf;
+	--color-code-text: #2a2315;
 	--color-vibe: #8b5e34;
 	--color-vibe-text: #7c4a1e;
 	--color-vibe-bg: #faf3ea;
@@ -193,17 +193,17 @@
 }
 
 :root.dark {
-	--color-bg: #0c110a;
-	--color-bg-secondary: #10160d;
-	--color-bg-tertiary: #171f12;
-	--color-surface: #121810;
-	--color-surface-hover: #171f12;
-	--color-border: #24301d;
-	--color-border-light: #1c2616;
-	--color-text: #e6ecdf;
-	--color-text-secondary: #a3ad97;
-	--color-text-muted: #5f6b54;
-	--color-text-inverse: #0c110a;
+	--color-bg: #120d08;
+	--color-bg-secondary: #171009;
+	--color-bg-tertiary: #201810;
+	--color-surface: #18120b;
+	--color-surface-hover: #201810;
+	--color-border: #302517;
+	--color-border-light: #251c11;
+	--color-text: #ece5d8;
+	--color-text-secondary: #b3a68f;
+	--color-text-muted: #6f6250;
+	--color-text-inverse: #120d08;
 	--color-primary: #4ade80;
 	--color-primary-light: #86efac;
 	--color-primary-dim: #14301c;
@@ -236,8 +236,8 @@
 	--color-diff-hunk: #89b4fa;
 	--color-diff-hash: #e3b341;
 	--color-diff-meta: #7ee787;
-	--color-code-bg: #171f12;
-	--color-code-text: #e6ecdf;
+	--color-code-bg: #201810;
+	--color-code-text: #ece5d8;
 	--color-vibe: #c89b6d;
 	--color-vibe-text: #dfc09a;
 	--color-vibe-bg: #241a0e;
