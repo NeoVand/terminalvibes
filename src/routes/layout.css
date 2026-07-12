@@ -1,0 +1,552 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+:root {
+	--color-bg: #f7f8f4;
+	--color-bg-secondary: #eff2ea;
+	--color-bg-tertiary: #e6ebde;
+	--color-surface: #ffffff;
+	--color-surface-hover: #f2f5ec;
+	--color-border: #dde3d2;
+	--color-border-light: #e9eee0;
+	--color-text: #1b2314;
+	--color-text-secondary: #4c5540;
+	--color-text-muted: #939c85;
+	--color-text-inverse: #ffffff;
+
+	--color-primary: #15803d;
+	--color-primary-light: #22c55e;
+	--color-primary-dim: #e9f7ee;
+	--color-primary-text: #166534;
+
+	--color-branch-main: #15803d;
+	--color-branch-feature: #b45309;
+	--color-branch-hotfix: #dc2626;
+	--color-branch-release: #d97706;
+
+	--color-note: #2563eb;
+	--color-note-bg: #eff6ff;
+	--color-note-border: #bfdbfe;
+	--color-tip: #0284c7;
+	--color-tip-bg: #f0f9ff;
+	--color-tip-border: #7dd3fc;
+	--color-important: #9a3412;
+	--color-important-bg: #fdf0e7;
+	--color-important-border: #f0b28a;
+	--color-warning: #d97706;
+	--color-warning-bg: #fffbeb;
+	--color-warning-border: #fcd34d;
+	--color-caution: #dc2626;
+	--color-caution-bg: #fef2f2;
+	--color-caution-border: #fca5a5;
+
+	--color-terminal-bg: #eef3e7;
+	--color-terminal-text: #22301c;
+	--color-terminal-prompt: #15803d;
+	--color-terminal-command: #1b2314;
+	--color-terminal-output: #4c5540;
+	--color-terminal-border: #d3ddc4;
+	--color-terminal-header: #e2ead4;
+
+	--color-playground-bg: #f6efe3;
+	--color-playground-border: #cfa86a;
+	--color-playground-header: #efe4cf;
+
+	--color-diff-add: #166534;
+	--color-diff-add-bg: rgba(22, 101, 52, 0.08);
+	--color-diff-del: #b91c1c;
+	--color-diff-del-bg: rgba(185, 28, 28, 0.06);
+	--color-diff-hunk: #1d4ed8;
+	--color-diff-hash: #92400e;
+	--color-diff-meta: #166534;
+
+	--color-code-bg: #edf1e4;
+	--color-code-text: #22301c;
+
+	--color-vibe: #8b5e34;
+	--color-vibe-text: #7c4a1e;
+	--color-vibe-bg: #faf3ea;
+
+	--sidebar-width: 280px;
+	--sidebar-collapsed-width: 52px;
+	--header-height: 48px;
+
+	--font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+	--font-heading: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not(.light) {
+		--color-bg: #0c110a;
+		--color-bg-secondary: #10160d;
+		--color-bg-tertiary: #171f12;
+		--color-surface: #121810;
+		--color-surface-hover: #171f12;
+		--color-border: #24301d;
+		--color-border-light: #1c2616;
+		--color-text: #e6ecdf;
+		--color-text-secondary: #a3ad97;
+		--color-text-muted: #5f6b54;
+		--color-text-inverse: #0c110a;
+
+		--color-primary: #4ade80;
+		--color-primary-light: #86efac;
+		--color-primary-dim: #14301c;
+		--color-primary-text: #86efac;
+
+		--color-note-bg: #0f172a;
+		--color-note-border: #1e3a5f;
+		--color-tip-bg: #0c1929;
+		--color-tip-border: #0c4a6e;
+		--color-important: #fdba74;
+		--color-important-bg: #2a1a08;
+		--color-important-border: #7c3f0d;
+		--color-warning-bg: #1c1508;
+		--color-warning-border: #422006;
+		--color-caution-bg: #1f0a0a;
+		--color-caution-border: #450a0a;
+
+		--color-terminal-bg: #0d130a;
+		--color-terminal-text: #d7e0cc;
+		--color-terminal-prompt: #7ee787;
+		--color-terminal-command: #f2f5ee;
+		--color-terminal-output: #a8b39b;
+		--color-terminal-border: #26331e;
+		--color-terminal-header: #10170c;
+
+		--color-playground-bg: #1a1409;
+		--color-playground-border: #55401f;
+		--color-playground-header: #120e07;
+
+		--color-diff-add: #7ee787;
+		--color-diff-add-bg: rgba(126, 231, 135, 0.1);
+		--color-diff-del: #f38ba8;
+		--color-diff-del-bg: rgba(243, 139, 168, 0.1);
+		--color-diff-hunk: #89b4fa;
+		--color-diff-hash: #e3b341;
+		--color-diff-meta: #7ee787;
+
+		--color-code-bg: #171f12;
+		--color-code-text: #e6ecdf;
+
+		--color-vibe: #c89b6d;
+		--color-vibe-text: #dfc09a;
+		--color-vibe-bg: #241a0e;
+	}
+}
+
+:root.light {
+	--color-bg: #f7f8f4;
+	--color-bg-secondary: #eff2ea;
+	--color-bg-tertiary: #e6ebde;
+	--color-surface: #ffffff;
+	--color-surface-hover: #f2f5ec;
+	--color-border: #dde3d2;
+	--color-border-light: #e9eee0;
+	--color-text: #1b2314;
+	--color-text-secondary: #4c5540;
+	--color-text-muted: #939c85;
+	--color-text-inverse: #ffffff;
+	--color-primary: #15803d;
+	--color-primary-light: #22c55e;
+	--color-primary-dim: #e9f7ee;
+	--color-primary-text: #166534;
+	--color-note-bg: #eff6ff;
+	--color-note-border: #bfdbfe;
+	--color-tip-bg: #f0f9ff;
+	--color-tip-border: #7dd3fc;
+	--color-important: #9a3412;
+	--color-important-bg: #fdf0e7;
+	--color-important-border: #f0b28a;
+	--color-warning-bg: #fffbeb;
+	--color-warning-border: #fcd34d;
+	--color-caution-bg: #fef2f2;
+	--color-caution-border: #fca5a5;
+	--color-terminal-bg: #eef3e7;
+	--color-terminal-text: #22301c;
+	--color-terminal-prompt: #15803d;
+	--color-terminal-command: #1b2314;
+	--color-terminal-output: #4c5540;
+	--color-terminal-border: #d3ddc4;
+	--color-terminal-header: #e2ead4;
+	--color-playground-bg: #f6efe3;
+	--color-playground-border: #cfa86a;
+	--color-playground-header: #efe4cf;
+	--color-code-bg: #edf1e4;
+	--color-code-text: #22301c;
+	--color-vibe: #8b5e34;
+	--color-vibe-text: #7c4a1e;
+	--color-vibe-bg: #faf3ea;
+	--color-diff-add: #166534;
+	--color-diff-add-bg: rgba(22, 101, 52, 0.08);
+	--color-diff-del: #b91c1c;
+	--color-diff-del-bg: rgba(185, 28, 28, 0.06);
+	--color-diff-hunk: #1d4ed8;
+	--color-diff-hash: #92400e;
+	--color-diff-meta: #166534;
+}
+
+:root.dark {
+	--color-bg: #0c110a;
+	--color-bg-secondary: #10160d;
+	--color-bg-tertiary: #171f12;
+	--color-surface: #121810;
+	--color-surface-hover: #171f12;
+	--color-border: #24301d;
+	--color-border-light: #1c2616;
+	--color-text: #e6ecdf;
+	--color-text-secondary: #a3ad97;
+	--color-text-muted: #5f6b54;
+	--color-text-inverse: #0c110a;
+	--color-primary: #4ade80;
+	--color-primary-light: #86efac;
+	--color-primary-dim: #14301c;
+	--color-primary-text: #86efac;
+	--color-note-bg: #0f172a;
+	--color-note-border: #1e3a5f;
+	--color-tip-bg: #0c1929;
+	--color-tip-border: #0c4a6e;
+	--color-important: #fdba74;
+	--color-important-bg: #2a1a08;
+	--color-important-border: #7c3f0d;
+	--color-warning-bg: #1c1508;
+	--color-warning-border: #422006;
+	--color-caution-bg: #1f0a0a;
+	--color-caution-border: #450a0a;
+	--color-terminal-bg: #0d130a;
+	--color-terminal-text: #d7e0cc;
+	--color-terminal-prompt: #7ee787;
+	--color-terminal-command: #f2f5ee;
+	--color-terminal-output: #a8b39b;
+	--color-terminal-border: #26331e;
+	--color-terminal-header: #10170c;
+	--color-playground-bg: #1a1409;
+	--color-playground-border: #55401f;
+	--color-playground-header: #120e07;
+	--color-diff-add: #7ee787;
+	--color-diff-add-bg: rgba(126, 231, 135, 0.1);
+	--color-diff-del: #f38ba8;
+	--color-diff-del-bg: rgba(243, 139, 168, 0.1);
+	--color-diff-hunk: #89b4fa;
+	--color-diff-hash: #e3b341;
+	--color-diff-meta: #7ee787;
+	--color-code-bg: #171f12;
+	--color-code-text: #e6ecdf;
+	--color-vibe: #c89b6d;
+	--color-vibe-text: #dfc09a;
+	--color-vibe-bg: #241a0e;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+	scroll-padding-top: calc(var(--header-height) + 24px);
+}
+
+body {
+	font-family: var(--font-sans);
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	line-height: 1.7;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-size: 15px;
+	font-weight: 400;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-heading);
+}
+
+p {
+	letter-spacing: 0.005em;
+}
+
+strong {
+	font-weight: 650;
+}
+
+/* On mobile, expanded sidebar is an overlay — content stays at collapsed width */
+@media (max-width: 1023px) {
+	.main-content {
+		margin-left: var(--sidebar-collapsed-width) !important;
+	}
+	.sidebar-drawer {
+		background: var(--color-bg) !important;
+	}
+}
+
+code,
+pre,
+kbd {
+	font-family: var(--font-mono);
+}
+
+::selection {
+	background-color: var(--color-primary);
+	color: white;
+}
+
+/* Syntax highlighting tokens for shell commands (see $lib/data/bash-syntax.ts).
+   Shared by CodeBlock and the header Search results. */
+.tok-git {
+	color: var(--color-text-muted);
+}
+
+.tok-subcommand,
+.tok-command {
+	color: var(--color-primary-text);
+	font-weight: 600;
+}
+
+.tok-flag {
+	color: var(--color-vibe-text);
+}
+
+.tok-string {
+	color: var(--color-diff-add);
+}
+
+.tok-placeholder {
+	color: var(--color-diff-hash);
+	font-style: italic;
+}
+
+.tok-hash {
+	color: var(--color-diff-hash);
+}
+
+.tok-arg {
+	color: var(--color-text-secondary);
+}
+
+.tok-comment {
+	color: var(--color-terminal-output);
+	font-style: italic;
+}
+
+.tok-conflict {
+	color: var(--color-diff-del);
+	font-weight: 600;
+}
+
+::-webkit-scrollbar {
+	width: 5px;
+	height: 5px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--color-text-muted) 45%, transparent);
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
+}
+
+/* Auto-hiding scrollbars for panel scroll areas (sidebar TOC, cheat sheet,
+   playground terminal): invisible at rest, a slim theme-tinted thumb while
+   hovering or scrolling. Applied via the autohideScroll action. */
+.autohide-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color 0.3s ease;
+}
+
+.autohide-scrollbar:hover,
+.autohide-scrollbar.is-scrolling {
+	scrollbar-color: color-mix(in srgb, var(--color-text-muted) 45%, transparent) transparent;
+}
+
+.autohide-scrollbar::-webkit-scrollbar {
+	width: 6px;
+}
+
+.autohide-scrollbar::-webkit-scrollbar-thumb {
+	background: transparent;
+	border-radius: 999px;
+	transition: background 0.3s ease;
+}
+
+.autohide-scrollbar:hover::-webkit-scrollbar-thumb,
+.autohide-scrollbar.is-scrolling::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--color-text-muted) 45%, transparent);
+}
+
+.autohide-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
+}
+
+/* Mermaid overrides for professional look */
+.mermaid-container svg {
+	width: 100%;
+	height: auto;
+}
+
+/* Flowchart node styling */
+.mermaid-container .node rect,
+.mermaid-container .node circle,
+.mermaid-container .node polygon {
+	rx: 10;
+	ry: 10;
+}
+
+.mermaid-container .node .label {
+	font-family: var(--font-sans);
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.mermaid-container .edgeLabel {
+	font-family: var(--font-sans);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.mermaid-container .cluster rect {
+	rx: 12 !important;
+	ry: 12 !important;
+}
+
+/* Text centering inside Mermaid nodes */
+.mermaid-container .node foreignObject div {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.mermaid-container .nodeLabel,
+.mermaid-container .label {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+/* Flowchart edge/arrow lines */
+.mermaid-container .flowchart-link {
+	stroke-width: 1.5px !important;
+}
+
+.mermaid-container .edgePath .path {
+	stroke-width: 1.5px !important;
+}
+
+.mermaid-container marker path {
+	stroke-width: 1px !important;
+}
+
+/* ───── Accessibility ───── */
+
+/* Respect users who prefer reduced motion: no smooth scrolling, no
+   decorative transitions or animations. */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* Skip-to-content link: invisible until focused via keyboard */
+.skip-link {
+	position: fixed;
+	top: -100px;
+	left: 16px;
+	z-index: 200;
+	padding: 10px 16px;
+	border-radius: 8px;
+	background: var(--color-primary);
+	color: white;
+	font-size: 14px;
+	font-weight: 600;
+	transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+	top: 12px;
+}
+
+/* Heading permalink anchors */
+.heading-anchor {
+	margin-left: 0.4em;
+	opacity: 0;
+	color: var(--color-text-muted);
+	font-weight: 400;
+	text-decoration: none;
+	transition: opacity 0.15s ease;
+}
+
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+h4:hover .heading-anchor,
+.heading-anchor:focus {
+	opacity: 1;
+}
+
+/* ───── Print styles ───── */
+@media print {
+	header,
+	aside,
+	nav,
+	.skip-link,
+	.heading-anchor {
+		display: none !important;
+	}
+
+	main.main-content {
+		margin-left: 0 !important;
+		padding-top: 0 !important;
+	}
+
+	body {
+		background: white;
+	}
+}
+
+/* The root page scrollbar auto-hides too: visible only while scrolling
+   (the .is-scrolling class is toggled from the page's scroll listener). */
+html {
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+	transition: scrollbar-color 0.3s ease;
+}
+
+html.is-scrolling {
+	scrollbar-color: color-mix(in srgb, var(--color-text-muted) 45%, transparent) transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+	background: transparent;
+	border-radius: 999px;
+	transition: background 0.3s ease;
+}
+
+html.is-scrolling::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--color-text-muted) 45%, transparent);
+}

@@ -1,0 +1,16 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
+
+# Miscellaneous
+/static/
+
+# Vendored agent skills and local editor/agent config
+.agents/
+.claude/
+
+# Playwright artifacts
+/test-results/
