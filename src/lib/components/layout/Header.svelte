@@ -33,7 +33,7 @@
 			class="flex h-7 w-7 cursor-pointer items-center justify-center transition-opacity hover:opacity-80"
 			aria-label="About TerminalVibes"
 		>
-			<img src="{base}/images/logo.webp" alt="" class="h-7 w-7" width="28" height="28" />
+			<img src="{base}/images/logo.webp" alt="" class="h-7 w-7 rounded-md" width="28" height="28" />
 		</button>
 	</div>
 
@@ -119,7 +119,7 @@
 				<img
 					src="{base}/images/logo.webp"
 					alt="TerminalVibes logo"
-					class="h-10 w-10"
+					class="h-10 w-10 rounded-lg"
 					width="40"
 					height="40"
 				/>
