@@ -37,12 +37,12 @@
 		</p>
 
 		<MermaidDiagram
-			definition={`graph TD
-  A(["pwd — Where am I?"]) --> B(["ls — What's here?"])
-  B --> C(["cd — Go somewhere"])
-  C --> A
-  C --> D(["mkdir / touch — Make things"])
-  D --> E(["cat / less — Look inside"])
+			definition={`flowchart LR
+  A(["pwd"]) --> B(["ls"])
+  B --> C(["cd"])
+  C -->|"repeat"| A
+  C --> D(["mkdir / touch"])
+  D --> E(["cat / less"])
   E --> B`}
 			id="moving-around-overview"
 		/>
@@ -287,16 +287,14 @@
 			</p>
 
 			<MermaidDiagram
-				definition={`graph TD
+				definition={`flowchart TD
   ROOT(["/  (root)"]) --> HOME(["home"])
   ROOT --> USR(["usr"])
-  ROOT --> ETC(["etc"])
-  HOME --> VIBE(["vibe  — your home, a.k.a. ~"])
-  VIBE --> DOCS(["documents"])
+  HOME --> VIBE(["vibe (~)"])
   VIBE --> PROJ(["projects"])
   PROJ --> APP(["app"])
-  APP --> ENV["  .env  "]
-  APP --> README["  README.md  "]`}
+  APP --> ENV[".env"]
+  APP --> README["README.md"]`}
 				id="filesystem-tree"
 			/>
 			<p class="mt-2 px-1 text-xs" style="color: var(--color-text-muted);">

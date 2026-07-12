@@ -771,10 +771,14 @@ npm test && echo "all green" || echo "tests failed"`}
 			/>
 
 			<MermaidDiagram
-				definition={`graph TD
+				definition={`flowchart TD
   A(["npm test"]) --> B{"exit code?"}
-  B -->|"0 — success"| C(["&& npm run deploy<br/>runs"])
-  B -->|"non-zero — failure"| D(["|| echo 'tests failed'<br/>runs instead"])`}
+  B -->|"0 — success"| C(["npm run deploy"])
+  B -->|"non-zero — failure"| D(["echo 'tests failed'"])
+  classDef success stroke:#4ade80,stroke-width:2px;
+  classDef danger stroke:#9a3412,stroke-width:2px;
+  class C success;
+  class D danger;`}
 				id="exit-code-chaining"
 			/>
 			<p class="mt-2 px-1 text-xs" style="color: var(--color-text-muted);">

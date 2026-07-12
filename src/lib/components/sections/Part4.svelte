@@ -207,9 +207,9 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 
 			<MermaidDiagram
 				definition={`flowchart LR
-  A[("server.log")] --> B["grep 'ERROR'<br/>keep matching lines"]
-  B --> C["wc -l<br/>count the lines"]
-  C --> D(["12"])`}
+  A[("server.log")] --> B["grep ERROR"]
+  B -->|"matching lines"| C["wc -l"]
+  C -->|"count"| D(["12"])`}
 				id="pipe-flow"
 			/>
 

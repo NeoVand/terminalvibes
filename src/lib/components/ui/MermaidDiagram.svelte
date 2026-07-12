@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { Maximize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-svelte';
 
 	let { definition, id = 'mermaid' }: { definition: string; id?: string } = $props();
 
@@ -7,6 +8,65 @@
 	let mermaidModule: typeof import('mermaid') | null = $state(null);
 	let renderCount = $state(0);
 	let isVisible = $state(false);
+	let rendered = $state(false);
+
+	// ── expand-to-zoom modal ─────────────────────────────────────────
+	// Diagrams embedded in the narrow content column (or the playground
+	// panel) can be dense; the modal shows the same SVG full-screen with
+	// wheel zoom and drag pan.
+	let expanded = $state(false);
+	let modalSvg = $state('');
+	let zoom = $state(1);
+	let panX = $state(0);
+	let panY = $state(0);
+	let dragging = false;
+	let lastX = 0;
+	let lastY = 0;
+
+	function openModal() {
+		const svg = container?.querySelector('svg');
+		if (!svg) return;
+		modalSvg = svg.outerHTML;
+		zoom = 1.4;
+		panX = 0;
+		panY = 0;
+		expanded = true;
+	}
+
+	function setZoom(next: number) {
+		zoom = Math.min(6, Math.max(0.4, next));
+	}
+
+	function onWheel(e: WheelEvent) {
+		e.preventDefault();
+		setZoom(zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
+	}
+
+	function onPointerDown(e: PointerEvent) {
+		dragging = true;
+		lastX = e.clientX;
+		lastY = e.clientY;
+		(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+	}
+
+	function onPointerMove(e: PointerEvent) {
+		if (!dragging) return;
+		panX += e.clientX - lastX;
+		panY += e.clientY - lastY;
+		lastX = e.clientX;
+		lastY = e.clientY;
+	}
+
+	function onPointerUp() {
+		dragging = false;
+	}
+
+	function onModalKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && expanded) {
+			e.stopPropagation();
+			expanded = false;
+		}
+	}
 
 	function isDark(): boolean {
 		const root = document.documentElement;
@@ -229,6 +289,7 @@
 			.then(({ svg }) => {
 				// eslint-disable-next-line svelte/no-dom-manipulating -- dedicated mount point
 				container.innerHTML = svg;
+				rendered = true;
 
 				const svgEl = container.querySelector('svg');
 				if (svgEl) {
@@ -266,12 +327,197 @@
 	});
 </script>
 
-<div
-	class="mermaid-container flex items-center justify-center overflow-hidden py-1"
-	bind:this={container}
-></div>
+<svelte:window onkeydown={onModalKeydown} />
+
+<div class="mermaid-wrap">
+	<div
+		class="mermaid-container flex items-center justify-center overflow-hidden py-1"
+		bind:this={container}
+	></div>
+	{#if rendered}
+		<button
+			type="button"
+			class="mermaid-expand"
+			onclick={openModal}
+			aria-label="Expand diagram"
+			title="Expand diagram"
+		>
+			<Maximize2 size={13} />
+		</button>
+	{/if}
+</div>
+
+{#if expanded}
+	<div class="mermaid-modal" role="dialog" aria-modal="true" aria-label="Expanded diagram">
+		<button
+			class="mermaid-modal-backdrop"
+			onclick={() => (expanded = false)}
+			aria-label="Close diagram"
+		></button>
+		<div
+			class="mermaid-modal-viewport"
+			role="presentation"
+			onwheel={onWheel}
+			onpointerdown={onPointerDown}
+			onpointermove={onPointerMove}
+			onpointerup={onPointerUp}
+			onpointercancel={onPointerUp}
+			ondblclick={() => {
+				zoom = 1.4;
+				panX = 0;
+				panY = 0;
+			}}
+		>
+			<div
+				class="mermaid-modal-stage"
+				style="transform: translate({panX}px, {panY}px) scale({zoom});"
+			>
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -- mermaid-generated SVG, same trust as the inline render -->
+				{@html modalSvg}
+			</div>
+		</div>
+		<div class="mermaid-modal-controls">
+			<button type="button" onclick={() => setZoom(zoom * 1.25)} aria-label="Zoom in">
+				<ZoomIn size={15} />
+			</button>
+			<button type="button" onclick={() => setZoom(zoom / 1.25)} aria-label="Zoom out">
+				<ZoomOut size={15} />
+			</button>
+			<button
+				type="button"
+				onclick={() => {
+					zoom = 1.4;
+					panX = 0;
+					panY = 0;
+				}}
+				aria-label="Reset view"
+			>
+				<RotateCcw size={14} />
+			</button>
+			<button type="button" onclick={() => (expanded = false)} aria-label="Close">
+				<X size={15} />
+			</button>
+		</div>
+	</div>
+{/if}
 
 <style>
+	.mermaid-wrap {
+		position: relative;
+	}
+
+	.mermaid-expand {
+		position: absolute;
+		top: 0.4rem;
+		right: 0.4rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		height: 1.6rem;
+		width: 1.6rem;
+		border-radius: 0.4rem;
+		border: 1px solid var(--color-border);
+		background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+		color: var(--color-text-muted);
+		cursor: zoom-in;
+		opacity: 0;
+		transition:
+			opacity 0.15s ease,
+			color 0.15s ease,
+			border-color 0.15s ease;
+	}
+
+	.mermaid-wrap:hover .mermaid-expand,
+	.mermaid-expand:focus-visible {
+		opacity: 1;
+	}
+
+	.mermaid-expand:hover {
+		color: var(--color-primary);
+		border-color: var(--color-primary);
+	}
+
+	.mermaid-modal {
+		position: fixed;
+		inset: 0;
+		z-index: 120;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.mermaid-modal-backdrop {
+		position: absolute;
+		inset: 0;
+		background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		border: none;
+		cursor: zoom-out;
+	}
+
+	.mermaid-modal-viewport {
+		position: relative;
+		width: min(94vw, 1400px);
+		height: min(88vh, 900px);
+		overflow: hidden;
+		border-radius: 0.75rem;
+		border: 1px solid var(--color-border);
+		background: var(--color-bg-secondary);
+		cursor: grab;
+		touch-action: none;
+	}
+
+	.mermaid-modal-viewport:active {
+		cursor: grabbing;
+	}
+
+	.mermaid-modal-stage {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transform-origin: center center;
+		transition: none;
+	}
+
+	.mermaid-modal-stage :global(svg) {
+		max-width: 88%;
+		max-height: 88%;
+		height: auto;
+	}
+
+	.mermaid-modal-controls {
+		position: absolute;
+		bottom: 4vh;
+		display: flex;
+		gap: 0.4rem;
+		padding: 0.35rem;
+		border-radius: 0.6rem;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 8px 30px rgb(0 0 0 / 0.25);
+	}
+
+	.mermaid-modal-controls button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		height: 2rem;
+		width: 2rem;
+		border-radius: 0.45rem;
+		border: none;
+		background: transparent;
+		color: var(--color-text-secondary);
+		cursor: pointer;
+	}
+
+	.mermaid-modal-controls button:hover {
+		background: var(--color-bg-tertiary);
+		color: var(--color-primary);
+	}
+
 	/* Reserve space before the diagram renders so lazy materialization
 	   doesn't shift the content below. */
 	.mermaid-container:empty {

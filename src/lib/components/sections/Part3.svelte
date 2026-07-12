@@ -590,10 +590,9 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 			</p>
 
 			<MermaidDiagram
-				definition={`graph TD
-  A(["You type:  rm *.tmp"]) --> B(["The SHELL matches *.tmp against the directory"])
-  B --> C(["rm actually receives:  rm cache1.tmp cache2.tmp scratch.tmp"])
-  C --> D(["rm deletes those three files — it never saw a star"])`}
+				definition={`flowchart LR
+  A["rm *.tmp"] -->|"shell expands"| B["rm cache1.tmp<br/>cache2.tmp scratch.tmp"]
+  B -->|"rm runs"| C(["3 files deleted"])`}
 				id="glob-expansion"
 			/>
 

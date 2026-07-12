@@ -598,7 +598,7 @@
 		</p>
 
 		<MermaidDiagram
-			definition={`graph LR
+			definition={`flowchart LR
   A(["Prompt appears"]) -->|"you type"| B(["Command"])
   B -->|"Enter"| C(["Shell runs it"])
   C -->|"prints"| D(["Output"])

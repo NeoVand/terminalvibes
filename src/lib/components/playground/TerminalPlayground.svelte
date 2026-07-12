@@ -10,12 +10,12 @@
 		X,
 		CornerDownLeft
 	} from 'lucide-svelte';
-	import MermaidDiagram from '$lib/components/ui/MermaidDiagram.svelte';
+	import FsTreeView from '$lib/components/playground/FsTreeView.svelte';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
 	import { autohideScroll } from '$lib/actions/autohide-scroll';
 	import { ShellEngine, BIN_COMMANDS } from '$lib/playground/shell-engine';
 	import { runShellCommand } from '$lib/playground/shell-commands';
-	import { buildFsTree } from '$lib/playground/fs-tree';
+	import { snapshotFsTree, type FsTreeNode } from '$lib/playground/fs-tree';
 	import {
 		playgroundScenarios,
 		getScenario,
@@ -71,7 +71,7 @@
 	let engine = $state<ShellEngine | null>(null);
 	let history = $state<HistoryLine[]>([]);
 	let input = $state('');
-	let diagram = $state('flowchart TD\n  n0(["🏠 ~"])');
+	let tree = $state<FsTreeNode | null>(null);
 	let promptCwd = $state('~');
 	let loading = $state(true);
 	let historyIndex = $state(-1);
@@ -89,7 +89,7 @@
 
 	function refreshDiagram() {
 		if (!engine) return;
-		diagram = buildFsTree(engine);
+		tree = snapshotFsTree(engine);
 		promptCwd = engine.pretty(engine.cwd);
 	}
 
@@ -596,12 +596,11 @@
 				</button>
 				{#if !graphCollapsed}
 					<div
-						class="pg-graph-body flex items-center justify-center px-4 py-1"
+						class="pg-graph-body max-h-56 overflow-y-auto px-3 py-1"
 						style="background: color-mix(in srgb, var(--color-bg-secondary) 45%, transparent);"
+						use:autohideScroll
 					>
-						{#key diagram}
-							<MermaidDiagram definition={diagram} id="{id}-graph" />
-						{/key}
+						<FsTreeView {tree} />
 					</div>
 				{/if}
 			</section>
@@ -724,10 +723,8 @@
 						>File Tree</span
 					>
 				</div>
-				<div class="flex flex-1 items-center justify-center px-4 py-1">
-					{#key diagram}
-						<MermaidDiagram definition={diagram} id="{id}-graph" />
-					{/key}
+				<div class="max-h-80 flex-1 overflow-y-auto px-3 py-1" use:autohideScroll>
+					<FsTreeView {tree} />
 				</div>
 			</div>
 		</div>

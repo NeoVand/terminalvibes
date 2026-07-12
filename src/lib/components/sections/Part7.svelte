@@ -34,15 +34,11 @@
 		</p>
 
 		<MermaidDiagram
-			definition={`graph TD
+			definition={`flowchart TD
   A(["Your Cockpit"]) --> B(["Looks & Prompt"])
   A --> C(["History Recall"])
-  A --> D(["Terminal in VS Code"])
-  A --> E(["Tabs & Splits"])
-  B --> F(["themes, PS1, starship"])
-  C --> G(["up-arrow, !!, Ctrl+R"])
-  D --> H(["one window: code + agent + shell"])
-  E --> I(["one terminal per job"])`}
+  A --> D(["VS Code Terminal"])
+  A --> E(["Tabs & Splits"])`}
 			id="cockpit-overview"
 		/>
 
