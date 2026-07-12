@@ -404,6 +404,17 @@ Setting up htop ... done.`}
 				>.
 			</p>
 
+			<Callout type="note">
+				<strong>Windows note:</strong> Windows 11 (24H2 and later) now ships a real built-in
+				<code
+					class="rounded px-1.5 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
+				>
+				command — turn it on under Settings → System → For developers → "Enable sudo". So everything in
+				this section transfers to native Windows too, not just WSL; inside WSL, sudo has always worked
+				exactly as described here.
+			</Callout>
+
 			<Callout type="caution">
 				<strong>Never sudo a command you don't understand — especially one an AI wrote.</strong>
 				Every safety net you've learned assumes the system can say "no" to you. sudo removes the "no."
@@ -413,7 +424,9 @@ Setting up htop ... done.`}
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo rm -rf</code
 				>
 				with the wrong path doesn't delete your project — it can delete your
-				<em>operating system</em>. The rule: when a command fails with "permission denied," don't
+				<em>operating system</em>. This isn't hypothetical: 2025 and 2026 saw repeated,
+				well-documented incidents of AI coding agents running destructive commands on real systems —
+				Part 6 dissects them. The rule: when a command fails with "permission denied," don't
 				reflexively re-run it with sudo. First ask <em>why</em> it was denied — read the command, check
 				the path, ask your AI to explain each flag. Escalate only when you can narrate what the command
 				does.

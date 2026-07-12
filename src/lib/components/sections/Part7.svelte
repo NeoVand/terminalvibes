@@ -72,18 +72,20 @@
 			<div class="mb-6 grid gap-3 sm:grid-cols-2">
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
-						macOS: Terminal.app &amp; iTerm2
+						macOS: Terminal.app got good again
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Terminal.app → Settings → Profiles: pick a built-in profile (Pro and Homebrew are
-						classics) or build your own, then "Default" to keep it. <a
+						macOS 26 Tahoe gave the stock Terminal.app its first real overhaul in roughly 24 years —
+						24-bit color, Powerline font support, and a batch of fresh themes. Settings → Profiles:
+						pick one, hit "Default" to keep it — as a beginner you genuinely don't need to install
+						anything. <a
 							href="https://iterm2.com"
 							target="_blank"
 							rel="noopener noreferrer"
 							class="underline underline-offset-2"
 							style="color: var(--color-primary);">iTerm2</a
-						> is the free power-user upgrade — hundreds of importable color schemes, better splits, better
-						search.
+						> remains the solid power-user choice — hundreds of importable color schemes, better splits,
+						better search — and its AI features are an optional, separate plugin, off by default.
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -91,9 +93,10 @@
 						Windows: Windows Terminal
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						The modern host for your WSL and Git Bash sessions. Settings → Color schemes ships with
-						One Half, Solarized, and Tango out of the box, and each profile (Ubuntu, Git Bash,
-						PowerShell) can have its own theme — a handy visual cue for which shell you're in.
+						Already the default on Windows 11, and the host for your WSL and Git Bash sessions.
+						Settings → Color schemes ships with One Half, Solarized, and Tango out of the box, and
+						each profile (Ubuntu, Git Bash, PowerShell) can have its own theme — a handy visual cue
+						for which shell you're in.
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -116,6 +119,33 @@
 							style="font-family: var(--font-mono);">0</code
 						>-vs-<code class="text-xs" style="font-family: var(--font-mono);">O</code> and a size you
 						don't squint at. JetBrains Mono, Fira Code, and Cascadia Code are free favorites.
+					</p>
+				</div>
+				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
+					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+						The upgrade pick: Ghostty
+					</p>
+					<p class="text-xs" style="color: var(--color-text-secondary);">
+						<a
+							href="https://ghostty.org"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="underline underline-offset-2"
+							style="color: var(--color-primary);">Ghostty</a
+						> (v1.3, 2026; macOS &amp; Linux) is the current favorite when you outgrow the stock app:
+						extremely fast, native-feeling, free and open source, and deliberately AI-free. Your shell,
+						prompt, and everything in this course carry over unchanged.
+					</p>
+				</div>
+				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
+					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+						The AI-first one: Warp
+					</p>
+					<p class="text-xs" style="color: var(--color-text-secondary);">
+						Warp builds an AI agent directly into the terminal. Know what you're choosing: it went
+						open source in 2026, but it wants an account, and its AI runs on a paid, metered credit
+						system — an AI-first terminal with a subscription posture, not a free tool. Nothing it
+						offers replaces being able to read the commands yourself.
 					</p>
 				</div>
 			</div>
@@ -170,7 +200,10 @@ PS1="🌲 \\W $ "
 					class="rounded px-1 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">.zshrc</code
 				>), and your prompt shows the current directory, git branch, language versions, and whether
-				the last command failed — the useful stuff, with zero maintenance.
+				the last command failed — the useful stuff, with zero maintenance. It's also where the
+				current consensus landed: 2026 setup guides recommend Starship plus one or two small zsh
+				plugins over the heavyweight all-in-one frameworks (oh-my-zsh) that used to be the default
+				advice.
 			</p>
 
 			<Callout type="tip">
@@ -386,6 +419,28 @@ sudo !!
 				agent, and shell in a single window.
 			</p>
 
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				VS Code even builds the red-flag mental model from 6.1 into settings. Copilot's agent mode
+				runs terminal commands <strong style="color: var(--color-text);"
+					>with per-command approval</strong
+				>, and you can maintain an allowlist and denylist of which commands auto-approve — let
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">git status</code
+				>
+				through without asking, always stop on
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -rf</code
+				>
+				and
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
+				>. Claude Code ships a GA VS Code extension that drives the same CLI from a panel in the
+				editor — same terminal, same approval moments, same skills.
+			</p>
+
 			<Callout type="note">
 				One habit worth stealing: keep <strong>one terminal for the agent and one for you</strong>.
 				Click <strong>+</strong> to add yours. The agent's commands and output stay in its terminal
@@ -479,11 +534,26 @@ sudo !!
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				And here's the 2026 twist that turned splits from a power-user nicety into standard
+				practice: <strong style="color: var(--color-text);"
+					>people now run multiple AI agents in parallel</strong
+				> — one agent per pane or tab, each pointed at its own copy of the project (its own git worktree)
+				so they never collide. The split layout stops being "server here, logs there" and becomes an agent-fleet
+				dashboard: three panes, three agents on three tasks, and you sweeping your eyes across all of
+				them, approving and course-correcting. Every pane is just a shell — which is why everything in
+				this course scales from one terminal to ten.
+			</p>
+
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				One name to file away for later: <strong style="color: var(--color-text);">tmux</strong>, a
-				terminal multiplexer that does tabs and splits <em>inside</em> the terminal itself — and whose
-				sessions survive the window closing, your laptop sleeping, even an SSH connection dropping. You
-				log back in, reattach, and every pane is exactly where you left it. Overkill for today; indispensable
-				the day you work on remote servers. It'll be waiting.
+				terminal multiplexer that does tabs and splits <em>inside</em> the terminal itself — and
+				whose sessions survive the window closing, your laptop sleeping, even an SSH connection
+				dropping. You log back in, reattach, and every pane is exactly where you left it (agents
+				included — which is exactly why the agent-fleet crowd lives in it). If tmux's keybindings
+				feel arcane,
+				<strong style="color: var(--color-text);">Zellij</strong> is the friendlier modern multiplexer
+				with the shortcuts printed on screen. Overkill for today; indispensable the day you work on remote
+				servers. It'll be waiting.
 			</p>
 
 			<VibeBox

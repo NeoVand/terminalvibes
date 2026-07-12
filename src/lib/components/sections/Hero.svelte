@@ -178,10 +178,12 @@
 		</div>
 
 		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			If you build with AI assistants, the terminal is <em>more</em> relevant to you, not less. Every
-			AI coding tool — Copilot, Cursor, Claude — expresses its actions as shell commands: install this
-			package, run these tests, move those files. The agents speak fluent bash. With the terminal, you
-			can:
+			If you build with AI assistants, the terminal is <em>more</em> relevant to you, not less.
+			Every major AI lab now ships a
+			<strong style="color: var(--color-text);">terminal-native coding agent</strong> — Anthropic's Claude
+			Code, OpenAI's Codex CLI, Google's CLI agents, Block's Goose, Sourcegraph's Amp. The command line
+			is the execution layer where those agents actually work: install this package, run these tests,
+			move those files. The agents speak fluent bash. With the terminal, you can:
 		</p>
 
 		<ul
@@ -205,6 +207,27 @@
 				is a script
 			</li>
 		</ul>
+
+		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+			This isn't a niche skill anymore — it's literally measured. <a
+				href="https://www.tbench.ai/"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="font-medium underline underline-offset-2"
+				style="color: var(--color-primary);">Terminal-Bench</a
+			>, a Stanford × Laude Institute benchmark now at v2.1, exists to score how well AI agents do
+			real work in a terminal. And
+			<a
+				href="https://survey.stackoverflow.co/2025/ai/"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="font-medium underline underline-offset-2"
+				style="color: var(--color-primary);">Stack Overflow's 2025 survey</a
+			>
+			found that 84% of developers use or plan to use AI tools — but only 29% trust their output. The
+			gap between those two numbers is exactly why you need to be able to <em>read</em> what the agent
+			runs.
+		</p>
 
 		<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 			A 50-year-old interface turns out to be the AI-native one: text in, text out is exactly how
@@ -363,7 +386,10 @@
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 					You're in the best position: macOS <em>is</em> Unix. The built-in
 					<strong style="color: var(--color-text);">Terminal.app</strong> (in
-					Applications&nbsp;→&nbsp;Utilities) is all you need. Many developers later upgrade to
+					Applications&nbsp;→&nbsp;Utilities) is all you need — and it's better than its reputation:
+					macOS 26 "Tahoe" (2025) gave it its first real modernization in about 24 years, with
+					24-bit true color, Powerline font support, and new themes. There's nothing to install on
+					day one. Many developers later upgrade to
 					<strong style="color: var(--color-text);">iTerm2</strong> for extra comfort — same shell inside,
 					nicer window around it.
 				</p>
@@ -382,9 +408,9 @@
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 					Windows needs one extra step, because its native shells don't speak bash. The recommended
 					path is <strong style="color: var(--color-text);">WSL</strong> (Windows Subsystem for
-					Linux) — a real Ubuntu running inside Windows. Open
+					Linux) — a real Ubuntu running inside Windows, and open source since May 2025. Open
 					<strong style="color: var(--color-text);">PowerShell as Administrator</strong>, run one
-					command, and reboot:
+					command (it installs Ubuntu by default), and restart:
 				</p>
 				<CodeBlock code="wsl --install" title="Install WSL (one time)" />
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -396,12 +422,16 @@
 						rel="noopener noreferrer"
 						class="font-medium underline underline-offset-2"
 						style="color: var(--color-primary);">Git for Windows</a
-					> — a bash shell without the full Linux system. Great for this course; you'll want WSL eventually.
+					> — a bash shell without the full Linux system. Great for this course, and it earns its keep
+					in the AI era too: coding agents like Claude Code use Git Bash as their bash on native Windows,
+					so if you skip WSL, installing Git for Windows is the prerequisite instead.
 				</p>
 				<p class="text-[14px]" style="color: var(--color-text-secondary);">
-					Either way, run it inside the modern <strong style="color: var(--color-text);"
+					The window around it is already sorted: <strong style="color: var(--color-text);"
 						>Windows Terminal</strong
-					> app (free on the Microsoft Store) — tabs, panes, and profiles for every shell on your machine.
+					> has been the default console since Windows 11 22H2 (2022) — opening PowerShell or WSL lands
+					in it automatically, with tabs, panes, and profiles for every shell on your machine. Nothing
+					to install.
 				</p>
 			{:else}
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">

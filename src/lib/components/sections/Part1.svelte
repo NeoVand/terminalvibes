@@ -74,7 +74,9 @@
 				>
 				to open Spotlight, type <strong style="color: var(--color-text);">Terminal</strong>, and
 				press Enter. That's it. (The long way: Applications&nbsp;→ Utilities&nbsp;→ Terminal.app.)
-				Pin it to your Dock — you'll be back.
+				The stock app is a genuinely good place to start — since macOS 26 "Tahoe" it has true color
+				and modern themes, so there's nothing to install today. Pin it to your Dock — you'll be
+				back.
 			</p>
 
 			<h4 class="mt-5 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">Linux</h4>
@@ -92,8 +94,9 @@
 			<h4 class="mt-5 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">Windows</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Open <strong style="color: var(--color-text);">Windows Terminal</strong> from the Start
-				menu, then pick your <strong style="color: var(--color-text);">Ubuntu (WSL)</strong>
+				Open <strong style="color: var(--color-text);">Windows Terminal</strong> from the Start menu
+				— it's been the default console since Windows 11 22H2, so it's already there — then pick
+				your <strong style="color: var(--color-text);">Ubuntu (WSL)</strong>
 				profile from the dropdown next to the new-tab button. If you chose Git Bash instead, open
 				<strong style="color: var(--color-text);">Git Bash</strong> from the Start menu. Either way, make
 				sure you're in a bash window — not PowerShell — before following along (the intro explains the
@@ -305,7 +308,8 @@ clear
 				Man pages are thorough but dense. For a friendlier take, the community-written <strong
 					style="color: var(--color-text);">tldr pages</strong
 				>
-				show each command as a handful of practical examples — try them at
+				show each command as a handful of practical examples — the project is very much alive (its client
+				spec hit v2.2 in March 2026). Try them at
 				<a
 					href="https://tldr.inbrowser.app"
 					target="_blank"
@@ -335,8 +339,16 @@ clear
 				You have a third source of help the man-page authors never imagined: paste any command into
 				your AI assistant and ask <em>"what does this do, flag by flag?"</em> It's the fastest
 				explanation you'll get — and it works in reverse too, when the AI is the one
-				<em>proposing</em> the command. But language models can be confidently wrong about flags, so close
-				the loop:
+				<em>proposing</em> the command. The AI vendors know it: Anthropic's Claude Code docs now
+				ship their own
+				<a
+					href="https://code.claude.com/docs/en/terminal-guide"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="font-medium underline underline-offset-2"
+					style="color: var(--color-primary);">"never opened a terminal before" guide</a
+				> — terminal literacy is the entry ticket to AI coding. But language models can be confidently
+				wrong about flags, so close the loop:
 			</p>
 
 			<Callout type="tip" title="Ask the AI, verify with --help">

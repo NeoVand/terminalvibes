@@ -47,6 +47,12 @@ Every lesson opens with an original piece of banner art — all **38** of them, 
 | **7. Your Cockpit**              | Themes & prompts, history superpowers, the VS Code integrated terminal, tabs & splits                |
 | **8. Conclusion**                | The command-line mindset, quick reference, the Final Challenge, keep learning                        |
 
+### The playground
+
+A simulated bash sandbox runs entirely in your browser — 15 scenario exercises with completion detection, a live file-tree diagram that redraws after every command, and a prompt that follows your `cwd`:
+
+[![The TerminalVibes playground solving the log-detective scenario](docs/images/playground.webp)](docs/images/playground.webp)
+
 ### Features
 
 - **Bash Playground** — a simulated bash sandbox in the browser (a virtual filesystem plus a shell interpreter built for teaching), opened as a sidebar panel from anywhere on the site
@@ -129,7 +135,7 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ## Assets
 
-Section banner images live in `static/images/` (kebab-case filenames). Image generation prompts for creating or updating the illustrations are in [`docs/IMAGE_PROMPTS.md`](docs/IMAGE_PROMPTS.md). Drop new art in as PNG and run `node scripts/optimize-images.mjs` to convert it to WebP, then `node scripts/make-poster.mjs` to refresh the banner poster above (it reads the curriculum order straight from the section components). One image is a real photograph rather than generated art: `static/images/thompson-ritchie.jpg` (Ken Thompson and Dennis Ritchie, public domain).
+Section banner images live in `static/images/` (kebab-case filenames). Image generation prompts for creating or updating the illustrations are in [`docs/IMAGE_PROMPTS.md`](docs/IMAGE_PROMPTS.md). Drop new art in as PNG and run `node scripts/optimize-images.mjs` to convert it to WebP, then `node scripts/make-poster.mjs` to refresh the banner poster above (it reads the curriculum order straight from the section components). `node scripts/make-playground-shot.mjs <baseUrl>` regenerates the playground screenshot against a running dev server, and `node scripts/make-placeholders.mjs` fills any missing banners with placeholder art. One image is a real photograph rather than generated art: `static/images/thompson-ritchie.jpg` (Ken Thompson and Dennis Ritchie, public domain).
 
 The downloadable cheat sheet PDF is rendered from the unlisted `/cheatsheet-print` route — after editing `src/lib/data/cheat-sheet.ts`, regenerate it with `node scripts/make-cheatsheet-pdf.mjs` (dev server running).
 

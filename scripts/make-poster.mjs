@@ -22,7 +22,7 @@ const THUMB_W = 400;
 const THUMB_H = 225;
 const GAP = 12;
 const MARGIN = 24;
-const BG = '#0f1117'; // the banner series' own base tone
+const BG = '#0c110a'; // the banner series' own base tone
 
 const seen = new Set();
 const banners = [];

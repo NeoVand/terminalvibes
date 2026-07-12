@@ -169,9 +169,25 @@
 						<p class="text-xs" style="color: var(--color-text-muted);">
 							The claim from the introduction, now closing the loop: text in, text out is the
 							language AI speaks natively, which is why every coding agent works by running shell
-							commands. Learning the terminal wasn't retro-computing nostalgia — it was learning to
-							read your agent's hands. You can now watch what it does, audit what it proposes, and
-							step in when it's wrong. That's not a spectator. That's a pilot.
+							commands. It's measurable now — <a
+								href="https://www.tbench.ai/"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">Terminal-Bench</a
+							>
+							(Stanford × Laude Institute) is an entire benchmark that scores AI agents on real terminal
+							work — and it matters because trust hasn't kept up with use:
+							<a
+								href="https://survey.stackoverflow.co/2025/ai/"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">Stack Overflow's 2025 survey</a
+							> found 84% of developers using AI tools while only about 29% trust their output. Someone
+							has to close that gap, and it's the person who can read the commands. You can now watch
+							what your agent does, audit what it proposes, and step in when it's wrong. That's not a
+							spectator. That's a pilot.
 						</p>
 					</div>
 				</div>
@@ -563,7 +579,7 @@
 
 			<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				You've practiced everything here in a real shell — but the command line is deep, and the
-				best references are worth knowing by name. These five will cover you from quick lookups to
+				best references are worth knowing by name. These six will cover you from quick lookups to
 				true mastery:
 			</p>
 
@@ -580,7 +596,8 @@
 						<span style="color: var(--color-text);"> — the book, free forever</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						William Shotts' 500-page classic, free as a PDF from
+						William Shotts' 500-page classic, now in its 3rd edition (No Starch Press, February
+						2026) and still free as a PDF from
 						<a
 							href="https://linuxcommand.org"
 							target="_blank"
@@ -659,9 +676,9 @@
 							class="rounded px-1 py-0.5 text-xs"
 							style="background: var(--color-code-bg); font-family: var(--font-mono);"
 							>tldr tar</code
-						> gives you the five examples you actually wanted instead of forty flags. Installable as a
-						command or usable in the browser — the fastest "how do I use this again?" answer that isn't
-						an AI.
+						> gives you the five examples you actually wanted instead of forty flags. Still actively maintained
+						in 2026, installable as a command or usable in the browser — the fastest "how do I use this
+						again?" answer that isn't an AI.
 					</p>
 				</div>
 
@@ -682,6 +699,25 @@
 							style="background: var(--color-code-bg); font-family: var(--font-mono);">man</code
 						> shows you locally, handy when you want to read documentation without leaving the browser
 						(or share a link to a specific flag's definition).
+					</p>
+				</div>
+
+				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
+					<h4 class="mb-1 text-[14px] font-semibold">
+						<a
+							href="https://code.claude.com/docs/en/terminal-guide"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="underline underline-offset-2"
+							style="color: var(--color-primary);">Claude Code's terminal guide</a
+						>
+						<span style="color: var(--color-text);"> — even the AI vendors teach this now</span>
+					</h4>
+					<p class="text-[13px]" style="color: var(--color-text-secondary);">
+						The clearest sign the terminal is the AI-native interface: Anthropic publishes its own
+						beginner terminal guide for people picking up Claude Code. Cross-check what you learned
+						here, and note who's telling you these skills matter — the company whose agent you'll be
+						supervising.
 					</p>
 				</div>
 			</div>

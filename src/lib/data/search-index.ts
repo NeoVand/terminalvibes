@@ -167,7 +167,10 @@ const topicEntries: SearchEntry[] = [
 			'what is the terminal',
 			'terminal vs shell',
 			'why terminal',
-			'text interface'
+			'text interface',
+			'terminal-bench',
+			'tbench',
+			'ai agent benchmark'
 		],
 		kind: 'topic'
 	},
@@ -612,7 +615,10 @@ const topicEntries: SearchEntry[] = [
 			'operation not permitted',
 			'run as root',
 			'password prompt',
-			'privileges'
+			'privileges',
+			'windows sudo',
+			'sudo on windows',
+			'enable sudo'
 		],
 		kind: 'topic'
 	},
@@ -681,6 +687,86 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
+		id: 'topic-prompt-injection',
+		sectionId: 'section-6-1',
+		title: 'Prompt injection',
+		part: 'Terminal for the AI Era',
+		description:
+			'Text an agent reads can steer the commands it proposes — audit even commands you never asked for.',
+		keywords: [
+			'prompt injection',
+			'indirect prompt injection',
+			'injection',
+			'tricked agent',
+			'malicious readme',
+			'poisoned instructions',
+			'agent was tricked',
+			'commands the agent was tricked into'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-permission-prompt',
+		sectionId: 'section-6-1',
+		title: 'The agent permission prompt',
+		part: 'Terminal for the AI Era',
+		description:
+			'"Allow this command?" is the modern read-before-you-run — what to do in the seconds it is on screen.',
+		keywords: [
+			'permission prompt',
+			'allow this command',
+			'approve command',
+			'should i approve',
+			'should i allow',
+			'agent asks permission',
+			'yolo approve',
+			'auto approve',
+			'sandboxing',
+			'sandbox'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-coding-agents-cli',
+		sectionId: 'section-6-1',
+		title: 'Terminal coding agents (Claude Code, Codex CLI)',
+		part: 'Terminal for the AI Era',
+		description:
+			'Claude Code, Codex CLI and friends live in the terminal — install them, then audit what they propose.',
+		keywords: [
+			'claude code',
+			'codex cli',
+			'codex',
+			'install claude code',
+			'coding agent',
+			'terminal agent',
+			'cli agent',
+			'goose',
+			'amp',
+			'agent cli'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-curl-bash',
+		sectionId: 'section-6-1',
+		title: 'curl | bash — run code straight off the internet',
+		part: 'Terminal for the AI Era',
+		description:
+			'Now an official install method for trusted vendors — the rule is about the source, and the two-step version always exists.',
+		keywords: [
+			'curl | bash',
+			'curl bash',
+			'curl pipe bash',
+			'pipe to shell',
+			'install script',
+			'install.sh',
+			'one-line install',
+			'is curl bash safe'
+		],
+		kind: 'topic'
+	},
+	{
 		id: 'topic-first-script',
 		sectionId: 'section-6-2',
 		title: 'Your First Script',
@@ -743,6 +829,28 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
+		id: 'topic-terminal-apps',
+		sectionId: 'section-7-1',
+		title: 'Terminal apps: Ghostty, iTerm2, Warp, Windows Terminal',
+		part: 'Your Cockpit',
+		description:
+			'The refreshed stock Terminal.app, iTerm2, the fast minimal Ghostty, the AI-first Warp — same shell inside every window.',
+		keywords: [
+			'ghostty',
+			'iterm',
+			'iterm2',
+			'warp',
+			'windows terminal',
+			'terminal.app',
+			'tahoe',
+			'terminal emulator',
+			'which terminal app',
+			'best terminal',
+			'starship prompt'
+		],
+		kind: 'topic'
+	},
+	{
 		id: 'topic-history-superpowers',
 		sectionId: 'section-7-2',
 		title: 'History Superpowers',
@@ -782,6 +890,27 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
+		id: 'topic-agent-allowlist',
+		sectionId: 'section-7-3',
+		title: 'VS Code agent allowlist & denylist',
+		part: 'Your Cockpit',
+		description:
+			'Copilot agent mode runs commands with per-command approval — allowlist the safe ones, always stop the risky ones.',
+		keywords: [
+			'allowlist',
+			'allow list',
+			'denylist',
+			'deny list',
+			'agent mode',
+			'copilot agent',
+			'auto approve commands',
+			'per-command approval',
+			'vscode agent',
+			'claude code extension'
+		],
+		kind: 'topic'
+	},
+	{
 		id: 'topic-many-terminals',
 		sectionId: 'section-7-4',
 		title: 'Many Terminals at Once',
@@ -796,6 +925,27 @@ const topicEntries: SearchEntry[] = [
 			'tmux',
 			'sessions',
 			'two terminals'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-parallel-agents',
+		sectionId: 'section-7-4',
+		title: 'Parallel AI agents in split panes',
+		part: 'Your Cockpit',
+		description:
+			'One agent per pane, each on its own git worktree — an agent-fleet dashboard, with tmux or Zellij keeping sessions alive.',
+		keywords: [
+			'parallel agents',
+			'multiple agents',
+			'agent fleet',
+			'worktree',
+			'worktrees',
+			'one agent per pane',
+			'tmux',
+			'zellij',
+			'multiplexer',
+			'session survives'
 		],
 		kind: 'topic'
 	},

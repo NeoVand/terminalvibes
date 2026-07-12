@@ -62,6 +62,35 @@
 			</Callout>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				And "the day it doesn't" is not hypothetical — this actually happens, to teams full of
+				experts. In July 2025, a hacker slipped a destructive prompt into
+				<a
+					href="https://www.theregister.com/security/2025/07/24/destructive-ai-prompt-published-in-amazon-q-extension/615835"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">version 1.84 of Amazon's AI coding extension</a
+				>, instructing the agent to wipe users' systems and cloud resources. The same month,
+				<a
+					href="https://fortune.com/2025/07/23/ai-coding-tool-replit-wiped-database-called-it-a-catastrophic-failure/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">Replit's agent deleted a live production database</a
+				>
+				during an explicit code freeze. And in April 2026, a Cursor-driven agent
+				<a
+					href="https://www.euronews.com/next/2026/04/28/an-ai-agent-deleted-a-companys-entire-database-in-9-seconds-then-wrote-an-apology"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);"
+					>deleted a company's production database <em>and</em> its backups in about nine seconds</a
+				>. In every case the missing safeguard wasn't more expertise on the team — it was a human
+				who read the command before approving it.
+			</p>
+
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				Here's the routine. Four steps, same order, every time. It feels slow for the first week;
 				after that it takes fifteen seconds and runs in your head automatically.
 			</p>
@@ -256,12 +285,23 @@ rm -rf build/*`}
 						> — run code straight off the internet
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						This downloads a script and executes it in one motion, sight unseen. Popular installers
-						use it, but the safe version is two steps: <code
+						This downloads a script and executes it in one motion, sight unseen. Honesty requires a
+						2026 update: it's now an <em>official</em> install method — Claude Code's documented
+						installer is
+						<code
+							class="rounded px-1 py-0.5 text-xs"
+							style="background: var(--color-code-bg); font-family: var(--font-mono);"
+							>curl -fsSL https://claude.ai/install.sh | bash</code
+						>, and Codex CLI ships the same way. The real rule is about the <em>source</em>: piping
+						a script over HTTPS from the documented domain of a vendor you chose is a normal install
+						path; piping one from a random gist, README, or an agent's suggestion is not. When in
+						doubt, the two-step version is always available —
+						<code
 							class="rounded px-1 py-0.5 text-xs"
 							style="background: var(--color-code-bg); font-family: var(--font-mono);"
 							>curl -o install.sh &lt;url&gt;</code
-						>, read the script (or have your AI summarize it), <em>then</em> run it.
+						>, read it, <em>then</em> run it — and package managers (brew, winget, apt) remain the more
+						auditable alternative.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -312,11 +352,52 @@ rm -rf build/*`}
 				</div>
 			</div>
 
+			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+				The newest red flag: commands the agent was tricked into proposing
+			</h4>
+
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				One more pattern, unique to the AI era: <strong style="color: var(--color-text);"
+					>prompt injection</strong
+				>. Any text an agent reads — a README, a GitHub issue, a dependency's docs — can contain
+				instructions that steer the commands it proposes next.
+				<a
+					href="https://www.helpnetsecurity.com/2026/06/29/mozilla-warns-of-indirect-prompt-injection-risk-in-ai-coding-agents/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">Mozilla warned in June 2026</a
+				>
+				about exactly this kind of indirect injection through repositories, and
+				<a
+					href="https://www.microsoft.com/en-us/security/blog/2026/05/07/prompts-become-shells-rce-vulnerabilities-ai-agent-frameworks/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);"
+					>Microsoft's "prompts become shells" research (May 2026)</a
+				>
+				showed injected text escalating all the way to remote code execution in agent frameworks. The
+				consequence for you: an agent's proposed command deserves the full audit
+				<em>even when you didn't write the prompt that produced it</em> — the instruction may not have
+				come from you at all.
+			</p>
+
 			<Callout type="important">
-				<strong>You are the approval step.</strong> Agent tools ask "allow this command?" precisely
-				because commands are the point where suggestions become consequences. That prompt is not a
-				formality to click through — it's the human-in-the-loop moment this entire routine exists
-				for. An agent can propose a thousand commands an hour; it only takes one unread
+				<strong>You are the approval step — and the prompt is your moment.</strong> Every major
+				agent — Claude Code, Codex CLI, Copilot's agent mode — asks "allow this command?" before
+				running it, and
+				<a
+					href="https://www.anthropic.com/engineering/claude-code-sandboxing"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">OS-level sandboxing</a
+				>
+				(macOS Seatbelt, Linux bubblewrap) is becoming the default posture underneath. That permission
+				prompt <em>is</em> the modern read-before-you-run: the skill this course teaches is what you
+				do in the seconds it's on screen. Never YOLO-approve. An agent can propose a thousand
+				commands an hour; it only takes one unread
 				<code style="font-family: var(--font-mono);">rm</code> to make it a bad day.
 			</Callout>
 
