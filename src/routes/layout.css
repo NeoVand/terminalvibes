@@ -83,17 +83,17 @@
 
 @media (prefers-color-scheme: dark) {
 	:root:not(.light) {
-		--color-bg: #120d08;
-		--color-bg-secondary: #171009;
-		--color-bg-tertiary: #201810;
-		--color-surface: #18120b;
-		--color-surface-hover: #201810;
-		--color-border: #302517;
-		--color-border-light: #251c11;
+		--color-bg: #0d0906;
+		--color-bg-secondary: #110c07;
+		--color-bg-tertiary: #19120a;
+		--color-surface: #130d07;
+		--color-surface-hover: #19120a;
+		--color-border: #291e11;
+		--color-border-light: #1d150c;
 		--color-text: #ece5d8;
 		--color-text-secondary: #b3a68f;
 		--color-text-muted: #6f6250;
-		--color-text-inverse: #120d08;
+		--color-text-inverse: #0d0906;
 
 		--color-primary: #4ade80;
 		--color-primary-light: #86efac;
@@ -132,7 +132,7 @@
 		--color-diff-hash: #e3b341;
 		--color-diff-meta: #7ee787;
 
-		--color-code-bg: #201810;
+		--color-code-bg: #19120a;
 		--color-code-text: #ece5d8;
 
 		--color-vibe: #c89b6d;
@@ -193,17 +193,17 @@
 }
 
 :root.dark {
-	--color-bg: #120d08;
-	--color-bg-secondary: #171009;
-	--color-bg-tertiary: #201810;
-	--color-surface: #18120b;
-	--color-surface-hover: #201810;
-	--color-border: #302517;
-	--color-border-light: #251c11;
+	--color-bg: #0d0906;
+	--color-bg-secondary: #110c07;
+	--color-bg-tertiary: #19120a;
+	--color-surface: #130d07;
+	--color-surface-hover: #19120a;
+	--color-border: #291e11;
+	--color-border-light: #1d150c;
 	--color-text: #ece5d8;
 	--color-text-secondary: #b3a68f;
 	--color-text-muted: #6f6250;
-	--color-text-inverse: #120d08;
+	--color-text-inverse: #0d0906;
 	--color-primary: #4ade80;
 	--color-primary-light: #86efac;
 	--color-primary-dim: #14301c;
@@ -236,7 +236,7 @@
 	--color-diff-hunk: #89b4fa;
 	--color-diff-hash: #e3b341;
 	--color-diff-meta: #7ee787;
-	--color-code-bg: #201810;
+	--color-code-bg: #19120a;
 	--color-code-text: #ece5d8;
 	--color-vibe: #c89b6d;
 	--color-vibe-text: #dfc09a;
