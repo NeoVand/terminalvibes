@@ -938,16 +938,6 @@
 		}
 	}
 
-	:global(:root.dark) .pg-terminal {
-		background: #090d07;
-	}
-
-	@media (prefers-color-scheme: dark) {
-		:global(:root:not(.light)) .pg-terminal {
-			background: #090d07;
-		}
-	}
-
 	.pg-prompt {
 		flex-shrink: 0;
 		font-family: var(--font-mono);

@@ -65,7 +65,7 @@
 	--color-diff-hash: #92400e;
 	--color-diff-meta: #166534;
 
-	--color-code-bg: #f0ebdf;
+	--color-code-bg: #fdfbf6;
 	--color-code-text: #2a2315;
 
 	--color-vibe: #8b5e34;
@@ -126,13 +126,13 @@
 		--color-caution-bg: #1f0a0a;
 		--color-caution-border: #450a0a;
 
-		--color-terminal-bg: #0d130a;
+		--color-terminal-bg: #090d07;
 		--color-terminal-text: #d7e0cc;
 		--color-terminal-prompt: #7ee787;
 		--color-terminal-command: #f2f5ee;
 		--color-terminal-output: #a8b39b;
 		--color-terminal-border: #26331e;
-		--color-terminal-header: #10170c;
+		--color-terminal-header: #0f150b;
 
 		--color-playground-bg: #1a1409;
 		--color-playground-border: #55401f;
@@ -146,8 +146,8 @@
 		--color-diff-hash: #e3b341;
 		--color-diff-meta: #7ee787;
 
-		--color-code-bg: #19120a;
-		--color-code-text: #ece5d8;
+		--color-code-bg: #090d07;
+		--color-code-text: #d7e0cc;
 
 		--color-vibe: #c89b6d;
 		--color-vibe-text: #dfc09a;
@@ -197,7 +197,7 @@
 	--color-playground-bg: #f6efe3;
 	--color-playground-border: #cfa86a;
 	--color-playground-header: #efe4cf;
-	--color-code-bg: #f0ebdf;
+	--color-code-bg: #fdfbf6;
 	--color-code-text: #2a2315;
 	--color-vibe: #8b5e34;
 	--color-vibe-text: #7c4a1e;
@@ -244,13 +244,13 @@
 	--color-warning-border: #422006;
 	--color-caution-bg: #1f0a0a;
 	--color-caution-border: #450a0a;
-	--color-terminal-bg: #0d130a;
+	--color-terminal-bg: #090d07;
 	--color-terminal-text: #d7e0cc;
 	--color-terminal-prompt: #7ee787;
 	--color-terminal-command: #f2f5ee;
 	--color-terminal-output: #a8b39b;
 	--color-terminal-border: #26331e;
-	--color-terminal-header: #10170c;
+	--color-terminal-header: #0f150b;
 	--color-playground-bg: #1a1409;
 	--color-playground-border: #55401f;
 	--color-playground-header: #120e07;
@@ -261,8 +261,8 @@
 	--color-diff-hunk: #89b4fa;
 	--color-diff-hash: #e3b341;
 	--color-diff-meta: #7ee787;
-	--color-code-bg: #19120a;
-	--color-code-text: #ece5d8;
+	--color-code-bg: #090d07;
+	--color-code-text: #d7e0cc;
 	--color-vibe: #c89b6d;
 	--color-vibe-text: #dfc09a;
 	--color-vibe-bg: #241a0e;
