@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Terminal, Monitor, Sparkles, HelpCircle } from 'lucide-svelte';
+	import Code from '../ui/Code.svelte';
 	import { base } from '$app/paths';
 	import OsIcon from '../ui/OsIcon.svelte';
 	import Callout from '../ui/Callout.svelte';
@@ -24,10 +25,9 @@
 			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
 			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
 		>
-			"Every conversation with a computer begins the same way: a prompt, a command, and <code
-				class="rounded px-1.5 py-0.5 text-sm not-italic"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">Enter</code
-			>."
+			"Every conversation with a computer begins the same way: a prompt, a command, and <Code
+				code="Enter"
+			/>."
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -181,10 +181,8 @@
 			/>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The shell answered with your username. Now make it say something — <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo</code
-				> repeats whatever you give it (it's also the workhorse of scripts, as you'll see later):
+				The shell answered with your username. Now make it say something — <Code code="echo" /> repeats
+				whatever you give it (it's also the workhorse of scripts, as you'll see later):
 			</p>
 
 			<CodeBlock
@@ -218,11 +216,10 @@ clear
 			/>
 
 			<Callout type="tip" title="Errors are feedback, not failure">
-				Nothing broke. The shell simply told you it doesn't know a command called <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ecoh</code
-				>, and gave you a fresh prompt. Error messages in the terminal are answers — read them, they
-				usually say exactly what's wrong. Typos cost you nothing but a retry (press the
+				Nothing broke. The shell simply told you it doesn't know a command called <Code
+					code="ecoh"
+				/>, and gave you a fresh prompt. Error messages in the terminal are answers — read them,
+				they usually say exactly what's wrong. Typos cost you nothing but a retry (press the
 				<strong>up arrow</strong>, fix the spelling, Enter).
 			</Callout>
 
@@ -234,10 +231,9 @@ clear
 				Try It: Say Hello to the Machine
 			</h4>
 			<PlaygroundNote>
-				Run these commands in a simulated bash sandbox right here in your browser. Type <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">help</code
-				> in the terminal for the full command list.
+				Run these commands in a simulated bash sandbox right here in your browser. Type <Code
+					code="help"
+				/> in the terminal for the full command list.
 			</PlaygroundNote>
 			<LessonActivity title="Say Hello to the Machine" scenarioId="first-steps" id="first-steps" />
 
@@ -278,11 +274,8 @@ clear
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Almost every command answers to <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">--help</code
-				>: a compact summary of what it does and which flags it accepts, printed straight to your
-				terminal.
+				Almost every command answers to <Code code="--help" />: a compact summary of what it does
+				and which flags it accepts, printed straight to your terminal.
 			</p>
 
 			<CodeBlock
@@ -296,10 +289,7 @@ clear
 			/>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				For the full story, there's <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">man</code
-				>
+				For the full story, there's <Code code="man" />
 				— the manual, one page per command, installed with your system since before the web existed:
 			</p>
 
@@ -310,17 +300,11 @@ clear
 			/>
 
 			<Callout type="important" title="Press q to quit">
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">man</code
-				>
+				<Code code="man" />
 				opens in a <em>pager</em> — a full-screen reader that takes over your terminal. Scroll with
 				the arrow keys or Space, search by typing
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">/word</code
-				>, and press <strong>q</strong> to get your prompt back. Everyone gets "stuck" in a pager exactly
-				once — now you won't.
+				<Code code="/word" />, and press <strong>q</strong> to get your prompt back. Everyone gets "stuck"
+				in a pager exactly once — now you won't.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -371,10 +355,7 @@ clear
 			</p>
 
 			<Callout type="tip" title="Ask the AI, verify with --help">
-				Let the assistant explain the command in plain English, then skim <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">--help</code
-				>
+				Let the assistant explain the command in plain English, then skim <Code code="--help" />
 				or the man page to confirm the flags do what it claimed. Explanation from the AI,
 				<em>ground truth from the machine</em> — that habit is the heart of Part 6, and you can start
 				it today.

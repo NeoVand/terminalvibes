@@ -13,6 +13,7 @@
 		TextSearch
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Code from '../ui/Code.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -70,10 +71,7 @@
 				>
 				— which is normally your screen. Redirection says: "don't print that, put it in a file instead."
 				One character does it:
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-				>.
+				<Code code=">" />.
 			</p>
 
 			<div class="my-6">
@@ -97,25 +95,14 @@ hello again`}
 			/>
 
 			<Callout type="caution">
-				<strong
-					><code
-						class="rounded px-1.5 py-0.5 text-xs"
-						style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-					> truncates.</strong
-				>
+				<strong><Code code=">" /> truncates.</strong>
 				The instant you press Enter, the target file is emptied — <em>before</em> the command even
 				runs. Redirect into an existing file and its old contents are gone, no confirmation, no
 				trash can. When in doubt, use
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;&gt;</code
-				>
+				<Code code=">>" />
 				(append) or redirect to a <em>new</em> filename. And when an AI hands you a command
 				containing
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-				>, check what's on the right side of the arrow before you run it.
+				<Code code=">" />, check what's on the right side of the arrow before you run it.
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -123,16 +110,13 @@ hello again`}
 				streams: standard output for results, and
 				<strong style="color: var(--color-text);">standard error</strong>
 				for complaints. A plain
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-				>
+				<Code code=">" />
 				only captures the results — errors still land on your screen. To capture the errors, redirect
 				stream number 2:
 			</p>
 
 			<CodeBlock
-				title="Capturing errors with 2>"
+				title="Capturing errors with `2>`"
 				code={`ls reports/ missing/ > listing.txt 2> errors.txt
 
 cat listing.txt      # The successful part
@@ -144,24 +128,13 @@ ls: missing/: No such file or directory`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				You'll also meet <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>&gt; all.log 2&gt;&amp;1</code
-				>
+				You'll also meet <Code code="> all.log 2>&1" />
 				in AI-generated commands — it means "send errors to the same place as the output." You don't need
 				to write it yet; you just need to recognize it. Finally, the arrow points the other way too:
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&lt;</code
-				>
+				<Code code="<" />
 				feeds a file <em>into</em> a command as its input, as in
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>sort &lt; names.txt</code
-				>. It's rarer — most commands happily take a filename argument — but it completes the
-				picture:
+				<Code code="sort < names.txt" />. It's rarer — most commands happily take a filename
+				argument — but it completes the picture:
 				<strong style="color: var(--color-text);">arrows move text in and out of files</strong>.
 			</p>
 
@@ -184,10 +157,7 @@ ls: missing/: No such file or directory`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Redirection sends output into a <em>file</em>. The pipe —
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">|</code
-				>
+				<Code code="|" />
 				— sends it into <em>another command</em>. Whatever the left command prints becomes the right
 				command's input, no temporary file needed. This one character is the reason terminal users
 				never left.
@@ -229,20 +199,11 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 				This is the <strong style="color: var(--color-text);">Unix philosophy</strong>, and it's
 				older than most programming languages you know: "Write programs that do one thing and do it
 				well," as Doug McIlroy — the inventor of the pipe — put it.
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				>
+				<Code code="grep" />
 				only searches.
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">wc</code
-				>
+				<Code code="wc" />
 				only counts.
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sort</code
-				>
+				<Code code="sort" />
 				only sorts. None of them is impressive alone — but because they all speak plain text, any of them
 				can feed any other, and a handful of tiny tools becomes thousands of combinations.
 			</p>
@@ -250,10 +211,7 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 			<Callout type="tip">
 				<strong>Build pipelines one stage at a time.</strong> Run the first command alone and look
 				at its output. Then add one
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">|</code
-				>
+				<Code code="|" />
 				and look again. This isn't just how you <em>write</em> pipelines — it's how you
 				<em>audit</em> the ones your AI writes. A five-stage pipeline you can't follow is really five
 				one-stage commands you haven't run yet.
@@ -277,10 +235,9 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				A server just crashed and the log is 10,000 lines long. Nobody scrolls that. <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				>
+				A server just crashed and the log is 10,000 lines long. Nobody scrolls that. <Code
+					code="grep"
+				/>
 				prints only the lines that match a pattern — it's the terminal's search box, and probably the
 				single most-used tool in this entire course.
 			</p>
@@ -315,15 +272,12 @@ src/utils.js:3: // TODO: remove this hack`}
 						style="color: var(--color-tip);"
 					>
 						<CaseSensitive size={14} />
-						<span
-							><code class="text-xs" style="font-family: var(--font-mono);">-i</code> — ignore case</span
-						>
+						<span><Code code="-i" /> — ignore case</span>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Matches <code style="font-family: var(--font-mono);">error</code>,
-						<code style="font-family: var(--font-mono);">Error</code>, and
-						<code style="font-family: var(--font-mono);">ERROR</code>. Use it by default when
-						hunting in logs.
+						Matches <Code code="error" />,
+						<Code code="Error" />, and
+						<Code code="ERROR" />. Use it by default when hunting in logs.
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -332,9 +286,7 @@ src/utils.js:3: // TODO: remove this hack`}
 						style="color: var(--color-note);"
 					>
 						<Hash size={14} />
-						<span
-							><code class="text-xs" style="font-family: var(--font-mono);">-n</code> — line numbers</span
-						>
+						<span><Code code="-n" /> — line numbers</span>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Prefixes each match with where it lives — essential when you're about to open the file
@@ -347,13 +299,11 @@ src/utils.js:3: // TODO: remove this hack`}
 						style="color: var(--color-warning);"
 					>
 						<FilterX size={14} />
-						<span
-							><code class="text-xs" style="font-family: var(--font-mono);">-v</code> — invert</span
-						>
+						<span><Code code="-v" /> — invert</span>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Keep the lines that <em>don't</em> match. Perfect for filtering noise out:
-						<code style="font-family: var(--font-mono);">grep -v "DEBUG"</code>.
+						<Code code="grep -v &quot;DEBUG&quot;" />.
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -362,13 +312,11 @@ src/utils.js:3: // TODO: remove this hack`}
 						style="color: var(--color-important);"
 					>
 						<Sigma size={14} />
-						<span
-							><code class="text-xs" style="font-family: var(--font-mono);">-c</code> — count</span
-						>
+						<span><Code code="-c" /> — count</span>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Print how many lines matched instead of the lines themselves — a built-in
-						<code style="font-family: var(--font-mono);">| wc -l</code>.
+						<Code code="| wc -l" />.
 					</p>
 				</div>
 				<div class="rounded-lg p-4 sm:col-span-2" style="background: var(--color-bg-secondary);">
@@ -377,24 +325,19 @@ src/utils.js:3: // TODO: remove this hack`}
 						style="color: var(--color-caution);"
 					>
 						<FolderTree size={14} />
-						<span
-							><code class="text-xs" style="font-family: var(--font-mono);">-r</code> — recursive</span
-						>
+						<span><Code code="-r" /> — recursive</span>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Search a whole directory tree instead of one file. <code
-							style="font-family: var(--font-mono);">grep -rn "api_key" .</code
-						> is how developers answer "where in this codebase is that used?"
+						Search a whole directory tree instead of one file. <Code
+							code="grep -rn &quot;api_key&quot; ."
+						/> is how developers answer "where in this codebase is that used?"
 					</p>
 				</div>
 			</div>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				And because <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				> reads standard input, it slots into any pipeline as a filter. This is the pattern you'll type
-				every single day:
+				And because <Code code="grep" /> reads standard input, it slots into any pipeline as a filter.
+				This is the pattern you'll type every single day:
 			</p>
 
 			<CodeBlock
@@ -412,33 +355,15 @@ grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
 				Try It: Find the Crash
 			</h4>
 			<PlaygroundNote>
-				A server died last night and <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">server.log</code
-				>
+				A server died last night and <Code code="server.log" />
 				has hundreds of lines. Use
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				>
+				<Code code="grep" />
 				— with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-i</code
-				>,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-n</code
-				>, and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-v</code
-				>
+				<Code code="-i" />,
+				<Code code="-n" />, and
+				<Code code="-v" />
 				to cut the noise — and pipes to
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">wc -l</code
-				> to pin down exactly when and why it crashed.
+				<Code code="wc -l" /> to pin down exactly when and why it crashed.
 			</PlaygroundNote>
 			<LessonActivity title="Find the Crash" scenarioId="log-detective" id="log-detective" />
 
@@ -460,10 +385,7 @@ grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				>
+				<Code code="grep" />
 				finds lines. These four tools <em>reshape</em> them: count them, order them, de-duplicate them,
 				and slice out columns. Individually they're almost boring — together they answer real questions,
 				like "who's hammering my website?"
@@ -491,28 +413,17 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 
 			<Callout type="warning">
 				<strong>The uniq gotcha:</strong>
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">uniq</code
-				>
+				<Code code="uniq" />
 				only collapses duplicates that are <em>next to each other</em>. Given
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">a b a</code
-				>, it removes nothing. That's why it practically always appears as
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sort | uniq</code
-				>
+				<Code code="a b a" />, it removes nothing. That's why it practically always appears as
+				<Code code="sort | uniq" />
 				— sort herds the duplicates together first, then uniq collapses them.
 			</Callout>
 
 			<p class="mt-6 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Now the payoff. Your web server writes one line per visit to <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">access.log</code
-				>, and you want to know your top visitors. This is the most famous pipeline in Unix history,
-				and we'll build it one stage at a time — exactly the way you should build every pipeline.
+				Now the payoff. Your web server writes one line per visit to <Code code="access.log" />, and
+				you want to know your top visitors. This is the most famous pipeline in Unix history, and
+				we'll build it one stage at a time — exactly the way you should build every pipeline.
 			</p>
 
 			<CodeBlock
@@ -525,7 +436,7 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			/>
 
 			<CodeBlock
-				title="Stage 1 — cut: keep only the IP column"
+				title="Stage 1 — `cut`: keep only the IP column"
 				code={`cut -d' ' -f1 access.log
 203.0.113.9
 198.51.100.4
@@ -537,7 +448,7 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			/>
 
 			<CodeBlock
-				title="Stage 2 — sort: herd the duplicates together"
+				title="Stage 2 — `sort`: herd the duplicates together"
 				code={`cut -d' ' -f1 access.log | sort
 192.0.2.55
 198.51.100.4
@@ -549,7 +460,7 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			/>
 
 			<CodeBlock
-				title="Stage 3 — uniq -c: collapse and count"
+				title="Stage 3 — `uniq -c`: collapse and count"
 				code={`cut -d' ' -f1 access.log | sort | uniq -c
    1 192.0.2.55
    2 198.51.100.4
@@ -558,7 +469,7 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			/>
 
 			<CodeBlock
-				title="Stage 4 — sort -n: rank by the count"
+				title="Stage 4 — `sort -n`: rank by the count"
 				code={`cut -d' ' -f1 access.log | sort | uniq -c | sort -n
    1 192.0.2.55
    2 198.51.100.4
@@ -581,27 +492,13 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 				Try It: Build a Pipeline
 			</h4>
 			<PlaygroundNote>
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">access.log</code
-				>
+				<Code code="access.log" />
 				is waiting in the playground. Build the classic pipeline stage by stage —
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cut</code
-				>, then
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">| sort</code
-				>, then
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">| uniq -c</code
-				>, then
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">| sort -n</code
-				> — and identify your site's top visitor. Run each stage before adding the next.
+				<Code code="cut" />, then
+				<Code code="| sort" />, then
+				<Code code="| uniq -c" />, then
+				<Code code="| sort -n" /> — and identify your site's top visitor. Run each stage before adding
+				the next.
 			</PlaygroundNote>
 			<LessonActivity
 				title="Build a Pipeline"
@@ -627,17 +524,11 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				>
+				<Code code="grep" />
 				searches <em>inside</em> files. But sometimes the question is "where <em>is</em> that file?"
 				— a config you know exists, every Markdown file in a project, that one script you wrote last
 				month.
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">find</code
-				> walks an entire directory tree and prints every path that matches your criteria.
+				<Code code="find" /> walks an entire directory tree and prints every path that matches your criteria.
 			</p>
 
 			<div class="my-6">
@@ -662,20 +553,11 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 
 			<Callout type="caution">
 				<strong>Quote the pattern.</strong> Write
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">'*.md'</code
-				>
+				<Code code="'*.md'" />
 				with quotes, not bare
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">*.md</code
-				>. Remember Part 3: the <em>shell</em> expands wildcards before the command ever runs.
-				Unquoted,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">*.md</code
-				>
+				<Code code="*.md" />. Remember Part 3: the <em>shell</em> expands wildcards before the
+				command ever runs. Unquoted,
+				<Code code="*.md" />
 				becomes a list of the Markdown files in your <em>current</em> folder — and find receives that
 				list instead of the pattern, searching for the wrong thing entirely. The quotes deliver the pattern
 				to find intact, so find can apply it at every level of the tree.
@@ -695,8 +577,8 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 						<span>find — searches <em>filenames</em></span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						"Where are the files called <code style="font-family: var(--font-mono);">*.md</code>?"
-						It never opens a file; it only looks at names, types, and locations.
+						"Where are the files called <Code code="*.md" />?" It never opens a file; it only looks
+						at names, types, and locations.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -708,8 +590,8 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 						<span>grep — searches <em>contents</em></span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						"Which lines contain <code style="font-family: var(--font-mono);">TODO</code>?" It reads
-						inside files but doesn't care what they're named.
+						"Which lines contain <Code code="TODO" />?" It reads inside files but doesn't care what
+						they're named.
 					</p>
 				</div>
 			</div>
@@ -736,16 +618,11 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				Try It: Hunt Down Every TODO
 			</h4>
 			<PlaygroundNote>
-				A project tree is scattered with leftover TODOs. Use <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>find . -name '*.js' -type f</code
-				>
+				A project tree is scattered with leftover TODOs. Use <Code
+					code="find . -name '*.js' -type f"
+				/>
 				to locate the source files (quote that glob!), then combine with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				> to list every TODO with its file and line number.
+				<Code code="grep" /> to list every TODO with its file and line number.
 			</PlaygroundNote>
 			<LessonActivity title="Hunt Down Every TODO" scenarioId="find-files" id="find-files" />
 

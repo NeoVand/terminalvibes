@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Shield, ScrollText, KeyRound, Lock, AtSign, FileText, Play } from 'lucide-svelte';
+	import Code from '../ui/Code.svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -51,15 +52,12 @@
 			<SectionHeader
 				level="section"
 				icon={ScrollText}
-				title="5.1 Reading ls -l — The 10-Character Rulebook"
+				title="5.1 Reading `ls -l` — The 10-Character Rulebook"
 				color="var(--color-primary)"
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You met <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -l</code
-				>
+				You met <Code code="ls -l" />
 				back in Part 2 and politely ignored the cryptic string at the start of each line. Time to decode
 				it — those 10 characters are the entire permission system in miniature.
 			</p>
@@ -81,10 +79,7 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Take <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-rwxr-xr-x</code
-				>
+				Take <Code code="-rwxr-xr-x" />
 				apart and it's four pieces: one type character, then three groups of three —
 				<strong style="color: var(--color-text);"
 					>the same three questions asked of three audiences</strong
@@ -100,8 +95,8 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 							>-</span
 						>
 						<span class="text-[11px]" style="color: var(--color-text-muted);"
-							>type<br /><code style="font-family: var(--font-mono);">-</code> file,
-							<code style="font-family: var(--font-mono);">d</code> dir</span
+							>type<br /><Code code="-" /> file,
+							<Code code="d" /> dir</span
 						>
 					</div>
 					<div class="flex flex-col items-center gap-2">
@@ -136,52 +131,31 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 					</div>
 				</div>
 				<p class="mt-4 text-center text-[12px]" style="color: var(--color-text-secondary);">
-					In each triad: <code style="font-family: var(--font-mono);">r</code> = read,
-					<code style="font-family: var(--font-mono);">w</code> = write,
-					<code style="font-family: var(--font-mono);">x</code> = execute, and
-					<code style="font-family: var(--font-mono);">-</code> = "no, this one's off."
+					In each triad: <Code code="r" /> = read,
+					<Code code="w" /> = write,
+					<Code code="x" /> = execute, and
+					<Code code="-" /> = "no, this one's off."
 				</p>
 			</div>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				So <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-rwxr-xr-x</code
-				>
+				So <Code code="-rwxr-xr-x" />
 				reads as: a regular file; the owner can read, write, and run it; the group can read and run it;
 				everyone else can read and run it. And
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-rw-r--r--</code
-				>
+				<Code code="-rw-r--r--" />
 				is a typical document: only the owner can edit, everyone can read, nobody can execute.
 			</p>
 
 			<Callout type="tip">
 				For a <strong>directory</strong>, the letters shift meaning slightly:
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">r</code
-				>
+				<Code code="r" />
 				= list its contents,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">w</code
-				>
+				<Code code="w" />
 				= create or delete files inside it, and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">x</code
-				>
+				<Code code="x" />
 				= enter it with
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>. That's why directories almost always carry the
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">x</code
-				>.
+				<Code code="cd" />. That's why directories almost always carry the
+				<Code code="x" />.
 			</Callout>
 
 			<VibeBox
@@ -205,15 +179,9 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 				Here's the classic novice moment: you save a script, try to run it, and the terminal snaps
 				back <strong style="color: var(--color-text);">"Permission denied."</strong> Nothing is
 				broken. The file simply doesn't have its
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">x</code
-				>
+				<Code code="x" />
 				bit yet — files are never executable by default.
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod</code
-				> ("change mode") flips the switch.
+				<Code code="chmod" /> ("change mode") flips the switch.
 			</p>
 
 			<div class="my-6">
@@ -226,15 +194,8 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 
 			<Callout type="note">
 				<strong>The Problem:</strong> You (or your AI) created
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">backup.sh</code
-				>, but running it fails with
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>permission denied</code
-				>.
+				<Code code="backup.sh" />, but running it fails with
+				<Code code="permission denied" />.
 			</Callout>
 
 			<CodeBlock
@@ -255,29 +216,14 @@ Backing up projects/ ... done.`}
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				You'll also see chmod used with <strong style="color: var(--color-text);">numbers</strong> —
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod 755</code
-				>,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod 644</code
-				>
+				<Code code="chmod 755" />,
+				<Code code="chmod 644" />
 				— in every tutorial and AI suggestion. Each digit is one audience (user, group, other), built
 				from
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">r=4</code
-				>,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">w=2</code
-				>,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">x=1</code
-				>. But you don't need the arithmetic — in practice there are exactly two recipes worth
-				knowing:
+				<Code code="r=4" />,
+				<Code code="w=2" />,
+				<Code code="x=1" />. But you don't need the arithmetic — in practice there are exactly two
+				recipes worth knowing:
 			</p>
 
 			<div class="mb-4 grid gap-4 sm:grid-cols-2">
@@ -287,14 +233,11 @@ Backing up projects/ ... done.`}
 						style="color: var(--color-important);"
 					>
 						<Play size={14} />
-						<span
-							><code class="text-xs" style="font-family: var(--font-mono);">755</code> — scripts &amp;
-							directories</span
-						>
+						<span><Code code="755" /> — scripts &amp; directories</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<code style="font-family: var(--font-mono);">rwxr-xr-x</code>: you do everything, others
-						read and run. The standard for anything executable.
+						<Code code="rwxr-xr-x" />: you do everything, others read and run. The standard for
+						anything executable.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -303,34 +246,22 @@ Backing up projects/ ... done.`}
 						style="color: var(--color-note);"
 					>
 						<FileText size={14} />
-						<span
-							><code class="text-xs" style="font-family: var(--font-mono);">644</code> — regular files</span
-						>
+						<span><Code code="644" /> — regular files</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<code style="font-family: var(--font-mono);">rw-r--r--</code>: you edit, others read,
-						nobody executes. The standard for documents, configs, and code.
+						<Code code="rw-r--r--" />: you edit, others read, nobody executes. The standard for
+						documents, configs, and code.
 					</p>
 				</div>
 			</div>
 
 			<Callout type="caution">
-				If a tutorial or an AI ever suggests <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod 777</code
-				>
+				If a tutorial or an AI ever suggests <Code code="chmod 777" />
 				— everyone may read, write, <em>and</em> execute — treat it as a red flag, not a fix. It
 				"solves" permission errors by turning the rulebook off entirely, and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>chmod -R 777</code
-				>
+				<Code code="chmod -R 777" />
 				does it to a whole tree. There is almost always a narrower fix — usually
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">+x</code
-				> on one file.
+				<Code code="+x" /> on one file.
 			</Callout>
 
 			<h4
@@ -341,23 +272,11 @@ Backing up projects/ ... done.`}
 				Try It: The Script Won't Run
 			</h4>
 			<PlaygroundNote>
-				A <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">deploy.sh</code
-				>
+				A <Code code="deploy.sh" />
 				script is sitting in the playground refusing to run. Diagnose it with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -l</code
-				>, grant the missing permission with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod +x</code
-				>, then run it with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">./deploy.sh</code
-				>.
+				<Code code="ls -l" />, grant the missing permission with
+				<Code code="chmod +x" />, then run it with
+				<Code code="./deploy.sh" />.
 			</PlaygroundNote>
 			<LessonActivity
 				title="The Script Won't Run"
@@ -384,10 +303,9 @@ Backing up projects/ ... done.`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Some things your everyday account simply may not touch: installing system-wide software,
-				editing files outside your home folder, managing services. For those, there's <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-				>
+				editing files outside your home folder, managing services. For those, there's <Code
+					code="sudo"
+				/>
 				— "superuser do." It runs <strong style="color: var(--color-text);">one command</strong> as
 				<strong style="color: var(--color-text);">root</strong>, the administrator account that no
 				rule applies to.
@@ -419,27 +337,15 @@ Setting up htop ... done.`}
 				from 1970 that stuck. Second, you need sudo far less than the internet implies: everything inside
 				your home folder is already yours, and macOS users installing via Homebrew usually don't need
 				it at all. If a command fails inside
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~</code
-				>, the answer is almost never
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-				>
+				<Code code="~" />, the answer is almost never
+				<Code code="sudo" />
 				— it's a wrong path or a missing
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">+x</code
-				>.
+				<Code code="+x" />.
 			</p>
 
 			<Callout type="note">
 				<strong>Windows note:</strong> Windows 11 (24H2 and later) now ships a real built-in
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-				>
+				<Code code="sudo" />
 				command — turn it on under Settings → System → For developers → "Enable sudo". So everything in
 				this section transfers to native Windows too, not just WSL; inside WSL, sudo has always worked
 				exactly as described here.
@@ -449,10 +355,7 @@ Setting up htop ... done.`}
 				<strong>Never sudo a command you don't understand — especially one an AI wrote.</strong>
 				Every safety net you've learned assumes the system can say "no" to you. sudo removes the "no."
 				An AI-suggested
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo rm -rf</code
-				>
+				<Code code="sudo rm -rf" />
 				with the wrong path doesn't delete your project — it can delete your
 				<em>operating system</em>. This isn't hypothetical: 2025 and 2026 saw repeated,
 				well-documented incidents of AI coding agents running destructive commands on real systems —
@@ -463,12 +366,9 @@ Setting up htop ... done.`}
 			</Callout>
 
 			<Callout type="note">
-				The playground deliberately has no real <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-				> — try it there and it will politely explain itself. Everything in this course's sandbox already
-				runs inside your own pretend home folder, where you don't need superpowers. Exactly like real
-				life.
+				The playground deliberately has no real <Code code="sudo" /> — try it there and it will politely
+				explain itself. Everything in this course's sandbox already runs inside your own pretend home
+				folder, where you don't need superpowers. Exactly like real life.
 			</Callout>
 
 			<VibeBox
@@ -493,15 +393,9 @@ Setting up htop ... done.`}
 					style="color: var(--color-text);">environment</strong
 				>: your username, your home folder, your preferred editor, and — most importantly — where
 				the shell should look for commands. You've been using them all along without noticing;
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>
+				<Code code="cd" />
 				with no arguments reads
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$HOME</code
-				> to know where to take you.
+				<Code code="$HOME" /> to know where to take you.
 			</p>
 
 			<div class="my-6">
@@ -532,28 +426,18 @@ nano`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Note the asymmetry: you write <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>export EDITOR=nano</code
-				>
+				Note the asymmetry: you write <Code code="export EDITOR=nano" />
 				with no dollar sign, but read it back as
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$EDITOR</code
-				>. And exported variables evaporate when you close the terminal — making them permanent is
-				the next section's job.
+				<Code code="$EDITOR" />. And exported variables evaporate when you close the terminal —
+				making them permanent is the next section's job.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The variable that explains a thousand error messages is <strong
 					style="color: var(--color-text);">PATH</strong
 				>: a colon-separated list of directories. When you type
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">python</code
-				>, the shell walks that list in order, looking in each directory for an executable file with
-				that name. First match wins; no match anywhere means the infamous:
+				<Code code="python" />, the shell walks that list in order, looking in each directory for an
+				executable file with that name. First match wins; no match anywhere means the infamous:
 			</p>
 
 			<CodeBlock
@@ -578,15 +462,9 @@ which python                         # Silence/nothing = not on PATH`}
 				"Command not found" always means exactly one of three things: a <strong>typo</strong>, a
 				tool that's <strong>not installed</strong>, or a tool installed
 				<strong>outside PATH</strong>. Check them in that order —
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">which</code
-				>
+				<Code code="which" />
 				and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo $PATH</code
-				>
+				<Code code="echo $PATH" />
 				settle it in seconds. This is also why installers keep telling you to "add something to your PATH":
 				they put the tool in a folder your shell doesn't search yet.
 			</Callout>
@@ -599,24 +477,12 @@ which python                         # Silence/nothing = not on PATH`}
 				Try It: command not found
 			</h4>
 			<PlaygroundNote>
-				A tool called <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">greet</code
-				>
+				A tool called <Code code="greet" />
 				is installed somewhere in the playground, but typing
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">greet</code
-				>
+				<Code code="greet" />
 				only gets you "command not found." Inspect
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo $PATH</code
-				>, hunt the executable down with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">find</code
-				>, and run it — by its full path, or by fixing PATH.
+				<Code code="echo $PATH" />, hunt the executable down with
+				<Code code="find" />, and run it — by its full path, or by fixing PATH.
 			</PlaygroundNote>
 			<LessonActivity title="command not found" scenarioId="path-repair" id="path-repair" />
 
@@ -642,20 +508,11 @@ which python                         # Silence/nothing = not on PATH`}
 				dies with the terminal window. The fix is the <strong style="color: var(--color-text);"
 					>shell config file</strong
 				>: a plain text file of commands your shell runs automatically every time it starts. It's
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~/.bashrc</code
-				>
+				<Code code="~/.bashrc" />
 				if your shell is bash, and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~/.zshrc</code
-				>
+				<Code code="~/.zshrc" />
 				for zsh — the macOS default. (A hidden dotfile, which is why
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -a</code
-				> from Part 2 is how you spot it.)
+				<Code code="ls -a" /> from Part 2 is how you spot it.)
 			</p>
 
 			<div class="my-6">
@@ -684,15 +541,9 @@ alias                     # List every alias currently defined`}
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Typed at the prompt, an alias lasts only for that session — put it in your config file to
-				keep it forever. Here's a battle-tested starter set to paste into <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~/.zshrc</code
-				>
+				keep it forever. Here's a battle-tested starter set to paste into <Code code="~/.zshrc" />
 				(or
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~/.bashrc</code
-				>):
+				<Code code="~/.bashrc" />):
 			</p>
 
 			<CodeBlock
@@ -710,10 +561,7 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				One last piece: the config file only runs at <em>startup</em>, so a freshly edited file
 				changes nothing in your current terminal. Either open a new window — or reload it in place
 				with
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">source</code
-				>:
+				<Code code="source" />:
 			</p>
 
 			<CodeBlock
@@ -724,15 +572,10 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 
 			<Callout type="tip">
 				Your shell config is just a shell script — every line in it is a command you could type by
-				hand. That means everything in this course applies to it: read it with <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>, search it with
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				>, and when an installer says "we added a line to your .zshrc," you can open it and see
-				exactly what changed. No magic, ever.
+				hand. That means everything in this course applies to it: read it with <Code code="cat" />,
+				search it with
+				<Code code="grep" />, and when an installer says "we added a line to your .zshrc," you can
+				open it and see exactly what changed. No magic, ever.
 			</Callout>
 
 			<h4
@@ -743,20 +586,11 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				Try It: Make Your Shortcuts
 			</h4>
 			<PlaygroundNote>
-				Time to build your own shorthand. Define an alias with <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">alias</code
-				>, use it, list your aliases, and append your favorite to
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~/.bashrc</code
-				>
+				Time to build your own shorthand. Define an alias with <Code code="alias" />, use it, list
+				your aliases, and append your favorite to
+				<Code code="~/.bashrc" />
 				with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>echo &gt;&gt;</code
-				> so it would survive a restart.
+				<Code code="echo >>" /> so it would survive a restart.
 			</PlaygroundNote>
 			<LessonActivity title="Make Your Shortcuts" scenarioId="alias-workshop" id="alias-workshop" />
 

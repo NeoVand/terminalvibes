@@ -15,6 +15,7 @@
 		CircleEqual
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Code from '../ui/Code.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -120,14 +121,10 @@
 							Name the command
 						</p>
 						<p class="text-xs" style="color: var(--color-text-muted);">
-							The first word is the program. Do you know what it does? <code
-								style="font-family: var(--font-mono);">rm</code
-							>
-							deletes, <code style="font-family: var(--font-mono);">curl</code> downloads,
-							<code style="font-family: var(--font-mono);">chmod</code> changes permissions. If the
-							first word is a stranger,
-							<code style="font-family: var(--font-mono);">man &lt;command&gt;</code> or a quick "what
-							does this do?" to your AI comes first.
+							The first word is the program. Do you know what it does? <Code code="rm" />
+							deletes, <Code code="curl" /> downloads,
+							<Code code="chmod" /> changes permissions. If the first word is a stranger,
+							<Code code="man <command>" /> or a quick "what does this do?" to your AI comes first.
 						</p>
 					</div>
 				</div>
@@ -139,14 +136,10 @@
 					<div>
 						<p class="text-[13px] font-medium" style="color: var(--color-text);">Read each flag</p>
 						<p class="text-xs" style="color: var(--color-text-muted);">
-							Flags change behavior, sometimes drastically — <code
-								style="font-family: var(--font-mono);">rm</code
-							>
-							and <code style="font-family: var(--font-mono);">rm -rf</code> are different animals.
-							Look each one up with
-							<code style="font-family: var(--font-mono);">man</code> or
-							<code style="font-family: var(--font-mono);">--help</code> (Part 1). Never wave through
-							a flag you can't explain.
+							Flags change behavior, sometimes drastically — <Code code="rm" />
+							and <Code code="rm -rf" /> are different animals. Look each one up with
+							<Code code="man" /> or
+							<Code code="--help" /> (Part 1). Never wave through a flag you can't explain.
 						</p>
 					</div>
 				</div>
@@ -162,9 +155,8 @@
 						<p class="text-xs" style="color: var(--color-text-muted);">
 							The most important question: <em>what</em> does this act on? A path? A wildcard? The
 							current directory? Check where you are with
-							<code style="font-family: var(--font-mono);">pwd</code>, and remember that
-							<code style="font-family: var(--font-mono);">*</code> means "everything here" — whatever
-							"here" happens to be.
+							<Code code="pwd" />, and remember that
+							<Code code="*" /> means "everything here" — whatever "here" happens to be.
 						</p>
 					</div>
 				</div>
@@ -176,14 +168,12 @@
 					<div>
 						<p class="text-[13px] font-medium" style="color: var(--color-text);">Rehearse it</p>
 						<p class="text-xs" style="color: var(--color-text-muted);">
-							Before the real thing, run a harmless preview: <code
-								style="font-family: var(--font-mono);">echo</code
-							>
+							Before the real thing, run a harmless preview: <Code code="echo" />
 							the command to see what the wildcards expand to, or
-							<code style="font-family: var(--font-mono);">ls</code> the target to see what would be
-							hit. Many commands have a built-in rehearsal flag —
-							<code style="font-family: var(--font-mono);">--dry-run</code> or
-							<code style="font-family: var(--font-mono);">-n</code> — that shows what
+							<Code code="ls" /> the target to see what would be hit. Many commands have a built-in rehearsal
+							flag —
+							<Code code="--dry-run" /> or
+							<Code code="-n" /> — that shows what
 							<em>would</em> happen without doing it.
 						</p>
 					</div>
@@ -191,11 +181,9 @@
 			</div>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Here's the routine applied to a real suggestion. The agent proposes <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>rm -rf build/*</code
-				> — deleting is irreversible (Part 3), so it earns the full treatment:
+				Here's the routine applied to a real suggestion. The agent proposes <Code
+					code="rm -rf build/*"
+				/> — deleting is irreversible (Part 3), so it earns the full treatment:
 			</p>
 
 			<CodeBlock
@@ -247,37 +235,17 @@ rm -rf build/*`}
 						style="color: var(--color-text);"
 					>
 						<Trash2 size={14} style="color: var(--color-caution);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);"
-								>rm -rf</code
-							> — recursive, forced deletion</span
-						>
+						<span><Code code="rm -rf" /> — recursive, forced deletion</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						No trash can, no confirmation, no undo (Part 3). The danger scales with the target:
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>rm -rf build</code
-						>
+						<Code code="rm -rf build" />
 						is routine,
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>rm -rf *</code
-						>
+						<Code code="rm -rf *" />
 						depends entirely on where you're standing, and anything involving
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">~</code
-						>
+						<Code code="~" />
 						or
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">/</code
-						> deserves a hard stop.
+						<Code code="/" /> deserves a hard stop.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -286,18 +254,10 @@ rm -rf build/*`}
 						style="color: var(--color-text);"
 					>
 						<ShieldAlert size={14} style="color: var(--color-caution);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-							> — anything</span
-						>
+						<span><Code code="sudo" /> — anything</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-						>
+						<Code code="sudo" />
 						removes every guardrail the system has (Part 5). The rule from section 5.3 doubles here: never
 						sudo a command you don't understand — <em>especially</em> one an AI wrote. Understand first,
 						elevate second.
@@ -309,32 +269,19 @@ rm -rf build/*`}
 						style="color: var(--color-text);"
 					>
 						<CloudDownload size={14} style="color: var(--color-caution);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);"
-								>curl ... | bash</code
-							> — run code straight off the internet</span
-						>
+						<span><Code code="curl ... | bash" /> — run code straight off the internet</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						This downloads a script and executes it in one motion, sight unseen. Honesty requires a
 						2026 update: it's now an <em>official</em> install method — Claude Code's documented
 						installer is
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>curl -fsSL https://claude.ai/install.sh | bash</code
-						>, and Codex CLI ships the same way. The real rule is about the <em>source</em>: piping
-						a script over HTTPS from the documented domain of a vendor you chose is a normal install
-						path; piping one from a random gist, README, or an agent's suggestion is not. When in
-						doubt, the two-step version is always available —
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>curl -o install.sh &lt;url&gt;</code
-						>, read it, <em>then</em> run it — and package managers (brew, winget, apt) remain the more
-						auditable alternative.
+						<Code code="curl -fsSL https://claude.ai/install.sh | bash" />, and Codex CLI ships the
+						same way. The real rule is about the <em>source</em>: piping a script over HTTPS from
+						the documented domain of a vendor you chose is a normal install path; piping one from a
+						random gist, README, or an agent's suggestion is not. When in doubt, the two-step
+						version is always available —
+						<Code code="curl -o install.sh <url>" />, read it, <em>then</em> run it — and package managers
+						(brew, winget, apt) remain the more auditable alternative.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -343,35 +290,17 @@ rm -rf build/*`}
 						style="color: var(--color-text);"
 					>
 						<Eraser size={14} style="color: var(--color-caution);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-							> — onto a file you care about</span
-						>
+						<span><Code code=">" /> — onto a file you care about</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						From Part 4: <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-						>
+						From Part 4: <Code code=">" />
 						<strong>truncates first</strong> — the old contents are gone before the new ones arrive.
 						An agent "updating" your
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">.bashrc</code
-						>
+						<Code code=".bashrc" />
 						with
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-						>
+						<Code code=">" />
 						instead of
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>&gt;&gt;</code
-						> just erased it. Check the arrow count.
+						<Code code=">>" /> just erased it. Check the arrow count.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -380,13 +309,7 @@ rm -rf build/*`}
 						style="color: var(--color-text);"
 					>
 						<LockOpen size={14} style="color: var(--color-caution);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);"
-								>chmod 777</code
-							> — everyone may do everything</span
-						>
+						<span><Code code="chmod 777" /> — everyone may do everything</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						The "make the error go away" hammer (Part 5). It works by giving every user on the
@@ -443,7 +366,7 @@ rm -rf build/*`}
 				prompt <em>is</em> the modern read-before-you-run: the skill this course teaches is what you
 				do in the seconds it's on screen. Never YOLO-approve. An agent can propose a thousand
 				commands an hour; it only takes one unread
-				<code style="font-family: var(--font-mono);">rm</code> to make it a bad day.
+				<Code code="rm" /> to make it a bad day.
 			</Callout>
 
 			<h4
@@ -454,25 +377,12 @@ rm -rf build/*`}
 				Try It: Audit the Agent
 			</h4>
 			<PlaygroundNote>
-				An agent left three proposed commands in <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>agent-plan.txt</code
-				>
+				An agent left three proposed commands in <Code code="agent-plan.txt" />
 				— two are safe, one would wipe files you care about. Read the plan with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>, audit each command (rehearse with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo</code
-				>
+				<Code code="cat" />, audit each command (rehearse with
+				<Code code="echo" />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>!), run the safe ones, and don't run the trap.
+				<Code code="ls" />!), run the safe ones, and don't run the trap.
 			</PlaygroundNote>
 			<LessonActivity title="Audit the Agent" scenarioId="audit-the-agent" id="audit-the-agent" />
 
@@ -503,7 +413,7 @@ rm -rf build/*`}
 
 			<Callout type="note">
 				<strong>The Problem:</strong> You keep typing the same three commands to back up your notes.
-				And your AI agents keep leaving mysterious <code>.sh</code> files in your projects. Both problems
+				And your AI agents keep leaving mysterious <Code code=".sh" /> files in your projects. Both problems
 				have the same answer: a shell script is nothing more than commands saved in a file.
 			</Callout>
 
@@ -536,32 +446,16 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 						style="color: var(--color-text);"
 					>
 						<FileCode2 size={14} style="color: var(--color-primary);" />
-						<span
-							>The shebang: <code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);"
-								>#!/usr/bin/env bash</code
-							></span
-						>
+						<span>The shebang: <Code code="#!/usr/bin/env bash" /></span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						The first line of every script tells the system which program should interpret the rest
-						of the file. <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>#!/usr/bin/env bash</code
-						>
+						of the file. <Code code="#!/usr/bin/env bash" />
 						means "run this with bash, wherever bash lives on this machine" — which is why it's preferred
 						over hard-coding a path like
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>/bin/bash</code
-						>. Everything after it is exactly what you'd type at the prompt (and
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">#</code
-						> lines are comments, ignored by the shell).
+						<Code code="/bin/bash" />. Everything after it is exactly what you'd type at the prompt
+						(and
+						<Code code="#" /> lines are comments, ignored by the shell).
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -573,23 +467,12 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 						Variables
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>BACKUP_NAME="..."</code
-						>
+						<Code code="BACKUP_NAME=&quot;...&quot;" />
 						creates a variable (no spaces around the
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">=</code
-						>
+						<Code code="=" />
 						— bash is strict about that), and
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>$BACKUP_NAME</code
-						> uses it — the same dollar-sign expansion you met with environment variables in Part 5, just
-						local to the script.
+						<Code code="$BACKUP_NAME" /> uses it — the same dollar-sign expansion you met with environment
+						variables in Part 5, just local to the script.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -601,11 +484,7 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 						Quoted paths
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>"backups/$BACKUP_NAME"</code
-						>
+						<Code code="&quot;backups/$BACKUP_NAME&quot;" />
 						— double quotes let the variable expand while protecting against spaces. Quoting variables
 						is the habit that separates scripts that work from scripts that work
 						<em>until</em> a filename has a space in it.
@@ -615,10 +494,7 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Now make it runnable. Two steps, both from Part 5: give the file execute permission, then
-				run it with the explicit <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">./</code
-				> path:
+				run it with the explicit <Code code="./" /> path:
 			</p>
 
 			<CodeBlock
@@ -632,22 +508,14 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 			/>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				Arguments: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$1</code
-				> makes it reusable
+				Arguments: <Code code="$1" /> makes it reusable
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Inside a script, <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$1</code
-				>
+				Inside a script, <Code code="$1" />
 				is whatever word came first after the script's name —
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$2</code
-				> the second, and so on. One change turns our notes-only script into a back-up-anything script:
+				<Code code="$2" /> the second, and so on. One change turns our notes-only script into a back-up-anything
+				script:
 			</p>
 
 			<CodeBlock
@@ -675,19 +543,19 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 			<Callout type="important">
 				<strong>Agents write scripts constantly.</strong> Ask an AI to "set up the project" or
 				"automate the deploy" and odds are it produces a
-				<code style="font-family: var(--font-mono);">.sh</code>
+				<Code code=".sh" />
 				file. Until today that file was a black box you ran on trust. Now it's a short text file you can
-				<code style="font-family: var(--font-mono);">cat</code>, read line by line, and audit with
-				the exact routine from 6.1 — because a script is just commands, and you read commands now.
+				<Code code="cat" />, read line by line, and audit with the exact routine from 6.1 — because
+				a script is just commands, and you read commands now.
 			</Callout>
 
 			<Callout type="tip">
 				<strong>Scripts get the audit too — line by line.</strong> Before running any script (yours,
 				an agent's, or one from the internet), read it top to bottom. Each line is a command; each
 				command gets the four-step check. The shebang tells you the language, the variables tell you
-				the moving parts, and the verbs (<code style="font-family: var(--font-mono);">cp</code>,
-				<code style="font-family: var(--font-mono);">rm</code>,
-				<code style="font-family: var(--font-mono);">curl</code>) tell you the risk.
+				the moving parts, and the verbs (<Code code="cp" />,
+				<Code code="rm" />,
+				<Code code="curl" />) tell you the risk.
 			</Callout>
 
 			<h4
@@ -698,35 +566,16 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 				Try It: Automate the Backup
 			</h4>
 			<PlaygroundNote>
-				Build <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">backup.sh</code
-				>
+				Build <Code code="backup.sh" />
 				right in the sandbox — write it line by line with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>echo &gt;&gt;</code
-				>
+				<Code code="echo >>" />
 				(this playground has no full-screen editor), then
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod +x</code
-				>
+				<Code code="chmod +x" />
 				it and run it with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">./backup.sh</code
-				>. Check your work with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>
+				<Code code="./backup.sh" />. Check your work with
+				<Code code="cat" />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls backups</code
-				>.
+				<Code code="ls backups" />.
 			</PlaygroundNote>
 			<LessonActivity title="Automate the Backup" scenarioId="first-script" id="first-script" />
 
@@ -767,10 +616,7 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 					style="color: var(--color-text);">exit code</strong
 				>: <strong style="color: var(--color-text);">0 means success</strong>, and anything else (1
 				to 255) means some flavor of failure. You never see it unless you ask — the special variable
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$?</code
-				> holds the exit code of the last command:
+				<Code code="$?" /> holds the exit code of the last command:
 			</p>
 
 			<CodeBlock
@@ -799,24 +645,12 @@ echo $?
 						style="color: var(--color-text);"
 					>
 						<CircleCheck size={14} style="color: var(--color-tip);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);"
-								>a &amp;&amp; b</code
-							> — "and then" (only on success)</span
-						>
+						<span><Code code="a && b" /> — "and then" (only on success)</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Run <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">b</code
-						>
+						Run <Code code="b" />
 						only if
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">a</code
-						> exited 0. The workhorse: "do this, and if it worked, do that."
+						<Code code="a" /> exited 0. The workhorse: "do this, and if it worked, do that."
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -825,24 +659,12 @@ echo $?
 						style="color: var(--color-text);"
 					>
 						<CircleX size={14} style="color: var(--color-warning);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);"
-								>a || b</code
-							> — "or else" (only on failure)</span
-						>
+						<span><Code code="a || b" /> — "or else" (only on failure)</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Run <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">b</code
-						>
+						Run <Code code="b" />
 						only if
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">a</code
-						> failed. The fallback: "try this, or else do that."
+						<Code code="a" /> failed. The fallback: "try this, or else do that."
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -851,23 +673,12 @@ echo $?
 						style="color: var(--color-text);"
 					>
 						<CircleEqual size={14} style="color: var(--color-text-muted);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);">a ; b</code
-							> — "and regardless"</span
-						>
+						<span><Code code="a ; b" /> — "and regardless"</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Run <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">b</code
-						>
+						Run <Code code="b" />
 						no matter what happened to
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">a</code
-						>. Just two commands on one line — no safety logic at all.
+						<Code code="a" />. Just two commands on one line — no safety logic at all.
 					</p>
 				</div>
 			</div>
@@ -905,15 +716,9 @@ npm test && echo "all green" || echo "tests failed"`}
 			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The classic horror story: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">;</code
-				>
+				The classic horror story: <Code code=";" />
 				where
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&amp;&amp;</code
-				> belonged
+				<Code code="&&" /> belonged
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -938,10 +743,9 @@ cd /tmp/build && rm -rf *
 				one-liner, add a fifth question to the 6.1 routine:
 				<em>what happens if the first command fails?</em>
 				A
-				<code style="font-family: var(--font-mono);">;</code> says "I don't care" — which is almost
-				never true when the next command is destructive. If you see
-				<code style="font-family: var(--font-mono);">cd &lt;anywhere&gt; ; rm</code>, send it back
-				and ask for <code style="font-family: var(--font-mono);">&amp;&amp;</code>.
+				<Code code=";" /> says "I don't care" — which is almost never true when the next command is destructive.
+				If you see
+				<Code code="cd <anywhere> ; rm" />, send it back and ask for <Code code="&&" />.
 			</Callout>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -950,13 +754,10 @@ cd /tmp/build && rm -rf *
 				>. CI pipelines decide pass-or-fail by the exit code of your test command — a green
 				checkmark on GitHub literally means "everything exited 0." And coding agents watch exit
 				codes the same way: run a command, read
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$?</code
-				>, and decide whether to continue, retry, or fix. When your agent says "the tests failed,
-				let me look" — it didn't read your mind. It read an exit code. Scripts join the same game: a
-				script's own exit code is that of its last command, so scripts can chain scripts, and the
-				whole tower stands on one convention. Zero means go.
+				<Code code="$?" />, and decide whether to continue, retry, or fix. When your agent says "the
+				tests failed, let me look" — it didn't read your mind. It read an exit code. Scripts join
+				the same game: a script's own exit code is that of its last command, so scripts can chain
+				scripts, and the whole tower stands on one convention. Zero means go.
 			</p>
 
 			<h4
@@ -967,19 +768,10 @@ cd /tmp/build && rm -rf *
 				Try It: Deploy Only on Green
 			</h4>
 			<PlaygroundNote>
-				The tests here fail on the first run. Use <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$?</code
-				>,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&amp;&amp;</code
-				>, and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">||</code
-				> to build a one-liner that deploys only when the tests pass — then fix the failing check and
-				watch the same line take the other branch.
+				The tests here fail on the first run. Use <Code code="$?" />,
+				<Code code="&&" />, and
+				<Code code="||" /> to build a one-liner that deploys only when the tests pass — then fix the failing
+				check and watch the same line take the other branch.
 			</PlaygroundNote>
 			<LessonActivity title="Deploy Only on Green" scenarioId="exit-codes" id="exit-codes" />
 

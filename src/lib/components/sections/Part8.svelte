@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Cog, Sprout, Wrench, AppWindow, Cable, Shell, CookingPot, Zap } from 'lucide-svelte';
+	import Code from '../ui/Code.svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -55,14 +56,8 @@
 				You've used every piece of this machine for seven parts — typed at prompts, piped bytes,
 				interrupted stuck commands, read exit codes. Time to see inside. If you've ever wondered why
 				it's called a
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">tty</code
-				>, why arrow keys sometimes print
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">^[[A</code
-				>
+				<Code code="tty" />, why arrow keys sometimes print
+				<Code code="^[[A" />
 				instead of moving, or what Ctrl+C <em>actually</em> does, this is where those mysteries get solved.
 				It's deliberately the most technical section of the course — and it repays the effort with a working
 				mental model of the machine you've been driving all along.
@@ -184,20 +179,11 @@
 					</p>
 					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 						Every keystroke is delivered immediately, unedited. Programs that react key by key —
-						<code
-							class="rounded px-1 py-0.5 text-[11px]"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">vim</code
-						>,
-						<code
-							class="rounded px-1 py-0.5 text-[11px]"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">less</code
-						>, the arrow-key line editor inside bash itself — switch the terminal into raw mode
-						while they run, and back on exit. (A crash that skips the "back" is how terminals end up
-						garbled —
-						<code
-							class="rounded px-1 py-0.5 text-[11px]"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">reset</code
-						> fixes it.)
+						<Code code="vim" />,
+						<Code code="less" />, the arrow-key line editor inside bash itself — switch the terminal
+						into raw mode while they run, and back on exit. (A crash that skips the "back" is how
+						terminals end up garbled —
+						<Code code="reset" /> fixes it.)
 					</p>
 				</div>
 			</div>
@@ -206,21 +192,12 @@
 				That split personality explains a small mystery. Arrow keys don't send a character — there
 				is no "up" letter — they send a short byte sequence beginning with the Escape character: up
 				arrow is
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ESC [ A</code
-				>. A raw-mode program recognizes the sequence and moves the cursor. Hand it to a program
-				reading cooked input — press up while
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>
+				<Code code="ESC [ A" />. A raw-mode program recognizes the sequence and moves the cursor.
+				Hand it to a program reading cooked input — press up while
+				<Code code="cat" />
 				is waiting — and it echoes as the literal
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">^[[A</code
-				>. Now you know exactly what that gibberish means: the terminal spoke arrow, and nobody
-				translated. You can inspect your own line discipline's settings any time:
+				<Code code="^[[A" />. Now you know exactly what that gibberish means: the terminal spoke
+				arrow, and nobody translated. You can inspect your own line discipline's settings any time:
 			</p>
 
 			<CodeBlock
@@ -232,36 +209,22 @@
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">icanon</code
-				>
+				<Code code="icanon" />
 				is cooked mode's official name,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">erase = ^?</code
-				>
+				<Code code="erase = ^?" />
 				is the kernel handling your Backspace — and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">intr = ^C</code
-				> is a promise we'll cash in a moment.
+				<Code code="intr = ^C" /> is a promise we'll cash in a moment.
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Escape sequences run in the other direction too — they're how programs <em>draw</em>. A
 				program attached to a tty can only send bytes, so color, bold, and cursor movement travel
 				<strong style="color: var(--color-text);">in-band</strong>, mixed right into the text: byte
-				27 (<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ESC</code
-				>, written
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">\e</code
-				>) announces "the next few bytes are instructions, not text", and the emulator obeys them
-				instead of printing them. The vocabulary was standardized around DEC's VT100 terminal in
-				1978 — your gleaming modern emulator is still, at heart, impersonating it. Watch it obey:
+				27 (<Code code="ESC" />, written
+				<Code code="\e" />) announces "the next few bytes are instructions, not text", and the
+				emulator obeys them instead of printing them. The vocabulary was standardized around DEC's
+				VT100 terminal in 1978 — your gleaming modern emulator is still, at heart, impersonating it.
+				Watch it obey:
 			</p>
 
 			<CodeBlock
@@ -271,22 +234,13 @@
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">\e[32m</code
-				>
+				<Code code="\e[32m" />
 				means "switch the pen to green";
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">\e[0m</code
-				>
+				<Code code="\e[0m" />
 				means "back to normal". Every colorful
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>, every fancy prompt, every full-screen dashboard is built from sequences like these — and
-				the colored output in this site's playground works the same way in spirit: the text carries
-				its own formatting, and whatever paints the glyphs interprets it.
+				<Code code="ls" />, every fancy prompt, every full-screen dashboard is built from sequences
+				like these — and the colored output in this site's playground works the same way in spirit:
+				the text carries its own formatting, and whatever paints the glyphs interprets it.
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -294,16 +248,10 @@
 					>Ctrl+C</strong
 				>. It feels like input, but it never reaches the program as text. When Ctrl+C's byte arrives
 				at the line discipline, the kernel intercepts it — that's the
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">intr = ^C</code
-				>
+				<Code code="intr = ^C" />
 				setting you just saw — and instead of passing it along, sends the foreground program a
 				<strong style="color: var(--color-text);">signal</strong> called
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">SIGINT</code
-				>
+				<Code code="SIGINT" />
 				("interrupt"). The program can catch it and tidy up, or die on the spot. Either way, you get your
 				prompt back.
 			</p>
@@ -312,19 +260,14 @@
 				The cheat sheet's panic row promises Ctrl+C will interrupt a stuck command, and now you know
 				why it's reliable: it isn't input the program must get around to reading — it's the kernel
 				tapping the program on the shoulder. That's why it works even when a program is too busy to
-				look at the keyboard. (A few programs catch <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">SIGINT</code
-				> and ask questions first — that's them trapping the signal, not you failing to send it.)
+				look at the keyboard. (A few programs catch <Code code="SIGINT" /> and ask questions first — that's
+				them trapping the signal, not you failing to send it.)
 			</Callout>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Put the whole chain together, and you can narrate the few milliseconds after you press Enter
 				on
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>:
+				<Code code="ls" />:
 			</p>
 
 			<ol
@@ -342,10 +285,7 @@
 				<li class="list-decimal">
 					The <strong style="color: var(--color-text);">shell</strong>, which has been blocked
 					reading the slave, wakes up holding
-					<code
-						class="rounded px-1.5 py-0.5 text-xs"
-						style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-					> and parses it — expanding any $VARIABLES, ~, and globs first.
+					<Code code="ls" /> and parses it — expanding any $VARIABLES, ~, and globs first.
 				</li>
 				<li class="list-decimal">
 					It <strong style="color: var(--color-text);">forks</strong> a copy of itself and
@@ -362,10 +302,8 @@
 					> reads them, obeys the escapes, and paints glyphs into its character grid.
 				</li>
 				<li class="list-decimal">
-					ls exits; the shell collects its exit code (the <code
-						class="rounded px-1.5 py-0.5 text-xs"
-						style="background: var(--color-code-bg); font-family: var(--font-mono);">$?</code
-					> you met in Part 6) and prints a fresh prompt. Your turn.
+					ls exits; the shell collects its exit code (the <Code code="$?" /> you met in Part 6) and prints
+					a fresh prompt. Your turn.
 				</li>
 			</ol>
 
@@ -431,10 +369,7 @@
 				dialect,
 				<strong style="color: var(--color-text);">OSC 633</strong>, which also carries the command
 				line itself. You never see any of it — the emulator swallows the markers like it swallows
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">\e[32m</code
-				> — but the byte stream is now structured:
+				<Code code="\e[32m" /> — but the byte stream is now structured:
 			</p>
 
 			<MermaidDiagram
@@ -473,10 +408,7 @@
 				splitting in two. On one side, the classic emulators keep competing on speed and standards:
 				<strong style="color: var(--color-text);">Ghostty</strong> 1.3 (March 2026) restructured
 				itself so its entire terminal core is a reusable library,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">libghostty</code
-				>
+				<Code code="libghostty" />
 				— the machinery of 8.1, packaged for any app that wants to embed a real terminal. On the other
 				side, a new generation is being designed <em>around</em> agents:
 				<strong style="color: var(--color-text);">Warp</strong> now calls itself an "agentic
@@ -504,21 +436,12 @@
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				The adoption runs deeper than windows and panes. Headless agent CLIs make the agent itself a
 				<strong style="color: var(--color-text);">composable Unix tool</strong>: run
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">claude -p</code
-				>
+				<Code code="claude -p" />
 				("print mode") and the agent reads stdin, writes stdout, and sets an exit code — the exact contract
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-				>
+				<Code code="grep" />
 				and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sort</code
-				> have honored since 1973. Which means everything you learned in Part 4 and Part 5 applies, unchanged,
-				to intelligence itself:
+				<Code code="sort" /> have honored since 1973. Which means everything you learned in Part 4 and
+				Part 5 applies, unchanged, to intelligence itself:
 			</p>
 
 			<CodeBlock
@@ -533,20 +456,13 @@ git log --oneline -20 \\
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Read that first line again with Part 4 eyes: a program's output flowing through <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">|</code
-				>
+				Read that first line again with Part 4 eyes: a program's output flowing through <Code
+					code="|"
+				/>
 				into another program's input. The second program just happens to be a language model. It sorts
 				into pipelines, redirects into files, chains with
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">&amp;&amp;</code
-				>, and reports success through
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$?</code
-				> — the Unix philosophy, now with a very well-read tool in the toolbox.
+				<Code code="&&" />, and reports success through
+				<Code code="$?" /> — the Unix philosophy, now with a very well-read tool in the toolbox.
 			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -574,15 +490,9 @@ trap cleanup EXIT INT            # runs on normal exit AND on Ctrl+C`}
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				That <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">trap</code
-				>
+				That <Code code="trap" />
 				line is 8.1's SIGINT lesson cashed in: Ctrl+C sends a signal, signals can be caught, and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">trap</code
-				>
+				<Code code="trap" />
 				is how a script catches one — so your temp files get cleaned up even when you interrupt it mid-run.
 				Put the armor on a real job and you get something like this: a script that runs an agent review
 				over every file you've changed and collects the results —
@@ -611,26 +521,14 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Count the course in that script: redirection and pipes (Part 4), a loop feeding on a file
-				(the <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">while read</code
-				>
+				(the <Code code="while read" />
 				pattern — each line of
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">changed.txt</code
-				>
+				<Code code="changed.txt" />
 				lands in
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">$file</code
-				>), scripting and variables (Part 6), signals and cleanup (this part), and an AI agent doing
-				the reading — supervised by a script <em>you</em> can read line by line. If it fails
-				halfway,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">set -e</code
-				>
+				<Code code="$file" />), scripting and variables (Part 6), signals and cleanup (this part),
+				and an AI agent doing the reading — supervised by a script <em>you</em> can read line by
+				line. If it fails halfway,
+				<Code code="set -e" />
 				stops it; if you Ctrl+C it, the trap tidies up. This is what "advanced automation" actually looks
 				like: not longer commands — stronger habits.
 			</p>
@@ -645,10 +543,9 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 			<Callout type="tip">
 				<strong>Take stock of where you're standing.</strong> You can narrate a keystroke's journey
 				through the kernel, read the invisible protocol your terminal speaks to your editor, pipe a
-				language model like it's <code style="font-family: var(--font-mono);">grep</code>, and write
-				scripts that clean up after themselves when signals fly. That's a deeper understanding of
-				the terminal than most working professionals carry — and the tour is nearly over. One part
-				to go: the send-off.
+				language model like it's <Code code="grep" />, and write scripts that clean up after
+				themselves when signals fly. That's a deeper understanding of the terminal than most working
+				professionals carry — and the tour is nearly over. One part to go: the send-off.
 			</Callout>
 		</div>
 	</div>

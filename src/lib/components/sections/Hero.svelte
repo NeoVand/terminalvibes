@@ -15,6 +15,7 @@
 		TextCursor
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Code from '../ui/Code.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -78,11 +79,8 @@
 			<strong style="color: var(--color-text);">Welcome!</strong> Your AI assistant keeps proposing
 			shell commands — this guide teaches you to read, verify, and run them with confidence. From
 			your very first
-			<code
-				class="rounded px-1.5 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">echo</code
-			> to auditing an agent's script, every concept is explained visually, then practiced hands-on. Two
-			companions will follow you through all nine parts:
+			<Code code="echo" /> to auditing an agent's script, every concept is explained visually, then practiced
+			hands-on. Two companions will follow you through all nine parts:
 		</p>
 
 		<div class="mb-5 flex flex-wrap gap-2">
@@ -493,26 +491,14 @@
 
 		<Callout type="warning" title="PowerShell is a different language">
 			Windows also ships <strong>PowerShell</strong> and the old <strong>cmd</strong>. They are real
-			shells — but they speak a <em>different language</em> (<code
-				class="rounded px-1 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">dir</code
-			>
+			shells — but they speak a <em>different language</em> (<Code code="dir" />
 			instead of
-			<code
-				class="rounded px-1 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-			>,
-			<code
-				class="rounded px-1 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">Remove-Item</code
-			>
+			<Code code="ls" />,
+			<Code code="Remove-Item" />
 			instead of
-			<code
-				class="rounded px-1 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-			>). This course teaches <strong>bash</strong>, the language of macOS, Linux, servers, and AI
-			agents. On Windows, always make sure you're in a WSL or Git Bash window before following
-			along.
+			<Code code="rm" />). This course teaches <strong>bash</strong>, the language of macOS, Linux,
+			servers, and AI agents. On Windows, always make sure you're in a WSL or Git Bash window before
+			following along.
 		</Callout>
 
 		<p class="mt-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -591,10 +577,7 @@
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>Your current directory</strong> — where commands will act. The
-					<code
-						class="rounded px-1 py-0.5 text-[11px]"
-						style="background: var(--color-code-bg); font-family: var(--font-mono);">~</code
-					> is shorthand for your home folder. Part 2 is all about moving this around.
+					<Code code="~" /> is shorthand for your home folder. Part 2 is all about moving this around.
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -607,16 +590,10 @@
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>"Your turn":</strong> the shell is ready for a command. A
-					<code
-						class="rounded px-1 py-0.5 text-[11px]"
-						style="background: var(--color-code-bg); font-family: var(--font-mono);">$</code
-					>
+					<Code code="$" />
 					means you're a normal user; a
-					<code
-						class="rounded px-1 py-0.5 text-[11px]"
-						style="background: var(--color-code-bg); font-family: var(--font-mono);">#</code
-					> means you're root — the all-powerful admin. Docs use a leading $ to mean "type this"; don't
-					copy the $ itself.
+					<Code code="#" /> means you're root — the all-powerful admin. Docs use a leading $ to mean "type
+					this"; don't copy the $ itself.
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">

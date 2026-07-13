@@ -10,6 +10,7 @@
 		MapPinOff
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Code from '../ui/Code.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -43,28 +44,17 @@
 			copy, move, rename, delete. They're wonderfully fast — one line does what fifty drag-and-drops
 			would — and they come with a responsibility the graphical world hid from you: there is no
 			confirmation dialog, and for
-			<code
-				class="rounded px-1.5 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-			>, no trash can. This part teaches the commands and, just as deliberately, the habits that
-			make them safe.
+			<Code code="rm" />, no trash can. This part teaches the commands and, just as deliberately,
+			the habits that make them safe.
 		</p>
 
 		<Callout type="important">
 			The safety net in the terminal isn't a feature — it's a <strong>ritual</strong>: look before
-			you act (<code
-				class="rounded px-1.5 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-			>
-			first), prefer interactive flags (<code
-				class="rounded px-1.5 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">-i</code
-			>) while learning, and preview every wildcard with
-			<code
-				class="rounded px-1.5 py-0.5 text-xs"
-				style="background: var(--color-code-bg); font-family: var(--font-mono);">echo</code
-			> before letting it loose. Every habit in this part exists because someone, somewhere, lost a day's
-			work not having it.
+			you act (<Code code="ls" />
+			first), prefer interactive flags (<Code code="-i" />) while learning, and preview every
+			wildcard with
+			<Code code="echo" /> before letting it loose. Every habit in this part exists because someone, somewhere,
+			lost a day's work not having it.
 		</Callout>
 
 		<!-- 3.1 Copying -->
@@ -73,10 +63,8 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Copying is the gentlest of the three power tools — the original is never touched. It's also
-				your cheapest insurance policy: one <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
-				> before an experiment means there's always a way back.
+				your cheapest insurance policy: one <Code code="cp" /> before an experiment means there's always
+				a way back.
 			</p>
 
 			<div class="my-6">
@@ -89,17 +77,12 @@
 
 			<Callout type="note">
 				<strong>The Problem:</strong> You're about to let an AI agent rewrite
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">config.yaml</code
-				>. If its "improvement" breaks everything, you want the original back in one command.
+				<Code code="config.yaml" />. If its "improvement" breaks everything, you want the original
+				back in one command.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
-				>
+				<Code code="cp" />
 				always reads the same way: <strong>source first, destination second</strong> — "copy
 				<em>this</em>, to <em>there</em>." What "there" means depends on what the destination is:
 			</p>
@@ -116,16 +99,9 @@ cp config.yaml backups/`}
 			<Callout type="tip">
 				That first line is the <strong>backup-before-experiment</strong> pattern, and it's worth
 				making a reflex: before any risky edit — yours or an agent's —
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>cp file file.bak</code
-				>. Restoring later is just the reverse:
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>cp config.yaml.bak config.yaml</code
-				>. (Part 6's Git-free time machine, until you have Git.)
+				<Code code="cp file file.bak" />. Restoring later is just the reverse:
+				<Code code="cp config.yaml.bak config.yaml" />. (Part 6's Git-free time machine, until you
+				have Git.)
 			</Callout>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -133,15 +109,12 @@ cp config.yaml backups/`}
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Ask <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
-				> to copy a directory and it declines — a folder can contain thousands of files, and cp wants
-				you to say you mean it:
+				Ask <Code code="cp" /> to copy a directory and it declines — a folder can contain thousands of
+				files, and cp wants you to say you mean it:
 			</p>
 
 			<CodeBlock
-				title="cp -r for directories"
+				title="`cp -r` for directories"
 				code={`cp projects backup-projects
 # cp: -r not specified; omitting directory 'projects'
 
@@ -151,26 +124,13 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 			<Callout type="warning">
 				<strong>cp overwrites silently.</strong> If the destination file already exists, cp replaces
 				it — no question asked, old contents gone. While you're learning, add
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-i</code
-				>
+				<Code code="-i" />
 				("interactive"):
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>cp -i config.yaml backups/</code
-				>
+				<Code code="cp -i config.yaml backups/" />
 				asks
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">overwrite?</code
-				>
+				<Code code="overwrite?" />
 				before clobbering anything. This same silent-overwrite rule returns with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv</code
-				> in the next section — it's a theme.
+				<Code code="mv" /> in the next section — it's a theme.
 			</Callout>
 
 			<VibeBox
@@ -194,10 +154,7 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 				Here's a small mind-bender: the terminal has no "rename" command, because it doesn't need
 				one. Renaming <em>is</em> moving — moving a file to a new name in the same place. One
 				command,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv</code
-				>, does both.
+				<Code code="mv" />, does both.
 			</p>
 
 			<div class="my-6">
@@ -210,21 +167,13 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 
 			<Callout type="note">
 				<strong>The Problem:</strong> The agent scaffolded your project but named the main file
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">untitled.py</code
-				>, and dropped three data files in the project root that belong in
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">data/</code
-				>. Tidy it up.
+				<Code code="untitled.py" />, and dropped three data files in the project root that belong in
+				<Code code="data/" />. Tidy it up.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Like <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
-				>, it's always <strong>source first, destination second</strong> — and the same two shapes:
+				Like <Code code="cp" />, it's always <strong>source first, destination second</strong> — and the
+				same two shapes:
 			</p>
 
 			<CodeBlock
@@ -240,55 +189,27 @@ mv draft.md docs/chapter-1.md`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Two nice surprises compared to <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
-				>:
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv</code
-				>
+				Two nice surprises compared to <Code code="cp" />:
+				<Code code="mv" />
 				moves whole folders <em>without</em> needing
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-r</code
-				>
+				<Code code="-r" />
 				(on the same disk it just relabels the folder's address — instant, even for gigabytes), and since
 				nothing is duplicated, there's no copy lying around to get stale.
 			</p>
 
 			<Callout type="warning">
 				<strong>The overwrite danger, part two.</strong> If the destination name already exists,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv</code
-				>
+				<Code code="mv" />
 				replaces it silently — and unlike cp, you lose <em>both</em> versions of the story: the
 				destination's old contents are gone, and the source no longer exists under its old name.
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>mv notes.txt ideas.txt</code
-				>
+				<Code code="mv notes.txt ideas.txt" />
 				when
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ideas.txt</code
-				>
+				<Code code="ideas.txt" />
 				already exists destroys
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ideas.txt</code
-				>. The fix is the same reflex:
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv -i</code
-				>
+				<Code code="ideas.txt" />. The fix is the same reflex:
+				<Code code="mv -i" />
 				asks before overwriting, and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				> the destination first when in doubt.
+				<Code code="ls" /> the destination first when in doubt.
 			</Callout>
 
 			<VibeBox
@@ -311,20 +232,11 @@ mv draft.md docs/chapter-1.md`}
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				This is the most important safety lesson in the entire course. Everything else in the
 				terminal is forgiving — errors are harmless,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>
+				<Code code="cd" />
 				can't hurt you,
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
-				>
+				<Code code="cp" />
 				leaves originals alone.
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				> is the exception. Read this section twice.
+				<Code code="rm" /> is the exception. Read this section twice.
 			</p>
 
 			<div class="my-6">
@@ -338,16 +250,10 @@ mv draft.md docs/chapter-1.md`}
 			<Callout type="caution">
 				<strong>rm has no trash can.</strong> When your file manager "deletes" a file, it moves it
 				to the Trash, where it sits recoverable for weeks.
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				>
+				<Code code="rm" />
 				does no such thing: the file is gone the instant you press Enter. No confirmation, no undo, no
 				recovery. Treat every
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				> as permanent, because it is.
+				<Code code="rm" /> as permanent, because it is.
 			</Callout>
 
 			<CodeBlock
@@ -360,20 +266,11 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Each flag is reasonable alone. <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-r</code
-				>
+				Each flag is reasonable alone. <Code code="-r" />
 				recurses into folders;
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-f</code
-				>
+				<Code code="-f" />
 				suppresses prompts and "no such file" errors so scripts run clean. Combined as
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -rf</code
-				>, they mean:
+				<Code code="rm -rf" />, they mean:
 				<em>delete everything at this path, recursively, without asking, without stopping</em>. Now
 				add the two ingredients from your recent lessons and you have the terminal's most famous
 				disaster recipe:
@@ -401,8 +298,7 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 						+ a wildcard
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						<code style="font-family: var(--font-mono);">*</code> expands to "everything here" — however
-						much that turns out to be (next section).
+						<Code code="*" /> expands to "everything here" — however much that turns out to be (next section).
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-caution-bg);">
@@ -415,31 +311,21 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						You <em>thought</em> you were in
-						<code style="font-family: var(--font-mono);">~/tmp</code>. You were in
-						<code style="font-family: var(--font-mono);">~/projects</code>. Part 2's
-						<code style="font-family: var(--font-mono);">pwd</code> habit exists for this moment.
+						<Code code="~/tmp" />. You were in
+						<Code code="~/projects" />. Part 2's
+						<Code code="pwd" /> habit exists for this moment.
 					</p>
 				</div>
 			</div>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				A single mistyped space does it too: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>rm -rf old-app /</code
-				>
+				A single mistyped space does it too: <Code code="rm -rf old-app /" />
 				(note the stray space) is not "delete old-app/" — it's "delete old-app,
 				<em>and also the entire filesystem starting at root</em>." This exact typo has destroyed
 				production servers. It's why modern systems refuse plain
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -rf /</code
-				>
+				<Code code="rm -rf /" />
 				without an extra flag — but they won't save you from
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~</code
-				> or a wrong folder.
+				<Code code="~" /> or a wrong folder.
 			</p>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -448,26 +334,14 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Here's the habit that makes
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				>
+				<Code code="rm" />
 				boring instead of scary. Never aim
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				>
+				<Code code="rm" />
 				at anything you haven't just looked at. List first, confirm with your eyes, then recall the command
 				(<strong>up-arrow</strong>) and swap
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>
+				<Code code="ls" />
 				for
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				> — same targets, guaranteed:
+				<Code code="rm" /> — same targets, guaranteed:
 			</p>
 
 			<CodeBlock
@@ -480,10 +354,7 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 			<Callout type="important">
 				<strong>The AI angle — this is a stop-and-read moment.</strong> When a coding agent proposes
 				a command containing
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -rf</code
-				>, do not rubber-stamp it. Read three things before approving:
+				<Code code="rm -rf" />, do not rubber-stamp it. Read three things before approving:
 				<strong>the exact path</strong>
 				(absolute? relative to <em>what</em>?), <strong>any wildcard</strong> (what could it expand
 				to?), and <strong>the working directory</strong> the agent is running in. Agents make location
@@ -492,17 +363,11 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 			</Callout>
 
 			<Callout type="tip">
-				Training wheels while you learn: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -i</code
-				>
+				Training wheels while you learn: <Code code="rm -i" />
 				asks before every single deletion, and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -I</code
-				> (capital i) asks once when deleting more than three files — a good permanent default. And for
-				anything precious, the calmer move is often mv: relocate to a scrap folder today, delete the scrap
-				folder next week.
+				<Code code="rm -I" /> (capital i) asks once when deleting more than three files — a good permanent
+				default. And for anything precious, the calmer move is often mv: relocate to a scrap folder today,
+				delete the scrap folder next week.
 			</Callout>
 
 			<h4
@@ -513,23 +378,11 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 				Try It: Clean the Downloads Mess
 			</h4>
 			<PlaygroundNote>
-				A cluttered downloads folder awaits: inspect what's there with <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>
+				A cluttered downloads folder awaits: inspect what's there with <Code code="ls" />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>, make folders, sort keepers into them with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv</code
-				>, and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				> the junk — practicing the ls-first ritual where deletion can't hurt you.
+				<Code code="cat" />, make folders, sort keepers into them with
+				<Code code="mv" />, and
+				<Code code="rm" /> the junk — practicing the ls-first ritual where deletion can't hurt you.
 			</PlaygroundNote>
 			<LessonActivity title="Clean the Downloads Mess" scenarioId="tidy-up" id="tidy-up" />
 
@@ -566,11 +419,8 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 
 			<Callout type="note">
 				<strong>The Problem:</strong> The agent's test run left 40
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.tmp</code
-				> files scattered through your project. Deleting them one by one would take ten minutes. One pattern
-				does it in a second — if you can trust what the pattern matches.
+				<Code code=".tmp" /> files scattered through your project. Deleting them one by one would take
+				ten minutes. One pattern does it in a second — if you can trust what the pattern matches.
 			</Callout>
 
 			<div class="my-4 overflow-hidden rounded-lg" style="background: var(--color-bg-secondary);">
@@ -590,37 +440,21 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 					</thead>
 					<tbody style="color: var(--color-text-secondary);">
 						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"
-								><code
-									class="rounded px-1.5 py-0.5 text-xs"
-									style="background: var(--color-code-bg); font-family: var(--font-mono);">*</code
-								></td
-							>
+							<td class="px-4 py-2"><Code code="*" /></td>
 							<td class="px-4 py-2">Any run of characters (including none)</td>
 							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
 								>*.log → app.log, errors.log</td
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"
-								><code
-									class="rounded px-1.5 py-0.5 text-xs"
-									style="background: var(--color-code-bg); font-family: var(--font-mono);">?</code
-								></td
-							>
+							<td class="px-4 py-2"><Code code="?" /></td>
 							<td class="px-4 py-2">Exactly one character</td>
 							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
 								>page?.html → page1.html, not page12.html</td
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"
-								><code
-									class="rounded px-1.5 py-0.5 text-xs"
-									style="background: var(--color-code-bg); font-family: var(--font-mono);"
-									>[abc]</code
-								></td
-							>
+							<td class="px-4 py-2"><Code code="[abc]" /></td>
 							<td class="px-4 py-2">One character from the set (ranges like [0-9] work too)</td>
 							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
 								>report-[12].txt → report-1.txt, report-2.txt</td
@@ -636,14 +470,8 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				This is the one concept that makes wildcards predictable instead of magical. When you type
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm *.tmp</code
-				>, the
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
-				>
+				<Code code="rm *.tmp" />, the
+				<Code code="rm" />
 				program never sees a star. The <em>shell</em> expands the pattern against the current
 				directory <em>first</em>, then runs the command with the resulting list of plain filenames:
 			</p>
@@ -658,10 +486,7 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Two consequences follow directly. First, what a glob matches depends entirely on
 				<strong>where you are</strong> — the same
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">*.tmp</code
-				>
+				<Code code="*.tmp" />
 				is three files in one folder and three hundred in another (this is the wildcard half of the rm
 				-rf disaster from 3.3). Second, since expansion happens before <em>any</em> command runs, you
 				can ask a harmless command to show you the expansion:
@@ -677,23 +502,13 @@ rm *.tmp                               # Now you KNOW what this deletes`}
 
 			<Callout type="important">
 				<strong>Echo the glob first.</strong>
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo</code
-				>
+				<Code code="echo" />
 				just prints its arguments — so
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>echo &lt;pattern&gt;</code
-				>
-				is a free, perfectly safe preview of any wildcard. (<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>ls &lt;pattern&gt;</code
-				> works too.) Make it a reflex before every destructive glob, and apply it to AI-proposed commands:
-				when an agent suggests a command containing a wildcard, echo that pattern in the target directory
-				before you approve the real thing.
+				<Code code="echo <pattern>" />
+				is a free, perfectly safe preview of any wildcard. (<Code code="ls <pattern>" /> works too.) Make
+				it a reflex before every destructive glob, and apply it to AI-proposed commands: when an agent
+				suggests a command containing a wildcard, echo that pattern in the target directory before you
+				approve the real thing.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -709,22 +524,13 @@ ls src/*.js               # Globs work inside paths too`}
 			/>
 
 			<Callout type="warning">
-				Two classic surprises: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">*</code
-				>
+				Two classic surprises: <Code code="*" />
 				does <strong>not</strong> match hidden dotfiles (a small mercy —
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm *</code
-				>
+				<Code code="rm *" />
 				spares your .env), and a pattern that matches <em>nothing</em> is passed to the command
 				literally, star and all — which is why a typo'd glob often produces the baffling error
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>cannot access '*.tpm'</code
-				>. Both surprises are caught instantly by the echo habit.
+				<Code code="cannot access '*.tpm'" />. Both surprises are caught instantly by the echo
+				habit.
 			</Callout>
 
 			<h4
@@ -736,10 +542,8 @@ ls src/*.js               # Globs work inside paths too`}
 			</h4>
 			<PlaygroundNote>
 				A folder full of similar names — your job is to write patterns that catch exactly the right
-				ones and nothing else. <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo</code
-				> every glob before you commit to it; that's the skill being tested.
+				ones and nothing else. <Code code="echo" /> every glob before you commit to it; that's the skill
+				being tested.
 			</PlaygroundNote>
 			<LessonActivity
 				title="Select Exactly the Right Files"

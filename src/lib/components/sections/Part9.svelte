@@ -13,6 +13,7 @@
 		GitBranch
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Code from '../ui/Code.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
@@ -137,15 +138,14 @@
 							Compose small tools
 						</p>
 						<p class="text-xs" style="color: var(--color-text-muted);">
-							The Unix philosophy from Part 4: each command does one thing well, and <code
-								style="font-family: var(--font-mono);">|</code
-							>
+							The Unix philosophy from Part 4: each command does one thing well, and <Code
+								code="|"
+							/>
 							snaps them together.
-							<code style="font-family: var(--font-mono);">grep</code> doesn't sort and
-							<code style="font-family: var(--font-mono);">sort</code> doesn't count — yet
-							<code style="font-family: var(--font-mono);">grep ERROR log | sort | uniq -c</code> answers
-							a question none of them could alone. When a problem looks big, don't hunt for a big tool
-							— chain small ones.
+							<Code code="grep" /> doesn't sort and
+							<Code code="sort" /> doesn't count — yet
+							<Code code="grep ERROR log | sort | uniq -c" /> answers a question none of them could alone.
+							When a problem looks big, don't hunt for a big tool — chain small ones.
 						</p>
 					</div>
 				</div>
@@ -159,13 +159,11 @@
 							Read before you run
 						</p>
 						<p class="text-xs" style="color: var(--color-text-muted);">
-							The safety habit that threads the whole course: <code
-								style="font-family: var(--font-mono);">ls</code
-							>
-							before <code style="font-family: var(--font-mono);">rm</code>, echo the glob before
-							trusting it, count the arrows in a redirect, audit every AI-proposed command with the
-							four-step routine from 6.1. The terminal does exactly what you say, immediately, with
-							no undo — reading first is what makes that power safe to hold.
+							The safety habit that threads the whole course: <Code code="ls" />
+							before <Code code="rm" />, echo the glob before trusting it, count the arrows in a
+							redirect, audit every AI-proposed command with the four-step routine from 6.1. The
+							terminal does exactly what you say, immediately, with no undo — reading first is what
+							makes that power safe to hold.
 						</p>
 					</div>
 				</div>
@@ -232,10 +230,7 @@
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Everything from the course, grouped the way you'll reach for it. When a command's flags slip
-				your mind, <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">--help</code
-				> is one keystroke closer than this table.
+				your mind, <Code code="--help" /> is one keystroke closer than this table.
 			</p>
 
 			<div class="overflow-x-auto rounded-lg" style="background: var(--color-bg-secondary);">
@@ -261,23 +256,21 @@
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Where am I?</td>
-							<td class="px-3 py-2"><code style="font-family: var(--font-mono);">pwd</code></td>
+							<td class="px-3 py-2"><Code code="pwd" /></td>
 							<td class="px-3 py-2">Print working directory</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">What's here?</td>
-							<td class="px-3 py-2"><code style="font-family: var(--font-mono);">ls -la</code></td>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">-a</code> shows dotfiles</td
-							>
+							<td class="px-3 py-2"><Code code="ls -la" /></td>
+							<td class="px-3 py-2"><Code code="-a" /> shows dotfiles</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Go somewhere</td>
-							<td class="px-3 py-2"><code style="font-family: var(--font-mono);">cd path</code></td>
+							<td class="px-3 py-2"><Code code="cd path" /></td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">cd ..</code> up,
-								<code style="font-family: var(--font-mono);">cd ~</code> home,
-								<code style="font-family: var(--font-mono);">cd -</code> back</td
+								><Code code="cd .." /> up,
+								<Code code="cd ~" /> home,
+								<Code code="cd -" /> back</td
 							>
 						</tr>
 						<tr
@@ -290,25 +283,23 @@
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Make folders / files</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">mkdir -p a/b</code> ·
-								<code style="font-family: var(--font-mono);">touch f</code></td
+								><Code code="mkdir -p a/b" /> ·
+								<Code code="touch f" /></td
 							>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">-p</code> builds the whole path</td
-							>
+							<td class="px-3 py-2"><Code code="-p" /> builds the whole path</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Read a file</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">cat</code> ·
-								<code style="font-family: var(--font-mono);">less</code> ·
-								<code style="font-family: var(--font-mono);">head</code> ·
-								<code style="font-family: var(--font-mono);">tail</code></td
+								><Code code="cat" /> ·
+								<Code code="less" /> ·
+								<Code code="head" /> ·
+								<Code code="tail" /></td
 							>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">q</code> quits
-								<code style="font-family: var(--font-mono);">less</code>;
-								<code style="font-family: var(--font-mono);">tail -f</code> follows</td
+								><Code code="q" /> quits
+								<Code code="less" />;
+								<Code code="tail -f" /> follows</td
 							>
 						</tr>
 						<tr
@@ -321,32 +312,26 @@
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Copy / move</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">cp -r src dst</code> ·
-								<code style="font-family: var(--font-mono);">mv src dst</code></td
+								><Code code="cp -r src dst" /> ·
+								<Code code="mv src dst" /></td
 							>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">mv</code> also renames</td
-							>
+							<td class="px-3 py-2"><Code code="mv" /> also renames</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Delete</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">rm file</code> ·
-								<code style="font-family: var(--font-mono);">rm -r dir</code></td
+								><Code code="rm file" /> ·
+								<Code code="rm -r dir" /></td
 							>
-							<td class="px-3 py-2"
-								>No trash can — <code style="font-family: var(--font-mono);">ls</code> first, always</td
-							>
+							<td class="px-3 py-2">No trash can — <Code code="ls" /> first, always</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Select many files</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">*.log</code> ·
-								<code style="font-family: var(--font-mono);">report?.txt</code></td
+								><Code code="*.log" /> ·
+								<Code code="report?.txt" /></td
 							>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">echo</code> the glob before trusting it</td
-							>
+							<td class="px-3 py-2"><Code code="echo" /> the glob before trusting it</td>
 						</tr>
 						<tr
 							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
@@ -358,43 +343,33 @@
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Redirect output</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">&gt;</code> ·
-								<code style="font-family: var(--font-mono);">&gt;&gt;</code> ·
-								<code style="font-family: var(--font-mono);">2&gt;</code></td
+								><Code code=">" /> ·
+								<Code code=">>" /> ·
+								<Code code="2>" /></td
 							>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">&gt;</code> truncates;
-								<code style="font-family: var(--font-mono);">&gt;&gt;</code> appends</td
+								><Code code=">" /> truncates;
+								<Code code=">>" /> appends</td
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Search text</td>
+							<td class="px-3 py-2"><Code code="grep -rin &quot;text&quot; ." /></td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">grep -rin "text" .</code></td
-							>
-							<td class="px-3 py-2"
-								>recursive, ignore case, line numbers; <code style="font-family: var(--font-mono);"
-									>-v</code
-								> inverts</td
+								>recursive, ignore case, line numbers; <Code code="-v" /> inverts</td
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Shape a stream</td>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">sort | uniq -c | sort -n</code></td
-							>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">uniq</code> needs sorted input first</td
-							>
+							<td class="px-3 py-2"><Code code="sort | uniq -c | sort -n" /></td>
+							<td class="px-3 py-2"><Code code="uniq" /> needs sorted input first</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Find files by name</td>
+							<td class="px-3 py-2"><Code code="find . -name &quot;*.md&quot;" /></td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">find . -name "*.md"</code></td
-							>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">find</code> = filenames,
-								<code style="font-family: var(--font-mono);">grep</code> = contents</td
+								><Code code="find" /> = filenames,
+								<Code code="grep" /> = contents</td
 							>
 						</tr>
 						<tr
@@ -406,30 +381,24 @@
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Make runnable</td>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">chmod +x script.sh</code></td
-							>
-							<td class="px-3 py-2"
-								>Then run with <code style="font-family: var(--font-mono);">./script.sh</code></td
-							>
+							<td class="px-3 py-2"><Code code="chmod +x script.sh" /></td>
+							<td class="px-3 py-2">Then run with <Code code="./script.sh" /></td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">"command not found"</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">echo $PATH</code> ·
-								<code style="font-family: var(--font-mono);">which cmd</code></td
+								><Code code="echo $PATH" /> ·
+								<Code code="which cmd" /></td
 							>
 							<td class="px-3 py-2">The shell only searches PATH</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Shortcuts</td>
+							<td class="px-3 py-2"><Code code="alias gs='git status'" /></td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">alias gs='git status'</code></td
-							>
-							<td class="px-3 py-2"
-								>Persist in <code style="font-family: var(--font-mono);">.bashrc</code> /
-								<code style="font-family: var(--font-mono);">.zshrc</code>, then
-								<code style="font-family: var(--font-mono);">source</code> it</td
+								>Persist in <Code code=".bashrc" /> /
+								<Code code=".zshrc" />, then
+								<Code code="source" /> it</td
 							>
 						</tr>
 						<tr
@@ -442,32 +411,27 @@
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Chain on success</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">a &amp;&amp; b</code> ·
-								<code style="font-family: var(--font-mono);">a || b</code></td
+								><Code code="a && b" /> ·
+								<Code code="a || b" /></td
 							>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">$?</code> holds the last exit code; 0 =
-								success</td
-							>
+							<td class="px-3 py-2"><Code code="$?" /> holds the last exit code; 0 = success</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Recall a command</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">Ctrl+R</code> ·
-								<code style="font-family: var(--font-mono);">!!</code> ·
-								<code style="font-family: var(--font-mono);">history</code></td
+								><Code code="Ctrl+R" /> ·
+								<Code code="!!" /> ·
+								<Code code="history" /></td
 							>
 							<td class="px-3 py-2">Ctrl+R is the biggest speed unlock</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Get help</td>
 							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">cmd --help</code> ·
-								<code style="font-family: var(--font-mono);">man cmd</code></td
+								><Code code="cmd --help" /> ·
+								<Code code="man cmd" /></td
 							>
-							<td class="px-3 py-2"
-								><code style="font-family: var(--font-mono);">q</code> quits the pager; tldr for examples</td
-							>
+							<td class="px-3 py-2"><Code code="q" /> quits the pager; tldr for examples</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Practice all commands</td>
@@ -524,11 +488,8 @@
 				Try It: One Messy Home Folder
 			</h4>
 			<PlaygroundNote>
-				Start with <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -la</code
-				> and a look around before you touch anything — read before you run, even now. A ✔ appears in
-				the terminal when every goal is met — no partial credit.
+				Start with <Code code="ls -la" /> and a look around before you touch anything — read before you
+				run, even now. A ✔ appears in the terminal when every goal is met — no partial credit.
 			</PlaygroundNote>
 			<LessonActivity title="The Final Challenge" scenarioId="capstone" id="capstone" />
 
@@ -642,22 +603,12 @@
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						A free wargame played entirely over SSH: each level hides the password to the next
-						somewhere in the filesystem, and your only tools are the ones from this course — <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-						>,
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-						>,
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
-						>,
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">find</code
-						>. The most fun way to make everything here reflexive.
+						somewhere in the filesystem, and your only tools are the ones from this course — <Code
+							code="ls"
+						/>,
+						<Code code="cat" />,
+						<Code code="grep" />,
+						<Code code="find" />. The most fun way to make everything here reflexive.
 					</p>
 				</div>
 
@@ -697,13 +648,9 @@
 						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Community-written cheat sheets: <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>tldr tar</code
-						> gives you the five examples you actually wanted instead of forty flags. Still actively maintained
-						in 2026, installable as a command or usable in the browser — the fastest "how do I use this
-						again?" answer that isn't an AI.
+						Community-written cheat sheets: <Code code="tldr tar" /> gives you the five examples you actually
+						wanted instead of forty flags. Still actively maintained in 2026, installable as a command
+						or usable in the browser — the fastest "how do I use this again?" answer that isn't an AI.
 					</p>
 				</div>
 
@@ -721,10 +668,9 @@
 						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						The canonical Linux man pages, online and linkable — the same authoritative text <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">man</code
-						> shows you locally, handy when you want to read documentation without leaving the browser
+						The canonical Linux man pages, online and linkable — the same authoritative text <Code
+							code="man"
+						/> shows you locally, handy when you want to read documentation without leaving the browser
 						(or share a link to a specific flag's definition).
 					</p>
 				</div>
@@ -758,12 +704,10 @@
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				There's one command this course kept respectfully walking past: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">git</code
-				>. It's the other half of the vibe coder's toolkit — the save-game system that makes
-				AI-generated changes reviewable, undoable, and safe to experiment with. And it lives exactly
-				where you now feel at home: the terminal.
+				There's one command this course kept respectfully walking past: <Code code="git" />. It's
+				the other half of the vibe coder's toolkit — the save-game system that makes AI-generated
+				changes reviewable, undoable, and safe to experiment with. And it lives exactly where you
+				now feel at home: the terminal.
 			</p>
 
 			<div class="mb-4 space-y-3">

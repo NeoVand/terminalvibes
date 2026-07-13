@@ -16,6 +16,7 @@
 		Columns2
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Code from '../ui/Code.svelte';
 	import OsIcon from '../ui/OsIcon.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -148,10 +149,7 @@
 						Everywhere: the font matters
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						A good monospaced font with a legible <code
-							class="text-xs"
-							style="font-family: var(--font-mono);">0</code
-						>-vs-<code class="text-xs" style="font-family: var(--font-mono);">O</code> and a size you
+						A good monospaced font with a legible <Code code="0" />-vs-<Code code="O" /> and a size you
 						don't squint at. JetBrains Mono, Fira Code, and Cascadia Code are free favorites.
 					</p>
 				</div>
@@ -197,16 +195,9 @@
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The prompt itself — that <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>user@host:~$</code
-				>
+				The prompt itself — that <Code code="user@host:~$" />
 				from the intro — is just a variable named
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">PS1</code
-				>, and you can set it like any other variable from Part 5:
+				<Code code="PS1" />, and you can set it like any other variable from Part 5:
 			</p>
 
 			<CodeBlock
@@ -219,10 +210,7 @@ PS1="🌲 \\W $ "
 			/>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Hand-rolling a fancy <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">PS1</code
-				>
+				Hand-rolling a fancy <Code code="PS1" />
 				with colors and git status is a classic rabbit hole. The modern shortcut is
 				<a
 					href="https://starship.rs"
@@ -233,26 +221,20 @@ PS1="🌲 \\W $ "
 				>
 				— a fast, cross-shell prompt that works in bash, zsh, and every OS in this course. One install,
 				one line in your shell config (Part 5's
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.bashrc</code
-				>
+				<Code code=".bashrc" />
 				/
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.zshrc</code
-				>), and your prompt shows the current directory, git branch, language versions, and whether
-				the last command failed — the useful stuff, with zero maintenance. It's also where the
-				current consensus landed: 2026 setup guides recommend Starship plus one or two small zsh
-				plugins over the heavyweight all-in-one frameworks (oh-my-zsh) that used to be the default
-				advice.
+				<Code code=".zshrc" />), and your prompt shows the current directory, git branch, language
+				versions, and whether the last command failed — the useful stuff, with zero maintenance.
+				It's also where the current consensus landed: 2026 setup guides recommend Starship plus one
+				or two small zsh plugins over the heavyweight all-in-one frameworks (oh-my-zsh) that used to
+				be the default advice.
 			</p>
 
 			<Callout type="tip">
 				<strong>Practice the 6.1 audit here.</strong> Starship's install command is a
-				<code style="font-family: var(--font-mono);">curl ... | sh</code> one-liner — exactly the red-flag
-				pattern from last chapter. Perfect low-stakes rehearsal: download the script first, skim it (or
-				ask your AI to), then run it. Trusted source, verified anyway — that's the habit.
+				<Code code="curl ... | sh" /> one-liner — exactly the red-flag pattern from last chapter. Perfect
+				low-stakes rehearsal: download the script first, skim it (or ask your AI to), then run it. Trusted
+				source, verified anyway — that's the habit.
 			</Callout>
 
 			<VibeBox
@@ -307,22 +289,12 @@ PS1="🌲 \\W $ "
 						style="color: var(--color-text);"
 					>
 						<ScrollText size={14} style="color: var(--color-primary);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);"
-								>history</code
-							> — the full ledger</span
-						>
+						<span><Code code="history" /> — the full ledger</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Prints your numbered command history — and because it's just text output, all of Part 4
-						applies: <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>history | grep ssh</code
-						> finds every ssh command you've ever run. Your history is a searchable log of how you did
-						everything.
+						applies: <Code code="history | grep ssh" /> finds every ssh command you've ever run. Your
+						history is a searchable log of how you did everything.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -331,25 +303,14 @@ PS1="🌲 \\W $ "
 						style="color: var(--color-text);"
 					>
 						<Repeat size={14} style="color: var(--color-primary);" />
-						<span
-							><code
-								class="rounded px-1 py-0.5 text-xs"
-								style="background: var(--color-code-bg); font-family: var(--font-mono);">!!</code
-							> — the last command, verbatim</span
-						>
+						<span><Code code="!!" /> — the last command, verbatim</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">!!</code
-						>
+						<Code code="!!" />
 						expands to your previous command. Its one legendary use: you run something, it fails with
 						"permission denied," and
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo !!</code
-						> re-runs it elevated — no retyping. (All of section 5.3's sudo caution still applies; the
-						shell prints the expanded command so you see exactly what's about to run.)
+						<Code code="sudo !!" /> re-runs it elevated — no retyping. (All of section 5.3's sudo caution
+						still applies; the shell prints the expanded command so you see exactly what's about to run.)
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -443,19 +404,14 @@ sudo !!
 				>
 				(Control + backtick, same keys on every OS), and it slides up as a panel beneath your code. It's
 				not a lookalike or a simulation — it runs your real shell, with your
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.bashrc</code
-				>, your aliases, your PATH, your history. Everything from this course works in it unchanged.
+				<Code code=".bashrc" />, your aliases, your PATH, your history. Everything from this course
+				works in it unchanged.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				Two conveniences make it better than a separate window: it <strong
 					style="color: var(--color-text);"
-					>opens already <code
-						class="rounded px-1 py-0.5 text-xs"
-						style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-					>'d into your project folder</strong
+					>opens already <Code code="cd" />'d into your project folder</strong
 				>
 				(no navigating to where your code lives — you're there), and the
 				<strong style="color: var(--color-text);">+</strong> button in the panel spawns extra terminals
@@ -468,21 +424,18 @@ sudo !!
 				— Copilot, Claude Code, Cursor's agent — runs a command, it runs in this integrated
 				terminal:
 				<em>the same panel you can read, scroll, and type into</em>. The agent proposes
-				<code style="font-family: var(--font-mono);">npm test</code>, you watch it execute, you
-				scroll back through the failures, you run your own
-				<code style="font-family: var(--font-mono);">grep</code> on the log — human and AI, sharing one
-				shell. Every skill in this course is what lets you be a participant in that terminal instead of
-				a spectator.
+				<Code code="npm test" />, you watch it execute, you scroll back through the failures, you
+				run your own
+				<Code code="grep" /> on the log — human and AI, sharing one shell. Every skill in this course
+				is what lets you be a participant in that terminal instead of a spectator.
 			</Callout>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				That shared visibility is the practical payoff of Part 6: when the agent asks permission to
-				run a command, you audit it (6.1); when it writes a <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">setup.sh</code
-				>, you read it (6.2); when it says "tests failed," you can see the exit code it saw (6.3).
-				The integrated terminal is the glass cockpit where all of that happens in one place — code,
-				agent, and shell in a single window.
+				run a command, you audit it (6.1); when it writes a <Code code="setup.sh" />, you read it
+				(6.2); when it says "tests failed," you can see the exit code it saw (6.3). The integrated
+				terminal is the glass cockpit where all of that happens in one place — code, agent, and
+				shell in a single window.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -490,31 +443,20 @@ sudo !!
 				runs terminal commands <strong style="color: var(--color-text);"
 					>with per-command approval</strong
 				>, and you can maintain an allowlist and denylist of which commands auto-approve — let
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">git status</code
-				>
+				<Code code="git status" />
 				through without asking, always stop on
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -rf</code
-				>
+				<Code code="rm -rf" />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-				>. Claude Code ships a GA VS Code extension that drives the same CLI from a panel in the
-				editor — same terminal, same approval moments, same skills.
+				<Code code="sudo" />. Claude Code ships a GA VS Code extension that drives the same CLI from
+				a panel in the editor — same terminal, same approval moments, same skills.
 			</p>
 
 			<Callout type="note">
 				One habit worth stealing: keep <strong>one terminal for the agent and one for you</strong>.
 				Click <strong>+</strong> to add yours. The agent's commands and output stay in its terminal
-				where you can audit the transcript; your exploring (<code
-					style="font-family: var(--font-mono);">ls</code
-				>, <code style="font-family: var(--font-mono);">cat</code>,
-				<code style="font-family: var(--font-mono);">grep</code>) doesn't tangle with its work.
-				Which is the perfect segue to the next section.
+				where you can audit the transcript; your exploring (<Code code="ls" />, <Code code="cat" />,
+				<Code code="grep" />) doesn't tangle with its work. Which is the perfect segue to the next
+				section.
 			</Callout>
 
 			<VibeBox
@@ -544,10 +486,7 @@ sudo !!
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Sooner or later one terminal isn't enough: a dev server occupies one (it runs until you stop
-				it, holding the prompt hostage), <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">tail -f</code
-				>
+				it, holding the prompt hostage), <Code code="tail -f" />
 				follows a log in another (Part 2), and you still need a free prompt to actually work. The answer
 				is never "quit the server" — it's
 				<strong style="color: var(--color-text);">more terminals</strong>, and every modern terminal
@@ -596,17 +535,12 @@ sudo !!
 			</div>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				A classic three-pane cockpit for a coding session: the dev server in one pane, <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>tail -f server.log</code
-				>
+				A classic three-pane cockpit for a coding session: the dev server in one pane, <Code
+					code="tail -f server.log"
+				/>
 				in a second, and a free prompt in the third — with your agent's terminal from 7.3 alongside. Every
 				shell is independent: its own working directory, its own
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>, its own foreground command. Nothing you do in one pane disturbs another.
+				<Code code="cd" />, its own foreground command. Nothing you do in one pane disturbs another.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">

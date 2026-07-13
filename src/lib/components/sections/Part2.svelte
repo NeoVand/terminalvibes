@@ -14,6 +14,7 @@
 		ArrowDownToLine
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Code from '../ui/Code.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -62,20 +63,11 @@
 
 		<Callout type="important">
 			This three-beat rhythm — <strong
-				><code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">pwd</code
-				>
+				><Code code="pwd" />
 				&rarr;
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>
+				<Code code="ls" />
 				&rarr;
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				></strong
+				<Code code="cd" /></strong
 			>
 			— is the terminal equivalent of looking up from your phone to check the street signs. Run it any
 			time you feel lost, and
@@ -108,18 +100,12 @@
 
 			<Callout type="note">
 				<strong>The Problem:</strong> Your AI assistant says "run
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">npm install</code
-				> in the project folder." Which folder is your terminal actually in right now? Guessing is how
-				dependencies end up installed in your home directory.
+				<Code code="npm install" /> in the project folder." Which folder is your terminal actually in
+				right now? Guessing is how dependencies end up installed in your home directory.
 			</Callout>
 
 			<p class="mb-4" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">pwd</code
-				>
+				<Code code="pwd" />
 				("print working directory") answers the question in one line:
 			</p>
 
@@ -130,16 +116,10 @@
 			/>
 
 			<p class="mt-4 mb-4" style="color: var(--color-text-secondary);">
-				That answer — <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">/home/vibe</code
-				>
+				That answer — <Code code="/home/vibe" />
 				— is a <strong>path</strong>, the full address of the folder you're standing in (paths get
 				their own section next). Now look around with
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				> ("list"):
+				<Code code="ls" /> ("list"):
 			</p>
 
 			<CodeBlock
@@ -194,29 +174,14 @@
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Plain <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>
+				Plain <Code code="ls" />
 				is holding out on you. Any file or folder whose name starts with a dot — a
 				<strong>dotfile</strong> — is hidden by default. That's where configuration lives:
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.bashrc</code
-				>,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.gitignore</code
-				>, the
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.env</code
-				>
+				<Code code=".bashrc" />,
+				<Code code=".gitignore" />, the
+				<Code code=".env" />
 				file holding your API keys. Add
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-a</code
-				> ("all") to see them:
+				<Code code="-a" /> ("all") to see them:
 			</p>
 
 			<CodeBlock
@@ -226,17 +191,11 @@
 			/>
 
 			<Callout type="tip">
-				Notice the first two entries: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.</code
-				>
+				Notice the first two entries: <Code code="." />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">..</code
-				>. They're not files — they're built-in nicknames for "this directory" and "the parent
-				directory," and they show up in <em>every</em> folder. They're about to become very useful in
-				the next section.
+				<Code code=".." />. They're not files — they're built-in nicknames for "this directory" and
+				"the parent directory," and they show up in <em>every</em> folder. They're about to become very
+				useful in the next section.
 			</Callout>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -245,10 +204,7 @@
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The long listing packs a lot into each line. For now, read just three things: the leading
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">d</code
-				>
+				<Code code="d" />
 				means "directory," the number before the date is the size in bytes, and the name is at the end.
 				The rest of that cryptic string is a permissions code — we decode it fully in Part 5.
 			</p>
@@ -263,30 +219,15 @@
 			/>
 
 			<Callout type="note">
-				Flags stack: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -la</code
-				>
+				Flags stack: <Code code="ls -la" />
 				means "long listing, including hidden files" — the single most common
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>
+				<Code code="ls" />
 				invocation in the wild. (On Windows,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">dir</code
-				>
+				<Code code="dir" />
 				is the cmd/PowerShell cousin of
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>
+				<Code code="ls" />
 				— but inside WSL or Git Bash,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				> works exactly as shown.)
+				<Code code="ls" /> works exactly as shown.)
 			</Callout>
 
 			<VibeBox
@@ -317,25 +258,15 @@
 
 			<Callout type="note">
 				<strong>The Problem:</strong> Your AI says "add your key to
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>~/projects/app/.env</code
-				>". Is that a file? A folder? Where <em>is</em> it? You can't follow directions written in a language
-				you can't read.
+				<Code code="~/projects/app/.env" />". Is that a file? A folder? Where <em>is</em> it? You can't
+				follow directions written in a language you can't read.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Everything starts at the <strong>root</strong>, written as a single slash
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">/</code
-				>. Every other folder hangs somewhere beneath it, and a path is simply the walk from one
-				point to another, with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">/</code
-				> between each step:
+				<Code code="/" />. Every other folder hangs somewhere beneath it, and a path is simply the
+				walk from one point to another, with
+				<Code code="/" /> between each step:
 			</p>
 
 			<MermaidDiagram
@@ -351,16 +282,9 @@
 			/>
 			<p class="mt-2 px-1 text-xs" style="color: var(--color-text-muted);">
 				Reading the tree: the file
-				<code
-					class="rounded px-1 py-0.5"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.env</code
-				>
+				<Code code=".env" />
 				lives at
-				<code
-					class="rounded px-1 py-0.5"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>/home/vibe/projects/app/.env</code
-				>
+				<Code code="/home/vibe/projects/app/.env" />
 				— root, then home, then vibe, then projects, then app.
 			</p>
 
@@ -370,10 +294,7 @@
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				An <strong>absolute path</strong> starts at the root with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">/</code
-				>
+				<Code code="/" />
 				and works from anywhere — a full street address. A <strong>relative path</strong> starts from
 				wherever you're currently standing — "two doors down." Both name the same file:
 			</p>
@@ -408,44 +329,24 @@ cat projects/app/README.md`}
 					</thead>
 					<tbody style="color: var(--color-text-secondary);">
 						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"
-								><code
-									class="rounded px-1.5 py-0.5 text-xs"
-									style="background: var(--color-code-bg); font-family: var(--font-mono);">/</code
-								></td
-							>
+							<td class="px-4 py-2"><Code code="/" /></td>
 							<td class="px-4 py-2">The root — the very top of the tree</td>
 							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);">/etc/hosts</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"
-								><code
-									class="rounded px-1.5 py-0.5 text-xs"
-									style="background: var(--color-code-bg); font-family: var(--font-mono);">~</code
-								></td
-							>
+							<td class="px-4 py-2"><Code code="~" /></td>
 							<td class="px-4 py-2">Your home directory (here, /home/vibe)</td>
 							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
 								>~/projects/app</td
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"
-								><code
-									class="rounded px-1.5 py-0.5 text-xs"
-									style="background: var(--color-code-bg); font-family: var(--font-mono);">.</code
-								></td
-							>
+							<td class="px-4 py-2"><Code code="." /></td>
 							<td class="px-4 py-2">The current directory — "right here"</td>
 							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);">./script.sh</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"
-								><code
-									class="rounded px-1.5 py-0.5 text-xs"
-									style="background: var(--color-code-bg); font-family: var(--font-mono);">..</code
-								></td
-							>
+							<td class="px-4 py-2"><Code code=".." /></td>
 							<td class="px-4 py-2">The parent directory — one level up</td>
 							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
 								>../other-project</td
@@ -456,27 +357,12 @@ cat projects/app/README.md`}
 			</div>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				And they compose. Standing in <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>~/projects/app</code
-				>, the path
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>../../documents</code
-				>
+				And they compose. Standing in <Code code="~/projects/app" />, the path
+				<Code code="../../documents" />
 				means "up two levels, then into documents." Now you can re-read the AI's instruction:
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>~/projects/app/.env</code
-				>
+				<Code code="~/projects/app/.env" />
 				is a hidden file named
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">.env</code
-				>, inside app, inside projects, inside your home directory.
+				<Code code=".env" />, inside app, inside projects, inside your home directory.
 			</p>
 
 			<Callout type="important">
@@ -486,33 +372,17 @@ cat projects/app/README.md`}
 				is a path that <em>exists</em>, spelled exactly right, with spaces and special characters
 				escaped for you. Professionals never type a full path by hand, and after this section,
 				neither do you. Try it:
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd pro</code
-				>, TAB, watch it become
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>cd projects/</code
-				>.
+				<Code code="cd pro" />, TAB, watch it become
+				<Code code="cd projects/" />.
 			</Callout>
 
 			<Callout type="tip">
-				Spaces are the classic path trap: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>cd My Projects</code
-				>
-				tells the shell to cd into "My" and hands it a mystery second word. Wrap it in quotes (<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>cd "My Projects"</code
-				>) — or just TAB-complete, which escapes the space automatically. Better yet, name your own
+				Spaces are the classic path trap: <Code code="cd My Projects" />
+				tells the shell to cd into "My" and hands it a mystery second word. Wrap it in quotes (<Code
+					code="cd &quot;My Projects&quot;"
+				/>) — or just TAB-complete, which escapes the space automatically. Better yet, name your own
 				folders with dashes:
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">my-projects</code
-				>.
+				<Code code="my-projects" />.
 			</Callout>
 
 			<VibeBox
@@ -533,10 +403,7 @@ cat projects/app/README.md`}
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You can read the map; now walk it. <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>
+				You can read the map; now walk it. <Code code="cd" />
 				("change directory") moves you to any path you can name — and since you just learned to name every
 				path on the machine, you can now go anywhere.
 			</p>
@@ -551,16 +418,9 @@ cat projects/app/README.md`}
 
 			<Callout type="note">
 				<strong>The Problem:</strong> Your project lives at
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>~/projects/app</code
-				>
+				<Code code="~/projects/app" />
 				but your terminal opens in
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">~</code
-				>. Every command the AI gives you assumes you've made the trip.
+				<Code code="~" />. Every command the AI gives you assumes you've made the trip.
 			</Callout>
 
 			<CodeBlock
@@ -573,35 +433,19 @@ cd -              # Bounce back to wherever you just were`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That last one is a gem most tutorials skip: <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd -</code
-				>
+				That last one is a gem most tutorials skip: <Code code="cd -" />
 				toggles between your two most recent locations — perfect when you're hopping between a project
 				and a config folder. And remember the habit from 2.2: type
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>, a few letters, then TAB your way down the tree.
+				<Code code="cd" />, a few letters, then TAB your way down the tree.
 			</p>
 
 			<Callout type="tip">
 				<strong>You can't fall off the map.</strong>
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>
+				<Code code="cd" />
 				never creates, changes, or deletes anything — it only moves your point of view. Mistype a name
 				and the worst you get is
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);"
-					>no such file or directory</code
-				>, a completely harmless error. Genuinely lost?
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd ~</code
-				> teleports you home from anywhere. Wander boldly.
+				<Code code="no such file or directory" />, a completely harmless error. Genuinely lost?
+				<Code code="cd ~" /> teleports you home from anywhere. Wander boldly.
 			</Callout>
 
 			<Callout type="note">
@@ -619,23 +463,11 @@ cd -              # Bounce back to wherever you just were`}
 			</h4>
 			<PlaygroundNote>
 				A real (simulated) filesystem runs in your browser. Somewhere in the nested folders below
-				your home directory hides a lost API key — use <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">pwd</code
-				>,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -a</code
-				>, and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>
+				your home directory hides a lost API key — use <Code code="pwd" />,
+				<Code code="ls -a" />, and
+				<Code code="cd" />
 				to hunt it down. Type
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">help</code
-				> for the full command list.
+				<Code code="help" /> for the full command list.
 			</PlaygroundNote>
 			<LessonActivity title="Find the Lost API Key" scenarioId="navigation" id="navigation" />
 
@@ -658,15 +490,9 @@ cd -              # Bounce back to wherever you just were`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				So far you've been a tourist — looking, never touching. Time to build. Two commands create
-				the skeleton of every project you'll ever start: <code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mkdir</code
-				>
+				the skeleton of every project you'll ever start: <Code code="mkdir" />
 				for folders and
-				<code
-					class="rounded px-1.5 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">touch</code
-				> for empty files.
+				<Code code="touch" /> for empty files.
 			</p>
 
 			<div class="my-6">
@@ -691,15 +517,12 @@ ls                     # Verify — trust, but verify`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Plain <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mkdir</code
-				>
+				Plain <Code code="mkdir" />
 				has one rule: the parent must already exist. Ask it for a nested path and it refuses:
 			</p>
 
 			<CodeBlock
-				title="Nested folders need -p"
+				title="Nested folders need `-p`"
 				code={`mkdir src/components/buttons
 # mkdir: cannot create directory 'src/components/buttons': No such file or directory
 
@@ -708,30 +531,18 @@ mkdir -p src/components/buttons   # -p creates every missing parent
 			/>
 
 			<Callout type="tip">
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mkdir -p</code
-				>
+				<Code code="mkdir -p" />
 				is also <em>re-runnable</em>: if the folders already exist, it succeeds quietly instead of
 				erroring. That's why AI-generated setup scripts always reach for
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">-p</code
-				> — the command is safe whether it's the first run or the fifth.
+				<Code code="-p" /> — the command is safe whether it's the first run or the fifth.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">touch</code
-				>
+				<Code code="touch" />
 				has a funny origin story: its real job is updating a file's "last modified" timestamp — touching
 				it. But if the file doesn't exist,
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">touch</code
-				> creates it, empty. That side effect became its main job: it's the standard way to say "make
-				me a blank file right here."
+				<Code code="touch" /> creates it, empty. That side effect became its main job: it's the standard
+				way to say "make me a blank file right here."
 			</p>
 
 			<CodeBlock
@@ -774,10 +585,8 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 
 			<Callout type="note">
 				<strong>The Problem:</strong> "What did the agent actually put in
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">config.yaml</code
-				>?" Reading files is how you verify work — an instinct this whole course keeps returning to.
+				<Code code="config.yaml" />?" Reading files is how you verify work — an instinct this whole
+				course keeps returning to.
 			</Callout>
 
 			<CodeBlock
@@ -789,16 +598,10 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>
+				<Code code="cat" />
 				(short for "concatenate") is perfect for short files — it prints everything and returns your prompt.
 				But
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>
+				<Code code="cat" />
 				a 10,000-line log and it firehoses past you. For anything long, you want a
 				<strong>pager</strong>:
 			</p>
@@ -816,28 +619,16 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 			<Callout type="important">
 				<strong>Remember q.</strong> Getting "trapped" in a full-screen pager is every beginner's
 				rite of passage: the prompt vanishes, typing does strange things, panic sets in. Press
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">q</code
-				>
+				<Code code="q" />
 				and you're free. This matters double because
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">man</code
-				> pages (Part 1) open in less too — same keys, same escape hatch.
+				<Code code="man" /> pages (Part 1) open in less too — same keys, same escape hatch.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Sometimes you only care about the edges of a file — the header row of a CSV, or the most
-				recent lines of a log. That's <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">head</code
-				>
+				recent lines of a log. That's <Code code="head" />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">tail</code
-				>:
+				<Code code="tail" />:
 			</p>
 
 			<CodeBlock
@@ -849,16 +640,10 @@ tail -n 20 server.log  # Last 20`}
 			/>
 
 			<Callout type="tip">
-				Out in the real world (beyond this playground), <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">tail -f</code
-				>
+				Out in the real world (beyond this playground), <Code code="tail -f" />
 				("follow") keeps the file open and streams new lines as they're written — the classic way to watch
 				a server log live while your app runs. Press
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">Ctrl+C</code
-				> to stop following.
+				<Code code="Ctrl+C" /> to stop following.
 			</Callout>
 
 			<div class="mb-6 grid gap-3 sm:grid-cols-4">
@@ -920,28 +705,13 @@ tail -n 20 server.log  # Last 20`}
 				Try It: Build Your Workspace
 			</h4>
 			<PlaygroundNote>
-				Put the whole part together: navigate with <code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
-				>, build a project skeleton with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">mkdir -p</code
-				>
+				Put the whole part together: navigate with <Code code="cd" />, build a project skeleton with
+				<Code code="mkdir -p" />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">touch</code
-				>, then verify your work with
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				>
+				<Code code="touch" />, then verify your work with
+				<Code code="ls" />
 				and
-				<code
-					class="rounded px-1 py-0.5 text-xs"
-					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
-				>.
+				<Code code="cat" />.
 			</PlaygroundNote>
 			<LessonActivity
 				title="Build Your Workspace"
