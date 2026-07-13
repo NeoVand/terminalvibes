@@ -198,9 +198,10 @@
 	onMount(() => {
 		loadScenario(getScenario(activeScenarioId));
 		onResetReady?.(resetScenario);
-		// The `try: agent "…"` chip appears only when a model is downloaded
-		// (pure localStorage read — no runtime init, no side effects).
-		agentChip = panel && downloadedModels().length > 0;
+		// If a model was downloaded in a past session, warm it from cache so the
+		// agent becomes available in the playground too — not just the panel.
+		// initLocal is idempotent and never triggers a fresh download.
+		if (downloadedModels().length > 0) agentRuntime.initLocal();
 	});
 
 	onDestroy(() => {
@@ -326,10 +327,32 @@
 	let cliSession: CliSession | null = null;
 	let cliPhase = $state<CliPhase>('idle');
 	let cliEditing = $state(false);
-	let agentChip = $state(false);
+	// The `agent "…"` chip appears the moment a model is available — reactively,
+	// in every playground (the runtime is one shared singleton, and the mount
+	// hook below populates `downloaded` + warms a cached model). The header
+	// status chip reports the finer lifecycle (waking up / active).
+	let agentChip = $derived(agentRuntime.downloaded.length > 0);
 	let cliActive = $derived(
 		cliPhase === 'generating' || cliPhase === 'awaiting-approval' || cliPhase === 'executing'
 	);
+
+	/** The header chip: the live model lifecycle, not a static "bash" label. */
+	let modelStatus = $derived.by(() => {
+		const r = agentRuntime;
+		if (r.localPhase === 'downloading') {
+			return {
+				label: r.download.percent ? `downloading ${r.download.percent}%` : 'downloading…',
+				tone: 'warm' as const
+			};
+		}
+		if (r.localPhase === 'loading' || r.localPhase === 'probing') {
+			return { label: 'agent waking up…', tone: 'warm' as const };
+		}
+		if (r.backendName === 'local' && r.localPhase === 'ready') {
+			return { label: 'agent active', tone: 'active' as const };
+		}
+		return { label: 'sandboxed bash', tone: 'idle' as const };
+	});
 	/** True while the last history line is a streaming agent-prose block. */
 	let proseOpen = false;
 
@@ -762,6 +785,12 @@
 	{/if}
 {/snippet}
 
+{#snippet statusBadge()}
+	<span class="pg-status pg-status-{modelStatus.tone}">
+		<span class="pg-status-dot"></span>{modelStatus.label}
+	</span>
+{/snippet}
+
 {#snippet promptLabel(cwd: string)}
 	<span class="pg-prompt" aria-hidden="true"
 		><span class="pp-user">vibe@sandbox</span><span class="pp-sep">:</span><span class="pp-path"
@@ -831,7 +860,7 @@
 				<ChevronRight size={11} />
 			</button>
 		{/each}
-		{#if panel && agentChip}
+		{#if agentChip}
 			<button
 				type="button"
 				onclick={() => runSuggested(AGENT_TRY_TASK)}
@@ -854,7 +883,7 @@
 		>
 			<Terminal size={14} style="color: var(--color-important);" />
 			<span class="text-sm font-semibold" style="color: var(--color-text);">Playground</span>
-			<span class="pg-badge hidden sm:inline">sandboxed bash</span>
+			<span class="hidden sm:inline">{@render statusBadge()}</span>
 
 			<div class="ml-auto flex flex-wrap items-center gap-1.5 sm:gap-2">
 				{@render scenarioSelect()}
@@ -964,12 +993,7 @@
 					<span class="text-sm font-semibold" style="color: var(--color-text);">
 						{embedded ? 'Try it yourself' : 'Terminal Playground'}
 					</span>
-					<span
-						class="rounded-full px-2 py-0.5 text-[10px] font-medium"
-						style="background: color-mix(in srgb, var(--color-important) 12%, var(--color-bg-tertiary)); color: var(--color-important);"
-					>
-						sandboxed bash
-					</span>
+					{@render statusBadge()}
 				</div>
 				<div class="flex flex-wrap items-center gap-2">
 					{@render scenarioSelect()}
@@ -996,7 +1020,7 @@
 		</div>
 
 		<div
-			class="grid grid-cols-1 {embedded ? 'lg:grid-cols-[minmax(0,1fr)_13rem]' : 'lg:grid-cols-2'}"
+			class="grid grid-cols-1 {embedded ? 'lg:grid-cols-[minmax(0,1fr)_17rem]' : 'lg:grid-cols-2'}"
 			style="min-height: {embedded ? '340px' : '420px'};"
 		>
 			<div
@@ -1057,6 +1081,18 @@
 						<ChevronRight size={12} />
 					</button>
 				{/each}
+				{#if agentChip}
+					<button
+						type="button"
+						onclick={() => runSuggested(AGENT_TRY_TASK)}
+						class="flex items-center gap-1 rounded-md px-2.5 py-1 text-xs transition-opacity hover:opacity-80"
+						style="background: color-mix(in srgb, var(--color-btn-agent) 14%, var(--color-surface)); color: var(--color-btn-agent); border: 1px solid color-mix(in srgb, var(--color-btn-agent) 40%, transparent); font-family: var(--font-mono);"
+						data-testid="agent-try-chip"
+					>
+						{@render commandLabel(AGENT_TRY_TASK)}
+						<ChevronRight size={12} />
+					</button>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -1067,13 +1103,54 @@
 		background: var(--color-bg-secondary);
 	}
 
-	.pg-badge {
+	/* The header status chip: reflects the AI agent's live lifecycle so the
+	   playground shows what the Agent panel already makes clear. */
+	.pg-status {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45ch;
 		border-radius: 9999px;
-		padding: 0.175rem 0.5rem;
+		padding: 0.175rem 0.55rem;
 		font-size: 10px;
 		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.pg-status-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 9999px;
+		background: currentColor;
+	}
+
+	.pg-status-idle {
 		color: var(--color-important);
 		background: color-mix(in srgb, var(--color-important) 12%, var(--color-bg-tertiary));
+	}
+
+	.pg-status-active {
+		color: var(--color-btn-agent);
+		background: color-mix(in srgb, var(--color-btn-agent) 15%, var(--color-bg-tertiary));
+	}
+
+	.pg-status-warm {
+		color: var(--color-warning);
+		background: color-mix(in srgb, var(--color-warning) 14%, var(--color-bg-tertiary));
+	}
+
+	/* A gentle pulse while the model is downloading or warming. */
+	.pg-status-warm .pg-status-dot {
+		animation: pg-status-pulse 1.4s ease-in-out infinite;
+	}
+
+	@keyframes pg-status-pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.3;
+		}
 	}
 
 	.pg-select-wrap {
