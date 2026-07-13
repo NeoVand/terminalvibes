@@ -660,6 +660,14 @@ async function dispatch(
 	if (cmd.includes('/')) return runScriptFile(ctx, cmd, args);
 
 	switch (cmd) {
+		case 'agent':
+			// Interactive `agent` is intercepted by the playground terminal
+			// BEFORE it reaches this interpreter; landing here means a pipe,
+			// a script line, or another agent's sandbox tried to start it.
+			return fail(
+				'agent: starts an interactive session, so it only works typed directly at a playground prompt —\nnot inside pipes, scripts, or another agent\'s terminal. Try: agent "<task>"',
+				2
+			);
 		case 'pwd':
 			return ok(engine.cwd + '\n');
 		case 'cd':
@@ -2445,7 +2453,8 @@ const HELP_LINES: [string, string][] = [
 	['Scripts', 'bash script.sh   ./script.sh (needs chmod +x)   exit'],
 	['Paths & names', 'basename  dirname'],
 	['Disk (fake)', 'df  du'],
-	['Simulated', 'sudo  curl  wget  ssh  open  ps  top  kill  sleep  nano  vim']
+	['Simulated', 'sudo  curl  wget  ssh  open  ps  top  kill  sleep  nano  vim'],
+	['AI agent', 'agent "<task>"  — a real AI agent in this terminal (try: agent)']
 ];
 
 function cmdHelp(): ExecResult {
@@ -2483,6 +2492,14 @@ const MAN_ALIASES: Record<string, string> = {
 };
 
 const MAN_PAGES: Record<string, ManPage> = {
+	agent: {
+		name: 'run an AI agent in this terminal',
+		synopsis: 'agent "<task>"',
+		description:
+			'Starts an interactive session with a real language model running entirely in your browser (download it once from the Agent panel). The agent works toward your task by proposing bash commands one at a time; each proposal waits for your verdict — allow [y], edit [e], or deny [n] — and Ctrl+C interrupts the whole session. Approved commands run in THIS terminal and change the files you see.',
+		examples: ['agent', 'agent "create a notes folder with three dated files"'],
+		vibe: 'Read the command, then decide — the approval prompt is the lesson.'
+	},
 	pwd: {
 		name: 'print working directory',
 		synopsis: 'pwd',

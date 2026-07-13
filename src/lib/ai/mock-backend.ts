@@ -10,6 +10,7 @@
 import type {
 	AgentBackend,
 	ChatMessage,
+	CliRunOptions,
 	GenerateOptions,
 	SuggestContext,
 	SuggestOptions,
@@ -28,12 +29,22 @@ interface ToolPlan {
 	summary: string;
 }
 
-/** Tiny goal → script table for the tool loop (Phase 1 placeholder). */
+/** Tiny goal → script table for the tool loop and mock CLI sessions.
+ *  First match wins, so the more specific 'backup' outranks 'notes'
+ *  ("make a backup of my notes" must pick the backup plan). */
 const TOOL_PLANS: ToolPlan[] = [
 	{
 		keywords: ['backup'],
 		cmds: ['mkdir -p backups', 'cp -r notes/ backups/'],
 		summary: 'Created backups/ and copied notes/ into it.'
+	},
+	{
+		keywords: ['notes'],
+		cmds: [
+			'mkdir -p notes',
+			'touch notes/2026-07-01.txt notes/2026-07-02.txt notes/2026-07-03.txt'
+		],
+		summary: 'Created notes/ with three dated files.'
 	},
 	{
 		keywords: ['clean', 'log'],
@@ -279,6 +290,66 @@ export class MockBackend implements AgentBackend {
 			opts.onToken(word);
 			if (!instant) await sleep(14);
 		}
+	}
+
+	/**
+	 * Deterministic CLI session for `agent "<task>"`: walk the matching
+	 * scripted plan, proposing each command through the terminal's gate —
+	 * exactly the propose → verdict → execute contract of the local backend,
+	 * so the session machine and the e2e tests exercise the real flow.
+	 */
+	async generateCli(task: string, opts: CliRunOptions): Promise<void> {
+		const { onEvent, signal, bash } = opts;
+		const instant = opts.instant || import.meta.env.MODE === 'test';
+		if (signal?.aborted) return;
+
+		const stream = (text: string) => this.#stream(text, opts, instant);
+		const goal = task.toLowerCase();
+		const plan = TOOL_PLANS.find((p) => p.keywords.every((k) => goal.includes(k)));
+		if (!plan) {
+			await stream(
+				'Demo mode only knows a few scripted tasks — try one mentioning "notes", "backup", "workspace", or cleaning "logs".\n'
+			);
+			if (signal?.aborted) return;
+			onEvent({
+				type: 'toolCall',
+				call: {
+					id: 'call-done',
+					name: 'done',
+					args: { summary: 'No scripted plan for that goal (demo mode).' }
+				}
+			});
+			onEvent({ type: 'doneTurn' });
+			return;
+		}
+
+		await stream(
+			`On it. I'll work in ${plan.cmds.length} steps — each command waits for your go-ahead.\n`
+		);
+
+		let ran = 0;
+		for (const cmd of plan.cmds) {
+			if (signal?.aborted) return;
+			onEvent({ type: 'toolCall', call: { id: `call-${ran + 1}`, name: 'bash', args: { cmd } } });
+			const verdict = await bash.propose(cmd);
+			if (signal?.aborted) return;
+			if (verdict.decision === 'deny') {
+				await stream(`Okay — skipping \`${cmd}\` and moving on.\n`);
+				continue;
+			}
+			await bash.run(verdict.cmd);
+			ran++;
+		}
+		if (signal?.aborted) return;
+		onEvent({
+			type: 'toolCall',
+			call: {
+				id: 'call-done',
+				name: 'done',
+				args: { summary: ran > 0 ? plan.summary : 'Nothing was run — every command was denied.' }
+			}
+		});
+		onEvent({ type: 'doneTurn' });
 	}
 
 	async #stream(text: string, opts: GenerateOptions, instant: boolean): Promise<void> {

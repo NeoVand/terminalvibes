@@ -63,6 +63,7 @@ const DEFAULT_ENV: Record<string, string> = {
 
 /** Commands that exist "on PATH" in the sandbox (for which/type/PATH lessons). */
 export const BIN_COMMANDS = [
+	'agent',
 	'alias',
 	'basename',
 	'bash',

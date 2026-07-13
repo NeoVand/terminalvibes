@@ -10,6 +10,7 @@ import type {
 	AgentBackend,
 	AgentBash,
 	ChatMessage,
+	CliRunOptions,
 	GenerateOptions,
 	SuggestContext,
 	SuggestOptions
@@ -18,6 +19,7 @@ import { TransformersJsChatModel, disposeHost, type TjsProgress } from './transf
 import { createCourseAgent, type CourseAgent } from './deepagent';
 import { buildAgentTools, tutorSystemPrompt } from './tools';
 import { buildSuggestionPrompt } from '../suggestions';
+import { buildCliTools, CLI_SYSTEM_PROMPT } from './cli-tools';
 import { attemptCascade, detectCaps, getModelSpec, type LocalModelSpec } from './models';
 
 export interface WarmResult {
@@ -409,6 +411,94 @@ export class LocalBackend implements AgentBackend {
 			160
 		);
 		filter.flush();
+	}
+
+	/**
+	 * CLI mode (`agent "<task>"` in a playground terminal): a fresh one-shot
+	 * agent over the SAME loaded model/worker, with the CLI tool roster —
+	 * bash bound to the invoking terminal + done. Both are interruptOn:
+	 * bash pauses for the human verdict, and done ends the session by simply
+	 * never being resumed. Streaming reuses the exact StreamFilter plumbing
+	 * of generate(); sessions and chat turns are mutually exclusive (the
+	 * runtime enforces one generation at a time), so swapping the host's
+	 * live-token hooks is safe.
+	 */
+	async generateCli(task: string, opts: CliRunOptions): Promise<void> {
+		const { onEvent, signal } = opts;
+		if (signal?.aborted) return;
+		if (!this.#model) throw new Error('LocalBackend.warm() must succeed before generateCli().');
+
+		const agent = createCourseAgent({
+			model: this.#model,
+			tools: buildCliTools({ bash: opts.bash }),
+			systemPrompt: CLI_SYSTEM_PROMPT,
+			interruptOn: ['bash', 'done'],
+			maxIterations: 16
+		});
+		const thread = `cli-${Date.now().toString(36)}`;
+
+		const filter = new StreamFilter((t) => {
+			if (!signal?.aborted) onEvent({ type: 'token', text: t });
+		});
+		const host = this.#model.host;
+		host.modelOpts.onCallStart = () => filter.nextCall();
+		host.modelOpts.onLiveToken = (t) => {
+			if (!signal?.aborted) filter.push(t);
+		};
+
+		try {
+			let result = await agent.start(task, thread);
+			while (result.status === 'interrupted') {
+				if (signal?.aborted) return;
+				const pending = result.interrupt;
+				if (pending.tool === 'done') {
+					filter.flush();
+					onEvent({
+						type: 'toolCall',
+						call: {
+							id: `done-${Date.now().toString(36)}`,
+							name: 'done',
+							args: { summary: String(pending.args.summary ?? '') }
+						}
+					});
+					onEvent({ type: 'doneTurn' });
+					return;
+				}
+				if (pending.tool !== 'bash') {
+					result = await agent.resume(
+						{ type: 'reject', message: `The tool ${pending.tool} is not available here.` },
+						thread
+					);
+					continue;
+				}
+				const cmd = String(pending.args.cmd ?? '');
+				onEvent({
+					type: 'toolCall',
+					call: { id: `gate-${Date.now().toString(36)}`, name: 'bash', args: { cmd } }
+				});
+				const verdict = await opts.bash.propose(cmd);
+				if (signal?.aborted) return;
+				const decision =
+					verdict.decision === 'allow'
+						? ({ type: 'approve' } as const)
+						: verdict.decision === 'edit'
+							? ({ type: 'edit', args: { cmd: verdict.cmd } } as const)
+							: ({ type: 'reject', message: verdict.reason } as const);
+				result = await agent.resume(decision, thread);
+			}
+			// The model stopped calling tools without done — flush whatever
+			// prose it produced and end the session gracefully.
+			if (signal?.aborted) return;
+			filter.flush();
+			onEvent({ type: 'doneTurn' });
+		} catch (e) {
+			if (signal?.aborted) return;
+			onEvent({ type: 'error', message: e instanceof Error ? e.message : String(e) });
+			onEvent({ type: 'doneTurn' });
+		} finally {
+			host.modelOpts.onCallStart = undefined;
+			host.modelOpts.onLiveToken = undefined;
+		}
 	}
 
 	dispose() {

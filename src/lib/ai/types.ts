@@ -74,6 +74,20 @@ export interface GenerateOptions {
 	signal?: AbortSignal;
 }
 
+/**
+ * Options for a CLI session (`agent "<task>"` in a playground terminal):
+ * a task-oriented loop over exactly two tools — bash (gated, bound to the
+ * INVOKING terminal's engine) and done (ends the session with a summary).
+ */
+export interface CliRunOptions {
+	/** The invoking terminal: propose() prompts the human, run() executes. */
+	bash: AgentBash;
+	/** Skip streaming delays (tests). Test mode always skips. */
+	instant?: boolean;
+	onEvent: (e: AgentEvent) => void;
+	signal?: AbortSignal;
+}
+
 export interface AgentBackend {
 	readonly name: string;
 	generate(messages: ChatMessage[], opts: GenerateOptions): Promise<void>;
@@ -83,6 +97,13 @@ export interface AgentBackend {
 	 * falls back to its static starters when absent or when generation fails.
 	 */
 	suggest?(ctx: SuggestContext, opts: SuggestOptions): Promise<void>;
+	/**
+	 * Optional CLI mode. Contract: stream prose as `token` events, announce
+	 * each command as a `toolCall` (name 'bash'), await `bash.propose` before
+	 * running anything, and finish with a `toolCall` (name 'done',
+	 * args.summary) followed by `doneTurn`.
+	 */
+	generateCli?(task: string, opts: CliRunOptions): Promise<void>;
 }
 
 export type RuntimeStatus = 'unavailable' | 'idle' | 'ready' | 'generating';

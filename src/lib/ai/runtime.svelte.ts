@@ -390,6 +390,37 @@ export class AgentRuntime {
 			this.#gate.resolve('deny', { reason: 'generation stopped' });
 		}
 		this.#abort?.abort();
+		// A playground CLI session claimed the runtime — interrupt it too.
+		this.#cliStop?.();
+	}
+
+	/* ── playground CLI sessions (`agent "<task>"` in a terminal) ── */
+
+	#cliStop: (() => void) | null = null;
+	#statusBeforeCli: RuntimeStatus = 'idle';
+
+	/**
+	 * A playground terminal wants to run a CLI session on the shared backend.
+	 * One generation at a time across chat + every terminal: returns false
+	 * (caller prints a one-line refusal) when a chat turn or another session
+	 * is in flight — CLI sessions REFUSE rather than queue, so the learner
+	 * never has a terminal silently waiting on a hidden chat generation.
+	 */
+	beginCliSession(onStop: () => void): boolean {
+		if (this.status === 'generating') return false;
+		this.#cliStop = onStop;
+		this.#statusBeforeCli = this.status;
+		this.status = 'generating';
+		this.activity = 'running in a playground terminal…';
+		return true;
+	}
+
+	/** The CLI session ended (any reason) — release the runtime. */
+	endCliSession(): void {
+		if (this.#cliStop === null) return;
+		this.#cliStop = null;
+		this.activity = null;
+		this.status = this.#statusBeforeCli;
 	}
 
 	clear(): void {
