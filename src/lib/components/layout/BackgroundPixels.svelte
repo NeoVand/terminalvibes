@@ -2,23 +2,25 @@
 	import { onMount } from 'svelte';
 
 	/**
-	 * The living background: a sparse grid of soft "phosphor pixels" behind the
-	 * entire app. Almost still — a handful of cells breathe in and out per
-	 * second — but the area around the cursor gets gently excited. Sits at
-	 * z-index -1 under everything; opaque surfaces hide it, frosted panels and
-	 * plain text areas let it whisper through.
+	 * The living background: a near-continuous fabric of soft phosphor pixels
+	 * behind the entire app. Cells ease in and out of brightness (no hard
+	 * pops), a gentle ambient breath keeps the whole surface alive, and the
+	 * cursor presses a smooth Gaussian dent into the fabric that glows and
+	 * twinkles while it rests there. Sits at z-index -1 under everything;
+	 * opaque surfaces hide it, frosted panels let it whisper through.
 	 *
-	 * Deliberately cheap: one 2D canvas, a decaying-cell list (only fading
-	 * cells are redrawn), ~24 fps tick, pauses when the tab is hidden and
+	 * Deliberately cheap: one 2D canvas, a Map of active cells (only those
+	 * are updated/drawn), 24 fps tick, pauses when the tab is hidden and
 	 * respects prefers-reduced-motion.
 	 */
 
-	const CELL = 24; // grid pitch in px
-	const DOT = 10; // drawn dot size
-	const AMBIENT_BIRTHS_PER_SEC = 80; // whole-screen baseline flicker
-	const FADE_PER_SEC = 0.32; // slow decay — dots linger and twinkle out
-	const MOUSE_SIGMA = 95; // Gaussian radius of the cursor's field, px
-	const MOUSE_FIELD_PER_TICK = 10; // standing refreshes under the cursor
+	const CELL = 13; // grid pitch in px
+	const DOT = 11; // drawn dot size — a 2px seam between neighbors
+	const AMBIENT_BIRTHS_PER_SEC = 120; // baseline breath across the screen
+	const GOAL_FADE_PER_SEC = 0.3; // how fast a cell's target settles to 0
+	const EASE = 0.16; // per-tick approach toward the target (softness)
+	const MOUSE_SIGMA = 90; // Gaussian radius of the cursor's press, px
+	const MAX_CELLS = 4000;
 
 	let canvas: HTMLCanvasElement;
 
@@ -28,19 +30,21 @@
 		const ctx = canvas.getContext('2d', { alpha: true });
 		if (!ctx) return;
 
+		// Each active cell eases its brightness toward a goal; the goal decays.
 		interface Cell {
 			cx: number;
 			cy: number;
-			a: number; // current alpha 0..1 (scaled by theme ceiling at draw)
+			a: number; // displayed brightness 0..1
+			goal: number; // where the brightness is headed
 		}
-		let cells: Cell[] = [];
+		const cells = new Map<number, Cell>();
 		let cols = 0;
 		let rows = 0;
 		let dpr = 1;
 
 		// Theme: warm phosphor green in the dark, soft bark-brown in the light.
 		let dark = true;
-		let ceiling = 0.16; // max dot alpha
+		let ceiling = 0.15;
 		function readTheme() {
 			const root = document.documentElement;
 			dark = root.classList.contains('dark')
@@ -48,7 +52,7 @@
 				: root.classList.contains('light')
 					? false
 					: window.matchMedia('(prefers-color-scheme: dark)').matches;
-			ceiling = dark ? 0.16 : 0.12;
+			ceiling = dark ? 0.15 : 0.11;
 		}
 		readTheme();
 		const themeObs = new MutationObserver(readTheme);
@@ -62,20 +66,20 @@
 			canvas.height = Math.floor(window.innerHeight * dpr);
 			cols = Math.ceil(window.innerWidth / CELL);
 			rows = Math.ceil(window.innerHeight / CELL);
-			cells = [];
+			cells.clear();
 			ctx!.clearRect(0, 0, canvas.width, canvas.height);
 		}
 		resize();
 		window.addEventListener('resize', resize);
 
-		function birth(cx: number, cy: number, strength: number) {
+		function press(cx: number, cy: number, goal: number) {
 			if (cx < 0 || cy < 0 || cx >= cols || cy >= rows) return;
-			// Reuse a live cell on the same spot instead of stacking
-			const existing = cells.find((c) => c.cx === cx && c.cy === cy);
-			if (existing) {
-				existing.a = Math.max(existing.a, strength);
-			} else if (cells.length < 1600) {
-				cells.push({ cx, cy, a: strength });
+			const key = cy * cols + cx;
+			const cell = cells.get(key);
+			if (cell) {
+				cell.goal = Math.max(cell.goal, goal);
+			} else if (cells.size < MAX_CELLS) {
+				cells.set(key, { cx, cy, a: 0, goal });
 			}
 		}
 
@@ -87,16 +91,8 @@
 		}
 		window.addEventListener('mousemove', onMove, { passive: true });
 
-		/** Standard normal via Box–Muller — the cursor's field is a true Gaussian. */
-		function gaussian(): number {
-			const u = Math.random() || 1e-9;
-			const v = Math.random() || 1e-9;
-			return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-		}
-
 		let raf = 0;
 		let last = performance.now();
-		let acc = 0;
 		const FRAME = 1000 / 24;
 
 		function tick(now: number) {
@@ -104,46 +100,47 @@
 			const dt = now - last;
 			if (dt < FRAME) return;
 			last = now;
-			acc += dt;
 
-			// Ambient births: a gentle scatter across the whole screen
+			// Ambient breath: soft blooms scattered across the whole surface
 			const expected = (AMBIENT_BIRTHS_PER_SEC * dt) / 1000;
 			let births = Math.floor(expected) + (Math.random() < expected % 1 ? 1 : 0);
 			while (births-- > 0) {
-				birth(
+				press(
 					Math.floor(Math.random() * cols),
 					Math.floor(Math.random() * rows),
-					0.25 + Math.random() * 0.5
+					0.2 + Math.random() * 0.45
 				);
 			}
 
-			// The cursor's standing field: refresh cells around the mouse with
-			// Gaussian falloff every tick, so a resting cursor keeps a soft,
-			// twinkling glow that never fully dies while it stays.
+			// The cursor's press: a smooth Gaussian dent, recomputed for every
+			// cell under it each tick — the fabric follows the hand, no dice.
 			if (mouseX >= 0) {
-				for (let i = 0; i < MOUSE_FIELD_PER_TICK; i++) {
-					const dx = gaussian() * MOUSE_SIGMA;
-					const dy = gaussian() * MOUSE_SIGMA;
-					const dist2 = (dx * dx + dy * dy) / (MOUSE_SIGMA * MOUSE_SIGMA);
-					const strength = Math.exp(-dist2 / 2) * (0.55 + Math.random() * 0.45);
-					birth(Math.round((mouseX + dx) / CELL), Math.round((mouseY + dy) / CELL), strength);
+				const reach = Math.ceil((MOUSE_SIGMA * 2.6) / CELL);
+				const mcx = Math.round(mouseX / CELL);
+				const mcy = Math.round(mouseY / CELL);
+				for (let gy = mcy - reach; gy <= mcy + reach; gy++) {
+					for (let gx = mcx - reach; gx <= mcx + reach; gx++) {
+						const dx = gx * CELL + CELL / 2 - mouseX;
+						const dy = gy * CELL + CELL / 2 - mouseY;
+						const g = Math.exp(-(dx * dx + dy * dy) / (2 * MOUSE_SIGMA * MOUSE_SIGMA));
+						if (g > 0.04) press(gx, gy, g * 0.9);
+					}
 				}
 			}
 
 			ctx!.clearRect(0, 0, canvas.width, canvas.height);
-			const decay = (FADE_PER_SEC * dt) / 1000;
+			const goalDecay = (GOAL_FADE_PER_SEC * dt) / 1000;
 			const [r, g, b] = dark ? [126, 231, 135] : [124, 74, 30];
-			for (let i = cells.length - 1; i >= 0; i--) {
-				const c = cells[i];
-				c.a -= decay;
-				if (c.a <= 0) {
-					cells.splice(i, 1);
+			for (const [key, c] of cells) {
+				c.goal = Math.max(0, c.goal - goalDecay);
+				c.a += (c.goal - c.a) * EASE;
+				if (c.a < 0.01 && c.goal < 0.01) {
+					cells.delete(key);
 					continue;
 				}
-				// Ease the fade so dots bloom quickly and linger softly, with a
-				// slow per-cell twinkle while they live
-				const tw = 0.72 + 0.28 * Math.sin(now / 340 + c.cx * 7.3 + c.cy * 3.1);
-				const alpha = ceiling * c.a * c.a * tw;
+				// A slow, shallow per-cell shimmer — fabric, not static
+				const tw = 0.86 + 0.14 * Math.sin(now / 620 + c.cx * 1.7 + c.cy * 2.9);
+				const alpha = ceiling * c.a * tw;
 				ctx!.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
 				ctx!.fillRect(
 					(c.cx * CELL + (CELL - DOT) / 2) * dpr,
