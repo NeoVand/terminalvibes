@@ -232,14 +232,19 @@ async function main() {
 		};
 
 		let ttftMs = -1;
+		let ttStatusMs = -1;
+		const statusLine = panel.locator('[data-testid="agent-activity"]');
 		while (Date.now() - t0 < 10 * 60_000) {
+			if (ttStatusMs < 0 && (await statusLine.isVisible().catch(() => false))) {
+				ttStatusMs = Date.now() - t0;
+			}
 			if (await approveIfPending()) continue;
 			const text = (await assistant.textContent().catch(() => '')) ?? '';
 			if (text.trim().length > 0) {
 				ttftMs = Date.now() - t0;
 				break;
 			}
-			await page.waitForTimeout(200);
+			await page.waitForTimeout(100);
 		}
 
 		// Done when the send button returns (status left 'generating').
@@ -264,7 +269,8 @@ async function main() {
 		log(`probe (tiny gen):${probeMs} ms`);
 		log(`setup:           ${setupSecs}s (download+load+probe)`);
 		log(`hf bytes:        ${(hfBytes / 1e6).toFixed(0)} MB`);
-		log(`TTFT:            ${(ttftMs / 1000).toFixed(1)}s`);
+		log(`status visible:  ${ttStatusMs >= 0 ? (ttStatusMs / 1000).toFixed(2) + 's' : 'n/a'}`);
+		log(`TTFT (visible):  ${(ttftMs / 1000).toFixed(1)}s`);
 		log(`total turn:      ${(totalMs / 1000).toFixed(1)}s`);
 		log(
 			`answer chars:    ${chars} (~${wallCps} chars/s wall, stream window ${genSecs.toFixed(1)}s)`

@@ -37,6 +37,9 @@
 			a: number; // displayed brightness 0..1
 			goal: number; // where the brightness is headed
 		}
+		// Non-reactive canvas bookkeeping (lives inside the effect, drawn via
+		// rAF) — SvelteMap reactivity would be pure overhead here.
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const cells = new Map<number, Cell>();
 		let cols = 0;
 		let rows = 0;

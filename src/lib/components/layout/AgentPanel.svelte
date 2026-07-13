@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
 	import { tick } from 'svelte';
 	import {
 		Bot,
@@ -11,7 +10,6 @@
 		Check,
 		Download,
 		Pencil,
-		Search,
 		Settings,
 		ShieldAlert,
 		Terminal
@@ -298,7 +296,7 @@
 {/if}
 
 <aside
-	class="agent-panel fixed top-0 right-0 bottom-0 z-40 flex w-full flex-col border-l shadow-2xl transition-transform duration-200 ease-out md:w-[min(40vw,36rem)]"
+	class="agent-panel fixed top-0 right-0 bottom-0 z-40 flex w-full flex-col border-l shadow-2xl transition-transform duration-200 ease-out md:w-[min(42vw,40rem)]"
 	style="padding-top: var(--header-height); border-color: var(--color-border);"
 	class:translate-x-0={open}
 	class:translate-x-full={!open}
@@ -567,8 +565,8 @@
 						{/if}
 
 						{#if agentRuntime.activity}
-							<div class="agent-activity" role="status">
-								<Search size={11} class="shrink-0" />
+							<div class="agent-activity" role="status" data-testid="agent-activity">
+								<span class="terminal-caret agent-activity-caret" aria-hidden="true"></span>
 								{agentRuntime.activity}
 							</div>
 						{/if}
@@ -597,8 +595,7 @@
 					{#if agentRuntime.terminalOpen}
 						<div
 							bind:this={termEl}
-							class="agent-term-body autohide-scrollbar tv-watermarked"
-							style="--tv-watermark: url('{base}/images/logo-watermark.webp');"
+							class="agent-term-body autohide-scrollbar"
 							use:autohideScroll
 							data-testid="agent-terminal"
 						>
@@ -1052,7 +1049,8 @@
 		color: var(--color-text-muted);
 	}
 
-	/* Live "searching the course…" note while the agent uses a tool. */
+	/* Live status note ("thinking…", "running the approved command…") —
+	   there is never a frozen instant while the agent works. */
 	.agent-activity {
 		display: flex;
 		align-items: center;
@@ -1061,6 +1059,11 @@
 		font-size: 11px;
 		font-style: italic;
 		color: var(--color-text-muted);
+	}
+
+	.agent-activity-caret {
+		display: inline-block;
+		flex-shrink: 0;
 	}
 
 	/* Slim mode row above the composer when the real model is active. */

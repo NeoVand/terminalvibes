@@ -106,6 +106,9 @@ export class AgentRuntime {
 	decide(decision: GateDecision, opts?: { cmd?: string; reason?: string }): void {
 		if (this.pendingCmd === null) return;
 		this.#gate.resolve(decision, opts);
+		if (this.status === 'generating') {
+			this.activity = decision === 'deny' ? 'thinking…' : 'running the approved command…';
+		}
 	}
 
 	/** Lazily build the sandbox bridge (browser only). */
@@ -239,7 +242,9 @@ export class AgentRuntime {
 		const history = this.messages.slice(0, -1);
 
 		this.status = 'generating';
-		this.activity = null;
+		// There is never a frozen instant: the status line shows immediately
+		// and clears the moment the first real token lands.
+		this.activity = 'thinking…';
 		this.#abort = new AbortController();
 		const bash = await this.#ensureBash();
 

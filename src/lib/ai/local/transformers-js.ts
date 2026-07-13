@@ -48,6 +48,10 @@ export interface TransformersJsModelOptions extends BaseChatModelParams {
 	maxNewTokens?: number;
 	temperature?: number;
 	onProgress?: (p: TjsProgress) => void;
+	/** Live token tap for EVERY generate — including tools-bound calls. */
+	onLiveToken?: (t: string) => void;
+	/** Fired when a model call starts (per graph round) — resets UI filters. */
+	onCallStart?: () => void;
 }
 
 interface PendingJob {
@@ -159,6 +163,7 @@ export class WorkerHost {
 		maxNewTokens?: number
 	) {
 		await this.ensureReady();
+		this.modelOpts.onCallStart?.();
 		return new Promise<string>((resolve, reject) => {
 			const id = this.id();
 			this.jobs.set(id, { resolve, reject, tokens: [], onToken });
@@ -237,12 +242,16 @@ export class TransformersJsChatModel extends BaseChatModel<TransformersJsCallOpt
 		runManager?: CallbackManagerForLLMRun
 	): Promise<ChatResult> {
 		const tools = options.tools;
-		// When tools are bound, generate without token streaming — tool calls are only
-		// meaningful once the full block is emitted — then parse them out of the text.
+		// Tokens stream live even with tools bound: the UI taps them through
+		// `onLiveToken` (with a marker-guard that hides tool-call syntax), and
+		// tool calls are parsed from the completed text afterwards.
 		const raw = await this.host.generate(
 			messages,
-			tools?.length ? undefined : (t) => runManager?.handleLLMNewToken(t),
-			!tools?.length,
+			(t) => {
+				this.host.modelOpts.onLiveToken?.(t);
+				void runManager?.handleLLMNewToken(t);
+			},
+			true,
 			tools
 		);
 		const { content, toolCalls } = parseToolCalls(raw);

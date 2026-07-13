@@ -202,4 +202,54 @@ test.describe('Agent panel', () => {
 			settings.locator('.agent-model-tan').getByRole('button', { name: 'Use this model' })
 		).toBeVisible();
 	});
+
+	test('desktop reading mode: the panel reshapes the page instead of covering it', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 900 });
+		await page.goto('/');
+		const main = page.locator('main#main-content');
+
+		// Sidebar starts open at desktop widths.
+		await expect(page.getByRole('button', { name: 'Collapse sidebar' })).toBeVisible();
+
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+
+		// Sidebar auto-collapses; main gains a right margin equal to the panel.
+		await expect(page.getByRole('button', { name: 'Expand sidebar' })).toBeVisible();
+		await expect
+			.poll(async () => main.evaluate((el) => parseFloat(getComputedStyle(el).marginRight)))
+			.toBeGreaterThan(300);
+
+		// The course text reflows — no horizontal overflow anywhere.
+		const overflow1280 = await page.evaluate(
+			() => document.documentElement.scrollWidth - document.documentElement.clientWidth
+		);
+		expect(overflow1280).toBeLessThanOrEqual(0);
+
+		// Closing restores the sidebar and the margin.
+		await page.keyboard.press('Escape');
+		await expect(page.getByRole('button', { name: 'Collapse sidebar' })).toBeVisible();
+		await expect
+			.poll(async () => main.evaluate((el) => parseFloat(getComputedStyle(el).marginRight)))
+			.toBe(0);
+
+		// Same reflow guarantee at a wide desktop.
+		await page.setViewportSize({ width: 1680, height: 900 });
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		await expect
+			.poll(async () => main.evaluate((el) => parseFloat(getComputedStyle(el).marginRight)))
+			.toBeGreaterThan(300);
+		const overflow1680 = await page.evaluate(
+			() => document.documentElement.scrollWidth - document.documentElement.clientWidth
+		);
+		expect(overflow1680).toBeLessThanOrEqual(0);
+
+		// The content column stays comfortably readable next to the panel.
+		const contentWidth = await page
+			.locator('main .max-w-4xl')
+			.first()
+			.evaluate((el) => el.getBoundingClientRect().width);
+		expect(contentWidth).toBeGreaterThan(500);
+	});
 });

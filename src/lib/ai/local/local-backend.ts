@@ -42,6 +42,131 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 	});
 }
 
+/**
+ * Marker-guard for live token streaming: shows the model's prose as it
+ * decodes, but hides tool-call syntax and <think> blocks. Because markers
+ * can arrive split across tokens, a holdback tail (the longest buffer
+ * suffix that could still become a marker) is withheld until disambiguated.
+ */
+const HIDE_FOREVER = ['<|tool_call_start|>', '<tool_call>', '<function='];
+const THINK_OPEN = '<think>';
+const THINK_CLOSE = '</think>';
+const ALL_MARKERS = [...HIDE_FOREVER, THINK_OPEN];
+
+export class StreamFilter {
+	#buf = '';
+	#thinking = false;
+	#suppressed = false;
+	#emitted = 0;
+
+	constructor(private emit: (t: string) => void) {}
+
+	get emittedChars(): number {
+		return this.#emitted;
+	}
+
+	/** A new model call begins (next graph round): tool syntax may show again. */
+	nextCall(): void {
+		this.#buf = '';
+		this.#thinking = false;
+		this.#suppressed = false;
+		if (this.#emitted > 0) {
+			this.#send('\n\n');
+		}
+	}
+
+	push(text: string): void {
+		if (this.#suppressed && !this.#thinking) return;
+		this.#buf += text;
+		this.#drain(false);
+	}
+
+	/** End of the turn: release any held-back tail that never became a marker. */
+	flush(): void {
+		this.#drain(true);
+	}
+
+	#send(text: string): void {
+		if (!text) return;
+		this.#emitted += text.length;
+		this.emit(text);
+	}
+
+	#drain(final: boolean): void {
+		for (;;) {
+			if (this.#thinking) {
+				const close = this.#buf.indexOf(THINK_CLOSE);
+				if (close < 0) {
+					// Keep only enough tail to detect a split closing tag.
+					this.#buf = this.#buf.slice(-THINK_CLOSE.length);
+					return;
+				}
+				this.#buf = this.#buf.slice(close + THINK_CLOSE.length).replace(/^\s+/, '');
+				this.#thinking = false;
+				continue;
+			}
+			if (this.#suppressed) {
+				this.#buf = '';
+				return;
+			}
+
+			// Earliest full marker in the buffer?
+			let at = -1;
+			let marker = '';
+			for (const m of ALL_MARKERS) {
+				const i = this.#buf.indexOf(m);
+				if (i >= 0 && (at < 0 || i < at)) {
+					at = i;
+					marker = m;
+				}
+			}
+			if (at >= 0) {
+				this.#send(
+					this.#buf
+						.slice(0, at)
+						.replace(/\s+$/, final ? '' : ' ')
+						.trimEnd()
+				);
+				this.#buf = this.#buf.slice(at + marker.length);
+				if (marker === THINK_OPEN) {
+					this.#thinking = true;
+				} else {
+					// Tool syntax to the end of this call — the parser handles it.
+					this.#suppressed = true;
+				}
+				continue;
+			}
+
+			// No full marker: hold back the longest tail that could still
+			// become one, emit the rest.
+			let hold = 0;
+			if (!final) {
+				for (let len = Math.min(this.#buf.length, 20); len > 0; len--) {
+					const tail = this.#buf.slice(-len);
+					if (ALL_MARKERS.some((m) => m.startsWith(tail))) {
+						hold = len;
+						break;
+					}
+				}
+			}
+			let emitPart = hold > 0 ? this.#buf.slice(0, -hold) : this.#buf;
+			let rest = hold > 0 ? this.#buf.slice(-hold) : '';
+			if (!final) {
+				// Hold trailing whitespace too: if a marker follows next, the
+				// visible prose ends clean instead of with a dangling space.
+				const ws = emitPart.match(/\s+$/);
+				if (ws) {
+					rest = ws[0] + rest;
+					emitPart = emitPart.slice(0, -ws[0].length);
+				}
+			}
+			this.#send(emitPart);
+			this.#buf = rest;
+			return;
+		}
+	}
+}
+
 export class LocalBackend implements AgentBackend {
 	readonly name = 'local';
 	readonly spec: LocalModelSpec;
@@ -181,6 +306,18 @@ export class LocalBackend implements AgentBackend {
 		this.#bash = opts.bash ?? null;
 		const agent = this.#ensureAgent(onEvent);
 
+		// Live streaming: real tokens flow from the worker into the pending
+		// assistant message as they decode; the filter hides tool syntax and
+		// thinking. The whole multi-round turn streams into ONE message.
+		const filter = new StreamFilter((t) => {
+			if (!signal?.aborted) onEvent({ type: 'token', text: t });
+		});
+		const host = this.#model!.host;
+		host.modelOpts.onCallStart = () => filter.nextCall();
+		host.modelOpts.onLiveToken = (t) => {
+			if (!signal?.aborted) filter.push(t);
+		};
+
 		try {
 			let result = await agent.start(question, this.#thread);
 
@@ -211,16 +348,19 @@ export class LocalBackend implements AgentBackend {
 				result = await agent.resume(decision, this.#thread);
 			}
 			if (signal?.aborted) return;
-			const answer = finalAnswer(result.messages);
+			filter.flush();
 
-			// The model generates with tools bound (no token stream from the
-			// worker), so stream the finished answer to the panel word-by-word —
-			// real model output, panel-side pacing.
-			const instant = opts.instant || import.meta.env.MODE === 'test';
-			for (const word of answer.match(/\S+\s*/g) ?? []) {
-				if (signal?.aborted) return;
-				onEvent({ type: 'token', text: word });
-				if (!instant) await new Promise((r) => setTimeout(r, 12));
+			// Fallback: if the entire turn produced no visible tokens (e.g. the
+			// model answered wholly inside a think block), stream the parsed
+			// final answer word-by-word instead.
+			if (filter.emittedChars === 0) {
+				const answer = finalAnswer(result.messages);
+				const instant = opts.instant || import.meta.env.MODE === 'test';
+				for (const word of answer.match(/\S+\s*/g) ?? []) {
+					if (signal?.aborted) return;
+					onEvent({ type: 'token', text: word });
+					if (!instant) await new Promise((r) => setTimeout(r, 12));
+				}
 			}
 			if (signal?.aborted) return;
 			onEvent({ type: 'doneTurn' });
@@ -228,6 +368,9 @@ export class LocalBackend implements AgentBackend {
 			if (signal?.aborted) return;
 			onEvent({ type: 'error', message: e instanceof Error ? e.message : String(e) });
 			onEvent({ type: 'doneTurn' });
+		} finally {
+			host.modelOpts.onCallStart = undefined;
+			host.modelOpts.onLiveToken = undefined;
 		}
 	}
 
