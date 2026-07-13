@@ -145,10 +145,7 @@
 			{cmd.description}
 		</p>
 		{#if showDetail && cmd.detail}
-			<p
-				class="mt-1 text-[11px] leading-relaxed"
-				style="color: color-mix(in srgb, var(--color-text-muted) 78%, transparent);"
-			>
+			<p class="mt-1 text-[11px] leading-relaxed" style="color: var(--color-text-muted);">
 				{cmd.detail}
 			</p>
 		{/if}
@@ -382,7 +379,7 @@
 <style>
 	/* Frosted glass, matching the header and sidebar */
 	.cheat-panel {
-		background: color-mix(in srgb, var(--color-bg-secondary) 62%, transparent);
+		background: var(--panel-glass);
 		backdrop-filter: blur(24px) saturate(1.4);
 		-webkit-backdrop-filter: blur(24px) saturate(1.4);
 	}

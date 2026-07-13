@@ -58,7 +58,7 @@
 
 <style>
 	.pg-panel {
-		background: color-mix(in srgb, var(--color-bg-secondary) 62%, transparent);
+		background: var(--panel-glass);
 		backdrop-filter: blur(24px) saturate(1.4);
 		-webkit-backdrop-filter: blur(24px) saturate(1.4);
 	}

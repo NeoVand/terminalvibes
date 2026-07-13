@@ -16,7 +16,7 @@
 	--color-border-light: #ece6d8;
 	--color-text: #231c11;
 	--color-text-secondary: #564b38;
-	--color-text-muted: #9d9280;
+	--color-text-muted: #857a66;
 	--color-text-inverse: #ffffff;
 
 	--color-primary: #3e6f3a;
@@ -71,6 +71,8 @@
 	--color-vibe: #8b5e34;
 	--color-vibe-text: #7c4a1e;
 	--color-vibe-bg: #faf3ea;
+	--panel-glass: color-mix(in srgb, var(--color-bg-secondary) 93%, transparent);
+	--header-glass: color-mix(in srgb, var(--color-bg) 90%, transparent);
 
 	/* Header trio gradient: playground tan → agent amber → cheat sheet moss */
 	--color-btn-playground: #8b5e34;
@@ -78,6 +80,12 @@
 	--sidebar-width: 280px;
 	--sidebar-collapsed-width: 52px;
 	--header-height: 48px;
+
+	/* Frosted-panel fills. Light mode stays near-opaque so dark banner art
+	   blurred behind a panel can never muddy the text; dark mode stays airy.
+	   Panels apply their own backdrop-filter on top of these. */
+	--panel-glass: color-mix(in srgb, var(--color-bg-secondary) 93%, transparent);
+	--header-glass: color-mix(in srgb, var(--color-bg) 90%, transparent);
 
 	--font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 	--font-heading: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -141,6 +149,8 @@
 		--color-vibe: #c89b6d;
 		--color-vibe-text: #dfc09a;
 		--color-vibe-bg: #241a0e;
+		--panel-glass: color-mix(in srgb, var(--color-bg-secondary) 68%, transparent);
+		--header-glass: color-mix(in srgb, var(--color-bg) 65%, transparent);
 
 		--color-btn-playground: #c89b6d;
 	}
@@ -156,7 +166,7 @@
 	--color-border-light: #ece6d8;
 	--color-text: #231c11;
 	--color-text-secondary: #564b38;
-	--color-text-muted: #9d9280;
+	--color-text-muted: #857a66;
 	--color-text-inverse: #ffffff;
 	--color-primary: #3e6f3a;
 	--color-primary-light: #5d9a55;
@@ -188,6 +198,8 @@
 	--color-vibe: #8b5e34;
 	--color-vibe-text: #7c4a1e;
 	--color-vibe-bg: #faf3ea;
+	--panel-glass: color-mix(in srgb, var(--color-bg-secondary) 93%, transparent);
+	--header-glass: color-mix(in srgb, var(--color-bg) 90%, transparent);
 	--color-btn-playground: #8b5e34;
 	--color-diff-add: #166534;
 	--color-diff-add-bg: rgba(22, 101, 52, 0.08);
@@ -247,6 +259,8 @@
 	--color-vibe: #c89b6d;
 	--color-vibe-text: #dfc09a;
 	--color-vibe-bg: #241a0e;
+	--panel-glass: color-mix(in srgb, var(--color-bg-secondary) 68%, transparent);
+	--header-glass: color-mix(in srgb, var(--color-bg) 65%, transparent);
 	--color-btn-playground: #c89b6d;
 }
 

@@ -186,7 +186,7 @@
 	/* Frosted glass, matching the sidebar's treatment: content scrolls
 	   visibly behind the header through the blur. */
 	.app-header {
-		background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+		background: var(--header-glass);
 		backdrop-filter: blur(20px) saturate(1.4);
 		-webkit-backdrop-filter: blur(20px) saturate(1.4);
 		box-shadow: 0 1px 0 color-mix(in srgb, var(--color-border) 80%, transparent);
