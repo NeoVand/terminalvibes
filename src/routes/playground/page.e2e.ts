@@ -24,7 +24,7 @@ test.describe('Terminal Playground', () => {
 		await openPlaygroundPanel(page);
 
 		const panel = playgroundPanel(page);
-		const input = panel.locator('input[placeholder="ls"]');
+		const input = panel.getByLabel('Shell command');
 		await expect(input).toBeEnabled({ timeout: 15000 });
 
 		await runCommand(page, input, 'pwd');
@@ -34,7 +34,7 @@ test.describe('Terminal Playground', () => {
 	test('navigates directories and reflects the cwd in the prompt', async ({ page }) => {
 		await openPlaygroundPanel(page);
 		const panel = playgroundPanel(page);
-		const input = panel.locator('input[placeholder="ls"]');
+		const input = panel.getByLabel('Shell command');
 		await expect(input).toBeEnabled({ timeout: 15000 });
 
 		await runCommand(page, input, 'mkdir demo');
@@ -46,7 +46,7 @@ test.describe('Terminal Playground', () => {
 	test('pipes and redirection work', async ({ page }) => {
 		await openPlaygroundPanel(page);
 		const panel = playgroundPanel(page);
-		const input = panel.locator('input[placeholder="ls"]');
+		const input = panel.getByLabel('Shell command');
 		await expect(input).toBeEnabled({ timeout: 15000 });
 
 		const terminal = panel.locator('.pg-terminal');
@@ -65,7 +65,7 @@ test.describe('Terminal Playground', () => {
 		await expect(select).toBeEnabled({ timeout: 15000 });
 
 		await select.selectOption('navigation');
-		const input = panel.locator('input[placeholder="ls"]');
+		const input = panel.getByLabel('Shell command');
 		await expect(input).toBeEnabled({ timeout: 15000 });
 		await runCommand(page, input, 'pwd');
 		await expect(panel.getByText('/home/vibe').first()).toBeVisible();
@@ -74,7 +74,7 @@ test.describe('Terminal Playground', () => {
 	test('help lists core commands', async ({ page }) => {
 		await openPlaygroundPanel(page);
 		const panel = playgroundPanel(page);
-		const input = panel.locator('input[placeholder="ls"]');
+		const input = panel.getByLabel('Shell command');
 		await expect(input).toBeEnabled({ timeout: 15000 });
 
 		await runCommand(page, input, 'help');
@@ -85,7 +85,7 @@ test.describe('Terminal Playground', () => {
 	test('unknown commands teach instead of crash', async ({ page }) => {
 		await openPlaygroundPanel(page);
 		const panel = playgroundPanel(page);
-		const input = panel.locator('input[placeholder="ls"]');
+		const input = panel.getByLabel('Shell command');
 		await expect(input).toBeEnabled({ timeout: 15000 });
 
 		await runCommand(page, input, 'frobnicate');
@@ -140,7 +140,7 @@ test.describe('Tutorial', () => {
 	test('lesson activity loads embedded playground', async ({ page }) => {
 		await page.goto('/#section-1-2');
 		const activity = page.locator('[data-lesson-activity="first-steps"]');
-		const input = activity.locator('input[placeholder="ls"]');
+		const input = activity.getByLabel('Shell command');
 		await scrollActivityIntoView(activity, input);
 
 		await input.fill('whoami');
@@ -151,7 +151,7 @@ test.describe('Tutorial', () => {
 	test('log-detective lesson activity loads in part 4', async ({ page }) => {
 		await page.goto('/#section-4-3');
 		const activity = page.locator('[data-lesson-activity="log-detective"]');
-		const input = activity.locator('input[placeholder="ls"]');
+		const input = activity.getByLabel('Shell command');
 		await scrollActivityIntoView(activity, input);
 
 		await input.fill('ls');

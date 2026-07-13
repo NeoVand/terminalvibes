@@ -822,6 +822,19 @@
 			{@render promptLabel(promptCwd)}
 		{/if}
 		<span class="pg-input-wrap">
+			<!-- Empty-and-unfocused: a block caret sits right after the prompt
+			     (a real terminal blinks before you click), with the one-time
+			     hint. Both come BEFORE the input so they never get pushed to the
+			     right edge by the input filling the line. -->
+			{#if !inputFocused && !input}
+				<span class="pg-caret terminal-caret" aria-hidden="true"></span>
+			{/if}
+			{#if !hasInteracted && !loading && !input}
+				<span class="pg-type-hint" aria-hidden="true">
+					<ArrowLeft size={10} />
+					type here
+				</span>
+			{/if}
 			<input
 				bind:this={inputEl}
 				bind:value={input}
@@ -832,22 +845,13 @@
 				}}
 				onblur={() => (inputFocused = false)}
 				disabled={loading}
-				placeholder={cliActive && !cliEditing ? '' : 'ls'}
+				placeholder={!cliActive && inputFocused ? 'ls' : ''}
 				class="pg-input"
 				autocomplete="off"
 				spellcheck="false"
 				enterkeyhint="send"
 				aria-label="Shell command"
 			/>
-			{#if !inputFocused && !input}
-				<span class="pg-caret terminal-caret" aria-hidden="true"></span>
-			{/if}
-			{#if !hasInteracted && !loading && !input}
-				<span class="pg-type-hint" aria-hidden="true">
-					<ArrowLeft size={10} />
-					type here
-				</span>
-			{/if}
 		</span>
 	</form>
 {/snippet}
@@ -1240,6 +1244,10 @@
 	   the last line of the scrollback is where you type. It's a normal
 	   flowing block (pre-wrap + break-all) so long commands wrap instead of
 	   scrolling off — the real <input> is hidden inside it. */
+	/* Match the live prompt to a submitted command (history is 12.5px) so
+	   typing and pressing Enter never changes the text size. The app's
+	   viewport is maximum-scale=1, so a sub-16px input never triggers the
+	   iOS focus-zoom — no oversized-input workaround needed. */
 	.pg-prompt-line {
 		display: flex;
 		flex-wrap: wrap;
@@ -1247,7 +1255,7 @@
 		column-gap: 0.6ch;
 		row-gap: 0.15rem;
 		font-family: var(--font-mono);
-		font-size: 16px;
+		font-size: 12.5px;
 		line-height: 1.4;
 		padding: 0;
 		background: transparent;
@@ -1265,12 +1273,6 @@
 		flex: 1 1 12ch;
 		align-items: baseline;
 		min-width: 12ch;
-	}
-
-	@media (min-width: 640px) {
-		.pg-prompt-line {
-			font-size: 12.5px;
-		}
 	}
 
 	/* Echoed prompt+command history lines wrap the same way. */
@@ -1318,7 +1320,7 @@
 	.pg-prompt {
 		flex-shrink: 0;
 		font-family: var(--font-mono);
-		font-size: 16px;
+		font-size: 12.5px;
 		font-weight: 600;
 		user-select: none;
 	}
@@ -1346,12 +1348,6 @@
 
 	.pp-dollar {
 		margin-left: 0.15rem;
-	}
-
-	@media (min-width: 640px) {
-		.pg-prompt {
-			font-size: 12.5px;
-		}
 	}
 
 	/* A real, visible input: native caret, selection, and editing. Transparent
