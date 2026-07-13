@@ -545,7 +545,7 @@
 				aria-label="Shell command"
 			/>
 			{#if !inputFocused && !input}
-				<span class="pg-caret" aria-hidden="true"></span>
+				<span class="pg-caret terminal-caret" aria-hidden="true"></span>
 			{/if}
 			{#if !hasInteracted && !loading && !input}
 				<span class="pg-type-hint" aria-hidden="true">
@@ -902,27 +902,13 @@
 
 	/* Idle block cursor: a real terminal blinks even before you click. The
 	   native caret takes over on focus. */
+	/* Size, phosphor color, and blink come from the shared .terminal-caret
+	   class in layout.css; here only the overlay positioning on the prompt. */
 	.pg-caret {
 		position: absolute;
 		left: 0;
 		top: 50%;
 		transform: translateY(-50%);
-		width: 0.55ch;
-		height: 1.15em;
-		background: var(--color-terminal-prompt);
-		animation: pg-blink 1.1s step-end infinite;
-		pointer-events: none;
-	}
-
-	@keyframes pg-blink {
-		0%,
-		49% {
-			opacity: 0.9;
-		}
-		50%,
-		100% {
-			opacity: 0;
-		}
 	}
 
 	/* One-time, whisper-quiet nudge toward the prompt. Gone after first focus. */

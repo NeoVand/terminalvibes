@@ -282,7 +282,7 @@
 			</div>
 			<div class="mx-auto w-48 flex-shrink-0 sm:mx-0 sm:w-52">
 				<ExpandableImage
-					src="{base}/images/thompson-ritchie.jpg"
+					src="{base}/images/thompson-ritchie.webp"
 					alt="Ken Thompson and Dennis Ritchie at a PDP-11 running Unix at Bell Labs"
 					caption="Ken Thompson (seated) and Dennis Ritchie at Bell Labs, creators of Unix. Photo: Wikimedia Commons"
 					width={720}

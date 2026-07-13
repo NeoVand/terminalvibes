@@ -241,7 +241,7 @@
 										{/if}
 									{/each}
 									{#if agentRuntime.status === 'generating' && i === agentRuntime.messages.length - 1}
-										<span class="agent-cursor" aria-hidden="true"></span>
+										<span class="agent-caret terminal-caret" aria-hidden="true"></span>
 									{/if}
 								</div>
 							{/if}
@@ -473,20 +473,12 @@
 		cursor: default;
 	}
 
-	/* Streaming caret, borrowed from the playground's idle cursor. */
-	.agent-cursor {
+	/* The shared .terminal-caret (layout.css) supplies size, phosphor color,
+	   and the 1.1s step blink — identical to the playground's idle cursor.
+	   Here it only needs to sit inline at the streaming text tip. */
+	.agent-caret {
 		display: inline-block;
-		width: 0.55em;
-		height: 1em;
 		margin-left: 2px;
 		vertical-align: text-bottom;
-		background: var(--color-important);
-		animation: agent-blink 1s steps(1) infinite;
-	}
-
-	@keyframes agent-blink {
-		50% {
-			opacity: 0;
-		}
 	}
 </style>
