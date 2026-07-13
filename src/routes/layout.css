@@ -81,6 +81,10 @@
 	--sidebar-width: 280px;
 	--sidebar-collapsed-width: 52px;
 	--header-height: 48px;
+	/* Width of the Agent/Playground side panels while the course reflows
+	   beside them (desktop reading mode). Keep in sync with the panels'
+	   md:w-[min(42vw,40rem)] classes. */
+	--panel-reading-width: min(42vw, 40rem);
 
 	/* Frosted-panel fills. Light mode stays near-opaque so dark banner art
 	   blurred behind a panel can never muddy the text; dark mode stays airy.
@@ -281,9 +285,16 @@ html {
 	scroll-padding-top: calc(var(--header-height) + 24px);
 }
 
+html {
+	/* The page color lives on <html>; <body> stays transparent so the fixed
+	   BackgroundPixels canvas (z-index -1) shows through wherever content
+	   doesn't paint its own surface. */
+	background-color: var(--color-bg);
+}
+
 body {
 	font-family: var(--font-sans);
-	background-color: var(--color-bg);
+	background-color: transparent;
 	color: var(--color-text);
 	line-height: 1.7;
 	-webkit-font-smoothing: antialiased;
@@ -313,9 +324,28 @@ strong {
 @media (max-width: 1023px) {
 	.main-content {
 		margin-left: var(--sidebar-collapsed-width) !important;
+		/* Reading mode is desktop-only for now: panels overlay with a scrim
+		   below 1024px. A distinct mobile reading experience can slot in
+		   here later. */
+		margin-right: 0 !important;
 	}
 	.sidebar-drawer {
 		background: var(--color-bg) !important;
+	}
+}
+
+/* Desktop reading mode: an open Agent/Playground panel RESHAPES the page —
+   the course text reflows into the remaining column instead of being
+   covered, so learners read and chat side by side. */
+@media (min-width: 1024px) {
+	.main-content.reading-mode {
+		margin-right: var(--panel-reading-width);
+	}
+
+	/* Tighter section gutters while sharing the viewport with a panel. */
+	.main-content.reading-mode :where(.px-6) {
+		padding-left: 1rem;
+		padding-right: 1rem;
 	}
 }
 
@@ -412,18 +442,6 @@ kbd {
 
 ::-webkit-scrollbar-thumb:hover {
 	background: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
-}
-
-/* Terminal watermark: a very faint pixel-art leafy T floating at the
-   center of terminal surfaces (opacity is baked into the asset). The
-   default background-attachment keeps it fixed to the element while the
-   scrollback moves. Set --tv-watermark: url(...) on the element. */
-.tv-watermarked {
-	background-image: var(--tv-watermark, none);
-	background-repeat: no-repeat;
-	background-position: right 14px bottom 12px;
-	background-size: min(11%, 64px);
-	image-rendering: pixelated;
 }
 
 /* Auto-hiding scrollbars for panel scroll areas (sidebar TOC, cheat sheet,
