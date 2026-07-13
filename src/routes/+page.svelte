@@ -4,6 +4,7 @@
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import CheatSheet from '$lib/components/layout/CheatSheet.svelte';
 	import PlaygroundPanel from '$lib/components/layout/PlaygroundPanel.svelte';
+	import AgentPanel from '$lib/components/layout/AgentPanel.svelte';
 	import Hero from '$lib/components/sections/Hero.svelte';
 	import Part1 from '$lib/components/sections/Part1.svelte';
 	import Part2 from '$lib/components/sections/Part2.svelte';
@@ -27,6 +28,7 @@
 	let sidebarOpen = $state(false);
 	let cheatSheetOpen = $state(false);
 	let playgroundOpen = $state(false);
+	let agentOpen = $state(false);
 	let sharedSession = $state<SharedSession | null>(null);
 	let activeSection = $state('hero');
 	let theme = $state<ThemePreference>('system');
@@ -207,9 +209,12 @@
 		sidebarOpen = !sidebarOpen;
 	}
 
+	// The three header panels are mutually exclusive: opening one closes
+	// the others.
 	function toggleCheatSheet() {
 		if (!cheatSheetOpen) {
 			playgroundOpen = false;
+			agentOpen = false;
 		}
 		cheatSheetOpen = !cheatSheetOpen;
 	}
@@ -217,12 +222,22 @@
 	function togglePlayground() {
 		if (!playgroundOpen) {
 			cheatSheetOpen = false;
+			agentOpen = false;
 		}
 		playgroundOpen = !playgroundOpen;
 	}
 
+	function toggleAgent() {
+		if (!agentOpen) {
+			cheatSheetOpen = false;
+			playgroundOpen = false;
+		}
+		agentOpen = !agentOpen;
+	}
+
 	function openPlayground() {
 		cheatSheetOpen = false;
+		agentOpen = false;
 		playgroundOpen = true;
 	}
 </script>
@@ -280,11 +295,13 @@
 	onToggleTheme={toggleTheme}
 	onToggleCheatSheet={toggleCheatSheet}
 	onTogglePlayground={togglePlayground}
+	onToggleAgent={toggleAgent}
 	onNavigate={handleNavigate}
 />
 <Sidebar open={sidebarOpen} {activeSection} onToggle={toggleSidebar} onNavigate={handleNavigate} />
 <CheatSheet open={cheatSheetOpen} onToggle={toggleCheatSheet} />
 <PlaygroundPanel open={playgroundOpen} onToggle={togglePlayground} shared={sharedSession} />
+<AgentPanel open={agentOpen} onToggle={toggleAgent} onNavigate={handleNavigate} />
 
 <main
 	id="main-content"

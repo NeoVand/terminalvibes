@@ -72,6 +72,9 @@
 	--color-vibe-text: #7c4a1e;
 	--color-vibe-bg: #faf3ea;
 
+	/* Header trio gradient: playground tan → agent amber → cheat sheet moss */
+	--color-btn-playground: #8b5e34;
+
 	--sidebar-width: 280px;
 	--sidebar-collapsed-width: 52px;
 	--header-height: 48px;
@@ -138,6 +141,8 @@
 		--color-vibe: #c89b6d;
 		--color-vibe-text: #dfc09a;
 		--color-vibe-bg: #241a0e;
+
+		--color-btn-playground: #c89b6d;
 	}
 }
 
@@ -183,6 +188,7 @@
 	--color-vibe: #8b5e34;
 	--color-vibe-text: #7c4a1e;
 	--color-vibe-bg: #faf3ea;
+	--color-btn-playground: #8b5e34;
 	--color-diff-add: #166534;
 	--color-diff-add-bg: rgba(22, 101, 52, 0.08);
 	--color-diff-del: #b91c1c;
@@ -241,6 +247,7 @@
 	--color-vibe: #c89b6d;
 	--color-vibe-text: #dfc09a;
 	--color-vibe-bg: #241a0e;
+	--color-btn-playground: #c89b6d;
 }
 
 * {

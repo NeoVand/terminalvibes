@@ -43,6 +43,9 @@
 		hideHeader = false,
 		onClose,
 		onResetReady,
+		// Part of the public props API (callers pass unique ids); unused here
+		// since the engine keys state internally.
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		id = 'playground',
 		shared = null
 	}: {

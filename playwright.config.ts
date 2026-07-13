@@ -8,7 +8,10 @@ export default defineConfig({
 	webServer: {
 		command: 'npm run build && npm run preview',
 		port: PORT,
-		env: { PORT: String(PORT) }
+		env: { PORT: String(PORT) },
+		// The production build alone can take over Playwright's default 60s
+		// on a loaded machine; give the build + preview combo real headroom.
+		timeout: 180_000
 	},
 	testMatch: '**/*.e2e.{ts,js}',
 	// CI runners are slow enough that parallel workers make the
