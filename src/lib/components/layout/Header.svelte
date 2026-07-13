@@ -33,12 +33,12 @@
 			class="flex h-7 w-7 cursor-pointer items-center justify-center transition-opacity hover:opacity-80"
 			aria-label="About TerminalVibes"
 		>
-			<img src="{base}/images/logo.webp" alt="" class="h-7 w-7 rounded-md" width="28" height="28" />
+			<img src="{base}/images/logo.webp" alt="" class="h-8 w-8 rounded-md" width="32" height="32" />
 		</button>
 	</div>
 
 	<span
-		class="hidden text-[15px] font-bold tracking-tight sm:inline"
+		class="-ml-1.5 hidden text-[15px] font-bold tracking-tight sm:inline"
 		style="color: var(--color-text); font-family: var(--font-heading); letter-spacing: -0.02em;"
 	>
 		TerminalVibes
