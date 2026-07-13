@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 	import {
 		FolderTree,
 		Terminal,
@@ -652,7 +653,8 @@
 				<div
 					bind:this={terminalEl}
 					use:autohideScroll
-					class="pg-terminal min-h-0 flex-1 cursor-text overflow-y-auto px-4 py-3"
+					class="pg-terminal tv-watermarked min-h-0 flex-1 cursor-text overflow-y-auto px-4 py-3"
+					style="--tv-watermark: url('{base}/images/logo-watermark.webp');"
 					onclick={focusIfIdle}
 				>
 					{@render terminalHistory()}
@@ -739,10 +741,10 @@
 				<div
 					bind:this={terminalEl}
 					use:autohideScroll
-					class="pg-terminal flex-1 cursor-text overflow-y-auto p-4"
+					class="pg-terminal tv-watermarked flex-1 cursor-text overflow-y-auto p-4"
 					style="min-height: {embedded ? '220px' : '280px'}; max-height: {embedded
 						? '300px'
-						: '360px'};"
+						: '360px'}; --tv-watermark: url('{base}/images/logo-watermark.webp');"
 					onclick={focusIfIdle}
 				>
 					{@render terminalHistory()}
@@ -877,7 +879,9 @@
 	   (matching CodeBlock) and a crisp near-black forest in dark mode. All
 	   text and token colors resolve through the theme's terminal variables. */
 	.pg-terminal {
-		background: var(--color-terminal-bg);
+		/* background-color, not the shorthand — the shorthand would wipe the
+		   .tv-watermarked background-image out of the cascade */
+		background-color: var(--color-terminal-bg);
 		color: var(--color-terminal-text);
 	}
 

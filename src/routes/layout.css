@@ -414,6 +414,18 @@ kbd {
 	background: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
 }
 
+/* Terminal watermark: a very faint pixel-art leafy T floating at the
+   center of terminal surfaces (opacity is baked into the asset). The
+   default background-attachment keeps it fixed to the element while the
+   scrollback moves. Set --tv-watermark: url(...) on the element. */
+.tv-watermarked {
+	background-image: var(--tv-watermark, none);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: min(34%, 230px);
+	image-rendering: pixelated;
+}
+
 /* Auto-hiding scrollbars for panel scroll areas (sidebar TOC, cheat sheet,
    playground terminal): invisible at rest, a slim theme-tinted thumb while
    hovering or scrolling. Applied via the autohideScroll action. */

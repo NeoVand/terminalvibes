@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { tick } from 'svelte';
 	import {
 		Bot,
@@ -596,7 +597,8 @@
 					{#if agentRuntime.terminalOpen}
 						<div
 							bind:this={termEl}
-							class="agent-term-body autohide-scrollbar"
+							class="agent-term-body autohide-scrollbar tv-watermarked"
+							style="--tv-watermark: url('{base}/images/logo-watermark.webp');"
 							use:autohideScroll
 							data-testid="agent-terminal"
 						>
@@ -962,7 +964,7 @@
 		max-height: 11rem;
 		overflow-y: auto;
 		padding: 0.5rem 1.25rem 0.625rem;
-		background: var(--color-terminal-bg);
+		background-color: var(--color-terminal-bg);
 		color: var(--color-terminal-text);
 		font-family: var(--font-mono);
 		font-size: 12px;
