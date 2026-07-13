@@ -12,8 +12,10 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
-	// Vendored agent skills are third-party code with their own conventions
-	{ ignores: ['.agents/**'] },
+	// Vendored agent skills and local agent/editor config (incl. transient
+	// git worktrees under .claude/worktrees) — never shipped source. Mirrors
+	// .prettierignore so both tools skip them.
+	{ ignores: ['.agents/**', '.claude/**'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,

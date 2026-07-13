@@ -21,6 +21,16 @@
 
 	const sections = sidebarNav;
 
+	// Look up every child id's parent section id, straight from the nav tree.
+	// Playground activities (first-steps, fix-permissions, …) deliberately
+	// don't follow the `section-N-` naming, so string-prefix matching can't
+	// tell which part they belong to — this can. Plain object: built once
+	// from static data, never reactively mutated.
+	const childToParent: Record<string, string> = {};
+	for (const s of sections) {
+		for (const c of s.children ?? []) childToParent[c.id] = s.id;
+	}
+
 	// Reading progress: share of content sections ever scrolled into view.
 	// Exercise progress: lesson scenarios with a recorded completion.
 	const readPct = $derived(
@@ -72,6 +82,8 @@
 
 	function isActive(sectionId: string): boolean {
 		if (activeSection === sectionId) return true;
+		// A child (section or playground activity) lights up its parent part.
+		if (childToParent[activeSection] === sectionId) return true;
 		if (sectionId === 'hero')
 			return activeSection === 'hero' || activeSection.startsWith('section-intro-');
 		const partNum = sectionId.replace('part-', '');
