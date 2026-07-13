@@ -35,12 +35,14 @@ import {
 	ShieldAlert,
 	Sparkles,
 	SplitSquareHorizontal,
+	Sprout,
 	Table,
 	Terminal,
 	Trash2,
 	Trophy,
 	Wand2,
-	Workflow
+	Workflow,
+	Wrench
 } from 'lucide-svelte';
 
 export interface NavItem {
@@ -64,8 +66,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-intro-what', label: 'What Is the Terminal?', icon: HelpCircle },
 			{ id: 'section-intro-history', label: 'A Brief History', icon: History },
 			{ id: 'section-intro-shells', label: "Your Machine's Terminal", icon: Laptop },
-			{ id: 'section-intro-anatomy', label: 'Anatomy of a Prompt', icon: Terminal },
-			{ id: 'section-intro-under-the-hood', label: 'Under the Hood', icon: Cog }
+			{ id: 'section-intro-anatomy', label: 'Anatomy of a Prompt', icon: Terminal }
 		]
 	},
 	{
@@ -162,14 +163,23 @@ export const sidebarNav: NavSection[] = [
 	},
 	{
 		id: 'part-8',
+		label: 'Under the Hood',
+		icon: Cog,
+		children: [
+			{ id: 'section-8-1', label: 'How the Terminal Works', icon: Wrench },
+			{ id: 'section-8-2', label: 'The Terminal, Evolving', icon: Sprout }
+		]
+	},
+	{
+		id: 'part-9',
 		label: 'Conclusion',
 		icon: BookOpen,
 		children: [
-			{ id: 'section-8-1', label: 'The Command-Line Mindset', icon: Wand2 },
-			{ id: 'section-8-2', label: 'Quick Reference', icon: Table },
-			{ id: 'section-8-3', label: 'Final Challenge', icon: Trophy },
+			{ id: 'section-9-1', label: 'The Command-Line Mindset', icon: Wand2 },
+			{ id: 'section-9-2', label: 'Quick Reference', icon: Table },
+			{ id: 'section-9-3', label: 'Final Challenge', icon: Trophy },
 			{ id: 'capstone', label: 'One Messy Home Folder', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-8-4', label: 'Keep Learning', icon: Library }
+			{ id: 'section-9-4', label: 'Keep Learning', icon: Library }
 		]
 	}
 ];

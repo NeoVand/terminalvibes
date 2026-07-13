@@ -99,7 +99,7 @@ function resolveSectionId(command: string, category: string): string {
 		'Panic Button': 'section-1-3'
 	};
 
-	return categoryFallback[category] ?? 'section-8-2';
+	return categoryFallback[category] ?? 'section-9-2';
 }
 
 function slugify(value: string): string {
@@ -234,75 +234,6 @@ const topicEntries: SearchEntry[] = [
 			'where do i type',
 			'blinking',
 			'anatomy'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-under-the-hood',
-		sectionId: 'section-intro-under-the-hood',
-		title: 'Under the Hood',
-		part: 'Introduction',
-		description: 'TTYs, the PTY pair, and the line discipline — how the terminal actually works.',
-		keywords: [
-			'under the hood',
-			'how does the terminal work',
-			'how terminal works',
-			'tty',
-			'teletype',
-			'pty',
-			'pseudo-terminal',
-			'pseudoterminal',
-			'terminal emulator',
-			'line discipline',
-			'raw mode',
-			'cooked mode',
-			'canonical mode',
-			'stty',
-			'internals'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-escape-sequences',
-		sectionId: 'section-intro-under-the-hood',
-		title: 'Escape sequences & ANSI colors',
-		part: 'Introduction',
-		description: 'Colors and cursor movement are in-band bytes — \\e[32m turns the text green.',
-		keywords: [
-			'escape sequence',
-			'escape sequences',
-			'ansi',
-			'ansi colors',
-			'terminal colors',
-			'colored output',
-			'\\e[32m',
-			'esc',
-			'^[[a',
-			'arrow keys print characters',
-			'weird characters',
-			'cursor movement',
-			'vt100',
-			'garbled terminal'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-ctrl-c-sigint',
-		sectionId: 'section-intro-under-the-hood',
-		title: 'What Ctrl+C really does',
-		part: 'Introduction',
-		description: 'The tty driver turns Ctrl+C into SIGINT — a kernel signal, not input.',
-		keywords: [
-			'ctrl+c',
-			'ctrl c',
-			'sigint',
-			'signal',
-			'signals',
-			'interrupt',
-			'what does ctrl+c do',
-			'how does ctrl+c work',
-			'stop a running command',
-			'kill a program'
 		],
 		kind: 'topic'
 	},
@@ -1018,10 +949,168 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 8: Conclusion ─────
+	// ───── Part 8: Under the Hood ─────
+	{
+		id: 'topic-under-the-hood',
+		sectionId: 'section-8-1',
+		title: 'How the Terminal Works',
+		part: 'Under the Hood',
+		description: 'TTYs, the PTY pair, and the line discipline — how the terminal actually works.',
+		keywords: [
+			'under the hood',
+			'how does the terminal work',
+			'how terminal works',
+			'tty',
+			'teletype',
+			'pty',
+			'pseudo-terminal',
+			'pseudoterminal',
+			'terminal emulator',
+			'line discipline',
+			'raw mode',
+			'cooked mode',
+			'canonical mode',
+			'stty',
+			'internals'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-escape-sequences',
+		sectionId: 'section-8-1',
+		title: 'Escape sequences & ANSI colors',
+		part: 'Under the Hood',
+		description: 'Colors and cursor movement are in-band bytes — \\e[32m turns the text green.',
+		keywords: [
+			'escape sequence',
+			'escape sequences',
+			'ansi',
+			'ansi colors',
+			'terminal colors',
+			'colored output',
+			'\\e[32m',
+			'esc',
+			'^[[a',
+			'arrow keys print characters',
+			'weird characters',
+			'cursor movement',
+			'vt100',
+			'garbled terminal'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-ctrl-c-sigint',
+		sectionId: 'section-8-1',
+		title: 'What Ctrl+C really does',
+		part: 'Under the Hood',
+		description: 'The tty driver turns Ctrl+C into SIGINT — a kernel signal, not input.',
+		keywords: [
+			'ctrl+c',
+			'ctrl c',
+			'sigint',
+			'signal',
+			'signals',
+			'interrupt',
+			'what does ctrl+c do',
+			'how does ctrl+c work',
+			'stop a running command',
+			'kill a program'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-shell-integration',
+		sectionId: 'section-8-2',
+		title: 'Shell integration: OSC 133 & OSC 633',
+		part: 'Under the Hood',
+		description:
+			'Invisible markers in the byte stream tell terminals — and agents — where commands start, end, and how they exited.',
+		keywords: [
+			'osc 133',
+			'osc 633',
+			'shell integration',
+			'finalterm',
+			'command markers',
+			'prompt markers',
+			'success dot',
+			'failure dot',
+			'command navigation',
+			'sticky scroll',
+			'exit code marker'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-agent-terminals',
+		sectionId: 'section-8-2',
+		title: 'Agent-aware terminals: Warp, cmux, libghostty',
+		part: 'Under the Hood',
+		description:
+			'The 2026 landscape — classic emulators compete on speed while a new generation is built around AI agents.',
+		keywords: [
+			'agent terminal',
+			'agentic terminal',
+			'warp',
+			'agentic development environment',
+			'cmux',
+			'libghostty',
+			'ghostty',
+			'unix socket',
+			'agent fleet',
+			'terminal evolving',
+			'future of the terminal'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-agent-pipelines',
+		sectionId: 'section-8-2',
+		title: 'The agent as a shell command (claude -p)',
+		part: 'Under the Hood',
+		description:
+			'Headless agent CLIs read stdin, write stdout, and set exit codes — pipe intelligence like any Unix tool.',
+		keywords: [
+			'claude -p',
+			'print mode',
+			'headless agent',
+			'pipe to claude',
+			'agent in a pipeline',
+			'output-format json',
+			'jq',
+			'ai pipeline',
+			'compose ai',
+			'agent cli pipeline'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-robust-scripts',
+		sectionId: 'section-8-2',
+		title: 'Robust bash scripts: set -euo pipefail & trap',
+		part: 'Under the Hood',
+		description:
+			'The grown-up script preamble — strict mode, cleanup traps, and mktemp scratch dirs.',
+		keywords: [
+			'set -euo pipefail',
+			'set -e',
+			'pipefail',
+			'strict mode',
+			'trap',
+			'trap exit',
+			'cleanup trap',
+			'mktemp',
+			'temp directory',
+			'robust script',
+			'while read loop',
+			'production bash'
+		],
+		kind: 'topic'
+	},
+	// ───── Part 9: Conclusion ─────
 	{
 		id: 'topic-mindset',
-		sectionId: 'section-8-1',
+		sectionId: 'section-9-1',
 		title: 'The Command-Line Mindset',
 		part: 'Conclusion',
 		description: 'Compose small tools, read before running — the AI-native interface.',
@@ -1039,7 +1128,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-quick-reference',
-		sectionId: 'section-8-2',
+		sectionId: 'section-9-2',
 		title: 'Quick Reference',
 		part: 'Conclusion',
 		description: 'The dense every-command table — the whole course at a glance.',
@@ -1056,7 +1145,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-final-challenge',
-		sectionId: 'section-8-3',
+		sectionId: 'section-9-3',
 		title: 'The Final Challenge',
 		part: 'Conclusion',
 		description: 'One messy home folder — the capstone that proves you can do it.',
@@ -1073,7 +1162,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-keep-learning',
-		sectionId: 'section-8-4',
+		sectionId: 'section-9-4',
 		title: 'Keep Learning',
 		part: 'Conclusion',
 		description: 'The Linux Command Line, OverTheWire Bandit, explainshell, tldr.',

@@ -3,7 +3,7 @@
 		"id": "hero",
 		"part": 0,
 		"title": "Introduction",
-		"text": "TerminalVibes — The Terminal for Vibe Coders Welcome! Your AI assistant keeps proposing shell commands — this guide teaches you to read, verify, and run them with confidence. From your very first echo to auditing an agent's script, every concept is explained visually, then practiced hands-on. Two companions will follow you through all eight parts: Try it now: Open the Terminal Playground — a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can touch your real files. No install required. Quick reference: Need a command fast? Hit ⌘K / Ctrl+K to search, or open the Terminal Cheat Sheet from the header for a complete command reference."
+		"text": "TerminalVibes — The Terminal for Vibe Coders Welcome! Your AI assistant keeps proposing shell commands — this guide teaches you to read, verify, and run them with confidence. From your very first echo to auditing an agent's script, every concept is explained visually, then practiced hands-on. Two companions will follow you through all nine parts: Try it now: Open the Terminal Playground — a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can touch your real files. No install required. Quick reference: Need a command fast? Hit ⌘K / Ctrl+K to search, or open the Terminal Cheat Sheet from the header for a complete command reference."
 	},
 	{
 		"id": "section-intro-what",
@@ -58,42 +58,6 @@
 		"part": 0,
 		"title": "Intro · Anatomy of a Prompt",
 		"text": "Master this loop and the rest of the course is just vocabulary. Prompts vary from machine to machine — yours might show a different name, extra colors, or even a git branch. The parts are always the same: who@where:directory$ . In Part 7 you'll learn to customize it yourself."
-	},
-	{
-		"id": "section-intro-under-the-hood",
-		"part": 0,
-		"title": "Intro · Under the Hood",
-		"text": "Under the Hood Everything you need to start typing is behind you — Part 1 is one scroll away, and nothing there depends on this section. But if you've ever wondered why it's called a tty , why arrow keys sometimes print ^[[A instead of moving, or what Ctrl+C actually does, stay a while. This is deliberately the most technical section of the course — and it repays the effort with a working mental model of the machine you're about to drive. In the beginning, the terminal was furniture. A teletypewriter — a keyboard fused to a printer — sat at the end of a serial cable, and the computer at the other end typed its replies onto rolling paper. Unix, born in that world, abbreviated the device to tty , and the abbreviation outlived the hardware by half a century. The paper is gone, the cables are gone, but every terminal window on your machine still checks in with the kernel as a tty device — ask it yourself: No real teletype has been wired to a computer in decades — so today, software impersonates one. Three players stand in for that vanished machine: Terminal emulator The app you actually open — Terminal.app, iTerm2, Windows Terminal."
-	},
-	{
-		"id": "section-intro-under-the-hood",
-		"part": 0,
-		"title": "Intro · Under the Hood",
-		"text": "It draws a grid of character cells, turns your keystrokes into bytes, and paints the bytes that come back. It emulates the old hardware — hence the name. The PTY pair A pseudo-terminal : two connected endpoints the kernel provides on request. The emulator holds the master end; whatever runs inside the window is attached to the slave end (newer docs say primary/secondary ). It's a pipe wearing a teletype costume. The shell Just a process. bash reads bytes from the slave end and writes bytes back — it can't tell whether a human, a 1970s teletype, or an AI agent sits on the other side. That indifference is why the same shell works everywhere. Keystrokes travel left to right, output travels right to left — and every hop is plain bytes. One hop in that diagram does more than ferry bytes. Between the two ends of the PTY lives a slice of kernel code called the line discipline — a tiny line editor that decides how much of your typing to hold back and when to hand it over. It has two personalities: Cooked mode (canonical) The default. The kernel buffers your keystrokes, handles Backspace itself, and delivers nothing until you press Enter — then the program receives one finished line."
-	},
-	{
-		"id": "section-intro-under-the-hood",
-		"part": 0,
-		"title": "Intro · Under the Hood",
-		"text": "This is why the shell never sees your typos: you edit the line before it exists. Raw mode Every keystroke is delivered immediately, unedited. Programs that react key by key — vim , less , the arrow-key line editor inside bash itself — switch the terminal into raw mode while they run, and back on exit. (A crash that skips the \"back\" is how terminals end up garbled — reset fixes it.) That split personality explains a small mystery. Arrow keys don't send a character — there is no \"up\" letter — they send a short byte sequence beginning with the Escape character: up arrow is ESC [ A . A raw-mode program recognizes the sequence and moves the cursor. Hand it to a program reading cooked input — press up while cat is waiting — and it echoes as the literal ^[[A . Now you know exactly what that gibberish means: the terminal spoke arrow, and nobody translated. You can inspect your own line discipline's settings any time: icanon is cooked mode's official name, erase = ^? is the kernel handling your Backspace — and intr = ^C is a promise we'll cash in a moment. Escape sequences run in the other direction too — they're how programs draw ."
-	},
-	{
-		"id": "section-intro-under-the-hood",
-		"part": 0,
-		"title": "Intro · Under the Hood",
-		"text": "A program attached to a tty can only send bytes, so color, bold, and cursor movement travel in-band , mixed right into the text: byte 27 ( ESC , written \\e ) announces \"the next few bytes are instructions, not text\", and the emulator obeys them instead of printing them. The vocabulary was standardized around DEC's VT100 terminal in 1978 — your gleaming modern emulator is still, at heart, impersonating it. Watch it obey: \\e[32m means \"switch the pen to green\"; \\e[0m means \"back to normal\". Every colorful ls , every fancy prompt, every full-screen dashboard is built from sequences like these — and the colored output in this site's playground works the same way in spirit: the text carries its own formatting, and whatever paints the glyphs interprets it. One last piece of magic to demystify: Ctrl+C . It feels like input, but it never reaches the program as text. When Ctrl+C's byte arrives at the line discipline, the kernel intercepts it — that's the intr = ^C setting you just saw — and instead of passing it along, sends the foreground program a signal called SIGINT (\"interrupt\"). The program can catch it and tidy up, or die on the spot. Either way, you get your prompt back."
-	},
-	{
-		"id": "section-intro-under-the-hood",
-		"part": 0,
-		"title": "Intro · Under the Hood",
-		"text": "The cheat sheet's panic row promises Ctrl+C will interrupt a stuck command, and now you know why it's reliable: it isn't input the program must get around to reading — it's the kernel tapping the program on the shoulder. That's why it works even when a program is too busy to look at the keyboard. (A few programs catch SIGINT and ask questions first — that's them trapping the signal, not you failing to send it.) Put the whole chain together, and you can narrate the few milliseconds after you press Enter on ls : The emulator turns Enter into a carriage-return byte and writes it to the PTY master — same as any other key. The line discipline recognizes the end of a line, converts it to a newline, and releases the whole buffered line to the slave end. The shell , which has been blocked reading the slave, wakes up holding ls and parses it — expanding any $VARIABLES, ~, and globs first. It forks a copy of itself and execs ls inside the copy, with the copy's input and output still wired to the same tty. ls does its work and writes its results — text plus color escape sequences — to the slave end."
-	},
-	{
-		"id": "section-intro-under-the-hood",
-		"part": 0,
-		"title": "Intro · Under the Hood",
-		"text": "The bytes flow back through the PTY to the master; the emulator reads them, obeys the escapes, and paints glyphs into its character grid. ls exits; the shell collects its exit code (you'll meet it as $? in Part 6) and prints a fresh prompt. Your turn. That's the entire machine: an app impersonating 1970s furniture, a kernel pipe in costume, a tiny in-kernel line editor, and a shell that just reads and writes bytes. None of it is required for the parts ahead — but from here on, nothing the terminal does will look like magic. You now know more about the terminal than most people who use it every day. Time to go use it."
 	},
 	{
 		"id": "part-1",
@@ -500,55 +464,133 @@
 	{
 		"id": "part-8",
 		"part": 8,
-		"title": "Part 8 · Conclusion",
+		"title": "Part 8 · Under the Hood",
+		"text": "\"Fifty years of bytes through a pipe — and the machine has never been more alive.\" For seven parts you've driven this machine without once opening the hood. Now you've earned the wrench. This part is the victory-lap deep dive: first how the terminal actually works — ttys, PTYs, escape sequences, and what Ctrl+C really does — and then what that machinery is becoming in the AI era, and the genuinely advanced things you can build now that you understand it. Nothing here is required to use the terminal. All of it makes you dangerous in the best way."
+	},
+	{
+		"id": "section-8-1",
+		"part": 8,
+		"title": "8.1 How the Terminal Works",
+		"text": "You've used every piece of this machine for seven parts — typed at prompts, piped bytes, interrupted stuck commands, read exit codes. Time to see inside. If you've ever wondered why it's called a tty , why arrow keys sometimes print ^[[A instead of moving, or what Ctrl+C actually does, this is where those mysteries get solved. It's deliberately the most technical section of the course — and it repays the effort with a working mental model of the machine you've been driving all along. In the beginning, the terminal was furniture. A teletypewriter — a keyboard fused to a printer — sat at the end of a serial cable, and the computer at the other end typed its replies onto rolling paper. Unix, born in that world, abbreviated the device to tty , and the abbreviation outlived the hardware by half a century. The paper is gone, the cables are gone, but every terminal window on your machine still checks in with the kernel as a tty device — ask it yourself: No real teletype has been wired to a computer in decades — so today, software impersonates one. Three players stand in for that vanished machine: Terminal emulator The app you actually open — Terminal.app, iTerm2, Windows Terminal."
+	},
+	{
+		"id": "section-8-1",
+		"part": 8,
+		"title": "8.1 How the Terminal Works",
+		"text": "It draws a grid of character cells, turns your keystrokes into bytes, and paints the bytes that come back. It emulates the old hardware — hence the name. The PTY pair A pseudo-terminal : two connected endpoints the kernel provides on request. The emulator holds the master end; whatever runs inside the window is attached to the slave end (newer docs say primary/secondary ). It's a pipe wearing a teletype costume. The shell Just a process. bash reads bytes from the slave end and writes bytes back — it can't tell whether a human, a 1970s teletype, or an AI agent sits on the other side. That indifference is why the same shell works everywhere. Keystrokes travel left to right, output travels right to left — and every hop is plain bytes. One hop in that diagram does more than ferry bytes. Between the two ends of the PTY lives a slice of kernel code called the line discipline — a tiny line editor that decides how much of your typing to hold back and when to hand it over. It has two personalities: Cooked mode (canonical) The default. The kernel buffers your keystrokes, handles Backspace itself, and delivers nothing until you press Enter — then the program receives one finished line."
+	},
+	{
+		"id": "section-8-1",
+		"part": 8,
+		"title": "8.1 How the Terminal Works",
+		"text": "This is why the shell never sees your typos: you edit the line before it exists. Raw mode Every keystroke is delivered immediately, unedited. Programs that react key by key — vim , less , the arrow-key line editor inside bash itself — switch the terminal into raw mode while they run, and back on exit. (A crash that skips the \"back\" is how terminals end up garbled — reset fixes it.) That split personality explains a small mystery. Arrow keys don't send a character — there is no \"up\" letter — they send a short byte sequence beginning with the Escape character: up arrow is ESC [ A . A raw-mode program recognizes the sequence and moves the cursor. Hand it to a program reading cooked input — press up while cat is waiting — and it echoes as the literal ^[[A . Now you know exactly what that gibberish means: the terminal spoke arrow, and nobody translated. You can inspect your own line discipline's settings any time: icanon is cooked mode's official name, erase = ^? is the kernel handling your Backspace — and intr = ^C is a promise we'll cash in a moment. Escape sequences run in the other direction too — they're how programs draw ."
+	},
+	{
+		"id": "section-8-1",
+		"part": 8,
+		"title": "8.1 How the Terminal Works",
+		"text": "A program attached to a tty can only send bytes, so color, bold, and cursor movement travel in-band , mixed right into the text: byte 27 ( ESC , written \\e ) announces \"the next few bytes are instructions, not text\", and the emulator obeys them instead of printing them. The vocabulary was standardized around DEC's VT100 terminal in 1978 — your gleaming modern emulator is still, at heart, impersonating it. Watch it obey: \\e[32m means \"switch the pen to green\"; \\e[0m means \"back to normal\". Every colorful ls , every fancy prompt, every full-screen dashboard is built from sequences like these — and the colored output in this site's playground works the same way in spirit: the text carries its own formatting, and whatever paints the glyphs interprets it. One last piece of magic to demystify: Ctrl+C . It feels like input, but it never reaches the program as text. When Ctrl+C's byte arrives at the line discipline, the kernel intercepts it — that's the intr = ^C setting you just saw — and instead of passing it along, sends the foreground program a signal called SIGINT (\"interrupt\"). The program can catch it and tidy up, or die on the spot. Either way, you get your prompt back."
+	},
+	{
+		"id": "section-8-1",
+		"part": 8,
+		"title": "8.1 How the Terminal Works",
+		"text": "The cheat sheet's panic row promises Ctrl+C will interrupt a stuck command, and now you know why it's reliable: it isn't input the program must get around to reading — it's the kernel tapping the program on the shoulder. That's why it works even when a program is too busy to look at the keyboard. (A few programs catch SIGINT and ask questions first — that's them trapping the signal, not you failing to send it.) Put the whole chain together, and you can narrate the few milliseconds after you press Enter on ls : The emulator turns Enter into a carriage-return byte and writes it to the PTY master — same as any other key. The line discipline recognizes the end of a line, converts it to a newline, and releases the whole buffered line to the slave end. The shell , which has been blocked reading the slave, wakes up holding ls and parses it — expanding any $VARIABLES, ~, and globs first. It forks a copy of itself and execs ls inside the copy, with the copy's input and output still wired to the same tty. ls does its work and writes its results — text plus color escape sequences — to the slave end."
+	},
+	{
+		"id": "section-8-1",
+		"part": 8,
+		"title": "8.1 How the Terminal Works",
+		"text": "The bytes flow back through the PTY to the master; the emulator reads them, obeys the escapes, and paints glyphs into its character grid. ls exits; the shell collects its exit code (the $? you met in Part 6) and prints a fresh prompt. Your turn. That's the entire machine: an app impersonating 1970s furniture, a kernel pipe in costume, a tiny in-kernel line editor, and a shell that just reads and writes bytes. From here on, nothing the terminal does will look like magic — you now know more about it than most people who use it professionally. And here's the part the museum plaque leaves out: the byte protocol didn't stop evolving in 1978. Modern terminals are still quietly minting new escape sequences — OSC 8 makes text in a terminal a real clickable hyperlink, and a family of shell-integration markers lets the shell whisper structure into the byte stream itself. That second one turns out to be the quiet foundation of the whole AI-terminal era — and it's exactly where we're headed next."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 The Terminal, Evolving",
+		"text": "Knowing how the machine works is satisfying. Knowing what people are building on it right now is useful — because the terminal is in the middle of its biggest growth spurt since the VT100, and everything driving it is a payoff of something you just learned. This section is the tour: the invisible protocol that lets editors and agents read the terminal, the new generation of terminals built around agents, and the advanced automation you can write yourself now that pipes, signals, and exit codes are yours. The shell and the terminal are talking behind your back Remember the trick from 8.1 — instructions traveling in-band , mixed into the text? Modern shells and terminals use the same trick to talk about the conversation itself . A standard called OSC 133 (born in the FinalTerm terminal, now adopted almost everywhere) has the shell emit invisible escape sequences that mark the seams of every command: here the prompt starts , here the command starts , here the output begins , here it ended — with this exit code . VS Code's terminal adds its own richer dialect, OSC 633 , which also carries the command line itself."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 The Terminal, Evolving",
+		"text": "You never see any of it — the emulator swallows the markers like it swallows \\e[32m — but the byte stream is now structured: Invisible bookmarks in the byte stream: every command arrives pre-labeled with where it began, what it was, and how it went. Those bookmarks are why VS Code's integrated terminal (the one from 7.3) can paint a little success or failure dot next to every command you run, let you jump between commands with a keystroke, and pin the running command to the top of the panel while output scrolls. And they matter double in the AI era: an agent watching a terminal through OSC markers doesn't have to guess where your prompt ends and the output begins, or grep the scrollback for the word \"error\" — it knows the exact command, the exact output, and the exact exit code, machine-readably. The read-before-you-run contract from Part 6 works in both directions now: you can read what the agent runs, and the agent can reliably read what happened. The terminals being built around agents In 7.1 you picked a window to live in. Step back and you can see the whole landscape splitting in two."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 The Terminal, Evolving",
+		"text": "On one side, the classic emulators keep competing on speed and standards: Ghostty 1.3 (March 2026) restructured itself so its entire terminal core is a reusable library, libghostty — the machinery of 8.1, packaged for any app that wants to embed a real terminal. On the other side, a new generation is being designed around agents: Warp now calls itself an \"agentic development environment\" and open-sourced its core (dual MIT/AGPL) — its pitch is orchestrating whole fleets of local and cloud agents from one window, the 7.4 split-pane fleet promoted to a first-class product. And cmux builds terminal panes that agents can drive programmatically , through a Unix socket — panes as an API, not just a view. Here's the through-line, and it's the whole reason 8.1 was worth your time: every one of these — the speed demons, the agent fleets, the socket-driven panes — still speaks the same protocol. Bytes through a PTY, escape sequences in-band, signals from the line discipline. A fifty-year-old interface turned out to be so simple, so universal, and so automation-friendly that when AI agents needed a body, they moved into the terminal."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 The Terminal, Evolving",
+		"text": "The machinery didn't get replaced by the AI era; it got adopted by it. The agent is a shell command now The adoption runs deeper than windows and panes. Headless agent CLIs make the agent itself a composable Unix tool : run claude -p (\"print mode\") and the agent reads stdin, writes stdout, and sets an exit code — the exact contract grep and sort have honored since 1973. Which means everything you learned in Part 4 and Part 5 applies, unchanged, to intelligence itself: Read that first line again with Part 4 eyes: a program's output flowing through | into another program's input. The second program just happens to be a language model. It sorts into pipelines, redirects into files, chains with && , and reports success through $? — the Unix philosophy, now with a very well-read tool in the toolbox. Writing scripts that deserve the word \"automation\" And that unlocks the last upgrade: scripts that orchestrate agents need to be sturdier than the five-liners from 6.2, and you finally know enough to write the grown-up kind."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 The Terminal, Evolving",
+		"text": "Every robust bash script starts with the same three lines of armor — each one cashing in a lesson from this part: That trap line is 8.1's SIGINT lesson cashed in: Ctrl+C sends a signal, signals can be caught, and trap is how a script catches one — so your temp files get cleaned up even when you interrupt it mid-run. Put the armor on a real job and you get something like this: a script that runs an agent review over every file you've changed and collects the results — Count the course in that script: redirection and pipes (Part 4), a loop feeding on a file (the while read pattern — each line of changed.txt lands in $file ), scripting and variables (Part 6), signals and cleanup (this part), and an AI agent doing the reading — supervised by a script you can read line by line. If it fails halfway, set -e stops it; if you Ctrl+C it, the trap tidies up. This is what \"advanced automation\" actually looks like: not longer commands — stronger habits. Take stock of where you're standing."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 The Terminal, Evolving",
+		"text": "You can narrate a keystroke's journey through the kernel, read the invisible protocol your terminal speaks to your editor, pipe a language model like it's grep , and write scripts that clean up after themselves when signals fly. That's a deeper understanding of the terminal than most working professionals carry — and the tour is nearly over. One part to go: the send-off."
+	},
+	{
+		"id": "part-9",
+		"part": 9,
+		"title": "Part 9 · Conclusion",
 		"text": "\"The terminal isn't a relic the AI era left behind — it's the interface the AI era runs on.\" You started this course unable to read a shell command. Now you navigate, build, search, pipe, permission, script, and — most importantly — audit . This last part distills the mindset, hands you a reference card, sets one final challenge, and points you at the places to keep growing."
 	},
 	{
-		"id": "section-8-1",
-		"part": 8,
-		"title": "8.1 The Command-Line Mindset",
+		"id": "section-9-1",
+		"part": 9,
+		"title": "9.1 The Command-Line Mindset",
 		"text": "Commands fade if you don't use them; the mindset sticks. Three ideas carry everything you've learned — and you can rehearse any of them anytime in the Terminal Playground — a real shell sandbox, right in your browser. 1 Compose small tools The Unix philosophy from Part 4: each command does one thing well, and | snaps them together. grep doesn't sort and sort doesn't count — yet grep ERROR log | sort | uniq -c answers a question none of them could alone. When a problem looks big, don't hunt for a big tool — chain small ones. 2 Read before you run The safety habit that threads the whole course: ls before rm , echo the glob before trusting it, count the arrows in a redirect, audit every AI-proposed command with the four-step routine from 6.1. The terminal does exactly what you say, immediately, with no undo — reading first is what makes that power safe to hold. 3 The terminal is the AI-native interface The claim from the introduction, now closing the loop: text in, text out is the language AI speaks natively, which is why every coding agent works by running shell commands."
 	},
 	{
-		"id": "section-8-1",
-		"part": 8,
-		"title": "8.1 The Command-Line Mindset",
+		"id": "section-9-1",
+		"part": 9,
+		"title": "9.1 The Command-Line Mindset",
 		"text": "It's measurable now — Terminal-Bench (Stanford × Laude Institute) is an entire benchmark that scores AI agents on real terminal work — and it matters because trust hasn't kept up with use: Stack Overflow's 2025 survey found 84% of developers using AI tools while only about 29% trust their output. Someone has to close that gap, and it's the person who can read the commands. You can now watch what your agent does, audit what it proposes, and step in when it's wrong. That's not a spectator. That's a pilot."
 	},
 	{
-		"id": "section-8-2",
-		"part": 8,
-		"title": "8.2 Quick Reference",
+		"id": "section-9-2",
+		"part": 9,
+		"title": "9.2 Quick Reference",
 		"text": "Everything from the course, grouped the way you'll reach for it. When a command's flags slip your mind, --help is one keystroke closer than this table. Task Command Remember Orient & navigate Where am I? pwd Print working directory What's here? ls -la -a shows dotfiles Go somewhere cd path cd .. up, cd ~ home, cd - back Create & inspect Make folders / files mkdir -p a/b · touch f -p builds the whole path Read a file cat · less · head · tail q quits less ; tail -f follows Copy, move, delete Copy / move cp -r src dst · mv src dst mv also renames Delete rm file · rm -r dir No trash can — ls first, always Select many files *.log · report?.txt echo the glob before trusting it Text & pipes Redirect output > · >> · 2> > truncates; >> appends Search text grep -rin \"text\" . recursive, ignore case, line numbers; -v inverts Shape a stream sort | uniq -c | sort -n uniq needs sorted input first Find files by name find ."
 	},
 	{
-		"id": "section-8-2",
-		"part": 8,
-		"title": "8.2 Quick Reference",
+		"id": "section-9-2",
+		"part": 9,
+		"title": "9.2 Quick Reference",
 		"text": "-name \"*.md\" find = filenames, grep = contents Permissions & environment Make runnable chmod +x script.sh Then run with ./script.sh \"command not found\" echo $PATH · which cmd The shell only searches PATH Shortcuts alias gs='git status' Persist in .bashrc / .zshrc , then source it Chaining, history & help Chain on success a && b · a || b $? holds the last exit code; 0 = success Recall a command Ctrl+R · !! · history Ctrl+R is the biggest speed unlock Get help cmd --help · man cmd q quits the pager; tldr for examples Practice all commands Terminal Playground Try-it activities throughout Parts 1–6"
 	},
 	{
-		"id": "section-8-3",
-		"part": 8,
-		"title": "8.3 Final Challenge",
+		"id": "section-9-3",
+		"part": 9,
+		"title": "9.3 Final Challenge",
 		"text": "Reading is not knowing. Here's the exam — one gloriously messy home folder, no step-by-step instructions. Everything you need is in Parts 1 through 6, and the playground will tell you the moment you've won. Your mission: a home folder where downloads, notes, and stray scripts have been piling up for months. Explore it, sort the loose files into sensible folders, hunt down the one file that contains the phrase you're told to find, and finish by writing a small executable script — every part of the course, combined, in any order that works. Try It: One Messy Home Folder Start with ls -la and a look around before you touch anything — read before you run, even now. A ✔ appears in the terminal when every goal is met — no partial credit. The Skill Checklist Beyond the challenge, here's the honest self-test. Check each item only when you could do it right now, without looking anything up . (Saved locally in your browser — nobody's grading you but you.)"
 	},
 	{
-		"id": "section-8-4",
-		"part": 8,
-		"title": "8.4 Keep Learning",
+		"id": "section-9-4",
+		"part": 9,
+		"title": "9.4 Keep Learning",
 		"text": "You've practiced everything here in a real shell — but the command line is deep, and the best references are worth knowing by name. These six will cover you from quick lookups to true mastery: The Linux Command Line — the book, free forever William Shotts' 500-page classic, now in its 3rd edition (No Starch Press, February 2026) and still free as a PDF from linuxcommand.org . It starts exactly where this course ends and goes all the way to serious shell scripting. When you want to know why the shell works the way it does, this is the answer. OverTheWire: Bandit — the terminal as a game A free wargame played entirely over SSH: each level hides the password to the next somewhere in the filesystem, and your only tools are the ones from this course — ls , cat , grep , find . The most fun way to make everything here reflexive. explainshell.com — paste a command, get the anatomy The audit tool from section 6.1, permanently bookmarked. It maps every flag and argument of a pasted command to the matching lines of the real man pages — the perfect second opinion on anything an AI proposes."
 	},
 	{
-		"id": "section-8-4",
-		"part": 8,
-		"title": "8.4 Keep Learning",
+		"id": "section-9-4",
+		"part": 9,
+		"title": "9.4 Keep Learning",
 		"text": "tldr pages — man pages, but the good parts Community-written cheat sheets: tldr tar gives you the five examples you actually wanted instead of forty flags. Still actively maintained in 2026, installable as a command or usable in the browser — the fastest \"how do I use this again?\" answer that isn't an AI. man7.org — the manual, in a browser The canonical Linux man pages, online and linkable — the same authoritative text man shows you locally, handy when you want to read documentation without leaving the browser (or share a link to a specific flag's definition). Claude Code's terminal guide — even the AI vendors teach this now The clearest sign the terminal is the AI-native interface: Anthropic publishes its own beginner terminal guide for people picking up Claude Code. Cross-check what you learned here, and note who's telling you these skills matter — the company whose agent you'll be supervising. Your Next Course: Git There's one command this course kept respectfully walking past: git . It's the other half of the vibe coder's toolkit — the save-game system that makes AI-generated changes reviewable, undoable, and safe to experiment with."
 	},
 	{
-		"id": "section-8-4",
-		"part": 8,
-		"title": "8.4 Keep Learning",
+		"id": "section-9-4",
+		"part": 9,
+		"title": "9.4 Keep Learning",
 		"text": "And it lives exactly where you now feel at home: the terminal. GitVibes — the sister course, learn Git next Same format, same free-forever deal, same in-browser playground — but for Git: commits, branches, undo, merge conflicts, and the guardrails that keep AI agents from wrecking your history. Everything you just learned about reading commands is the head start; TerminalVibes graduates are exactly who it was written for. Final Thoughts: The terminal has outlived every interface fashion of the last fifty years, and the AI era just made it more central, not less — because text is what both you and your agents speak. You can now read what the machine is told to do, verify it, and run it with intent. That's the whole promise of this course: not memorizing commands, but never again pressing Enter on faith."
 	},
 	{

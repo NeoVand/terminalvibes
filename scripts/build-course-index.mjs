@@ -117,7 +117,8 @@ const files = [
 	'Part5.svelte',
 	'Part6.svelte',
 	'Part7.svelte',
-	'Part8.svelte'
+	'Part8.svelte',
+	'Part9.svelte'
 ];
 
 const entries = [];
