@@ -134,6 +134,10 @@
 			checkArmed = true;
 			commandLog = [];
 			redoStack = [];
+			// A fresh scenario (or a reset) starts with an empty prompt and no
+			// half-typed command lingering from before.
+			input = '';
+			historyIndex = -1;
 			history = embedded
 				? [
 						{ type: 'system', text: next.description },
@@ -767,47 +771,55 @@
 {/snippet}
 
 {#snippet promptForm()}
+	<!-- A real, visible input (native cursor, selection, editing, quotes) laid
+	     out on a flex-wrap line: when the cwd makes the prompt long, the input
+	     wraps onto its own full-width line instead of being squeezed. During a
+	     CLI agent session the prompt swaps for the approval / working / edit
+	     line. -->
 	<form onsubmit={handleSubmit} class="pg-prompt-line">
-		<!-- The real input is visually hidden (never display:none — it keeps
-		     focus, keystrokes, and every binding); the flowing mirror below is
-		     what the user sees, so a long command in a deep cwd wraps like a
-		     real terminal line instead of scrolling off. During a CLI agent
-		     session the prompt swaps for the approval / working / edit line. -->
-		<input
-			bind:this={inputEl}
-			bind:value={input}
-			onkeydown={handleKeydown}
-			onfocus={() => {
-				inputFocused = true;
-				hasInteracted = true;
-			}}
-			onblur={() => (inputFocused = false)}
-			disabled={loading}
-			placeholder={cliActive && !cliEditing ? '' : 'ls'}
-			class="pg-input"
-			autocomplete="off"
-			spellcheck="false"
-			enterkeyhint="send"
-			aria-label="Shell command"
-		/>
-		<span aria-hidden="true"
-			>{#if cliActive && !cliEditing}{#if cliPhase === 'awaiting-approval'}<span
-						class="pg-cli-ask"
-						data-testid="agent-approval"
-						>allow? <b>[y]</b> yes · <b>[e]</b> edit · <b>[n]</b> no</span
-					>{:else}<span class="pg-cli-busy" data-testid="agent-working"
-						>agent is working… Ctrl+C to interrupt</span
-					>{/if}{:else}{#if cliActive && cliEditing}<span
-						class="pg-cli-edit"
-						data-testid="agent-edit">edit ↵</span
-					>{:else}{@render promptLabel(promptCwd)}{/if}<span class="pg-typed">&nbsp;{input}</span
-				><span class="pg-caret terminal-caret"></span>{#if inputFocused && !input}<span
-						class="pg-placeholder">ls</span
-					>{/if}{/if}{#if !hasInteracted && !loading && !input}<span class="pg-type-hint">
+		{#if cliActive && !cliEditing}
+			{#if cliPhase === 'awaiting-approval'}
+				<span class="pg-cli-ask" data-testid="agent-approval"
+					>allow? <b>[y]</b> yes · <b>[e]</b> edit · <b>[n]</b> no</span
+				>
+			{:else}
+				<span class="pg-cli-busy" data-testid="agent-working"
+					>agent is working… Ctrl+C to interrupt</span
+				>
+			{/if}
+		{:else if cliActive && cliEditing}
+			<span class="pg-cli-edit" data-testid="agent-edit">edit ↵</span>
+		{:else}
+			{@render promptLabel(promptCwd)}
+		{/if}
+		<span class="pg-input-wrap">
+			<input
+				bind:this={inputEl}
+				bind:value={input}
+				onkeydown={handleKeydown}
+				onfocus={() => {
+					inputFocused = true;
+					hasInteracted = true;
+				}}
+				onblur={() => (inputFocused = false)}
+				disabled={loading}
+				placeholder={cliActive && !cliEditing ? '' : 'ls'}
+				class="pg-input"
+				autocomplete="off"
+				spellcheck="false"
+				enterkeyhint="send"
+				aria-label="Shell command"
+			/>
+			{#if !inputFocused && !input}
+				<span class="pg-caret terminal-caret" aria-hidden="true"></span>
+			{/if}
+			{#if !hasInteracted && !loading && !input}
+				<span class="pg-type-hint" aria-hidden="true">
 					<ArrowLeft size={10} />
 					type here
-				</span>{/if}</span
-		>
+				</span>
+			{/if}
+		</span>
 	</form>
 {/snippet}
 
@@ -1152,15 +1164,30 @@
 	   flowing block (pre-wrap + break-all) so long commands wrap instead of
 	   scrolling off — the real <input> is hidden inside it. */
 	.pg-prompt-line {
-		position: relative;
-		display: block;
-		white-space: pre-wrap;
-		word-break: break-all;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		column-gap: 0.6ch;
+		row-gap: 0.15rem;
 		font-family: var(--font-mono);
 		font-size: 16px;
 		line-height: 1.4;
 		padding: 0;
 		background: transparent;
+	}
+
+	/* Prompt allowed to wrap on a very deep path rather than overflow. */
+	.pg-prompt {
+		word-break: break-all;
+	}
+
+	/* The input takes the rest of the line; when the prompt is long it wraps
+	   onto its own full-width row (flex-wrap on the parent). */
+	.pg-input-wrap {
+		display: inline-flex;
+		flex: 1 1 12ch;
+		align-items: baseline;
+		min-width: 12ch;
 	}
 
 	@media (min-width: 640px) {
@@ -1175,22 +1202,13 @@
 		word-break: break-all;
 	}
 
-	/* The mirror of what's typed in the hidden input. */
-	.pg-typed {
-		color: var(--color-terminal-command);
-	}
-
-	/* Block cursor sitting after the typed text: a real terminal blinks even
-	   before you click. Size, phosphor color, and blink come from the shared
+	/* Block cursor shown only before first focus (an empty, unfocused prompt
+	   still blinks, like a real terminal). Once focused, the input's native
+	   caret takes over. Size, phosphor color, and blink come from the shared
 	   .terminal-caret class in layout.css. */
 	.pg-caret {
 		display: inline-block;
 		vertical-align: text-bottom;
-	}
-
-	/* Stand-in for the hidden input's placeholder: only while focused+empty. */
-	.pg-placeholder {
-		color: color-mix(in srgb, var(--color-terminal-output) 55%, transparent);
 	}
 
 	/* One-time, whisper-quiet nudge toward the prompt. Gone after first focus. */
@@ -1259,15 +1277,12 @@
 		}
 	}
 
-	/* The real input, visually hidden (opacity 0, 1px) but never display:none
-	   — it must keep focus and receive keystrokes. The .pg-typed mirror above
-	   renders what it holds. */
+	/* A real, visible input: native caret, selection, and editing. Transparent
+	   background and inherited mono font make it read as part of the terminal
+	   line; the phosphor caret-color matches the prompt. */
 	.pg-input {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 1px;
-		height: 1px;
+		flex: 1 1 auto;
+		min-width: 6ch;
 		padding: 0;
 		border: none;
 		outline: none;
@@ -1275,10 +1290,15 @@
 		background: transparent;
 		appearance: none;
 		-webkit-appearance: none;
-		opacity: 0;
-		pointer-events: none;
-		/* 16px stops iOS Safari from zooming the page when it gains focus */
-		font-size: 16px;
+		color: var(--color-terminal-command);
+		caret-color: var(--color-terminal-prompt);
+		font-family: var(--font-mono);
+		font-size: inherit;
+		line-height: inherit;
+	}
+
+	.pg-input::placeholder {
+		color: color-mix(in srgb, var(--color-terminal-output) 55%, transparent);
 	}
 
 	.pg-chip {
