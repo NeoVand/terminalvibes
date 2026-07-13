@@ -35,7 +35,13 @@
 			class="flex h-7 w-7 cursor-pointer items-center justify-center transition-opacity hover:opacity-80"
 			aria-label="About TerminalVibes"
 		>
-			<img src="{base}/images/logo.webp" alt="" class="h-8 w-8 rounded-md" width="32" height="32" />
+			<img
+				src="{base}/images/logo-transparent.webp"
+				alt=""
+				class="h-8 w-8"
+				width="32"
+				height="32"
+			/>
 		</button>
 	</div>
 
@@ -129,9 +135,9 @@
 			<!-- The leafy T fills the whole left half — the logo IS the artwork -->
 			<div class="about-logo-pane sm:w-1/2">
 				<img
-					src="{base}/images/logo.webp"
+					src="{base}/images/logo-transparent.webp"
 					alt="TerminalVibes logo"
-					class="h-full w-full object-cover"
+					class="h-full w-full object-contain p-6"
 					width="512"
 					height="512"
 				/>

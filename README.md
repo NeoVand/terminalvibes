@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="static/images/logo.webp" width="112" alt="TerminalVibes logo" />
+  <img src="static/images/logo-transparent.webp" width="112" alt="TerminalVibes logo" />
 </p>
 
 # TerminalVibes — The Terminal for Vibe Coders
@@ -98,6 +98,17 @@ flowchart TD
 ```
 
 After every command, both the terminal and the file tree update in sync — so you can see the effect of each operation instantly. Scenarios pre-seed the virtual filesystem with files, folders, and logs to set up each lesson.
+
+## The Agent (local models)
+
+The Agent panel runs a real language model **entirely in your browser** (transformers.js + WebGPU, wasm fallback) — no API keys, no server. It answers from the course via retrieval, and demonstrates commands live in its own sandboxed terminal behind a human approval gate.
+
+| Model                                                                                         | Size (q4f16) | Weights license                                                                                      |
+| --------------------------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------- |
+| [LFM2.5-1.2B-Instruct](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct-ONNX) _(default)_ | ~760 MB      | [LFM Open License v1.0](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct-ONNX/blob/main/LICENSE) |
+| [Qwen3.5-2B](https://huggingface.co/onnx-community/Qwen3.5-2B-ONNX)                           | ~1.3 GB      | Apache 2.0                                                                                           |
+
+Weights download once (explicit click, size disclosed) and persist in browser Cache Storage. Without a downloaded model the Agent runs as a scripted guide over the course index.
 
 ## Tech stack
 

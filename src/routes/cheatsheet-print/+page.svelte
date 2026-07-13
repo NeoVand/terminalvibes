@@ -16,7 +16,7 @@
 	<!-- div, not <header>: the site-wide print stylesheet hides `header`
 	     to strip app chrome, and page.pdf renders in print media -->
 	<div class="masthead">
-		<img src="{base}/images/logo.webp" alt="" class="logo" />
+		<img src="{base}/images/logo-transparent.webp" alt="" class="logo" />
 		<div>
 			<h1>Git Cheat Sheet</h1>
 			<p class="sub">
