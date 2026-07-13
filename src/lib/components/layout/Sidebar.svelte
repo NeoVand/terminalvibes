@@ -196,7 +196,7 @@
 		</div>
 	{/if}
 
-	<nav class="flex-1 overflow-y-auto px-3 py-2" use:autohideScroll>
+	<nav class="flex-1 overflow-y-auto px-3 py-2" use:autohideScroll data-fabric>
 		{#each sections as section (section.id)}
 			{@const active = isActive(section.id)}
 			<div class="mb-0.5">

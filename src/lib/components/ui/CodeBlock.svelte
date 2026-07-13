@@ -35,6 +35,7 @@
 <div
 	class="group relative my-4 overflow-hidden rounded-lg"
 	style="background: var(--color-terminal-bg);"
+	data-fabric
 >
 	<div class="flex items-center justify-between px-4 py-2">
 		<span
