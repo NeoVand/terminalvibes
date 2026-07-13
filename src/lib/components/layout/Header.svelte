@@ -203,11 +203,11 @@
 	}
 
 	.agent-btn {
-		color: var(--color-important);
+		color: var(--color-btn-agent);
 	}
 
 	.agent-btn:hover {
-		background: color-mix(in srgb, var(--color-important) 10%, transparent);
+		background: color-mix(in srgb, var(--color-btn-agent) 10%, transparent);
 	}
 
 	/* Same inviting treatment as the playground button, in the cheat

@@ -258,19 +258,26 @@
 
 		if (!mermaidModule) {
 			import('mermaid').then((m) => {
-				m.default.initialize(getMermaidConfig(isDark()));
+				let lastDark = isDark();
+				m.default.initialize(getMermaidConfig(lastDark));
 				mermaidModule = m;
 
-				const mql = window.matchMedia('(prefers-color-scheme: dark)');
-				mql.addEventListener('change', () => {
-					m.default.initialize(getMermaidConfig(isDark()));
+				// Re-render only when the effective theme really flips — <html>
+				// class mutations also happen on every scroll tick (is-scrolling),
+				// and re-initializing mermaid for each one starves its render
+				// queue until later diagrams never draw at all.
+				const onMaybeThemeChange = () => {
+					const dark = isDark();
+					if (dark === lastDark) return;
+					lastDark = dark;
+					m.default.initialize(getMermaidConfig(dark));
 					renderCount++;
-				});
+				};
 
-				const themeObs = new MutationObserver(() => {
-					m.default.initialize(getMermaidConfig(isDark()));
-					renderCount++;
-				});
+				const mql = window.matchMedia('(prefers-color-scheme: dark)');
+				mql.addEventListener('change', onMaybeThemeChange);
+
+				const themeObs = new MutationObserver(onMaybeThemeChange);
 				themeObs.observe(document.documentElement, {
 					attributes: true,
 					attributeFilter: ['class']

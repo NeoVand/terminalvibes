@@ -76,6 +76,7 @@
 
 	/* Header trio gradient: playground tan → agent amber → cheat sheet moss */
 	--color-btn-playground: #8b5e34;
+	--color-btn-agent: #9c6b10;
 
 	--sidebar-width: 280px;
 	--sidebar-collapsed-width: 52px;
@@ -153,6 +154,7 @@
 		--header-glass: color-mix(in srgb, var(--color-bg) 65%, transparent);
 
 		--color-btn-playground: #c89b6d;
+		--color-btn-agent: #f2c94c;
 	}
 }
 
@@ -201,6 +203,7 @@
 	--panel-glass: color-mix(in srgb, var(--color-bg-secondary) 93%, transparent);
 	--header-glass: color-mix(in srgb, var(--color-bg) 90%, transparent);
 	--color-btn-playground: #8b5e34;
+	--color-btn-agent: #9c6b10;
 	--color-diff-add: #166534;
 	--color-diff-add-bg: rgba(22, 101, 52, 0.08);
 	--color-diff-del: #b91c1c;
@@ -262,6 +265,7 @@
 	--panel-glass: color-mix(in srgb, var(--color-bg-secondary) 68%, transparent);
 	--header-glass: color-mix(in srgb, var(--color-bg) 65%, transparent);
 	--color-btn-playground: #c89b6d;
+	--color-btn-agent: #f2c94c;
 }
 
 * {
