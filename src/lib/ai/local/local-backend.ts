@@ -446,12 +446,30 @@ export class LocalBackend implements AgentBackend {
 			if (!signal?.aborted) filter.push(t);
 		};
 
+		let ranCount = 0;
+		let nudgedEmptyDone = false;
 		try {
 			let result = await agent.start(task, thread);
 			while (result.status === 'interrupted') {
 				if (signal?.aborted) return;
 				const pending = result.interrupt;
 				if (pending.tool === 'done') {
+					// Small instruct models sometimes call done as their very first
+					// move, completing nothing. Push back once and make it act.
+					if (ranCount === 0 && !nudgedEmptyDone) {
+						nudgedEmptyDone = true;
+						result = await agent.resume(
+							{
+								type: 'reject',
+								message:
+									"You haven't run any commands yet, so the task is NOT done. Propose the " +
+									'first bash command that makes progress on the task now — one command at a ' +
+									'time. Do not call done again until you have actually run commands.'
+							},
+							thread
+						);
+						continue;
+					}
 					filter.flush();
 					onEvent({
 						type: 'toolCall',
@@ -484,6 +502,7 @@ export class LocalBackend implements AgentBackend {
 						: verdict.decision === 'edit'
 							? ({ type: 'edit', args: { cmd: verdict.cmd } } as const)
 							: ({ type: 'reject', message: verdict.reason } as const);
+				if (verdict.decision !== 'deny') ranCount++;
 				result = await agent.resume(decision, thread);
 			}
 			// The model stopped calling tools without done — flush whatever

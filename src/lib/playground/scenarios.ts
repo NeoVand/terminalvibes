@@ -62,9 +62,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			'pwd',
 			'ls',
 			'cd projects',
-			'ls',
 			'cd chatbot/config',
-			'ls',
 			'ls -a',
 			'cd .secrets',
 			'cat api-key.txt'
@@ -133,9 +131,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			'mkdir -p ~/pictures ~/documents',
 			'mv photo-beach.jpg photo-mountain.jpg ~/pictures',
 			'mv invoice-march.pdf invoice-april.pdf ~/documents',
-			'ls',
-			'rm setup-old.dmg',
-			'ls'
+			'rm setup-old.dmg'
 		],
 		seed: {
 			files: {
@@ -167,8 +163,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			'rm *.tmp',
 			'echo draft?.md',
 			'mkdir drafts',
-			'mv draft?.md drafts',
-			'ls'
+			'mv draft?.md drafts'
 		],
 		seed: {
 			files: {

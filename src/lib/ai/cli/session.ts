@@ -32,7 +32,7 @@ export type CliEvent =
 	| { type: 'proposal'; cmd: string }
 	| { type: 'verdict'; decision: GateDecision; cmd: string; reason?: string }
 	| { type: 'notice'; text: string; tone: 'info' | 'error' }
-	| { type: 'end'; reason: CliEndReason; summary?: string };
+	| { type: 'end'; reason: CliEndReason; summary?: string; ranCount: number };
 
 export interface CliSessionOptions {
 	/** The runtime's active backend; must implement generateCli. */
@@ -52,6 +52,8 @@ export class CliSession {
 	#editing = false;
 	#ended = false;
 	#summary: string | null = null;
+	/** Commands actually executed — distinguishes real work from a no-op run. */
+	#ranCount = 0;
 	#gate: Gate = createGate();
 	#abort: AbortController | null = null;
 	#opts: CliSessionOptions;
@@ -114,6 +116,7 @@ export class CliSession {
 			},
 			run: async (cmd: string) => {
 				this.#setPhase('executing');
+				this.#ranCount++;
 				try {
 					return await this.#opts.run(cmd);
 				} finally {
@@ -217,6 +220,6 @@ export class CliSession {
 		this.#ended = true;
 		this.#editing = false;
 		this.#setPhase(reason);
-		this.#opts.emit({ type: 'end', reason, summary });
+		this.#opts.emit({ type: 'end', reason, summary, ranCount: this.#ranCount });
 	}
 }

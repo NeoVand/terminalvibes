@@ -362,7 +362,16 @@
 			});
 		} else if (event.type === 'end') {
 			if (event.reason === 'done') {
-				pushLine({ type: 'system', text: `✔ agent: ${event.summary ?? 'session complete'}` });
+				if (event.ranCount === 0) {
+					// The model wrapped up without running anything — say so plainly
+					// instead of a hollow success line.
+					pushLine({
+						type: 'system',
+						text: 'agent: finished without running any commands. Try rephrasing the task, or switch to the higher-quality model in the Agent panel settings.'
+					});
+				} else {
+					pushLine({ type: 'system', text: `✔ agent: ${event.summary ?? 'done.'}` });
+				}
 			} else if (event.reason === 'interrupted') {
 				pushLine({
 					type: 'system',

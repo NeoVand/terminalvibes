@@ -204,6 +204,23 @@ describe('CliSession', () => {
 		expect(h.ran).toEqual([]);
 	});
 
+	it('the end event reports how many commands actually ran', async () => {
+		// A no-op session (no scripted plan → nothing executes) reports 0, so
+		// the terminal can say "finished without running anything" honestly.
+		const noop = makeHarness();
+		await noop.engine.reset();
+		await noop.session.start('fold my laundry');
+		expect(endEvent(noop.events)?.ranCount).toBe(0);
+
+		// A session that executes two commands reports 2.
+		const worked = makeHarness((e, s) => {
+			if (e.type === 'proposal') queueMicrotask(() => s.approve());
+		});
+		await worked.engine.reset();
+		await worked.session.start(NOTES_TASK);
+		expect(endEvent(worked.events)?.ranCount).toBe(2);
+	});
+
 	it('streams the agent prose as events', async () => {
 		const h = makeHarness((e, s) => {
 			if (e.type === 'proposal') queueMicrotask(() => s.approve());

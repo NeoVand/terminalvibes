@@ -49,6 +49,22 @@ describe('scenario checks — click-only solvability', () => {
 		});
 	}
 
+	// No chip palette should repeat a bare observation command — clicking `ls`
+	// three times is noise. Meaningful re-runs of a stateful command (a script
+	// that fails then succeeds, `echo $?` after different commands) are exempt.
+	it('no scenario repeats a bare observation chip', () => {
+		const BARE_OBSERVATION = new Set(['ls', 'pwd', 'whoami', 'date', 'clear']);
+		for (const scenario of playgroundScenarios) {
+			const seen = new Set<string>();
+			for (const cmd of scenario.suggestedCommands) {
+				if (BARE_OBSERVATION.has(cmd) && seen.has(cmd)) {
+					throw new Error(`${scenario.id} repeats the bare chip "${cmd}"`);
+				}
+				seen.add(cmd);
+			}
+		}
+	});
+
 	it('audit-the-agent: running the destructive command fails the check for good', async () => {
 		const scenario = getScenario('audit-the-agent');
 		await loadScenarioSeed(engine, scenario);
