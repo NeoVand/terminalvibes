@@ -15,10 +15,10 @@
 
 	const CELL = 24; // grid pitch in px
 	const DOT = 10; // drawn dot size
-	const AMBIENT_BIRTHS_PER_SEC = 70; // whole-screen baseline flicker
-	const MOUSE_BIRTHS_PER_MOVE = 5; // extra sparks near the cursor
-	const MOUSE_RADIUS = 140; // px
-	const FADE_PER_SEC = 0.9; // alpha decay rate
+	const AMBIENT_BIRTHS_PER_SEC = 80; // whole-screen baseline flicker
+	const FADE_PER_SEC = 0.32; // slow decay — dots linger and twinkle out
+	const MOUSE_SIGMA = 95; // Gaussian radius of the cursor's field, px
+	const MOUSE_FIELD_PER_TICK = 10; // standing refreshes under the cursor
 
 	let canvas: HTMLCanvasElement;
 
@@ -74,32 +74,25 @@
 			const existing = cells.find((c) => c.cx === cx && c.cy === cy);
 			if (existing) {
 				existing.a = Math.max(existing.a, strength);
-			} else if (cells.length < 800) {
+			} else if (cells.length < 1600) {
 				cells.push({ cx, cy, a: strength });
 			}
 		}
 
 		let mouseX = -1;
 		let mouseY = -1;
-		let lastSpark = 0;
 		function onMove(e: MouseEvent) {
 			mouseX = e.clientX;
 			mouseY = e.clientY;
-			const now = performance.now();
-			// Throttle spark bursts so fast movement doesn't flood the grid
-			if (now - lastSpark < 40) return;
-			lastSpark = now;
-			for (let i = 0; i < MOUSE_BIRTHS_PER_MOVE; i++) {
-				const ang = Math.random() * Math.PI * 2;
-				const r = Math.sqrt(Math.random()) * MOUSE_RADIUS;
-				birth(
-					Math.round((mouseX + Math.cos(ang) * r) / CELL),
-					Math.round((mouseY + Math.sin(ang) * r) / CELL),
-					0.5 + Math.random() * 0.5
-				);
-			}
 		}
 		window.addEventListener('mousemove', onMove, { passive: true });
+
+		/** Standard normal via Box–Muller — the cursor's field is a true Gaussian. */
+		function gaussian(): number {
+			const u = Math.random() || 1e-9;
+			const v = Math.random() || 1e-9;
+			return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+		}
 
 		let raf = 0;
 		let last = performance.now();
@@ -124,6 +117,19 @@
 				);
 			}
 
+			// The cursor's standing field: refresh cells around the mouse with
+			// Gaussian falloff every tick, so a resting cursor keeps a soft,
+			// twinkling glow that never fully dies while it stays.
+			if (mouseX >= 0) {
+				for (let i = 0; i < MOUSE_FIELD_PER_TICK; i++) {
+					const dx = gaussian() * MOUSE_SIGMA;
+					const dy = gaussian() * MOUSE_SIGMA;
+					const dist2 = (dx * dx + dy * dy) / (MOUSE_SIGMA * MOUSE_SIGMA);
+					const strength = Math.exp(-dist2 / 2) * (0.55 + Math.random() * 0.45);
+					birth(Math.round((mouseX + dx) / CELL), Math.round((mouseY + dy) / CELL), strength);
+				}
+			}
+
 			ctx!.clearRect(0, 0, canvas.width, canvas.height);
 			const decay = (FADE_PER_SEC * dt) / 1000;
 			const [r, g, b] = dark ? [126, 231, 135] : [124, 74, 30];
@@ -134,8 +140,10 @@
 					cells.splice(i, 1);
 					continue;
 				}
-				// Ease the fade so dots bloom quickly and linger softly
-				const alpha = ceiling * c.a * c.a;
+				// Ease the fade so dots bloom quickly and linger softly, with a
+				// slow per-cell twinkle while they live
+				const tw = 0.72 + 0.28 * Math.sin(now / 340 + c.cx * 7.3 + c.cy * 3.1);
+				const alpha = ceiling * c.a * c.a * tw;
 				ctx!.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
 				ctx!.fillRect(
 					(c.cx * CELL + (CELL - DOT) / 2) * dpr,
