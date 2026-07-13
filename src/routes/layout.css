@@ -422,7 +422,7 @@ kbd {
 	background-image: var(--tv-watermark, none);
 	background-repeat: no-repeat;
 	background-position: right 14px bottom 12px;
-	background-size: min(16%, 96px);
+	background-size: min(11%, 64px);
 	image-rendering: pixelated;
 }
 
