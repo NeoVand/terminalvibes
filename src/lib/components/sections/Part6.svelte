@@ -417,9 +417,9 @@ rm -rf build/*`}
 			</Callout>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				That's the whole secret. Everything you've typed at the prompt this entire course could be
-				pasted into a file and replayed. Let's build one — a tiny backup script — and hit every
-				ingredient along the way.
+				That's the idea. Everything you've typed at the prompt this entire course could be pasted
+				into a file and replayed. Let's build one — a tiny backup script — and hit every ingredient
+				along the way.
 			</p>
 
 			<CodeBlock

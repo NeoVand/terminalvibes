@@ -27,7 +27,7 @@
 		<SectionHeader
 			icon={FolderTree}
 			partLabel="Part 3"
-			title="Copy, Move, Delete: Power Tools and the Safety Rules"
+			title="Copy, Move, Delete — and the Habits That Keep You Safe"
 			color="var(--color-primary)"
 		/>
 
@@ -406,7 +406,7 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Everything so far has operated on files one name at a time. Wildcards — also called
 				<strong>globs</strong> — let one pattern stand for many names: "every .log file," "all the photos
-				from January." This is where the terminal starts beating the file manager by orders of magnitude.
+				from January." This is where selecting files by hand in a file manager starts to feel slow.
 			</p>
 
 			<div class="my-6">
