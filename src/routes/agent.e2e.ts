@@ -110,4 +110,96 @@ test.describe('Agent panel', () => {
 		await page.getByRole('button', { name: 'Close settings' }).click();
 		await expect(settings).not.toBeVisible();
 	});
+
+	test('gated demo: DENY runs nothing, ALLOW executes into the agent terminal', async ({
+		page
+	}) => {
+		await page.goto('/');
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		const panel = page.locator('aside[aria-label="Agent"]');
+		const input = page.getByLabel('Ask the agent');
+		const terminal = panel.locator('[data-testid="agent-terminal"]');
+		const card = panel.locator('[data-testid="approval-card"]');
+
+		// ── Turn 1: deny everything — the sandbox must stay untouched. ──
+		await input.fill('demo: pipes');
+		await input.press('Enter');
+		await expect(card).toBeVisible({ timeout: 15000 });
+		await expect(panel.locator('[data-testid="approval-cmd"]')).toContainText('printf');
+		await card.getByRole('button', { name: /Deny/ }).click();
+		await expect(panel.locator('[data-testid="approval-cmd"]')).toContainText('sort', {
+			timeout: 15000
+		});
+		await card.getByRole('button', { name: /Deny/ }).click();
+		await expect(panel.getByText(/nothing was run/i)).toBeVisible({ timeout: 15000 });
+		await expect(terminal).toHaveCount(0);
+
+		// ── Turn 2: approve everything — commands + output land in the terminal. ──
+		await panel.getByRole('button', { name: 'Send question' }).waitFor({ timeout: 15000 });
+		await input.fill('demo: pipes');
+		await input.press('Enter');
+		await expect(card).toBeVisible({ timeout: 15000 });
+		await card.getByRole('button', { name: /Allow/ }).click();
+		await expect(card.locator('[data-testid="approval-cmd"]')).toContainText('sort', {
+			timeout: 15000
+		});
+		await card.getByRole('button', { name: /Allow/ }).click();
+
+		await expect(terminal).toBeVisible({ timeout: 15000 });
+		await expect(terminal).toContainText('sort letters.txt | uniq -c');
+		await expect(terminal).toContainText('2 a');
+		await expect(terminal).toContainText('1 b');
+
+		// The wrap-up answer carries a Sources row of chips.
+		const sources = panel.locator('.agent-sources').last();
+		await expect(sources).toBeVisible({ timeout: 15000 });
+		await expect(sources).toContainText('Sources');
+		await expect(sources.locator('a[href="#section-4-2"]')).toBeVisible();
+	});
+
+	test('teaching answers render markdown with a code block and a sources row', async ({ page }) => {
+		await page.goto('/');
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		const panel = page.locator('aside[aria-label="Agent"]');
+
+		await panel.getByRole('button', { name: 'How do pipes work?' }).click();
+		const answer = panel.locator('[data-role="assistant"]').first();
+		// The fenced example renders as a real code block, tokenized.
+		await expect(answer.locator('pre.agent-md-code')).toBeVisible({ timeout: 15000 });
+		await expect(answer.locator('pre.agent-md-code')).toContainText('grep ERROR');
+		// Citations live in the sources row, not mid-sentence.
+		await expect(answer).not.toContainText('[[section');
+		await expect(answer.locator('.agent-sources')).toContainText('Sources');
+	});
+
+	test('downloaded flag means chat — no intro banner, no cards in the chat area', async ({
+		page
+	}) => {
+		// First run: the intro banner + model cards ARE the chat area's empty state.
+		await page.goto('/');
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		const panel = page.locator('aside[aria-label="Agent"]');
+		await expect(panel.locator('[data-testid="agent-intro"]')).toBeVisible();
+
+		// Downloaded (flag only, nothing selected → no auto-warm, no network):
+		// the banner and cards never render again; models live behind the gear.
+		await page.evaluate(() =>
+			localStorage.setItem(
+				'tv-agent-downloaded',
+				JSON.stringify(['onnx-community/Qwen3.5-0.8B-Text-ONNX'])
+			)
+		);
+		await page.reload();
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		await expect(panel.locator('[data-testid="agent-intro"]')).toHaveCount(0);
+		await expect(panel.locator('.agent-model-card')).toHaveCount(0);
+
+		// The gear still offers the model management.
+		await panel.getByRole('button', { name: 'Agent settings' }).click();
+		const settings = page.getByRole('dialog', { name: 'Agent settings' });
+		await expect(settings.locator('.agent-model-card')).toHaveCount(2);
+		await expect(
+			settings.locator('.agent-model-tan').getByRole('button', { name: 'Use this model' })
+		).toBeVisible();
+	});
 });

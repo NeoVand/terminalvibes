@@ -6,7 +6,7 @@
  * which is talking.
  */
 import { HumanMessage, AIMessage, type BaseMessage } from '@langchain/core/messages';
-import type { AgentBackend, ChatMessage, GenerateOptions } from '../types';
+import type { AgentBackend, AgentBash, ChatMessage, GenerateOptions } from '../types';
 import { TransformersJsChatModel, disposeHost, type TjsProgress } from './transformers-js';
 import { createCourseAgent, type CourseAgent } from './deepagent';
 import { buildAgentTools, TUTOR_SYSTEM_PROMPT } from './tools';
@@ -52,6 +52,7 @@ export class LocalBackend implements AgentBackend {
 
 	#model: TransformersJsChatModel | null = null;
 	#agent: CourseAgent | null = null;
+	#bash: AgentBash | null = null;
 	#thread = `chat-${Date.now()}`;
 	#turnsInThread = 0;
 
@@ -123,10 +124,25 @@ export class LocalBackend implements AgentBackend {
 	#ensureAgent(onEvent: GenerateOptions['onEvent']): CourseAgent {
 		if (!this.#model) throw new Error('LocalBackend.warm() must succeed before generate().');
 		if (!this.#agent) {
+			// The bash tool executes through a delegate so the bridge handed to
+			// the CURRENT generate() call is always the one that runs — the
+			// agent (and its tool closures) is built once per backend.
+			const bashDelegate: AgentBash = {
+				propose: (cmd) => {
+					if (!this.#bash) return Promise.resolve({ decision: 'deny' as const, cmd });
+					return this.#bash.propose(cmd);
+				},
+				run: (cmd) => {
+					if (!this.#bash) throw new Error('No sandbox terminal is available right now.');
+					return this.#bash.run(cmd);
+				}
+			};
 			this.#agent = createCourseAgent({
 				model: this.#model,
-				tools: buildAgentTools(),
+				tools: buildAgentTools({ bash: bashDelegate }),
 				systemPrompt: TUTOR_SYSTEM_PROMPT,
+				// Every bash call pauses for a human verdict BEFORE executing.
+				interruptOn: ['bash'],
 				hooks: {
 					onToolCall: (name, args) => {
 						onEvent({
@@ -134,7 +150,10 @@ export class LocalBackend implements AgentBackend {
 							call: {
 								id: `call-${Date.now().toString(36)}`,
 								name: name === 'search_course' ? 'search_course' : 'bash',
-								args: { query: typeof args.query === 'string' ? args.query : undefined }
+								args: {
+									query: typeof args.query === 'string' ? args.query : undefined,
+									cmd: typeof args.cmd === 'string' ? args.cmd : undefined
+								}
 							}
 						});
 					}
@@ -159,10 +178,38 @@ export class LocalBackend implements AgentBackend {
 		}
 		this.#turnsInThread = userTurns;
 
+		this.#bash = opts.bash ?? null;
 		const agent = this.#ensureAgent(onEvent);
 
 		try {
-			const result = await agent.start(question, this.#thread);
+			let result = await agent.start(question, this.#thread);
+
+			// The interrupt loop: every gated bash call surfaces as an approval
+			// card (gate.propose) and the human's verdict resumes the graph.
+			while (result.status === 'interrupted') {
+				if (signal?.aborted) return;
+				const cmd = String(result.interrupt.args.cmd ?? '');
+				if (result.interrupt.tool !== 'bash' || !this.#bash) {
+					result = await agent.resume(
+						{ type: 'reject', message: 'No sandbox terminal is available right now.' },
+						this.#thread
+					);
+					continue;
+				}
+				onEvent({
+					type: 'toolCall',
+					call: { id: `gate-${Date.now().toString(36)}`, name: 'bash', args: { cmd } }
+				});
+				const verdict = await this.#bash.propose(cmd);
+				if (signal?.aborted) return;
+				const decision =
+					verdict.decision === 'allow'
+						? ({ type: 'approve' } as const)
+						: verdict.decision === 'edit'
+							? ({ type: 'edit', args: { cmd: verdict.cmd } } as const)
+							: ({ type: 'reject', message: verdict.reason } as const);
+				result = await agent.resume(decision, this.#thread);
+			}
 			if (signal?.aborted) return;
 			const answer = finalAnswer(result.messages);
 

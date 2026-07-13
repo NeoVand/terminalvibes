@@ -20,6 +20,7 @@ import {
 	Command,
 	interrupt
 } from '@langchain/langgraph/web';
+import { installBrowserAsyncContext } from './async-context';
 import {
 	AIMessage,
 	HumanMessage,
@@ -88,6 +89,8 @@ function normalizeResume(value: unknown): AgentDecision {
 }
 
 export function createCourseAgent(opts: CourseAgentOptions): CourseAgent {
+	// interrupt() needs an async-context store; the browser gets the sync shim.
+	installBrowserAsyncContext();
 	const tools = opts.tools ?? [];
 	const toolByName = new Map(tools.map((t) => [(t as { name: string }).name, t]));
 	const interruptOn = new Set(opts.interruptOn ?? []);

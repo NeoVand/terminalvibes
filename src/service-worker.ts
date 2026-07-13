@@ -28,7 +28,16 @@ sw.addEventListener('activate', (event) => {
 		caches
 			.keys()
 			.then((keys) =>
-				Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))
+				Promise.all(
+					keys
+						// Only OUR versioned caches are ours to clean up. Other
+						// origin caches — above all transformers.js's
+						// `transformers-cache`, which holds ~450 MB of local
+						// model weights — must survive deploys, or every new
+						// build silently forces a full model re-download.
+						.filter((key) => key.startsWith('terminalvibes-') && key !== CACHE)
+						.map((key) => caches.delete(key))
+				)
 			)
 			.then(() => sw.clients.claim())
 	);

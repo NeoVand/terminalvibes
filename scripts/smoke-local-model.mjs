@@ -91,6 +91,14 @@ async function main() {
 			const len = Number(res.headers()['content-length'] ?? 0);
 			if (len > 0) hfBytes += len;
 		});
+		// Requests served from Cache Storage never hit the network layer, so a
+		// route-level counter is the honest re-download detector for phase 2.
+		let phase = 'first-load';
+		let onnxAfterReload = 0;
+		await context.route(/huggingface\.co|hf\.co|cdn-lfs/, (route) => {
+			if (phase === 'reload' && /\.onnx/.test(route.request().url())) onnxAfterReload++;
+			void route.continue();
+		});
 
 		await page.goto(BASE);
 		await page.evaluate(() => {
@@ -109,15 +117,12 @@ async function main() {
 		const btn = panel
 			.locator('.agent-model-tan')
 			.getByRole('button', { name: /Download · 450 MB/ });
-		// Downloaded on a previous run but not the remembered selection: the
-		// tan card offers activation instead of a download.
-		const useBtn = panel
-			.locator('.agent-model-tan')
-			.getByRole('button', { name: 'Use this model' });
 		const downloadStart = Date.now();
-		// Panel-open stage: only the download button needs an explicit click.
-		// Anything else (in-card progress, mode row) means an auto-warm is
-		// already running — fall through to the long wait either way.
+		// Panel-open stage under the new state machine:
+		//  - first run          → intro banner + tiles in the chat area → click Download
+		//  - auto-warm running  → slim .agent-status line ("waking …")   → just wait
+		//  - downloaded, idle   → nothing in the chat area               → gear → Use this model
+		//  - already live       → mode row
 		let first = null;
 		for (let attempt = 0; attempt < 6 && !first; attempt++) {
 			if ((await panel.getAttribute('aria-hidden')) !== 'false') {
@@ -128,50 +133,56 @@ async function main() {
 			}
 			first = await Promise.race([
 				btn
-					.waitFor({ state: 'visible', timeout: 10_000 })
+					.waitFor({ state: 'visible', timeout: 8_000 })
 					.then(() => 'button')
 					.catch(() => null),
 				modeRow
-					.waitFor({ state: 'visible', timeout: 10_000 })
+					.waitFor({ state: 'visible', timeout: 8_000 })
 					.then(() => 'mode')
 					.catch(() => null),
 				panel
-					.locator('.agent-model-progress')
-					.waitFor({ state: 'visible', timeout: 10_000 })
+					.locator('.agent-status')
+					.waitFor({ state: 'visible', timeout: 8_000 })
 					.then(() => 'warming')
-					.catch(() => null),
-				useBtn
-					.waitFor({ state: 'visible', timeout: 10_000 })
-					.then(() => 'use')
-					.catch(() => null),
-				panel
-					.getByText(/couldn't start/)
-					.waitFor({ state: 'visible', timeout: 10_000 })
-					.then(() => 'error')
 					.catch(() => null)
 			]);
 			if (!first) {
-				log(`panel content not visible yet (attempt ${attempt + 1}), retrying…`);
-				const cardText = await panel
-					.locator('.agent-card')
-					.first()
-					.textContent()
-					.catch(() => null);
-				if (cardText) log(`  card says: ${cardText.trim().slice(0, 160)}`);
+				// Downloaded-but-idle state renders nothing in the chat area —
+				// activation lives behind the gear.
+				await panel
+					.getByRole('button', { name: 'Agent settings' })
+					.click()
+					.catch(() => {});
+				const gearUse = page
+					.getByRole('dialog', { name: 'Agent settings' })
+					.locator('.agent-model-tan')
+					.getByRole('button', { name: /Use this model|Download · 450 MB/ });
+				if (await gearUse.isVisible().catch(() => false)) {
+					log('activating the 0.8B from the gear settings');
+					await gearUse.click();
+					await page
+						.getByRole('button', { name: 'Close settings' })
+						.click()
+						.catch(() => {});
+					first = 'gear';
+				} else {
+					await page
+						.getByRole('button', { name: 'Close settings' })
+						.click()
+						.catch(() => {});
+					log(`panel content not visible yet (attempt ${attempt + 1}), retrying…`);
+				}
 			}
 		}
 		if (first === 'button') {
-			log('clicking the 0.8B card download button (q4f16)');
+			log('clicking the 0.8B tile download button (q4f16)');
 			await btn.click();
-		} else if (first === 'use') {
-			log('weights already cached — clicking "Use this model" (warm from Cache Storage)');
-			await useBtn.click();
-		} else if (first === 'error') {
-			const errText = await panel.locator('.agent-card').first().textContent();
-			log(`local model errored on auto-warm: ${errText?.trim().slice(0, 200)} — clicking Retry`);
-			await panel.getByRole('button', { name: 'Retry' }).click();
+		} else if (first === 'warming') {
+			log('slim status line visible — auto-warm in progress, no clicks needed');
+		} else if (first === 'gear' || first === 'mode') {
+			// nothing to do
 		} else {
-			log(`no download click needed (${first ?? 'still settling'}) — auto-warm path`);
+			throw new Error('Agent panel never reached a known model state');
 		}
 
 		log('waiting for the model to go live (download + load + warm-up probe)…');
@@ -196,18 +207,48 @@ async function main() {
 
 		const assistant = panel.locator('[data-role="assistant"]').last();
 		await assistant.waitFor({ state: 'attached', timeout: 60_000 });
-		// TTFT: first visible content in the assistant bubble.
-		await page.waitForFunction(
-			(el) => (el?.textContent ?? '').trim().length > 0,
-			await assistant.elementHandle(),
-			{ timeout: 10 * 60_000, polling: 100 }
-		);
-		const ttftMs = Date.now() - t0;
+
+		// With "show, then explain" the model may pause at the approval gate
+		// even on a plain question — approve anything it proposes while we
+		// wait for the first visible content (TTFT) and the end of the turn.
+		const gateCard = panel.locator('[data-testid="approval-card"]');
+		const chatApprovals = [];
+		const approveIfPending = async () => {
+			if (!(await gateCard.isVisible().catch(() => false))) return false;
+			const cmd = (
+				await panel
+					.locator('[data-testid="approval-cmd"]')
+					.textContent()
+					.catch(() => '')
+			)?.trim();
+			log(`approval card during chat: ${cmd} → ALLOW`);
+			chatApprovals.push(cmd ?? '');
+			await gateCard
+				.getByRole('button', { name: /Allow/ })
+				.click()
+				.catch(() => {});
+			await page.waitForTimeout(400);
+			return true;
+		};
+
+		let ttftMs = -1;
+		while (Date.now() - t0 < 10 * 60_000) {
+			if (await approveIfPending()) continue;
+			const text = (await assistant.textContent().catch(() => '')) ?? '';
+			if (text.trim().length > 0) {
+				ttftMs = Date.now() - t0;
+				break;
+			}
+			await page.waitForTimeout(200);
+		}
 
 		// Done when the send button returns (status left 'generating').
-		await panel
-			.getByRole('button', { name: 'Send question' })
-			.waitFor({ state: 'visible', timeout: 10 * 60_000 });
+		const sendBack = panel.getByRole('button', { name: 'Send question' });
+		while (Date.now() - t0 < 10 * 60_000) {
+			if (await approveIfPending()) continue;
+			if (await sendBack.isVisible().catch(() => false)) break;
+			await page.waitForTimeout(300);
+		}
 		const totalMs = Date.now() - t0;
 
 		const answer = (await assistant.textContent())?.trim() ?? '';
@@ -231,11 +272,93 @@ async function main() {
 		log(
 			`search_course:   ${searches.length ? `called with ${JSON.stringify(searches)}` : 'NOT called'}`
 		);
+		log(`bash during chat: ${chatApprovals.length ? JSON.stringify(chatApprovals) : 'none'}`);
 		log(`answer: ${answer}`);
 		log('──────────────────────────────');
 
 		if (!answer) throw new Error('SMOKE FAIL: empty answer');
 		if (!device) throw new Error('SMOKE FAIL: no device recorded');
+
+		// ── The bash tool, live: ask for a demonstration, approve each gated
+		//    command programmatically, and verify the agent's terminal. ──
+		const task = "create a file called hello.txt containing hi, then show it's there";
+		log(`asking: "${task}"`);
+		await input.fill(task);
+		await input.press('Enter');
+
+		const approvals = [];
+		const sendBtn = panel.getByRole('button', { name: 'Send question' });
+		const approvalCard = panel.locator('[data-testid="approval-card"]');
+		const taskStart = Date.now();
+		while (Date.now() - taskStart < 10 * 60_000) {
+			if (await approvalCard.isVisible().catch(() => false)) {
+				const cmd = (
+					await panel
+						.locator('[data-testid="approval-cmd"]')
+						.textContent()
+						.catch(() => '')
+				)?.trim();
+				log(`approval card: ${cmd} → ALLOW`);
+				approvals.push(cmd ?? '');
+				await approvalCard
+					.getByRole('button', { name: /Allow/ })
+					.click()
+					.catch(() => {});
+				await page.waitForTimeout(400);
+				continue;
+			}
+			if (await sendBtn.isVisible().catch(() => false)) break;
+			await page.waitForTimeout(400);
+		}
+
+		const agentTerm = panel.locator('[data-testid="agent-terminal"]');
+		const termVisible = await agentTerm.isVisible().catch(() => false);
+		const termText = termVisible ? ((await agentTerm.textContent()) ?? '') : '';
+		const taskAnswer =
+			(await panel.locator('[data-role="assistant"]').last().textContent())?.trim() ?? '';
+
+		log('──────── BASH TOOL RESULT ────────');
+		log(`turn time:        ${((Date.now() - taskStart) / 1000).toFixed(1)}s`);
+		log(`bash approvals:   ${approvals.length} → ${JSON.stringify(approvals)}`);
+		log(`agent terminal:   ${termVisible ? 'visible' : 'ABSENT'}`);
+		if (termText) log(`terminal transcript: ${termText.trim().replace(/\n/g, ' ⏎ ')}`);
+		log(`answer: ${taskAnswer}`);
+		if (approvals.length > 0 && /hello\.txt/.test(termText)) {
+			log('BASH TOOL: PASS — the model demonstrated and hello.txt is in its terminal');
+		} else {
+			log('BASH TOOL: model did not demonstrate via bash this run — noted for the report');
+		}
+		log('──────────────────────────────────');
+
+		// ── Reload-without-redownload: the cache-persistence assertion. ──
+		log('reloading the page — the model must come back WITHOUT re-downloading weights…');
+		phase = 'reload';
+		await page.reload();
+		// SW/hydration churn after reload: retry the open until the panel reacts.
+		for (let i = 0; i < 6; i++) {
+			if ((await panel.getAttribute('aria-hidden').catch(() => 'true')) === 'false') break;
+			await page
+				.getByRole('button', { name: 'Open Agent' })
+				.click({ timeout: 5000 })
+				.catch(() => {});
+			await page.waitForTimeout(1500);
+		}
+		const reloadLive = await modeRow
+			.waitFor({ state: 'visible', timeout: 5 * 60_000 })
+			.then(() => true)
+			.catch(() => false);
+		log('──────── CACHE RESULT ────────');
+		log(`model live after reload: ${reloadLive}`);
+		log(`.onnx network requests after reload: ${onnxAfterReload}`);
+		if (!reloadLive) throw new Error('CACHE FAIL: model did not come back after reload');
+		if (onnxAfterReload > 0) {
+			throw new Error(
+				`CACHE FAIL: ${onnxAfterReload} .onnx network request(s) after reload — weights re-downloaded`
+			);
+		}
+		log('CACHE: PASS — reload served the weights from Cache Storage, zero .onnx fetches');
+		log('──────────────────────────────');
+		phase = 'done';
 
 		// ── Optional: 2B multimodal prototype check ──
 		if (CHECK_2B) {
@@ -287,5 +410,6 @@ async function main() {
 
 main().catch((e) => {
 	console.error('[smoke] FAILED:', e);
-	process.exitCode = 1;
+	// Force-exit: a live playwright context would otherwise keep node alive.
+	process.exit(1);
 });

@@ -5,7 +5,9 @@
  * transformers.js + langgraph never weigh down the initial bundle.
  */
 import { MockBackend } from './mock-backend';
-import type { AgentBackend, ChatMessage, RuntimeStatus } from './types';
+import { createGate, type Gate, type GateDecision } from './gate';
+import { createBashBridge, type BashBridge, type TerminalLine } from './bash-bridge';
+import type { AgentBackend, AgentBash, ChatMessage, RuntimeStatus } from './types';
 import {
 	detectCaps,
 	downloadedModels,
@@ -43,22 +45,80 @@ export class AgentRuntime {
 	/** Reactive mirror of the localStorage downloaded-models flags. */
 	downloaded = $state<string[]>([]);
 
+	/* ── the agent's own terminal + approval gate ── */
+	terminal = $state<TerminalLine[]>([]);
+	terminalOpen = $state(false);
+	/** Command awaiting a human verdict (renders the inline approval card). */
+	pendingCmd = $state<string | null>(null);
+
 	#mock: AgentBackend = new MockBackend();
 	#local: LocalBackend | null = null;
 	#abort: AbortController | null = null;
 	#warmAbort: AbortController | null = null;
 	#initDone = false;
+	#gate: Gate = createGate();
+	#bridge: BashBridge | null = null;
+
+	constructor() {
+		this.#gate.subscribe((pending) => {
+			this.pendingCmd = pending;
+		});
+	}
 
 	get backend(): AgentBackend {
 		return this.backendName === 'local' && this.#local ? this.#local : this.#mock;
 	}
 
-	/** Label for the header badge: model when local, honest mock note otherwise. */
+	/**
+	 * Label for the header badge. NEVER the generic line while a model is
+	 * active or waking — the badge tells the truth about the actual state.
+	 */
 	get badgeLabel(): string {
-		if (this.backendName === 'local' && this.localModelId) {
-			return `${getModelSpec(this.localModelId)?.label ?? 'local model'} · local`;
+		if (this.localModelId) {
+			const label = getModelSpec(this.localModelId)?.label ?? 'local model';
+			if (this.backendName === 'local') return `${label} · local`;
+			if (this.localBusy) return `${label} · waking…`;
 		}
 		return 'local · in your browser';
+	}
+
+	/** A model download/load/probe is in flight. */
+	get localBusy(): boolean {
+		return (
+			this.localPhase === 'downloading' ||
+			this.localPhase === 'loading' ||
+			this.localPhase === 'probing'
+		);
+	}
+
+	/** Nothing downloaded yet — the only state that shows the intro banner. */
+	get firstRun(): boolean {
+		return this.downloaded.length === 0;
+	}
+
+	/** Resolve the pending approval card (allow / edit / deny). */
+	decide(decision: GateDecision, opts?: { cmd?: string; reason?: string }): void {
+		if (this.pendingCmd === null) return;
+		this.#gate.resolve(decision, opts);
+	}
+
+	/** Lazily build the sandbox bridge (browser only). */
+	async #ensureBash(): Promise<AgentBash | undefined> {
+		if (typeof window === 'undefined') return undefined;
+		if (!this.#bridge) {
+			this.#bridge = await createBashBridge({
+				gate: this.#gate,
+				onLine: (line) => {
+					this.terminal.push(line);
+					// First activity auto-expands the agent's terminal strip.
+					this.terminalOpen = true;
+				}
+			});
+		}
+		return {
+			propose: (cmd) => this.#bridge!.propose(cmd),
+			run: (cmd) => this.#bridge!.run(cmd)
+		};
 	}
 
 	/**
@@ -171,15 +231,19 @@ export class AgentRuntime {
 		this.status = 'generating';
 		this.activity = null;
 		this.#abort = new AbortController();
+		const bash = await this.#ensureBash();
 
 		try {
 			await this.backend.generate(history, {
 				tools: false,
 				signal: this.#abort.signal,
+				bash,
 				onEvent: (event) => {
 					if (event.type === 'token') {
 						this.activity = null;
 						reply.content += event.text;
+					} else if (event.type === 'toolCall' && event.call.name === 'bash') {
+						this.activity = 'wants to run a command — see the approval card';
 					} else if (event.type === 'toolCall' && event.call.name === 'search_course') {
 						this.activity = event.call.args.query
 							? `searching the course for “${event.call.args.query}”`
@@ -207,6 +271,11 @@ export class AgentRuntime {
 
 	/** Stop the in-flight generation, keeping whatever already streamed. */
 	stop(): void {
+		// A generation paused at the approval gate would otherwise hang the
+		// abort — resolve the pending proposal as a denial first.
+		if (this.pendingCmd !== null) {
+			this.#gate.resolve('deny', { reason: 'generation stopped' });
+		}
 		this.#abort?.abort();
 	}
 

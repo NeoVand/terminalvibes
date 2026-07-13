@@ -24,11 +24,31 @@ export type AgentEvent =
 	| { type: 'doneTurn' }
 	| { type: 'error'; message: string };
 
+/** A human verdict on a proposed command (mirrors gate.ts resolutions). */
+export interface AgentBashDecision {
+	decision: 'allow' | 'deny' | 'edit';
+	/** The command to run — rewritten when the decision is 'edit'. */
+	cmd: string;
+	reason?: string;
+}
+
+/**
+ * The gated sandbox handed to backends: propose() pauses for the human
+ * (approval card), run() executes in the agent's ShellEngine and records
+ * the transcript. See bash-bridge.ts.
+ */
+export interface AgentBash {
+	propose(cmd: string): Promise<AgentBashDecision>;
+	run(cmd: string): Promise<{ output: string; error?: boolean }>;
+}
+
 export interface GenerateOptions {
 	/** Enable the bash/done tool loop instead of plain chat. */
 	tools?: boolean;
 	/** Skip streaming delays (tests, prefetch). Test mode always skips. */
 	instant?: boolean;
+	/** Gated sandbox access; when present the agent may demonstrate in it. */
+	bash?: AgentBash;
 	onEvent: (e: AgentEvent) => void;
 	signal?: AbortSignal;
 }

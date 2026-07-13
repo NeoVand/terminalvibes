@@ -333,24 +333,43 @@ function toolCallId() {
 }
 
 /**
- * Pull tool calls out of a local model's raw output. Targets the Hermes-style format
- * Qwen emits — `<tool_call>{"name":...,"arguments":{...}}</tool_call>`, possibly
- * several — and falls back to a lone top-level JSON object. Any `<think>` reasoning
- * is stripped, and the leftover prose becomes the message content.
+ * Pull tool calls out of a local model's raw output. Handles BOTH formats
+ * Qwen-family templates produce:
+ *  - Hermes JSON: `<tool_call>{"name":...,"arguments":{...}}</tool_call>`
+ *  - Qwen3.5 XML: `<tool_call><function=bash><parameter=cmd>…</parameter></function></tool_call>`
+ * plus a lone top-level JSON object as a last resort. Any `<think>` reasoning
+ * is stripped, everything after a hallucinated `<tool_response>` (small models
+ * love to imagine the whole conversation) is discarded, and the leftover
+ * prose becomes the message content.
  */
 export function parseToolCalls(raw: string): { content: string; toolCalls: ToolCall[] } {
-	const text = (raw ?? '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+	let text = (raw ?? '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+	// Everything from the first (hallucinated) tool_response onward is the
+	// model imagining results it never received — cut it.
+	const fake = text.indexOf('<tool_response>');
+	if (fake >= 0) text = text.slice(0, fake);
 	const toolCalls: ToolCall[] = [];
 
 	const re = /<tool_call>\s*([\s\S]*?)\s*<\/tool_call>/g;
 	let m: RegExpExecArray | null;
 	while ((m = re.exec(text)) !== null) {
-		const tc = coerceToolCall(m[1]);
+		const tc = coerceToolCall(m[1]) ?? coerceXmlToolCall(m[1]);
 		if (tc) toolCalls.push(tc);
 	}
 
+	// An unterminated trailing block (generation stopped mid-call) still counts.
+	if (toolCalls.length === 0) {
+		const open = text.match(/<tool_call>\s*([\s\S]+)$/);
+		if (open) {
+			const tc = coerceToolCall(open[1]) ?? coerceXmlToolCall(open[1]);
+			if (tc) {
+				return { content: text.slice(0, open.index).trim(), toolCalls: [tc] };
+			}
+		}
+	}
+
 	if (toolCalls.length > 0) {
-		const content = text.replace(re, '').trim();
+		const content = text.slice(0, text.indexOf('<tool_call>')).trim();
 		return { content, toolCalls };
 	}
 
@@ -362,6 +381,27 @@ export function parseToolCalls(raw: string): { content: string; toolCalls: ToolC
 	}
 
 	return { content: text, toolCalls: [] };
+}
+
+/**
+ * Qwen3.5's XML function-call format:
+ *   <function=bash>
+ *   <parameter=cmd>echo hi > note.txt</parameter>
+ *   </function>
+ */
+export function coerceXmlToolCall(block: string): ToolCall | null {
+	const fn = block.match(/<function=([\w.-]+)>/);
+	if (!fn) return null;
+	const args: Record<string, unknown> = {};
+	for (const p of block.matchAll(/<parameter=([\w.-]+)>\s*([\s\S]*?)\s*<\/parameter>/g)) {
+		args[p[1]] = p[2];
+	}
+	// A parameter left open at the end of generation still carries its value.
+	const openParam = block.match(/<parameter=([\w.-]+)>\s*([\s\S]*?)$/);
+	if (openParam && !(openParam[1] in args)) {
+		args[openParam[1]] = openParam[2].replace(/<\/?[\w=./-]*>?\s*$/g, '').trim();
+	}
+	return { name: fn[1], args, id: toolCallId(), type: 'tool_call' };
 }
 
 export function coerceToolCall(json: string): ToolCall | null {

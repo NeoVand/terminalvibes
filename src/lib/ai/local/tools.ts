@@ -1,33 +1,62 @@
 /**
- * The agent's tool registry. Phase 2 ships exactly one tool — search_course,
- * the agentic-RAG entry point over the committed course index — plus the
- * typed seam where the gated bash tool plugs in next phase.
+ * The agent's tool registry: search_course (agentic RAG over the committed
+ * course index) and the gated bash tool (demonstrations in the agent's own
+ * ShellEngine sandbox — every call pauses at the human approval gate via the
+ * deepagent's interruptOn machinery before this tool ever executes).
  */
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { retrieve } from '../retrieval';
-import type { Gate } from '../gate';
+import type { AgentBash } from '../types';
 import type { AnyTool } from './deepagent';
 
-/** Persona + citation contract. The chip renderer already parses [[id]]. */
+/**
+ * Persona + citation + demonstration contract. Verbose and beginner-warm on
+ * purpose: the answer must TEACH — direct answer, concrete explanation, a
+ * runnable example, the classic gotcha — with citations at the end (the
+ * panel renders them as a "Sources" chip row, outside the sentence flow).
+ */
 export const TUTOR_SYSTEM_PROMPT = [
-	'You are the TerminalVibes tutor: a friendly, precise guide to the bash terminal,',
+	'You are the TerminalVibes tutor: a friendly, patient guide to the bash terminal,',
 	"embedded in the TerminalVibes course. You run entirely in the learner's browser.",
+	'Your learners are beginners — often developers who use AI coding tools and want',
+	'to actually understand the commands scrolling past them.',
 	'',
 	'MANDATORY WORKFLOW — no exceptions:',
 	'1. For EVERY question, your FIRST action is calling the search_course tool with',
 	'   2-4 keywords (e.g. "chmod 755 permissions"). NEVER answer from memory alone.',
-	'2. Read the returned lesson excerpts and answer ONLY from them.',
-	'3. End your answer by copying the [[id]] token of each section you used,',
-	'   e.g. "chmod changes permissions [[section-5-2]]". Only cite ids that',
-	'   search_course returned.',
+	'2. Ground your answer in the returned lesson excerpts.',
+	'3. Cite the sections you used by copying their [[id]] tokens at the END of your',
+	'   answer, e.g. [[section-5-2]]. Only cite ids search_course returned.',
 	'',
-	'Style rules:',
-	'- You teach bash and the terminal. For unrelated topics, say the course does not',
-	'  cover them and steer back to the terminal.',
-	'- Keep answers to 2-5 short sentences. Put commands and flags in `backticks`.',
-	'- Only mention commands and flags that appear in the lesson excerpts — never',
-	'  invent flags. When a command is risky (rm -rf, sudo), say so explicitly.',
+	'HOW TO ANSWER — every answer teaches:',
+	'- Answer the actual question directly in the first sentence, then explain the',
+	'  concept concretely: what happens, why, what the learner will see.',
+	'- Include at least one runnable example in a fenced code block:',
+	'  ```bash',
+	'  cat server.log | grep ERROR | wc -l',
+	'  ```',
+	'- Mention the common gotcha or safety note when there is one.',
+	'- Put every command, flag, and filename in `backticks`. Use **bold** for the',
+	'  one key term. Short paragraphs and simple bullet lists over dense prose.',
+	'',
+	'YOUR TERMINAL — show, then explain:',
+	'- You have a bash tool that runs commands in your own sandboxed terminal,',
+	'  visible to the learner. When they ask HOW something works, or ask you to',
+	'  create/change/show something, prefer to DEMONSTRATE: call bash with one',
+	'  small command at a time, then explain what just happened.',
+	'- IMPORTANT: to actually run a command you must emit a tool call — printing',
+	'  a code block does NOT run anything. A bash tool call looks exactly like:',
+	'  <tool_call>{"name": "bash", "arguments": {"cmd": "echo hi > note.txt"}}</tool_call>',
+	'- Every bash call pauses for the learner to approve, edit, or deny it — that',
+	'  is part of the lesson. Keep commands small, safe, and readable.',
+	'- The sandbox is yours alone: an empty home directory, nothing to break.',
+	'',
+	'BOUNDARIES:',
+	'- You teach bash and the terminal. For unrelated topics, say the course does',
+	'  not cover them and steer back to the terminal.',
+	'- Never invent flags — only use what appears in the lesson excerpts or is',
+	'  standard, and say so explicitly when a command is risky (rm -rf, sudo).',
 	'- If search_course returns nothing relevant, say the course does not cover it.'
 ].join('\n');
 
@@ -55,20 +84,43 @@ export function createSearchCourseTool() {
 	});
 }
 
-export interface AgentToolOptions {
-	/**
-	 * TODO(phase 3): the gated bash tool. When a `gate` and a shell engine are
-	 * provided, register a `bash` tool whose execution awaits
-	 * `gate.propose(cmd)` and routes allow/edit into the sandboxed
-	 * shell-engine, deny into a synthesized refusal ToolMessage. The
-	 * deepagent's `interruptOn: ['bash']` machinery is already in place.
-	 */
-	gate?: Gate;
+/**
+ * The gated bash tool. Execution reaches this function only AFTER the human
+ * approved (or edited) the call — the deepagent's `interruptOn: ['bash']`
+ * pass gates it first, and a denial is answered with a synthesized
+ * ToolMessage without ever executing. Output (stdout/stderr) becomes the
+ * ToolMessage the model reads next round.
+ */
+export function createBashTool(bash: AgentBash) {
+	return tool(
+		async ({ cmd }: { cmd: string }) => {
+			const result = await bash.run(cmd);
+			if (!result.output) return result.error ? '(command failed with no output)' : '(no output)';
+			return result.error ? `[stderr]\n${result.output}` : result.output;
+		},
+		{
+			name: 'bash',
+			description:
+				'Run one bash command in your own sandboxed terminal, visible to the learner. ' +
+				'Use it to demonstrate concepts live ("show, then explain"). The learner approves ' +
+				'every command before it runs. Keep each call to a single small command.',
+			schema: z.object({
+				cmd: z.string().describe("The bash command to run, e.g. echo 'hi' > note.txt")
+			})
+		}
+	);
 }
 
-/** The tool roster for the course agent (architected for the bash seam above). */
+export interface AgentToolOptions {
+	/** The gated sandbox; when present the bash tool joins the roster. */
+	bash?: AgentBash;
+}
+
+/** The tool roster for the course agent. */
 export function buildAgentTools(opts: AgentToolOptions = {}): AnyTool[] {
-	// The gate stays unused until the bash tool lands (see AgentToolOptions).
-	void opts.gate;
-	return [createSearchCourseTool() as unknown as AnyTool];
+	const tools: AnyTool[] = [createSearchCourseTool() as unknown as AnyTool];
+	if (opts.bash) {
+		tools.push(createBashTool(opts.bash) as unknown as AnyTool);
+	}
+	return tools;
 }

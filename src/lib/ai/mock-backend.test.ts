@@ -138,3 +138,86 @@ describe('mock backend — tool mode', () => {
 		expect(events).toEqual([]);
 	});
 });
+
+describe('mock backend — teaching answers', () => {
+	it('the pipes question explains pipes and shows a runnable pipeline', async () => {
+		const events = await collect(new MockBackend(), [
+			{ role: 'user', content: 'How do pipes work?' }
+		]);
+		const text = streamedText(events);
+		// It teaches — never the old "the course covers this in…" meta-line.
+		expect(text).not.toMatch(/course covers this/i);
+		expect(text).toMatch(/pipe/i);
+		expect(text).toContain('input of the second');
+		// A fenced, runnable example.
+		expect(text).toContain('```bash\ncat server.log | grep ERROR | wc -l\n```');
+		// Citations still present (rendered as the Sources row).
+		expect(text).toMatch(/\[\[section-4-2\]\]/);
+	});
+
+	it('the chmod question leads with the explanation and a code block', async () => {
+		const events = await collect(new MockBackend(), [
+			{ role: 'user', content: 'what does chmod 755 mean' }
+		]);
+		const text = streamedText(events);
+		expect(text).not.toMatch(/course covers this/i);
+		expect(text).toMatch(/read.*write.*execute/i);
+		expect(text).toContain('```bash');
+		expect(text).toContain('[[section-5-2]]');
+	});
+});
+
+describe('mock backend — gated demo flow (the e2e harness)', () => {
+	function autoGate(decisions: ('allow' | 'deny')[]) {
+		const proposed: string[] = [];
+		const ran: string[] = [];
+		const bash = {
+			propose: async (cmd: string) => {
+				proposed.push(cmd);
+				const d = decisions[proposed.length - 1] ?? 'allow';
+				return { decision: d, cmd } as const;
+			},
+			run: async (cmd: string) => {
+				ran.push(cmd);
+				return { output: `ran:${cmd}` };
+			}
+		};
+		return { bash, proposed, ran };
+	}
+
+	it('demo: pipes proposes each command through the gate, runs approved ones', async () => {
+		const { bash, proposed, ran } = autoGate(['allow', 'allow']);
+		const events: AgentEvent[] = [];
+		await new MockBackend().generate([{ role: 'user', content: 'demo: pipes' }], {
+			bash,
+			onEvent: (e) => events.push(e)
+		});
+
+		expect(proposed).toEqual(["printf 'a\\nb\\na\\n' > letters.txt", 'sort letters.txt | uniq -c']);
+		expect(ran).toEqual(proposed);
+		const toolEvents = events.filter((e) => e.type === 'toolCall');
+		expect(toolEvents).toHaveLength(2);
+		const text = streamedText(events);
+		expect(text).toMatch(/sort|pipe/i);
+		expect(text).toContain('[[section-4-2]]');
+		expect(events.at(-1)).toEqual({ type: 'doneTurn' });
+	});
+
+	it('denied commands are skipped and acknowledged', async () => {
+		const { bash, ran } = autoGate(['deny', 'deny']);
+		const events: AgentEvent[] = [];
+		await new MockBackend().generate([{ role: 'user', content: 'demo: pipes' }], {
+			bash,
+			onEvent: (e) => events.push(e)
+		});
+		expect(ran).toEqual([]);
+		const text = streamedText(events);
+		expect(text).toMatch(/nothing was run/i);
+	});
+
+	it('without a sandbox the demo prompt falls back to a normal answer', async () => {
+		const events = await collect(new MockBackend(), [{ role: 'user', content: 'demo: pipes' }]);
+		const toolEvents = events.filter((e) => e.type === 'toolCall');
+		expect(toolEvents).toHaveLength(0);
+	});
+});
