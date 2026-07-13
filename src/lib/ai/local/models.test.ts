@@ -4,6 +4,7 @@ import {
 	canRunModel,
 	DEFAULT_MODEL_ID,
 	getModelSpec,
+	LEGACY_MODEL_IDS,
 	LOCAL_MODELS,
 	QUALITY_MODEL_ID,
 	selectBackend
@@ -15,10 +16,19 @@ const big = getModelSpec(QUALITY_MODEL_ID)!;
 describe('model catalog', () => {
 	it('ships the two expected models with honest sizes', () => {
 		expect(LOCAL_MODELS).toHaveLength(2);
-		expect(small.sizeMb).toBeLessThan(600);
+		expect(small.id).toBe('LiquidAI/LFM2.5-1.2B-Instruct-ONNX');
+		expect(small.sizeMb).toBe(760);
 		expect(small.requiresWebGpu).toBe(false);
+		expect(small.tagline).toContain('tool calling');
+		expect(small.license).toContain('LFM Open License');
 		expect(big.requiresWebGpu).toBe(true);
 		expect(big.recommendedRamGb).toBe(8);
+		expect(big.license).toBe('Apache 2.0');
+	});
+
+	it('migration: legacy 0.8B flags are purged, cache cleanup targets it', () => {
+		expect(LEGACY_MODEL_IDS).toContain('onnx-community/Qwen3.5-0.8B-Text-ONNX');
+		expect(getModelSpec(LEGACY_MODEL_IDS[0])).toBeNull();
 	});
 
 	it('gates the 2B behind WebGPU', () => {
@@ -28,7 +38,8 @@ describe('model catalog', () => {
 
 	it('gates by RAM when the browser reports it', () => {
 		expect(canRunModel(big, { webgpu: true, ramGb: 2 }).ok).toBe(false);
-		expect(canRunModel(small, { webgpu: false, ramGb: 2 }).ok).toBe(true);
+		expect(canRunModel(small, { webgpu: false, ramGb: 2 }).ok).toBe(false);
+		expect(canRunModel(small, { webgpu: false, ramGb: 4 }).ok).toBe(true);
 		// Unknown RAM → benefit of the doubt (the warm-up probe still decides).
 		expect(canRunModel(big, { webgpu: true, ramGb: null }).ok).toBe(true);
 	});

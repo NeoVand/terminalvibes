@@ -116,7 +116,7 @@ async function main() {
 		const modeRow = panel.locator('.agent-mode-row');
 		const btn = panel
 			.locator('.agent-model-tan')
-			.getByRole('button', { name: /Download · 450 MB/ });
+			.getByRole('button', { name: /Download · 760 MB/ });
 		const downloadStart = Date.now();
 		// Panel-open stage under the new state machine:
 		//  - first run          → intro banner + tiles in the chat area → click Download
@@ -156,9 +156,9 @@ async function main() {
 				const gearUse = page
 					.getByRole('dialog', { name: 'Agent settings' })
 					.locator('.agent-model-tan')
-					.getByRole('button', { name: /Use this model|Download · 450 MB/ });
+					.getByRole('button', { name: /Use this model|Download · 760 MB/ });
 				if (await gearUse.isVisible().catch(() => false)) {
-					log('activating the 0.8B from the gear settings');
+					log('activating the default model from the gear settings');
 					await gearUse.click();
 					await page
 						.getByRole('button', { name: 'Close settings' })
@@ -175,7 +175,7 @@ async function main() {
 			}
 		}
 		if (first === 'button') {
-			log('clicking the 0.8B tile download button (q4f16)');
+			log('clicking the LFM2.5 1.2B tile download button (q4f16)');
 			await btn.click();
 		} else if (first === 'warming') {
 			log('slim status line visible — auto-warm in progress, no clicks needed');
@@ -279,54 +279,89 @@ async function main() {
 		if (!answer) throw new Error('SMOKE FAIL: empty answer');
 		if (!device) throw new Error('SMOKE FAIL: no device recorded');
 
-		// ── The bash tool, live: ask for a demonstration, approve each gated
-		//    command programmatically, and verify the agent's terminal. ──
-		const task = "create a file called hello.txt containing hi, then show it's there";
-		log(`asking: "${task}"`);
-		await input.fill(task);
-		await input.press('Enter');
-
-		const approvals = [];
+		// ── The bash tool, live: THE metric behind the LFM swap. Run the
+		//    file-creation ask three times plus one natural ask, approving
+		//    every gated command, and report the tool-invocation rate. ──
 		const sendBtn = panel.getByRole('button', { name: 'Send question' });
 		const approvalCard = panel.locator('[data-testid="approval-card"]');
-		const taskStart = Date.now();
-		while (Date.now() - taskStart < 10 * 60_000) {
-			if (await approvalCard.isVisible().catch(() => false)) {
-				const cmd = (
-					await panel
-						.locator('[data-testid="approval-cmd"]')
-						.textContent()
-						.catch(() => '')
-				)?.trim();
-				log(`approval card: ${cmd} → ALLOW`);
-				approvals.push(cmd ?? '');
-				await approvalCard
-					.getByRole('button', { name: /Allow/ })
-					.click()
-					.catch(() => {});
+		const agentTerm = panel.locator('[data-testid="agent-terminal"]');
+		const bashTasks = [
+			"create a file called hello.txt containing hi, then show it's there",
+			"create a file called hello2.txt containing hi, then show it's there",
+			"create a file called hello3.txt containing hi, then show it's there",
+			'show me how pipes work in your terminal'
+		];
+		const runs = [];
+		for (const task of bashTasks) {
+			log(`asking: "${task}"`);
+			await sendBtn.waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
+			// Fresh conversation per run — a fair per-ask invocation measurement.
+			await page.evaluate(() => window.__tvAgentClear?.());
+			await page.waitForTimeout(300);
+			await input.fill(task);
+			await input.press('Enter');
+
+			const approvals = [];
+			const taskStart = Date.now();
+			while (Date.now() - taskStart < 6 * 60_000) {
+				if (await approvalCard.isVisible().catch(() => false)) {
+					const cmd = (
+						await panel
+							.locator('[data-testid="approval-cmd"]')
+							.textContent()
+							.catch(() => '')
+					)?.trim();
+					log(`  approval card: ${cmd} → ALLOW`);
+					approvals.push(cmd ?? '');
+					await approvalCard
+						.getByRole('button', { name: /Allow/ })
+						.click()
+						.catch(() => {});
+					await page.waitForTimeout(400);
+					continue;
+				}
+				if (await sendBtn.isVisible().catch(() => false)) break;
 				await page.waitForTimeout(400);
-				continue;
 			}
-			if (await sendBtn.isVisible().catch(() => false)) break;
-			await page.waitForTimeout(400);
+			const termText = (await agentTerm.textContent().catch(() => '')) ?? '';
+			const answer =
+				(await panel.locator('[data-role="assistant"]').last().textContent())?.trim() ?? '';
+			runs.push({
+				task,
+				secs: ((Date.now() - taskStart) / 1000).toFixed(1),
+				approvals,
+				invoked: approvals.length > 0,
+				termText,
+				answer
+			});
+			log(
+				`  → ${approvals.length} bash call(s) in ${((Date.now() - taskStart) / 1000).toFixed(0)}s`
+			);
 		}
 
-		const agentTerm = panel.locator('[data-testid="agent-terminal"]');
-		const termVisible = await agentTerm.isVisible().catch(() => false);
-		const termText = termVisible ? ((await agentTerm.textContent()) ?? '') : '';
-		const taskAnswer =
-			(await panel.locator('[data-role="assistant"]').last().textContent())?.trim() ?? '';
+		const invoked = runs.filter((r) => r.invoked).length;
+		const fileRuns = runs.slice(0, 3);
+		const fileInvoked = fileRuns.filter((r) => r.invoked).length;
+		const lastTerm = runs[runs.length - 1].termText;
 
 		log('──────── BASH TOOL RESULT ────────');
-		log(`turn time:        ${((Date.now() - taskStart) / 1000).toFixed(1)}s`);
-		log(`bash approvals:   ${approvals.length} → ${JSON.stringify(approvals)}`);
-		log(`agent terminal:   ${termVisible ? 'visible' : 'ABSENT'}`);
-		if (termText) log(`terminal transcript: ${termText.trim().replace(/\n/g, ' ⏎ ')}`);
-		log(`answer: ${taskAnswer}`);
-		if (approvals.length > 0 && /hello\.txt/.test(termText)) {
-			log('BASH TOOL: PASS — the model demonstrated and hello.txt is in its terminal');
+		log(
+			`tool-invocation rate: ${invoked}/${runs.length} overall · ${fileInvoked}/3 on the file task`
+		);
+		for (const r of runs) {
+			log(
+				`  "${r.task.slice(0, 44)}…" → ${r.approvals.length} call(s) [${r.approvals.join(' ; ').slice(0, 120)}] in ${r.secs}s`
+			);
+		}
+		log(`agent terminal: ${lastTerm ? 'visible' : 'ABSENT'}`);
+		if (lastTerm) log(`terminal transcript: ${lastTerm.trim().replace(/\n/g, ' ⏎ ')}`);
+		log(`last answer: ${runs[runs.length - 1].answer.slice(0, 400)}`);
+		if (fileInvoked === 3 && /hello\.txt/.test(lastTerm)) {
+			log('BASH TOOL: PASS — 3/3 invocation on the file task, hello.txt in the terminal');
+		} else if (invoked > 0) {
+			log(`BASH TOOL: PARTIAL — ${fileInvoked}/3 file-task invocation`);
 		} else {
-			log('BASH TOOL: model did not demonstrate via bash this run — noted for the report');
+			log('BASH TOOL: model did not demonstrate via bash — noted for the report');
 		}
 		log('──────────────────────────────────');
 

@@ -72,8 +72,8 @@ test.describe('Agent panel', () => {
 		const smallCard = panel.locator('.agent-model-tan');
 		const bigCard = panel.locator('.agent-model-amber');
 		await expect(smallCard).toBeVisible();
-		await expect(smallCard).toContainText('Qwen3.5 0.8B');
-		await expect(smallCard).toContainText('~450 MB');
+		await expect(smallCard).toContainText('LFM2.5 1.2B');
+		await expect(smallCard).toContainText('~760 MB');
 		await expect(bigCard).toBeVisible();
 		await expect(bigCard).toContainText('Qwen3.5 2B');
 		await expect(bigCard).toContainText('1.3 GB');
@@ -81,7 +81,7 @@ test.describe('Agent panel', () => {
 		// Each card carries its OWN download button with the size on it —
 		// download gates activation, and only an explicit click starts it
 		// (which CI must never do).
-		const smallDl = smallCard.getByRole('button', { name: /Download · 450 MB/ });
+		const smallDl = smallCard.getByRole('button', { name: /Download · 760 MB/ });
 		await expect(smallDl).toBeVisible();
 		await expect(bigCard.getByRole('button', { name: /Download · 1\.3 GB/ })).toBeVisible();
 		await expect(panel.getByText('runs entirely in your browser')).toBeVisible();
@@ -101,10 +101,10 @@ test.describe('Agent panel', () => {
 		const settings = page.getByRole('dialog', { name: 'Agent settings' });
 		await expect(settings).toBeVisible();
 		await expect(settings.getByText('Model')).toBeVisible();
-		await expect(settings.locator('.agent-model-tan')).toContainText('Qwen3.5 0.8B');
+		await expect(settings.locator('.agent-model-tan')).toContainText('LFM2.5 1.2B');
 		await expect(settings.locator('.agent-model-amber')).toContainText('Qwen3.5 2B');
 		await expect(
-			settings.locator('.agent-model-tan').getByRole('button', { name: /Download · 450 MB/ })
+			settings.locator('.agent-model-tan').getByRole('button', { name: /Download · 760 MB/ })
 		).toBeVisible();
 
 		await page.getByRole('button', { name: 'Close settings' }).click();
@@ -186,7 +186,7 @@ test.describe('Agent panel', () => {
 		await page.evaluate(() =>
 			localStorage.setItem(
 				'tv-agent-downloaded',
-				JSON.stringify(['onnx-community/Qwen3.5-0.8B-Text-ONNX'])
+				JSON.stringify(['LiquidAI/LFM2.5-1.2B-Instruct-ONNX'])
 			)
 		);
 		await page.reload();

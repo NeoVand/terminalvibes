@@ -116,7 +116,7 @@ try {
 		await page
 			.getByRole('dialog', { name: 'Agent settings' })
 			.locator('.agent-model-tan')
-			.getByRole('button', { name: /Use this model|Download · 450 MB/ })
+			.getByRole('button', { name: /Use this model|Download · 760 MB/ })
 			.click({ timeout: 10_000 })
 			.catch((e) => log('gear activate failed:', String(e).slice(0, 120)));
 	}

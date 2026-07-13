@@ -61,3 +61,100 @@ describe('parseToolCalls — Qwen3.5 XML format (observed in the smoke test)', (
 		expect(tc?.args).toEqual({ query: 'chmod 755' });
 	});
 });
+
+describe('parseToolCalls — LFM2.5 Pythonic format', () => {
+	it('parses a single call between the marker tokens', () => {
+		const { content, toolCalls } = parseToolCalls(
+			'<|tool_call_start|>[bash(cmd="ls -la")]<|tool_call_end|>'
+		);
+		expect(content).toBe('');
+		expect(toolCalls).toHaveLength(1);
+		expect(toolCalls[0].name).toBe('bash');
+		expect(toolCalls[0].args).toEqual({ cmd: 'ls -la' });
+	});
+
+	it('handles escapes and nested quotes in double-quoted args', () => {
+		const { toolCalls } = parseToolCalls(
+			'<|tool_call_start|>[bash(cmd="printf \'a\\nb\\na\\n\' > f.txt")]<|tool_call_end|>'
+		);
+		expect(toolCalls).toHaveLength(1);
+		expect(toolCalls[0].args.cmd).toBe("printf 'a\nb\na\n' > f.txt");
+	});
+
+	it('parses multiple calls in one list', () => {
+		const { toolCalls } = parseToolCalls(
+			'<|tool_call_start|>[bash(cmd="mkdir demo"), done(summary="made a folder")]<|tool_call_end|>'
+		);
+		expect(toolCalls.map((c) => c.name)).toEqual(['bash', 'done']);
+		expect(toolCalls[0].args).toEqual({ cmd: 'mkdir demo' });
+		expect(toolCalls[1].args).toEqual({ summary: 'made a folder' });
+	});
+
+	it('tolerates a single bare call without list brackets', () => {
+		const { toolCalls } = parseToolCalls(
+			'<|tool_call_start|>search_course(query="chmod 755")<|tool_call_end|>'
+		);
+		expect(toolCalls).toHaveLength(1);
+		expect(toolCalls[0].name).toBe('search_course');
+		expect(toolCalls[0].args).toEqual({ query: 'chmod 755' });
+	});
+
+	it('keeps prose before the call as content', () => {
+		const { content, toolCalls } = parseToolCalls(
+			'Let me demonstrate.\n<|tool_call_start|>[bash(cmd="echo hi")]<|tool_call_end|>'
+		);
+		expect(content).toBe('Let me demonstrate.');
+		expect(toolCalls).toHaveLength(1);
+	});
+
+	it('salvages a call truncated mid-generation', () => {
+		const { toolCalls } = parseToolCalls('<|tool_call_start|>[bash(cmd="echo unfinished');
+		expect(toolCalls).toHaveLength(1);
+		expect(toolCalls[0].name).toBe('bash');
+		expect(String(toolCalls[0].args.cmd)).toContain('echo unfinished');
+	});
+
+	it('accepts a bare Pythonic list when decoding stripped the special tokens', () => {
+		const { toolCalls } = parseToolCalls('[bash(cmd="cat hello.txt")]');
+		expect(toolCalls).toHaveLength(1);
+		expect(toolCalls[0].args).toEqual({ cmd: 'cat hello.txt' });
+	});
+
+	it('maps a lone positional argument onto the known parameter', () => {
+		const { toolCalls } = parseToolCalls('<|tool_call_start|>[bash("pwd")]<|tool_call_end|>');
+		expect(toolCalls[0].args).toEqual({ cmd: 'pwd' });
+	});
+
+	it('coerces Python literals (True/False/None/numbers)', () => {
+		const { toolCalls } = parseToolCalls(
+			'<|tool_call_start|>[demo_tool(flag=True, count=3, nothing=None)]<|tool_call_end|>'
+		);
+		expect(toolCalls[0].args).toEqual({ flag: true, count: 3, nothing: null });
+	});
+
+	it('plain prose with no call passes through untouched', () => {
+		const { content, toolCalls } = parseToolCalls(
+			'Pipes connect commands (like `a | b`) — nothing to run here.'
+		);
+		expect(toolCalls).toEqual([]);
+		expect(content).toBe('Pipes connect commands (like `a | b`) — nothing to run here.');
+	});
+
+	it('prose containing parentheses is not mistaken for a bare call', () => {
+		const { toolCalls } = parseToolCalls('Use chmod (change mode) to fix permissions.');
+		expect(toolCalls).toEqual([]);
+	});
+});
+
+describe('parseToolCalls — LFM bare-branch roster guard', () => {
+	it('unknown names in bare (token-less) output are NOT parsed as calls', () => {
+		const { toolCalls } = parseToolCalls('see wc(1) and man(1) for details');
+		expect(toolCalls).toEqual([]);
+	});
+
+	it('known roster names in bare output still parse', () => {
+		const { toolCalls } = parseToolCalls('done(summary="all set")');
+		expect(toolCalls).toHaveLength(1);
+		expect(toolCalls[0].name).toBe('done');
+	});
+});

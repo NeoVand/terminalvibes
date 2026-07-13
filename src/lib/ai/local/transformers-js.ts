@@ -350,6 +350,10 @@ export function parseToolCalls(raw: string): { content: string; toolCalls: ToolC
 	if (fake >= 0) text = text.slice(0, fake);
 	const toolCalls: ToolCall[] = [];
 
+	// ── LFM branch: Pythonic call list between <|tool_call_start|> tokens ──
+	const lfm = parseLfmToolCalls(text);
+	if (lfm.toolCalls.length > 0) return lfm;
+
 	const re = /<tool_call>\s*([\s\S]*?)\s*<\/tool_call>/g;
 	let m: RegExpExecArray | null;
 	while ((m = re.exec(text)) !== null) {
@@ -381,6 +385,151 @@ export function parseToolCalls(raw: string): { content: string; toolCalls: ToolC
 	}
 
 	return { content: text, toolCalls: [] };
+}
+
+/* ── LFM2/LFM2.5 Pythonic tool calls ─────────────────────────────────────
+ * Adapted from LiquidAI's official LFM2-WebGPU Space (src/utils.ts —
+ * `parseArguments` / `extractPythonicCalls` / `parsePythonicCalls`), with
+ * Python-literal coercion and truncation salvage added. LFM emits e.g.
+ *   <|tool_call_start|>[bash(cmd="printf 'a\n' > f.txt")]<|tool_call_end|>
+ * — possibly multiple calls in one list, possibly a single bare call, and
+ * (when special tokens are stripped by decoding) possibly with no marker
+ * tokens at all, leaving just the bare Pythonic list as the whole output.
+ */
+
+/** Split a Pythonic argument string on top-level commas (quote/paren aware). */
+function splitPyArguments(argsString: string): string[] {
+	const args: string[] = [];
+	let current = '';
+	let inQuotes = false;
+	let quoteChar = '';
+	let depth = 0;
+	for (let i = 0; i < argsString.length; i++) {
+		const char = argsString[i];
+		const prev = argsString[i - 1];
+		if (!inQuotes && (char === '"' || char === "'")) {
+			inQuotes = true;
+			quoteChar = char;
+			current += char;
+		} else if (inQuotes && char === quoteChar && prev !== '\\') {
+			inQuotes = false;
+			quoteChar = '';
+			current += char;
+		} else if (!inQuotes && (char === '(' || char === '[' || char === '{')) {
+			depth++;
+			current += char;
+		} else if (!inQuotes && (char === ')' || char === ']' || char === '}')) {
+			depth--;
+			current += char;
+		} else if (!inQuotes && char === ',' && depth === 0) {
+			args.push(current.trim());
+			current = '';
+		} else {
+			current += char;
+		}
+	}
+	if (current.trim()) args.push(current.trim());
+	return args;
+}
+
+/** Coerce a Pythonic literal: JSON first, then quoted-string unescape, then keywords. */
+function pyValue(rawValue: string): unknown {
+	const t = rawValue.trim();
+	try {
+		return JSON.parse(t);
+	} catch {
+		/* not JSON */
+	}
+	if (
+		t.length >= 2 &&
+		((t.startsWith("'") && t.endsWith("'")) || (t.startsWith('"') && t.endsWith('"')))
+	) {
+		return t
+			.slice(1, -1)
+			.replace(/\\(['"\\nt])/g, (_, c: string) => (c === 'n' ? '\n' : c === 't' ? '\t' : c));
+	}
+	if (t === 'True') return true;
+	if (t === 'False') return false;
+	if (t === 'None') return null;
+	return t;
+}
+
+/** One `name(arg=..., ...)` call → ToolCall, or null. */
+function coercePythonicCall(command: string): ToolCall | null {
+	const callMatch = command.trim().match(/^([a-zA-Z0-9_]+)\((([\s\S])*)\)$/);
+	if (!callMatch) return null;
+	const name = callMatch[1];
+	const args: Record<string, unknown> = {};
+	const positional: unknown[] = [];
+	for (const arg of splitPyArguments(callMatch[2])) {
+		const kwarg = arg.match(/^([a-zA-Z0-9_]+)\s*=\s*([\s\S]*)$/);
+		if (kwarg) {
+			args[kwarg[1]] = pyValue(kwarg[2]);
+		} else if (arg) {
+			positional.push(pyValue(arg));
+		}
+	}
+	// Our tools are keyword-first; map a lone positional onto the tool's
+	// single parameter so `bash("ls")` still works.
+	if (positional.length === 1 && Object.keys(args).length === 0) {
+		const paramFor: Record<string, string> = {
+			bash: 'cmd',
+			search_course: 'query',
+			done: 'summary'
+		};
+		args[paramFor[name] ?? 'input'] = positional[0];
+	}
+	return { name, args, id: toolCallId(), type: 'tool_call' };
+}
+
+/** Salvage a call truncated mid-generation: close open quote/paren and retry. */
+function salvagePythonicCall(fragment: string): ToolCall | null {
+	const t = fragment.trim().replace(/[\])]*$/, '');
+	if (!/^[a-zA-Z0-9_]+\(/.test(t)) return null;
+	const quotes = (t.match(/(?<!\\)"/g) ?? []).length;
+	const closed = t + (quotes % 2 === 1 ? '"' : '') + ')';
+	return coercePythonicCall(closed);
+}
+
+/** The LFM branch of parseToolCalls. */
+export function parseLfmToolCalls(text: string): { content: string; toolCalls: ToolCall[] } {
+	const toolCalls: ToolCall[] = [];
+	let content = text;
+
+	const tokenRe = /<\|tool_call_start\|>([\s\S]*?)(?:<\|tool_call_end\|>|$)/g;
+	const blocks: string[] = [];
+	let bareBranch = false;
+	if (text.includes('<|tool_call_start|>')) {
+		let m: RegExpExecArray | null;
+		while ((m = tokenRe.exec(text)) !== null) blocks.push(m[1]);
+		content = text.slice(0, text.indexOf('<|tool_call_start|>')).trim();
+	} else {
+		// Special tokens may be stripped by decoding: accept output whose
+		// trailing text is a bare Pythonic call list — but ONLY for names in
+		// our actual tool roster, so prose like "see wc(1)" can't misparse.
+		const bare = text.trim().match(/^([\s\S]*?)(\[?\s*(?:bash|search_course|done)\([\s\S]*)$/);
+		if (bare) {
+			bareBranch = true;
+			blocks.push(bare[2]);
+			content = bare[1].trim();
+		}
+	}
+
+	for (const block of blocks) {
+		let inner = block.trim();
+		if (inner.startsWith('[')) {
+			inner = inner.endsWith(']') ? inner.slice(1, -1) : inner.slice(1);
+		}
+		for (const callStr of splitPyArguments(inner)) {
+			const tc = coercePythonicCall(callStr) ?? salvagePythonicCall(callStr);
+			if (tc && (!bareBranch || ['bash', 'search_course', 'done'].includes(tc.name))) {
+				toolCalls.push(tc);
+			}
+		}
+	}
+
+	if (toolCalls.length === 0) return { content: text, toolCalls: [] };
+	return { content, toolCalls };
 }
 
 /**

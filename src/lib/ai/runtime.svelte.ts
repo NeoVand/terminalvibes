@@ -9,11 +9,13 @@ import { createGate, type Gate, type GateDecision } from './gate';
 import { createBashBridge, type BashBridge, type TerminalLine } from './bash-bridge';
 import type { AgentBackend, AgentBash, ChatMessage, RuntimeStatus } from './types';
 import {
+	deleteLegacyModelCaches,
 	detectCaps,
 	downloadedModels,
 	forgetSelectedModel,
 	getModelSpec,
 	markDownloaded,
+	purgeLegacyFlags,
 	rememberSelectedModel,
 	selectedModel,
 	type DeviceCaps
@@ -63,6 +65,10 @@ export class AgentRuntime {
 		this.#gate.subscribe((pending) => {
 			this.pendingCmd = pending;
 		});
+		// Breadcrumb for the smoke test: reset the conversation between runs.
+		if (typeof window !== 'undefined') {
+			(globalThis as { __tvAgentClear?: () => void }).__tvAgentClear = () => this.clear();
+		}
 	}
 
 	get backend(): AgentBackend {
@@ -130,6 +136,7 @@ export class AgentRuntime {
 		if (this.#initDone) return;
 		this.#initDone = true;
 		this.caps = detectCaps();
+		purgeLegacyFlags();
 		this.downloaded = downloadedModels();
 		const remembered = selectedModel();
 		if (remembered && downloadedModels().includes(remembered) && getModelSpec(remembered)) {
@@ -188,6 +195,9 @@ export class AgentRuntime {
 			this.backendName = 'local';
 			this.localPhase = 'ready';
 			if (this.status === 'idle') this.status = 'ready';
+			// Fire-and-forget: retired models' weights leave the cache now that
+			// a current model is in place.
+			void deleteLegacyModelCaches();
 		} catch (e) {
 			if (e instanceof Error && e.message === 'activation cancelled') {
 				// User pressed Cancel: tear down whatever was mid-flight and go

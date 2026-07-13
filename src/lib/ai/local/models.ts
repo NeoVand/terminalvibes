@@ -7,7 +7,7 @@
 
 export interface LocalModelSpec {
 	id: string;
-	/** Short human label ("Qwen3.5 0.8B"). */
+	/** Short human label ("LFM2.5 1.2B"). */
 	label: string;
 	dtype: 'q4f16';
 	/** Approximate download size of the q4f16 weights, in MB. */
@@ -15,33 +15,47 @@ export interface LocalModelSpec {
 	/** True when wasm is too slow / memory-hungry to be worth offering. */
 	requiresWebGpu: boolean;
 	recommendedRamGb: number;
+	/** One-line card copy after the size. */
+	tagline: string;
+	/** Weight license shown in the gear settings. */
+	license: string;
 }
 
-export const DEFAULT_MODEL_ID = 'onnx-community/Qwen3.5-0.8B-Text-ONNX';
+export const DEFAULT_MODEL_ID = 'LiquidAI/LFM2.5-1.2B-Instruct-ONNX';
 export const QUALITY_MODEL_ID = 'onnx-community/Qwen3.5-2B-ONNX';
+
+/** Models we shipped before and no longer offer — their downloaded/selected
+ * flags are purged on init and their cache entries deleted after the user
+ * downloads a current model. */
+export const LEGACY_MODEL_IDS = ['onnx-community/Qwen3.5-0.8B-Text-ONNX'];
 
 export const LOCAL_MODELS: LocalModelSpec[] = [
 	{
-		// Text-only repo: single q4f16 decoder (~469 MB), and its tokenizer chat
-		// template ships the <tools> block (verified against the live repo), so
-		// Hermes-style tool calling works out of the box.
+		// Single q4f16 decoder (760 MB, verified 2026-02 revision). Liquid's
+		// LFM2.5 line is purpose-trained for reliable tool-call invocation
+		// (Pythonic calls between <|tool_call_start|> tokens; the chat template
+		// injects tool JSON into the system prompt — verified live).
 		id: DEFAULT_MODEL_ID,
-		label: 'Qwen3.5 0.8B',
+		label: 'LFM2.5 1.2B',
 		dtype: 'q4f16',
-		sizeMb: 450,
+		sizeMb: 760,
 		requiresWebGpu: false,
-		recommendedRamGb: 4
+		recommendedRamGb: 6,
+		tagline: 'built for tool calling',
+		license: 'LFM Open License v1.0'
 	},
 	{
 		// Multimodal repo (decoder + embed_tokens + vision_encoder). The
-		// text-generation pipeline should skip the vision files; see the smoke
-		// test's prototype check for what actually downloads.
+		// text-generation pipeline skips the vision files (verified against
+		// the transformers.js source).
 		id: QUALITY_MODEL_ID,
 		label: 'Qwen3.5 2B',
 		dtype: 'q4f16',
 		sizeMb: 1330,
 		requiresWebGpu: true,
-		recommendedRamGb: 8
+		recommendedRamGb: 8,
+		tagline: 'better answers · needs WebGPU',
+		license: 'Apache 2.0'
 	}
 ];
 
@@ -151,4 +165,38 @@ export function rememberSelectedModel(id: string) {
 export function forgetSelectedModel() {
 	if (typeof localStorage === 'undefined') return;
 	localStorage.removeItem(SELECTED_KEY);
+}
+
+/**
+ * Migration: drop downloaded/selected flags for models we no longer ship, so
+ * a stale 0.8B flag can't suppress the first-run intro or claim a download
+ * that the new default doesn't have.
+ */
+export function purgeLegacyFlags() {
+	if (typeof localStorage === 'undefined') return;
+	const list = downloadedModels().filter((id) => !LEGACY_MODEL_IDS.includes(id));
+	localStorage.setItem(DOWNLOADED_KEY, JSON.stringify(list));
+	const selected = selectedModel();
+	if (selected && LEGACY_MODEL_IDS.includes(selected)) {
+		forgetSelectedModel();
+	}
+}
+
+/**
+ * Best-effort cleanup of retired models' weights from transformers.js's
+ * Cache Storage — called after the user downloads a current model, so the
+ * old ~450 MB never lingers alongside the new weights.
+ */
+export async function deleteLegacyModelCaches(): Promise<void> {
+	if (typeof caches === 'undefined') return;
+	try {
+		const cache = await caches.open('transformers-cache');
+		for (const request of await cache.keys()) {
+			if (LEGACY_MODEL_IDS.some((id) => request.url.includes(id))) {
+				await cache.delete(request);
+			}
+		}
+	} catch {
+		// Cache Storage unavailable (private mode, etc.) — nothing to clean.
+	}
 }

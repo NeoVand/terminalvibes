@@ -214,7 +214,7 @@
 	<div class="agent-model-card agent-model-{tint}" class:active class:dimmed={!gate.ok}>
 		<span class="agent-model-name">{spec.label}</span>
 		<span class="agent-model-meta">
-			~{sizeLabel} · {spec.requiresWebGpu ? 'better answers · needs WebGPU' : 'runs anywhere'}
+			~{sizeLabel} · {spec.tagline}
 		</span>
 		<div class="agent-model-action">
 			{#if busy}
@@ -344,6 +344,9 @@
 					<div class="agent-setting">
 						<p class="agent-setting-label">Model</p>
 						{@render modelPicker()}
+						<p class="agent-card-note">
+							{defaultSpec.label}: {defaultSpec.license} · {qualitySpec.label}: {qualitySpec.license}
+						</p>
 					</div>
 					<div class="agent-setting">
 						<p class="agent-setting-label">Mode</p>
