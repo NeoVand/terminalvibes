@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Cog, Sprout, Wrench } from 'lucide-svelte';
+	import { Cog, Sprout, Wrench, AppWindow, Cable, Shell, CookingPot, Zap } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -93,7 +93,11 @@
 
 			<div class="mb-4 grid gap-3 sm:grid-cols-3">
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<AppWindow size={14} style="color: var(--color-primary);" />
 						Terminal emulator
 					</p>
 					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
@@ -104,7 +108,11 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Cable size={14} style="color: var(--color-primary);" />
 						The PTY pair
 					</p>
 					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
@@ -115,7 +123,11 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Shell size={14} style="color: var(--color-primary);" />
 						The shell
 					</p>
 					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
@@ -149,7 +161,11 @@
 
 			<div class="mb-4 grid gap-3 sm:grid-cols-2">
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<CookingPot size={14} style="color: var(--color-primary);" />
 						Cooked mode (canonical)
 					</p>
 					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
@@ -159,7 +175,13 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">Raw mode</p>
+					<p
+						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Zap size={14} style="color: var(--color-primary);" />
+						Raw mode
+					</p>
 					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 						Every keystroke is delivered immediately, unedited. Programs that react key by key —
 						<code

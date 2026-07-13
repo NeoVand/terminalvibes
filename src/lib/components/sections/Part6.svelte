@@ -1,5 +1,19 @@
 <script lang="ts">
-	import { Bot, ShieldAlert, FileCode2, Braces } from 'lucide-svelte';
+	import {
+		Bot,
+		ShieldAlert,
+		FileCode2,
+		Braces,
+		Trash2,
+		CloudDownload,
+		Eraser,
+		LockOpen,
+		DollarSign,
+		Quote,
+		CircleCheck,
+		CircleX,
+		CircleEqual
+	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -228,11 +242,18 @@ rm -rf build/*`}
 
 			<div class="mb-6 space-y-3">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">rm -rf</code
-						> — recursive, forced deletion
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Trash2 size={14} style="color: var(--color-caution);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);"
+								>rm -rf</code
+							> — recursive, forced deletion</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						No trash can, no confirmation, no undo (Part 3). The danger scales with the target:
@@ -260,11 +281,17 @@ rm -rf build/*`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
-						> — anything
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<ShieldAlert size={14} style="color: var(--color-caution);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
+							> — anything</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<code
@@ -277,12 +304,18 @@ rm -rf build/*`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>curl ... | bash</code
-						> — run code straight off the internet
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<CloudDownload size={14} style="color: var(--color-caution);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);"
+								>curl ... | bash</code
+							> — run code straight off the internet</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						This downloads a script and executes it in one motion, sight unseen. Honesty requires a
@@ -305,11 +338,17 @@ rm -rf build/*`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
-						> — onto a file you care about
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Eraser size={14} style="color: var(--color-caution);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);">&gt;</code
+							> — onto a file you care about</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						From Part 4: <code
@@ -336,12 +375,18 @@ rm -rf build/*`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>chmod 777</code
-						> — everyone may do everything
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<LockOpen size={14} style="color: var(--color-caution);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);"
+								>chmod 777</code
+							> — everyone may do everything</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						The "make the error go away" hammer (Part 5). It works by giving every user on the
@@ -409,10 +454,25 @@ rm -rf build/*`}
 				Try It: Audit the Agent
 			</h4>
 			<PlaygroundNote>
-				An agent left three proposed commands in <code>agent-plan.txt</code> — two are safe, one
-				would wipe files you care about. Read the plan with <code>cat</code>, audit each command
-				(rehearse with <code>echo</code> and <code>ls</code>!), run the safe ones, and don't run the
-				trap.
+				An agent left three proposed commands in <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);"
+					>agent-plan.txt</code
+				>
+				— two are safe, one would wipe files you care about. Read the plan with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
+				>, audit each command (rehearse with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo</code
+				>
+				and
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
+				>!), run the safe ones, and don't run the trap.
 			</PlaygroundNote>
 			<LessonActivity title="Audit the Agent" scenarioId="audit-the-agent" id="audit-the-agent" />
 
@@ -471,11 +531,17 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 
 			<div class="mb-6 space-y-3">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						The shebang: <code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>#!/usr/bin/env bash</code
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<FileCode2 size={14} style="color: var(--color-primary);" />
+						<span
+							>The shebang: <code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);"
+								>#!/usr/bin/env bash</code
+							></span
 						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
@@ -499,7 +565,11 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<DollarSign size={14} style="color: var(--color-primary);" />
 						Variables
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
@@ -523,7 +593,11 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Quote size={14} style="color: var(--color-primary);" />
 						Quoted paths
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
@@ -624,10 +698,35 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 				Try It: Automate the Backup
 			</h4>
 			<PlaygroundNote>
-				Build <code>backup.sh</code> right in the sandbox — write it line by line with
-				<code>echo &gt;&gt;</code> (this playground has no full-screen editor), then
-				<code>chmod +x</code> it and run it with <code>./backup.sh</code>. Check your work with
-				<code>cat</code> and <code>ls backups</code>.
+				Build <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">backup.sh</code
+				>
+				right in the sandbox — write it line by line with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);"
+					>echo &gt;&gt;</code
+				>
+				(this playground has no full-screen editor), then
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod +x</code
+				>
+				it and run it with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">./backup.sh</code
+				>. Check your work with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
+				>
+				and
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls backups</code
+				>.
 			</PlaygroundNote>
 			<LessonActivity title="Automate the Backup" scenarioId="first-script" id="first-script" />
 
@@ -695,12 +794,18 @@ echo $?
 
 			<div class="mb-6 space-y-3">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);"
-							>a &amp;&amp; b</code
-						> — "and then" (only on success)
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<CircleCheck size={14} style="color: var(--color-tip);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);"
+								>a &amp;&amp; b</code
+							> — "and then" (only on success)</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Run <code
@@ -715,11 +820,18 @@ echo $?
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">a || b</code
-						> — "or else" (only on failure)
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<CircleX size={14} style="color: var(--color-warning);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);"
+								>a || b</code
+							> — "or else" (only on failure)</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Run <code
@@ -734,11 +846,17 @@ echo $?
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">a ; b</code
-						> — "and regardless"
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<CircleEqual size={14} style="color: var(--color-text-muted);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);">a ; b</code
+							> — "and regardless"</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Run <code
@@ -849,9 +967,19 @@ cd /tmp/build && rm -rf *
 				Try It: Deploy Only on Green
 			</h4>
 			<PlaygroundNote>
-				The tests here fail on the first run. Use <code>$?</code>, <code>&amp;&amp;</code>, and
-				<code>||</code> to build a one-liner that deploys only when the tests pass — then fix the failing
-				check and watch the same line take the other branch.
+				The tests here fail on the first run. Use <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">$?</code
+				>,
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">&amp;&amp;</code
+				>, and
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">||</code
+				> to build a one-liner that deploys only when the tests pass — then fix the failing check and
+				watch the same line take the other branch.
 			</PlaygroundNote>
 			<LessonActivity title="Deploy Only on Green" scenarioId="exit-codes" id="exit-codes" />
 

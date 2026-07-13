@@ -37,7 +37,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Say hello to the machine',
 		description:
 			'A fresh terminal, a blinking cursor, and nothing to break — commands only act when you press Enter. Ask the machine who you are, where you are, and what time it is, then make it say something back.',
-		hint: 'Type a command and press Enter. whoami prints your username, pwd prints where you are, date prints the time, and echo repeats whatever you hand it. Press the up arrow to recall what you typed before.',
+		hint: 'Type a command and press Enter. `whoami` prints your username, `pwd` prints where you are, `date` prints the time, and `echo` repeats whatever you hand it. Press the up arrow to recall what you typed before.',
 		suggestedCommands: ['whoami', 'pwd', 'date', 'echo "hello, terminal"', 'echo $HOME'],
 		seed: {
 			files: {
@@ -57,7 +57,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Find the lost API key',
 		description:
 			'Your AI assistant swears it saved the chatbot\'s API key "somewhere under projects/" — then lost the path. Walk down the directory tree, use ls -a to reveal what plain ls hides, and read the key out loud.',
-		hint: 'ls shows what is here, cd <dir> steps into a directory, cd .. steps back out. Directories starting with a dot are hidden — ls -a reveals them. When you find the key file, cat it.',
+		hint: '`ls` shows what is here, `cd <dir>` steps into a directory, `cd ..` steps back out. Directories starting with a dot are hidden — `ls -a` reveals them. When you find the key file, `cat` it.',
 		suggestedCommands: [
 			'pwd',
 			'ls',
@@ -94,7 +94,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Build your project skeleton',
 		description:
 			'You are starting zine-bot, a bot that assembles weekend zines. Before writing a line of code (or letting an AI write it), lay out the skeleton: a project folder with src, tests and docs, plus the first empty files.',
-		hint: 'mkdir -p creates a directory and any missing parents in one go. Once inside the project, plain mkdir makes the subfolders and touch creates empty files. ls confirms your work after each step.',
+		hint: '`mkdir -p` creates a directory and any missing parents in one go. Once inside the project, plain `mkdir` makes the subfolders and `touch` creates empty files. `ls` confirms your work after each step.',
 		suggestedCommands: [
 			'mkdir -p projects/zine-bot',
 			'cd projects/zine-bot',
@@ -126,7 +126,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Clean the downloads mess',
 		description:
 			'Months of clicking "Save" left your downloads folder a junk drawer: photos, invoices, and a stale installer all in one pile. Sort the keepers into ~/pictures and ~/documents, then delete the junk — remember, rm has no trash can.',
-		hint: 'Look before you touch: ls first. mkdir -p can create both destination folders at once, mv accepts several files with the destination last, and rm deletes forever — so save it for the installer you truly do not want.',
+		hint: 'Look before you touch: `ls` first. `mkdir -p` can create both destination folders at once, `mv` accepts several files with the destination last, and `rm` deletes forever — so save it for the installer you truly do not want.',
 		suggestedCommands: [
 			'cd downloads',
 			'ls',
@@ -159,7 +159,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Select exactly the right files',
 		description:
 			'The staging folder mixes rotated logs, markdown drafts, a finished article and leftover .tmp files. Use wildcards to grab exactly the right group each time — and echo the glob first, so you see what a pattern matches before rm or mv acts on it.',
-		hint: '* matches any run of characters, ? matches exactly one. "echo *.tmp" is a free preview of what "rm *.tmp" would delete. draft?.md matches draft1.md and draft2.md but not final.md.',
+		hint: '`*` matches any run of characters, `?` matches exactly one. `echo *.tmp` is a free preview of what `rm *.tmp` would delete. `draft?.md` matches `draft1.md` and `draft2.md` but not `final.md`.',
 		suggestedCommands: [
 			'cd staging',
 			'ls',
@@ -200,7 +200,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Find the crash in server.log',
 		description:
 			'Your side project went down at 9:14 last night and the AI on call left you a 300-line server.log. Nobody reads logs top to bottom — grep for the ERROR, then save the evidence to a report file with >.',
-		hint: 'grep ERROR <file> prints only the matching lines; add -n to see line numbers. Redirect with > to write the matches into a new file instead of the screen. head and tail let you peek at a big file first.',
+		hint: '`grep ERROR <file>` prints only the matching lines; add `-n` to see line numbers. Redirect with `>` to write the matches into a new file instead of the screen. `head` and `tail` let you peek at a big file first.',
 		suggestedCommands: [
 			'cd logs',
 			'head server.log',
@@ -244,7 +244,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Top visitors from access.log',
 		description:
 			'Someone is hammering your little site and access.log knows who. No single command answers "which IP visits most?" — but a pipeline does. Build it one stage at a time: cut the IP column, sort it, count duplicates, sort by count.',
-		hint: "Grow the pipeline left to right, checking the output at each stage. cut -d' ' -f1 takes the first space-separated field, sort groups identical lines together, uniq -c counts each group, and a final sort -n puts the biggest count last.",
+		hint: "Grow the pipeline left to right, checking the output at each stage. `cut -d' ' -f1` takes the first space-separated field, `sort` groups identical lines together, `uniq -c` counts each group, and a final `sort -n` puts the biggest count last.",
 		suggestedCommands: [
 			'cd logs',
 			'head -n 3 access.log',
@@ -288,7 +288,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Hunt down every TODO',
 		description:
 			'Before shipping orbit, you want every TODO your AI pair sprinkled through the codebase in one place. find locates files by name; grep -r searches inside them. Sweep the project and save the list.',
-		hint: "find . -name '*.py' lists files by name pattern; grep -rn TODO . searches file contents recursively, with -n adding line numbers. Redirect the final sweep into todo-list.txt with >.",
+		hint: "`find . -name '*.py'` lists files by name pattern; `grep -rn TODO .` searches file contents recursively, with `-n` adding line numbers. Redirect the final sweep into `todo-list.txt` with `>`.",
 		suggestedCommands: [
 			'cd projects/orbit',
 			"find . -name '*.py'",
@@ -326,7 +326,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: "The script won't run",
 		description:
 			'Your AI assistant wrote setup.sh for you — but ./setup.sh answers "Permission denied". Nothing is broken: the file just lacks the executable bit. Read ls -l, grant +x, and run it for real.',
-		hint: 'ls -l shows the permission string: rw-r--r-- has no x, so the shell refuses to execute it. chmod +x setup.sh flips the bit — check ls -l again and the x appears. Then ./setup.sh works.',
+		hint: '`ls -l` shows the permission string: `rw-r--r--` has no `x`, so the shell refuses to execute it. `chmod +x setup.sh` flips the bit — check `ls -l` again and the `x` appears. Then `./setup.sh` works.',
 		suggestedCommands: [
 			'cd scripts',
 			'ls -l',
@@ -352,7 +352,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'command not found',
 		description:
 			'An agent built you a deploy tool yesterday, but typing "deploy" earns only "command not found". The shell isn\'t lying — it only searches the directories in $PATH. Inspect $PATH, hunt the tool down, and run it by its path.',
-		hint: 'echo $PATH shows where the shell looks — ~/tools is not on the list, so "deploy" is invisible by name. find ~ -name deploy locates it; then run it directly as ~/tools/deploy. A path with a / in it bypasses the PATH search entirely.',
+		hint: '`echo $PATH` shows where the shell looks — `~/tools` is not on the list, so `deploy` is invisible by name. `find ~ -name deploy` locates it; then run it directly as `~/tools/deploy`. A path with a `/` in it bypasses the PATH search entirely.',
 		suggestedCommands: [
 			'deploy',
 			'echo $PATH',
@@ -379,7 +379,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Make your own shortcuts',
 		description:
 			'You type ls -l and cd ~/projects a dozen times a day. An alias is a nickname the shell expands for you — define ll and proj, then actually use them. (In real life they live in ~/.bashrc so they survive restarts.)',
-		hint: "alias ll='ls -l' defines the shortcut — no spaces around the =, quotes around the expansion. Then just type ll. Plain alias with no arguments lists everything you've defined.",
+		hint: "`alias ll='ls -l'` defines the shortcut — no spaces around the `=`, quotes around the expansion. Then just type `ll`. Plain `alias` with no arguments lists everything you've defined.",
 		suggestedCommands: [
 			'cat ~/.bashrc',
 			"alias ll='ls -l'",
@@ -414,7 +414,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'The agent wants to run 3 commands',
 		description:
 			'Your AI agent left a proposal in agent-plan.txt: three commands to "tidy the workspace and back up your notes". Two are helpful. One would erase your entire home directory. Read the plan, run the safe ones, and leave the dangerous one unrun.',
-		hint: 'cat the plan and read each command aloud: what does it do, and to what? mkdir -p and cp are constructive. rm -rf ~/* force-deletes everything in your home, recursively, no trash can — an agent suggesting it does not make it safe. Never run it.',
+		hint: '`cat` the plan and read each command aloud: what does it do, and to what? `mkdir -p` and `cp` are constructive. `rm -rf ~/*` force-deletes everything in your home, recursively, no trash can — an agent suggesting it does not make it safe. Never run it.',
 		suggestedCommands: [
 			'cat agent-plan.txt',
 			'mkdir -p ~/backups',
@@ -457,7 +457,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Automate the backup',
 		description:
 			'Every day you copy notes.txt somewhere safe "later" — and forget. A script is a saved command sequence: build backup.sh line by line with echo >>, make it executable, and let it do the remembering.',
-		hint: 'echo with > starts the file (the #!/usr/bin/env bash line), echo with >> appends each command. cat it to proof-read — you are auditing your own script now — then chmod +x and run it with ./backup.sh.',
+		hint: '`echo` with `>` starts the file (the `#!/usr/bin/env bash` line), `echo` with `>>` appends each command. `cat` it to proof-read — you are auditing your own script now — then `chmod +x` and run it with `./backup.sh`.',
 		suggestedCommands: [
 			"echo '#!/usr/bin/env bash' > backup.sh",
 			"echo 'mkdir -p ~/backups' >> backup.sh",
@@ -483,7 +483,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Only deploy when tests pass',
 		description:
 			'Every command reports back: exit code 0 means success, anything else means failure — and $? holds the last verdict. Chain with && so deploy runs only after tests succeed, and watch false stop the chain cold.',
-		hint: 'Run false, then echo $? to see a failure code (1). a && b runs b only if a succeeded; a || b runs b only if a failed. So ./tests.sh && ./deploy.sh is a deploy that refuses to ship broken code.',
+		hint: 'Run `false`, then `echo $?` to see a failure code (1). `a && b` runs b only if a succeeded; `a || b` runs b only if a failed. So `./tests.sh && ./deploy.sh` is a deploy that refuses to ship broken code.',
 		suggestedCommands: [
 			'ls -l',
 			'false',
@@ -515,7 +515,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'One messy home folder',
 		description:
 			'The final challenge: a home directory that needs everything you have learned. Sort the downloads with globs, grep the crash out of the app log, then write and run a backup script. Navigate, organize, search, automate.',
-		hint: 'Three jobs, any order: (1) mkdir -p documents, glob-move the report PDFs in and rm the .tmp junk; (2) grep ERROR logs/app.log into logs/error.txt with >; (3) build backup.sh with echo > and >>, chmod +x it, run it. ls between steps to verify.',
+		hint: 'Three jobs, any order: (1) `mkdir -p documents`, glob-move the report PDFs in and `rm` the `.tmp` junk; (2) `grep ERROR logs/app.log` into `logs/error.txt` with `>`; (3) build `backup.sh` with `echo >` and `>>`, `chmod +x` it, run it. `ls` between steps to verify.',
 		suggestedCommands: [
 			'ls downloads',
 			'mkdir -p documents',

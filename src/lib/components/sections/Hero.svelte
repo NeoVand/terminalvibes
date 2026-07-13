@@ -1,10 +1,25 @@
 <script lang="ts">
-	import { Gamepad2, ScrollText, HelpCircle, History, Laptop, Terminal } from 'lucide-svelte';
+	import {
+		Gamepad2,
+		ScrollText,
+		HelpCircle,
+		History,
+		Laptop,
+		Terminal,
+		AppWindow,
+		Shell,
+		Monitor,
+		AtSign,
+		FolderOpen,
+		Play,
+		TextCursor
+	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import Callout from '../ui/Callout.svelte';
+	import OsIcon from '../ui/OsIcon.svelte';
 
 	let {
 		onOpenPlayground
@@ -154,14 +169,26 @@
 
 		<div class="mb-4 grid gap-3 sm:grid-cols-3">
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">Terminal</p>
+				<p
+					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+					style="color: var(--color-text);"
+				>
+					<AppWindow size={14} style="color: var(--color-primary);" />
+					Terminal
+				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					The <em>window</em> — an app that draws text on screen and sends your keystrokes onward. Terminal.app,
 					iTerm2, and Windows Terminal are all terminals.
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">Shell</p>
+				<p
+					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+					style="color: var(--color-text);"
+				>
+					<Shell size={14} style="color: var(--color-primary);" />
+					Shell
+				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					The <em>program inside</em> the window that reads your command, runs it, and prints the
 					result. <strong>bash</strong> and <strong>zsh</strong> are shells — the language this course
@@ -169,7 +196,13 @@
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">Console</p>
+				<p
+					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+					style="color: var(--color-text);"
+				>
+					<Monitor size={14} style="color: var(--color-primary);" />
+					Console
+				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					An older word from the days when the "terminal" was a physical desk of keyboard and
 					screen. Today it's mostly a synonym for terminal.
@@ -347,35 +380,38 @@
 		<div class="mb-1 flex gap-1 rounded-lg p-1" style="background: var(--color-bg-tertiary);">
 			<button
 				onclick={() => (activeTab = 'mac')}
-				class="flex-1 cursor-pointer rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
+				class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
 				style="color: {activeTab === 'mac'
 					? 'var(--color-text)'
 					: 'var(--color-text-muted)'}; background: {activeTab === 'mac'
 					? 'var(--color-surface)'
 					: 'transparent'};"
 			>
+				<OsIcon os="macos" size={13} />
 				macOS
 			</button>
 			<button
 				onclick={() => (activeTab = 'windows')}
-				class="flex-1 cursor-pointer rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
+				class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
 				style="color: {activeTab === 'windows'
 					? 'var(--color-text)'
 					: 'var(--color-text-muted)'}; background: {activeTab === 'windows'
 					? 'var(--color-surface)'
 					: 'transparent'};"
 			>
+				<OsIcon os="windows" size={13} />
 				Windows
 			</button>
 			<button
 				onclick={() => (activeTab = 'linux')}
-				class="flex-1 cursor-pointer rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
+				class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
 				style="color: {activeTab === 'linux'
 					? 'var(--color-text)'
 					: 'var(--color-text-muted)'}; background: {activeTab === 'linux'
 					? 'var(--color-surface)'
 					: 'transparent'};"
 			>
+				<OsIcon os="linux" size={13} />
 				Linux
 			</button>
 		</div>
@@ -533,9 +569,10 @@
 		<div class="mb-4 grid gap-3 sm:grid-cols-2">
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 				<p
-					class="mb-1.5 text-[13px] font-semibold"
+					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
 					style="color: var(--color-text); font-family: var(--font-mono);"
 				>
+					<AtSign size={14} style="color: var(--color-primary);" />
 					vibe@sandbox
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
@@ -546,9 +583,10 @@
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 				<p
-					class="mb-1.5 text-[13px] font-semibold"
+					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
 					style="color: var(--color-text); font-family: var(--font-mono);"
 				>
+					<FolderOpen size={14} style="color: var(--color-primary);" />
 					~/projects
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
@@ -561,9 +599,10 @@
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 				<p
-					class="mb-1.5 text-[13px] font-semibold"
+					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
 					style="color: var(--color-text); font-family: var(--font-mono);"
 				>
+					<Play size={14} style="color: var(--color-primary);" />
 					$
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
@@ -581,7 +620,11 @@
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p class="mb-1.5 text-[13px] font-semibold" style="color: var(--color-text);">
+				<p
+					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
+					style="color: var(--color-text);"
+				>
+					<TextCursor size={14} style="color: var(--color-primary);" />
 					The blinking cursor
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">

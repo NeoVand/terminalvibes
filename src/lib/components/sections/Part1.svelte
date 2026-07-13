@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Terminal, Monitor, Sparkles, HelpCircle } from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import OsIcon from '../ui/OsIcon.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -64,7 +65,13 @@
 				opened one. Where does it even live?
 			</Callout>
 
-			<h4 class="mt-5 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">macOS</h4>
+			<h4
+				class="mt-5 mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+				style="color: var(--color-text);"
+			>
+				<OsIcon os="macos" size={14} />
+				macOS
+			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Press <kbd
@@ -79,7 +86,13 @@
 				back.
 			</p>
 
-			<h4 class="mt-5 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">Linux</h4>
+			<h4
+				class="mt-5 mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+				style="color: var(--color-text);"
+			>
+				<OsIcon os="linux" size={14} />
+				Linux
+			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Press <kbd
@@ -91,7 +104,13 @@
 				<strong style="color: var(--color-text);">Console</strong> in your application menu.
 			</p>
 
-			<h4 class="mt-5 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">Windows</h4>
+			<h4
+				class="mt-5 mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+				style="color: var(--color-text);"
+			>
+				<OsIcon os="windows" size={14} />
+				Windows
+			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Open <strong style="color: var(--color-text);">Windows Terminal</strong> from the Start menu

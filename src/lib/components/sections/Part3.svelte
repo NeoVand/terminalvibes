@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { FolderTree, Copy, MoveRight, Trash2, Hash } from 'lucide-svelte';
+	import {
+		FolderTree,
+		Copy,
+		MoveRight,
+		Trash2,
+		Hash,
+		ShieldOff,
+		Asterisk,
+		MapPinOff
+	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -156,8 +165,12 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 				<code
 					class="rounded px-1 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">overwrite?</code
-				> before clobbering anything. This same silent-overwrite rule returns with mv in the next section
-				— it's a theme.
+				>
+				before clobbering anything. This same silent-overwrite rule returns with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv</code
+				> in the next section — it's a theme.
 			</Callout>
 
 			<VibeBox
@@ -230,7 +243,12 @@ mv draft.md docs/chapter-1.md`}
 				Two nice surprises compared to <code
 					class="rounded px-1 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
-				>: mv moves whole folders <em>without</em> needing
+				>:
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv</code
+				>
+				moves whole folders <em>without</em> needing
 				<code
 					class="rounded px-1 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">-r</code
@@ -252,7 +270,16 @@ mv draft.md docs/chapter-1.md`}
 					style="background: var(--color-code-bg); font-family: var(--font-mono);"
 					>mv notes.txt ideas.txt</code
 				>
-				when ideas.txt already exists destroys ideas.txt. The fix is the same reflex:
+				when
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ideas.txt</code
+				>
+				already exists destroys
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ideas.txt</code
+				>. The fix is the same reflex:
 				<code
 					class="rounded px-1 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">mv -i</code
@@ -283,7 +310,17 @@ mv draft.md docs/chapter-1.md`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				This is the most important safety lesson in the entire course. Everything else in the
-				terminal is forgiving — errors are harmless, cd can't hurt you, cp leaves originals alone.
+				terminal is forgiving — errors are harmless,
+				<code
+					class="rounded px-1.5 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
+				>
+				can't hurt you,
+				<code
+					class="rounded px-1.5 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">cp</code
+				>
+				leaves originals alone.
 				<code
 					class="rounded px-1.5 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
@@ -344,7 +381,11 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 
 			<div class="mb-6 grid gap-3 sm:grid-cols-3">
 				<div class="rounded-lg p-4" style="background: var(--color-caution-bg);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-caution);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-caution);"
+					>
+						<ShieldOff size={14} />
 						rm -rf — no questions
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -352,7 +393,11 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-caution-bg);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-caution);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-caution);"
+					>
+						<Asterisk size={14} />
 						+ a wildcard
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -361,12 +406,18 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-caution-bg);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-caution);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-caution);"
+					>
+						<MapPinOff size={14} />
 						+ the wrong directory
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						You <em>thought</em> you were in ~/tmp. You were in ~/projects. Part 2's pwd habit exists
-						for this moment.
+						You <em>thought</em> you were in
+						<code style="font-family: var(--font-mono);">~/tmp</code>. You were in
+						<code style="font-family: var(--font-mono);">~/projects</code>. Part 2's
+						<code style="font-family: var(--font-mono);">pwd</code> habit exists for this moment.
 					</p>
 				</div>
 			</div>
@@ -396,10 +447,18 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Here's the habit that makes rm boring instead of scary. Never aim rm at anything you haven't
-				just looked at. List first, confirm with your eyes, then recall the command (<strong
-					>up-arrow</strong
-				>) and swap
+				Here's the habit that makes
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
+				>
+				boring instead of scary. Never aim
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">rm</code
+				>
+				at anything you haven't just looked at. List first, confirm with your eyes, then recall the command
+				(<strong>up-arrow</strong>) and swap
 				<code
 					class="rounded px-1 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code

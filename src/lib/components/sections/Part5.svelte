@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Shield, ScrollText, KeyRound, Lock, AtSign, FileText } from 'lucide-svelte';
+	import { Shield, ScrollText, KeyRound, Lock, AtSign, FileText, Play } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -282,8 +282,15 @@ Backing up projects/ ... done.`}
 
 			<div class="mb-4 grid gap-4 sm:grid-cols-2">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-important);">
-						<code class="text-xs" style="font-family: var(--font-mono);">755</code> — scripts &amp; directories
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-important);"
+					>
+						<Play size={14} />
+						<span
+							><code class="text-xs" style="font-family: var(--font-mono);">755</code> — scripts &amp;
+							directories</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<code style="font-family: var(--font-mono);">rwxr-xr-x</code>: you do everything, others
@@ -291,8 +298,14 @@ Backing up projects/ ... done.`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-note);">
-						<code class="text-xs" style="font-family: var(--font-mono);">644</code> — regular files
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-note);"
+					>
+						<FileText size={14} />
+						<span
+							><code class="text-xs" style="font-family: var(--font-mono);">644</code> — regular files</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<code style="font-family: var(--font-mono);">rw-r--r--</code>: you edit, others read,
@@ -328,11 +341,23 @@ Backing up projects/ ... done.`}
 				Try It: The Script Won't Run
 			</h4>
 			<PlaygroundNote>
-				A <code>deploy.sh</code> script is sitting in the playground refusing to run. Diagnose it
-				with
-				<code>ls -l</code>, grant the missing permission with <code>chmod +x</code>, then run it
-				with
-				<code>./deploy.sh</code>.
+				A <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">deploy.sh</code
+				>
+				script is sitting in the playground refusing to run. Diagnose it with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -l</code
+				>, grant the missing permission with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">chmod +x</code
+				>, then run it with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">./deploy.sh</code
+				>.
 			</PlaygroundNote>
 			<LessonActivity
 				title="The Script Won't Run"
@@ -397,7 +422,12 @@ Setting up htop ... done.`}
 				<code
 					class="rounded px-1.5 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">~</code
-				>, the answer is almost never sudo — it's a wrong path or a missing
+				>, the answer is almost never
+				<code
+					class="rounded px-1.5 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">sudo</code
+				>
+				— it's a wrong path or a missing
 				<code
 					class="rounded px-1.5 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">+x</code
@@ -569,10 +599,24 @@ which python                         # Silence/nothing = not on PATH`}
 				Try It: command not found
 			</h4>
 			<PlaygroundNote>
-				A tool called <code>greet</code> is installed somewhere in the playground, but typing
-				<code>greet</code> only gets you "command not found." Inspect <code>echo $PATH</code>, hunt
-				the executable down with <code>find</code>, and run it — by its full path, or by fixing
-				PATH.
+				A tool called <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">greet</code
+				>
+				is installed somewhere in the playground, but typing
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">greet</code
+				>
+				only gets you "command not found." Inspect
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">echo $PATH</code
+				>, hunt the executable down with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">find</code
+				>, and run it — by its full path, or by fixing PATH.
 			</PlaygroundNote>
 			<LessonActivity title="command not found" scenarioId="path-repair" id="path-repair" />
 
@@ -699,9 +743,20 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				Try It: Make Your Shortcuts
 			</h4>
 			<PlaygroundNote>
-				Time to build your own shorthand. Define an alias with <code>alias</code>, use it, list your
-				aliases, and append your favorite to <code>~/.bashrc</code> with <code>echo &gt;&gt;</code> so
-				it would survive a restart.
+				Time to build your own shorthand. Define an alias with <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">alias</code
+				>, use it, list your aliases, and append your favorite to
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">~/.bashrc</code
+				>
+				with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);"
+					>echo &gt;&gt;</code
+				> so it would survive a restart.
 			</PlaygroundNote>
 			<LessonActivity title="Make Your Shortcuts" scenarioId="alias-workshop" id="alias-workshop" />
 

@@ -1,5 +1,17 @@
 <script lang="ts">
-	import { Workflow, MoveRight, Search, ListOrdered, FileSearch } from 'lucide-svelte';
+	import {
+		Workflow,
+		MoveRight,
+		Search,
+		ListOrdered,
+		FileSearch,
+		CaseSensitive,
+		Hash,
+		FilterX,
+		Sigma,
+		FolderTree,
+		TextSearch
+	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -298,8 +310,14 @@ src/utils.js:3: // TODO: remove this hack`}
 
 			<div class="mb-4 grid gap-3 sm:grid-cols-2">
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-tip);">
-						<code class="text-xs" style="font-family: var(--font-mono);">-i</code> — ignore case
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-tip);"
+					>
+						<CaseSensitive size={14} />
+						<span
+							><code class="text-xs" style="font-family: var(--font-mono);">-i</code> — ignore case</span
+						>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Matches <code style="font-family: var(--font-mono);">error</code>,
@@ -309,8 +327,14 @@ src/utils.js:3: // TODO: remove this hack`}
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-note);">
-						<code class="text-xs" style="font-family: var(--font-mono);">-n</code> — line numbers
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-note);"
+					>
+						<Hash size={14} />
+						<span
+							><code class="text-xs" style="font-family: var(--font-mono);">-n</code> — line numbers</span
+						>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Prefixes each match with where it lives — essential when you're about to open the file
@@ -318,8 +342,14 @@ src/utils.js:3: // TODO: remove this hack`}
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-warning);">
-						<code class="text-xs" style="font-family: var(--font-mono);">-v</code> — invert
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-warning);"
+					>
+						<FilterX size={14} />
+						<span
+							><code class="text-xs" style="font-family: var(--font-mono);">-v</code> — invert</span
+						>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Keep the lines that <em>don't</em> match. Perfect for filtering noise out:
@@ -327,8 +357,14 @@ src/utils.js:3: // TODO: remove this hack`}
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-important);">
-						<code class="text-xs" style="font-family: var(--font-mono);">-c</code> — count
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-important);"
+					>
+						<Sigma size={14} />
+						<span
+							><code class="text-xs" style="font-family: var(--font-mono);">-c</code> — count</span
+						>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Print how many lines matched instead of the lines themselves — a built-in
@@ -336,8 +372,14 @@ src/utils.js:3: // TODO: remove this hack`}
 					</p>
 				</div>
 				<div class="rounded-lg p-4 sm:col-span-2" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-caution);">
-						<code class="text-xs" style="font-family: var(--font-mono);">-r</code> — recursive
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-caution);"
+					>
+						<FolderTree size={14} />
+						<span
+							><code class="text-xs" style="font-family: var(--font-mono);">-r</code> — recursive</span
+						>
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Search a whole directory tree instead of one file. <code
@@ -348,8 +390,11 @@ src/utils.js:3: // TODO: remove this hack`}
 			</div>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				And because grep reads standard input, it slots into any pipeline as a filter. This is the
-				pattern you'll type every single day:
+				And because <code
+					class="rounded px-1.5 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
+				> reads standard input, it slots into any pipeline as a filter. This is the pattern you'll type
+				every single day:
 			</p>
 
 			<CodeBlock
@@ -367,9 +412,33 @@ grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
 				Try It: Find the Crash
 			</h4>
 			<PlaygroundNote>
-				A server died last night and <code>server.log</code> has hundreds of lines. Use
-				<code>grep</code> — with <code>-i</code>, <code>-n</code>, and <code>-v</code> to cut the
-				noise — and pipes to <code>wc -l</code> to pin down exactly when and why it crashed.
+				A server died last night and <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">server.log</code
+				>
+				has hundreds of lines. Use
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
+				>
+				— with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">-i</code
+				>,
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">-n</code
+				>, and
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">-v</code
+				>
+				to cut the noise — and pipes to
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">wc -l</code
+				> to pin down exactly when and why it crashed.
 			</PlaygroundNote>
 			<LessonActivity title="Find the Crash" scenarioId="log-detective" id="log-detective" />
 
@@ -391,8 +460,12 @@ grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				grep finds lines. These four tools <em>reshape</em> them: count them, order them, de-duplicate
-				them, and slice out columns. Individually they're almost boring — together they answer real questions,
+				<code
+					class="rounded px-1.5 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
+				>
+				finds lines. These four tools <em>reshape</em> them: count them, order them, de-duplicate them,
+				and slice out columns. Individually they're almost boring — together they answer real questions,
 				like "who's hammering my website?"
 			</p>
 
@@ -508,10 +581,27 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 				Try It: Build a Pipeline
 			</h4>
 			<PlaygroundNote>
-				<code>access.log</code> is waiting in the playground. Build the classic pipeline stage by
-				stage — <code>cut</code>, then <code>| sort</code>, then <code>| uniq -c</code>, then
-				<code>| sort -n</code> — and identify your site's top visitor. Run each stage before adding the
-				next.
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">access.log</code
+				>
+				is waiting in the playground. Build the classic pipeline stage by stage —
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">cut</code
+				>, then
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">| sort</code
+				>, then
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">| uniq -c</code
+				>, then
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">| sort -n</code
+				> — and identify your site's top visitor. Run each stage before adding the next.
 			</PlaygroundNote>
 			<LessonActivity
 				title="Build a Pipeline"
@@ -537,9 +627,13 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				grep searches <em>inside</em> files. But sometimes the question is "where <em>is</em> that
-				file?" — a config you know exists, every Markdown file in a project, that one script you
-				wrote last month.
+				<code
+					class="rounded px-1.5 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
+				>
+				searches <em>inside</em> files. But sometimes the question is "where <em>is</em> that file?"
+				— a config you know exists, every Markdown file in a project, that one script you wrote last
+				month.
 				<code
 					class="rounded px-1.5 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">find</code
@@ -593,8 +687,12 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 
 			<div class="mb-4 grid gap-4 sm:grid-cols-2">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-note);">
-						find — searches <em>filenames</em>
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-note);"
+					>
+						<FileSearch size={14} />
+						<span>find — searches <em>filenames</em></span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						"Where are the files called <code style="font-family: var(--font-mono);">*.md</code>?"
@@ -602,8 +700,12 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-important);">
-						grep — searches <em>contents</em>
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-important);"
+					>
+						<TextSearch size={14} />
+						<span>grep — searches <em>contents</em></span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						"Which lines contain <code style="font-family: var(--font-mono);">TODO</code>?" It reads
@@ -634,10 +736,16 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				Try It: Hunt Down Every TODO
 			</h4>
 			<PlaygroundNote>
-				A project tree is scattered with leftover TODOs. Use <code>find . -name '*.js' -type f</code
+				A project tree is scattered with leftover TODOs. Use <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);"
+					>find . -name '*.js' -type f</code
 				>
-				to locate the source files (quote that glob!), then combine with <code>grep</code> to list every
-				TODO with its file and line number.
+				to locate the source files (quote that glob!), then combine with
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">grep</code
+				> to list every TODO with its file and line number.
 			</PlaygroundNote>
 			<LessonActivity title="Hunt Down Every TODO" scenarioId="find-files" id="find-files" />
 

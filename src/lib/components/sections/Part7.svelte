@@ -1,6 +1,22 @@
 <script lang="ts">
-	import { Gauge, Palette, History, Layout, SplitSquareHorizontal } from 'lucide-svelte';
+	import {
+		Gauge,
+		Palette,
+		History,
+		Layout,
+		SplitSquareHorizontal,
+		Type,
+		Ghost,
+		Bot,
+		ArrowUp,
+		ScrollText,
+		Repeat,
+		Search,
+		PanelTop,
+		Columns2
+	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import OsIcon from '../ui/OsIcon.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -67,7 +83,13 @@
 
 			<div class="mb-6 grid gap-3 sm:grid-cols-2">
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<span class="inline-flex" style="color: var(--color-primary);"
+							><OsIcon os="macos" size={14} /></span
+						>
 						macOS: Terminal.app got good again
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -85,7 +107,13 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<span class="inline-flex" style="color: var(--color-primary);"
+							><OsIcon os="windows" size={14} /></span
+						>
 						Windows: Windows Terminal
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -96,7 +124,13 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<span class="inline-flex" style="color: var(--color-primary);"
+							><OsIcon os="linux" size={14} /></span
+						>
 						Linux: GNOME Terminal &amp; friends
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -106,7 +140,11 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Type size={14} style="color: var(--color-primary);" />
 						Everywhere: the font matters
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -118,7 +156,11 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Ghost size={14} style="color: var(--color-primary);" />
 						The upgrade pick: Ghostty
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -134,7 +176,11 @@
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Bot size={14} style="color: var(--color-primary);" />
 						The AI-first one: Warp
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -242,7 +288,11 @@ PS1="🌲 \\W $ "
 
 			<div class="mb-6 space-y-3">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<ArrowUp size={14} style="color: var(--color-primary);" />
 						Up-arrow — the one you know
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
@@ -252,11 +302,18 @@ PS1="🌲 \\W $ "
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">history</code
-						> — the full ledger
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<ScrollText size={14} style="color: var(--color-primary);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);"
+								>history</code
+							> — the full ledger</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Prints your numbered command history — and because it's just text output, all of Part 4
@@ -269,11 +326,17 @@ PS1="🌲 \\W $ "
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-						<code
-							class="rounded px-1 py-0.5 text-xs"
-							style="background: var(--color-code-bg); font-family: var(--font-mono);">!!</code
-						> — the last command, verbatim
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Repeat size={14} style="color: var(--color-primary);" />
+						<span
+							><code
+								class="rounded px-1 py-0.5 text-xs"
+								style="background: var(--color-code-bg); font-family: var(--font-mono);">!!</code
+							> — the last command, verbatim</span
+						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<code
@@ -290,7 +353,11 @@ PS1="🌲 \\W $ "
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Search size={14} style="color: var(--color-primary);" />
 						Ctrl+R — reverse search, the crown jewel
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
@@ -385,7 +452,10 @@ sudo !!
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				Two conveniences make it better than a separate window: it <strong
 					style="color: var(--color-text);"
-					>opens already <code>cd</code>'d into your project folder</strong
+					>opens already <code
+						class="rounded px-1 py-0.5 text-xs"
+						style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
+					>'d into your project folder</strong
 				>
 				(no navigating to where your code lives — you're there), and the
 				<strong style="color: var(--color-text);">+</strong> button in the panel spawns extra terminals
@@ -486,7 +556,13 @@ sudo !!
 
 			<div class="mb-6 grid gap-3 sm:grid-cols-2">
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">Tabs</p>
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<PanelTop size={14} style="color: var(--color-primary);" />
+						Tabs
+					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Like browser tabs: <kbd
 							class="rounded border px-1 py-0.5 text-[11px]"
@@ -503,7 +579,11 @@ sudo !!
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-text);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Columns2 size={14} style="color: var(--color-primary);" />
 						Split panes
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">

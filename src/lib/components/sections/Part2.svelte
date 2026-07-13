@@ -1,5 +1,18 @@
 <script lang="ts">
-	import { Compass, MapPin, Route, MoveRight, FolderPlus, Eye } from 'lucide-svelte';
+	import {
+		Compass,
+		MapPin,
+		Route,
+		MoveRight,
+		FolderPlus,
+		Eye,
+		List,
+		Rows3,
+		FileText,
+		BookOpen,
+		ArrowUpToLine,
+		ArrowDownToLine
+	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -48,8 +61,24 @@
 		/>
 
 		<Callout type="important">
-			This three-beat rhythm — <strong>pwd &rarr; ls &rarr; cd</strong> — is the terminal equivalent
-			of looking up from your phone to check the street signs. Run it any time you feel lost, and
+			This three-beat rhythm — <strong
+				><code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">pwd</code
+				>
+				&rarr;
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
+				>
+				&rarr;
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">cd</code
+				></strong
+			>
+			— is the terminal equivalent of looking up from your phone to check the street signs. Run it any
+			time you feel lost, and
 			<em>always</em> before running a command an AI wrote for you: most AI-suggested commands quietly
 			assume you're standing in the project folder.
 		</Callout>
@@ -121,21 +150,39 @@
 
 			<div class="mb-6 grid gap-3 sm:grid-cols-3">
 				<div class="rounded-lg p-4" style="background: var(--color-tip-bg);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-tip);">pwd</p>
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-tip);"
+					>
+						<MapPin size={14} />
+						pwd
+					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						"Where am I?" — prints the full path of your working directory. Instant, harmless, run
 						it constantly.
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-tip-bg);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-tip);">ls</p>
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-tip);"
+					>
+						<List size={14} />
+						ls
+					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						"What's here?" — lists the files and folders in the current directory (or any path you
 						give it).
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-tip-bg);">
-					<p class="mb-1 text-[13px] font-semibold" style="color: var(--color-tip);">ls -l</p>
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-tip);"
+					>
+						<Rows3 size={14} />
+						ls -l
+					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						"Tell me more" — one file per line with sizes, dates, and permissions. Your detail view.
 					</p>
@@ -234,7 +281,12 @@
 				<code
 					class="rounded px-1 py-0.5 text-xs"
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
-				> — but inside WSL or Git Bash, ls works exactly as shown.)
+				>
+				— but inside WSL or Git Bash,
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls</code
+				> works exactly as shown.)
 			</Callout>
 
 			<VibeBox
@@ -298,8 +350,17 @@
 				id="filesystem-tree"
 			/>
 			<p class="mt-2 px-1 text-xs" style="color: var(--color-text-muted);">
-				Reading the tree: the file <code>.env</code> lives at
-				<code>/home/vibe/projects/app/.env</code>
+				Reading the tree: the file
+				<code
+					class="rounded px-1 py-0.5"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">.env</code
+				>
+				lives at
+				<code
+					class="rounded px-1 py-0.5"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);"
+					>/home/vibe/projects/app/.env</code
+				>
 				— root, then home, then vibe, then projects, then app.
 			</p>
 
@@ -411,7 +472,11 @@ cat projects/app/README.md`}
 					style="background: var(--color-code-bg); font-family: var(--font-mono);"
 					>~/projects/app/.env</code
 				>
-				is a hidden file named .env, inside app, inside projects, inside your home directory.
+				is a hidden file named
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">.env</code
+				>, inside app, inside projects, inside your home directory.
 			</p>
 
 			<Callout type="important">
@@ -661,8 +726,12 @@ mkdir -p src/components/buttons   # -p creates every missing parent
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">touch</code
 				>
 				has a funny origin story: its real job is updating a file's "last modified" timestamp — touching
-				it. But if the file doesn't exist, touch creates it, empty. That side effect became its main job:
-				it's the standard way to say "make me a blank file right here."
+				it. But if the file doesn't exist,
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">touch</code
+				> creates it, empty. That side effect became its main job: it's the standard way to say "make
+				me a blank file right here."
 			</p>
 
 			<CodeBlock
@@ -725,7 +794,12 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
 				>
 				(short for "concatenate") is perfect for short files — it prints everything and returns your prompt.
-				But cat a 10,000-line log and it firehoses past you. For anything long, you want a
+				But
+				<code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">cat</code
+				>
+				a 10,000-line log and it firehoses past you. For anything long, you want a
 				<strong>pager</strong>:
 			</p>
 
@@ -790,9 +864,10 @@ tail -n 20 server.log  # Last 20`}
 			<div class="mb-6 grid gap-3 sm:grid-cols-4">
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
-						class="mb-1 text-[13px] font-semibold"
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
 						style="color: var(--color-text); font-family: var(--font-mono);"
 					>
+						<FileText size={14} style="color: var(--color-primary);" />
 						cat
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -801,9 +876,10 @@ tail -n 20 server.log  # Last 20`}
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
-						class="mb-1 text-[13px] font-semibold"
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
 						style="color: var(--color-text); font-family: var(--font-mono);"
 					>
+						<BookOpen size={14} style="color: var(--color-primary);" />
 						less
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -812,9 +888,10 @@ tail -n 20 server.log  # Last 20`}
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
-						class="mb-1 text-[13px] font-semibold"
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
 						style="color: var(--color-text); font-family: var(--font-mono);"
 					>
+						<ArrowUpToLine size={14} style="color: var(--color-primary);" />
 						head
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
@@ -823,9 +900,10 @@ tail -n 20 server.log  # Last 20`}
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
-						class="mb-1 text-[13px] font-semibold"
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
 						style="color: var(--color-text); font-family: var(--font-mono);"
 					>
+						<ArrowDownToLine size={14} style="color: var(--color-primary);" />
 						tail
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">

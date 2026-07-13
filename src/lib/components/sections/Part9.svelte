@@ -1,5 +1,17 @@
 <script lang="ts">
-	import { BookOpen, Library, Wand2, Table, Trophy } from 'lucide-svelte';
+	import {
+		BookOpen,
+		Library,
+		Wand2,
+		Table,
+		Trophy,
+		Gamepad2,
+		SearchCode,
+		ListChecks,
+		BookMarked,
+		Bot,
+		GitBranch
+	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import Callout from '../ui/Callout.svelte';
@@ -512,8 +524,11 @@
 				Try It: One Messy Home Folder
 			</h4>
 			<PlaygroundNote>
-				Start with <code>ls -la</code> and a look around before you touch anything — read before you run,
-				even now. A ✔ appears in the terminal when every goal is met — no partial credit.
+				Start with <code
+					class="rounded px-1 py-0.5 text-xs"
+					style="background: var(--color-code-bg); font-family: var(--font-mono);">ls -la</code
+				> and a look around before you touch anything — read before you run, even now. A ✔ appears in
+				the terminal when every goal is met — no partial credit.
 			</PlaygroundNote>
 			<LessonActivity title="The Final Challenge" scenarioId="capstone" id="capstone" />
 
@@ -585,15 +600,17 @@
 
 			<div class="mb-4 space-y-3">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 text-[14px] font-semibold">
-						<a
-							href="https://linuxcommand.org/tlcl.php"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">The Linux Command Line</a
+					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
+						<BookOpen size={14} style="color: var(--color-primary);" />
+						<span
+							><a
+								href="https://linuxcommand.org/tlcl.php"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">The Linux Command Line</a
+							><span style="color: var(--color-text);"> — the book, free forever</span></span
 						>
-						<span style="color: var(--color-text);"> — the book, free forever</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						William Shotts' 500-page classic, now in its 3rd edition (No Starch Press, February
@@ -611,15 +628,17 @@
 				</div>
 
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 text-[14px] font-semibold">
-						<a
-							href="https://overthewire.org/wargames/bandit/"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">OverTheWire: Bandit</a
+					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
+						<Gamepad2 size={14} style="color: var(--color-primary);" />
+						<span
+							><a
+								href="https://overthewire.org/wargames/bandit/"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">OverTheWire: Bandit</a
+							><span style="color: var(--color-text);"> — the terminal as a game</span></span
 						>
-						<span style="color: var(--color-text);"> — the terminal as a game</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						A free wargame played entirely over SSH: each level hides the password to the next
@@ -643,15 +662,19 @@
 				</div>
 
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 text-[14px] font-semibold">
-						<a
-							href="https://explainshell.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">explainshell.com</a
+					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
+						<SearchCode size={14} style="color: var(--color-primary);" />
+						<span
+							><a
+								href="https://explainshell.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">explainshell.com</a
+							><span style="color: var(--color-text);">
+								— paste a command, get the anatomy</span
+							></span
 						>
-						<span style="color: var(--color-text);"> — paste a command, get the anatomy</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						The audit tool from section 6.1, permanently bookmarked. It maps every flag and argument
@@ -661,15 +684,17 @@
 				</div>
 
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 text-[14px] font-semibold">
-						<a
-							href="https://tldr.sh"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">tldr pages</a
+					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
+						<ListChecks size={14} style="color: var(--color-primary);" />
+						<span
+							><a
+								href="https://tldr.sh"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">tldr pages</a
+							><span style="color: var(--color-text);"> — man pages, but the good parts</span></span
 						>
-						<span style="color: var(--color-text);"> — man pages, but the good parts</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Community-written cheat sheets: <code
@@ -683,15 +708,17 @@
 				</div>
 
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 text-[14px] font-semibold">
-						<a
-							href="https://man7.org"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">man7.org</a
+					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
+						<BookMarked size={14} style="color: var(--color-primary);" />
+						<span
+							><a
+								href="https://man7.org"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">man7.org</a
+							><span style="color: var(--color-text);"> — the manual, in a browser</span></span
 						>
-						<span style="color: var(--color-text);"> — the manual, in a browser</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						The canonical Linux man pages, online and linkable — the same authoritative text <code
@@ -703,15 +730,19 @@
 				</div>
 
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 text-[14px] font-semibold">
-						<a
-							href="https://code.claude.com/docs/en/terminal-guide"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">Claude Code's terminal guide</a
+					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
+						<Bot size={14} style="color: var(--color-primary);" />
+						<span
+							><a
+								href="https://code.claude.com/docs/en/terminal-guide"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">Claude Code's terminal guide</a
+							><span style="color: var(--color-text);">
+								— even the AI vendors teach this now</span
+							></span
 						>
-						<span style="color: var(--color-text);"> — even the AI vendors teach this now</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						The clearest sign the terminal is the AI-native interface: Anthropic publishes its own
@@ -737,15 +768,19 @@
 
 			<div class="mb-4 space-y-3">
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 text-[14px] font-semibold">
-						<a
-							href="https://neovand.github.io/gitvibes/"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">GitVibes</a
+					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
+						<GitBranch size={14} style="color: var(--color-primary);" />
+						<span
+							><a
+								href="https://neovand.github.io/gitvibes/"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline underline-offset-2"
+								style="color: var(--color-primary);">GitVibes</a
+							><span style="color: var(--color-text);">
+								— the sister course, learn Git next</span
+							></span
 						>
-						<span style="color: var(--color-text);"> — the sister course, learn Git next</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Same format, same free-forever deal, same in-browser playground — but for Git: commits,

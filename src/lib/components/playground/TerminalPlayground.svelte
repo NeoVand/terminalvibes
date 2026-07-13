@@ -11,6 +11,7 @@
 		ArrowLeft
 	} from 'lucide-svelte';
 	import FsTreeView from '$lib/components/playground/FsTreeView.svelte';
+	import RichHint from '$lib/components/playground/RichHint.svelte';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
 	import { autohideScroll } from '$lib/actions/autohide-scroll';
 	import { ShellEngine, BIN_COMMANDS } from '$lib/playground/shell-engine';
@@ -478,23 +479,22 @@
 {#snippet terminalHistory()}
 	{#each history as line, i (i)}
 		{#if line.type === 'input'}
-			<div
-				class="mb-1.5 flex gap-[0.6ch]"
-				style="font-family: var(--font-mono); font-size: 12.5px;"
-			>
-				<span class="shrink-0">{@render promptLabel(line.promptCwd ?? '~')}</span>
-				<span style="color: var(--color-terminal-command);">{@render commandLabel(line.text)}</span>
+			<div class="pg-line mb-1.5" style="font-family: var(--font-mono); font-size: 12.5px;">
+				{@render promptLabel(line.promptCwd ?? '~')}<span
+					style="color: var(--color-terminal-command);"
+					>&nbsp;{@render commandLabel(line.text)}</span
+				>
 			</div>
 		{:else if line.type === 'output'}
 			{#if line.colored}
 				<!-- eslint-disable svelte/no-at-html-tags -- our formatters HTML-escape all command output before colorizing -->
 				<pre
-					class="mb-2.5 pl-5 text-[11.5px] leading-relaxed whitespace-pre-wrap"
+					class="mb-2.5 pl-5 text-[11.5px] leading-relaxed break-all whitespace-pre-wrap"
 					style="font-family: var(--font-mono);">{@html line.text}</pre>
 				<!-- eslint-enable svelte/no-at-html-tags -->
 			{:else}
 				<pre
-					class="mb-2.5 pl-5 text-[11.5px] leading-relaxed whitespace-pre-wrap"
+					class="mb-2.5 pl-5 text-[11.5px] leading-relaxed break-all whitespace-pre-wrap"
 					style="color: {line.error
 						? 'var(--color-warning)'
 						: 'var(--color-terminal-output)'}; font-family: var(--font-mono);">{line.text}</pre>
@@ -525,35 +525,36 @@
 
 {#snippet promptForm()}
 	<form onsubmit={handleSubmit} class="pg-prompt-line">
-		{@render promptLabel(promptCwd)}
-		<span class="pg-input-wrap">
-			<input
-				bind:this={inputEl}
-				bind:value={input}
-				onkeydown={handleKeydown}
-				onfocus={() => {
-					inputFocused = true;
-					hasInteracted = true;
-				}}
-				onblur={() => (inputFocused = false)}
-				disabled={loading}
-				placeholder="ls"
-				class="pg-input"
-				autocomplete="off"
-				spellcheck="false"
-				enterkeyhint="send"
-				aria-label="Shell command"
-			/>
-			{#if !inputFocused && !input}
-				<span class="pg-caret terminal-caret" aria-hidden="true"></span>
-			{/if}
-			{#if !hasInteracted && !loading && !input}
-				<span class="pg-type-hint" aria-hidden="true">
+		<!-- The real input is visually hidden (never display:none — it keeps
+		     focus, keystrokes, and every binding); the flowing mirror below is
+		     what the user sees, so a long command in a deep cwd wraps like a
+		     real terminal line instead of scrolling off. -->
+		<input
+			bind:this={inputEl}
+			bind:value={input}
+			onkeydown={handleKeydown}
+			onfocus={() => {
+				inputFocused = true;
+				hasInteracted = true;
+			}}
+			onblur={() => (inputFocused = false)}
+			disabled={loading}
+			placeholder="ls"
+			class="pg-input"
+			autocomplete="off"
+			spellcheck="false"
+			enterkeyhint="send"
+			aria-label="Shell command"
+		/>
+		<span aria-hidden="true"
+			>{@render promptLabel(promptCwd)}<span class="pg-typed">&nbsp;{input}</span><span
+				class="pg-caret terminal-caret"
+			></span>{#if inputFocused && !input}<span class="pg-placeholder">ls</span
+				>{/if}{#if !hasInteracted && !loading && !input}<span class="pg-type-hint">
 					<ArrowLeft size={10} />
 					type here
-				</span>
-			{/if}
-		</span>
+				</span>{/if}</span
+		>
 	</form>
 {/snippet}
 
@@ -602,7 +603,7 @@
 			class="shrink-0 px-3 py-2 text-[11px] leading-snug sm:px-5 sm:py-2.5 sm:text-xs sm:leading-relaxed"
 			style="color: var(--color-text-secondary); border-bottom: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-bg-secondary) 45%, transparent);"
 		>
-			{scenario.hint}
+			<RichHint text={scenario.hint} />
 		</p>
 
 		<div class="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -715,11 +716,11 @@
 			style="background: color-mix(in srgb, var(--color-important) 5%, var(--color-bg-secondary)); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary);"
 		>
 			<Lightbulb size={14} class="mt-0.5 flex-shrink-0" style="color: var(--color-important);" />
-			<span>{scenario.hint}</span>
+			<span><RichHint text={scenario.hint} /></span>
 		</div>
 
 		<div
-			class="grid grid-cols-1 lg:grid-cols-2"
+			class="grid grid-cols-1 {embedded ? 'lg:grid-cols-[minmax(0,1fr)_13rem]' : 'lg:grid-cols-2'}"
 			style="min-height: {embedded ? '340px' : '420px'};"
 		>
 			<div
@@ -883,39 +884,55 @@
 	}
 
 	/* The prompt is part of the terminal itself, exactly like a real shell:
-	   the last line of the scrollback is where you type. */
+	   the last line of the scrollback is where you type. It's a normal
+	   flowing block (pre-wrap + break-all) so long commands wrap instead of
+	   scrolling off — the real <input> is hidden inside it. */
 	.pg-prompt-line {
-		display: flex;
-		align-items: baseline;
-		/* exactly one character cell after the $, like a real shell */
-		gap: 0.6ch;
+		position: relative;
+		display: block;
+		white-space: pre-wrap;
+		word-break: break-all;
+		font-family: var(--font-mono);
+		font-size: 16px;
+		line-height: 1.4;
 		padding: 0;
 		background: transparent;
 	}
 
-	.pg-input-wrap {
-		position: relative;
-		display: flex;
-		flex: 1;
-		min-width: 0;
-		align-items: center;
+	@media (min-width: 640px) {
+		.pg-prompt-line {
+			font-size: 12.5px;
+		}
 	}
 
-	/* Idle block cursor: a real terminal blinks even before you click. The
-	   native caret takes over on focus. */
-	/* Size, phosphor color, and blink come from the shared .terminal-caret
-	   class in layout.css; here only the overlay positioning on the prompt. */
+	/* Echoed prompt+command history lines wrap the same way. */
+	.pg-line {
+		white-space: pre-wrap;
+		word-break: break-all;
+	}
+
+	/* The mirror of what's typed in the hidden input. */
+	.pg-typed {
+		color: var(--color-terminal-command);
+	}
+
+	/* Block cursor sitting after the typed text: a real terminal blinks even
+	   before you click. Size, phosphor color, and blink come from the shared
+	   .terminal-caret class in layout.css. */
 	.pg-caret {
-		position: absolute;
-		left: 0;
-		top: 50%;
-		transform: translateY(-50%);
+		display: inline-block;
+		vertical-align: text-bottom;
+	}
+
+	/* Stand-in for the hidden input's placeholder: only while focused+empty. */
+	.pg-placeholder {
+		color: color-mix(in srgb, var(--color-terminal-output) 55%, transparent);
 	}
 
 	/* One-time, whisper-quiet nudge toward the prompt. Gone after first focus. */
 	.pg-type-hint {
-		position: absolute;
-		left: 1.4ch;
+		margin-left: 0.75ch;
+		vertical-align: middle;
 		display: inline-flex;
 		align-items: center;
 		gap: 3px;
@@ -978,9 +995,15 @@
 		}
 	}
 
+	/* The real input, visually hidden (opacity 0, 1px) but never display:none
+	   — it must keep focus and receive keystrokes. The .pg-typed mirror above
+	   renders what it holds. */
 	.pg-input {
-		flex: 1;
-		min-width: 0;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 1px;
+		height: 1px;
 		padding: 0;
 		border: none;
 		outline: none;
@@ -988,35 +1011,10 @@
 		background: transparent;
 		appearance: none;
 		-webkit-appearance: none;
-		font-family: var(--font-mono);
+		opacity: 0;
+		pointer-events: none;
+		/* 16px stops iOS Safari from zooming the page when it gains focus */
 		font-size: 16px;
-		line-height: 1.4;
-		color: var(--color-terminal-command);
-		caret-color: var(--color-terminal-prompt);
-	}
-
-	@media (min-width: 640px) {
-		.pg-input {
-			font-size: 12.5px;
-		}
-	}
-
-	.pg-input::placeholder {
-		color: color-mix(in srgb, var(--color-terminal-output) 55%, transparent);
-	}
-
-	.pg-input:not(:focus)::placeholder {
-		color: transparent;
-	}
-
-	.pg-input:focus {
-		outline: none;
-		box-shadow: none;
-	}
-
-	.pg-input:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
 	}
 
 	.pg-chip {
