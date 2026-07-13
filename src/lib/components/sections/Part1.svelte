@@ -335,7 +335,7 @@ clear
 			/>
 
 			<h4 class="mt-5 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The AI-Era Move
+				A third way to get help
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -350,8 +350,8 @@ clear
 					rel="noopener noreferrer"
 					class="font-medium underline underline-offset-2"
 					style="color: var(--color-primary);">"never opened a terminal before" guide</a
-				> — terminal literacy is the entry ticket to AI coding. But language models can be confidently
-				wrong about flags, so close the loop:
+				> — if you use a coding agent, being able to read its commands is part of using it safely. But
+				language models can be confidently wrong about flags, so close the loop:
 			</p>
 
 			<Callout type="tip" title="Ask the AI, verify with --help">

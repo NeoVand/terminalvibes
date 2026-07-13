@@ -30,7 +30,7 @@
 		<SectionHeader
 			icon={Workflow}
 			partLabel="Part 4"
-			title="Text &amp; Pipes: The Terminal's Superpower"
+			title="Text &amp; Pipes: How Small Tools Combine"
 			color="var(--color-primary)"
 		/>
 
@@ -38,16 +38,15 @@
 			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
 			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
 		>
-			"Every command speaks plain text. Pipes let them talk to each other — that's the whole
-			superpower."
+			"Every command speaks plain text. Pipes let them talk to each other."
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			So far you've run one command at a time and read its output on screen. This part changes
-			everything: you'll capture output into files, feed one command's output into another, and
-			search, count, and reshape text like a professional. This is the moment the terminal stops
-			being a quaint retro tool and becomes the most composable interface ever built — and it's
-			exactly the style of command your AI assistant loves to write.
+			So far you've run one command at a time and read its output on screen. Here you'll capture
+			output into files, feed one command's output into another, and search, count, and reshape text
+			the way experienced people do. This is where the terminal stops feeling like a museum piece:
+			once output can move into files and into other commands, small tools multiply — and you'll
+			recognize the same style in a lot of AI-suggested one-liners.
 		</p>
 
 		<Callout type="important">

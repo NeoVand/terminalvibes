@@ -195,9 +195,8 @@
 								class="underline underline-offset-2"
 								style="color: var(--color-primary);">Stack Overflow's 2025 survey</a
 							> found 84% of developers using AI tools while only about 29% trust their output. Someone
-							has to close that gap, and it's the person who can read the commands. You can now watch
-							what your agent does, audit what it proposes, and step in when it's wrong. That's not a
-							spectator. That's a pilot.
+							still has to close that gap. You can watch what an agent runs, audit what it proposes, and
+							step in when it's wrong — which is the whole point of learning to read the shell.
 						</p>
 					</div>
 				</div>
@@ -742,8 +741,8 @@
 				<strong>Final Thoughts:</strong> The terminal has outlived every interface fashion of the last
 				fifty years, and the AI era just made it more central, not less — because text is what both you
 				and your agents speak. You can now read what the machine is told to do, verify it, and run it
-				with intent. That's the whole promise of this course: not memorizing commands, but never again
-				pressing Enter on faith.
+				with intent. The promise of this course was never memorizing commands. It was having a way to
+				read what you're about to run — especially when you didn't write it.
 			</Callout>
 		</div>
 	</div>

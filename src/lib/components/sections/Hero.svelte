@@ -240,31 +240,21 @@
 		</ul>
 
 		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			This isn't a niche skill anymore — it's literally measured. <a
+			Plenty of developers use AI tools; far fewer trust what those tools actually run. Being able
+			to read a shell command is what closes that gap — and there's even a
+			<a
 				href="https://www.tbench.ai/"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="font-medium underline underline-offset-2"
-				style="color: var(--color-primary);">Terminal-Bench</a
-			>, a Stanford × Laude Institute benchmark now at v2.1, exists to score how well AI agents do
-			real work in a terminal. And
-			<a
-				href="https://survey.stackoverflow.co/2025/ai/"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="font-medium underline underline-offset-2"
-				style="color: var(--color-primary);">Stack Overflow's 2025 survey</a
-			>
-			found that 84% of developers use or plan to use AI tools — but only 29% trust their output. The
-			gap between those two numbers is exactly why you need to be able to <em>read</em> what the agent
-			runs.
+				style="color: var(--color-primary);">benchmark</a
+			> for how well agents do real terminal work, if you want the numbers.
 		</p>
 
 		<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			A 50-year-old interface turns out to be the AI-native one: text in, text out is exactly how
-			language models think. Learning to read that text is the difference between supervising your
-			agents and hoping for the best. But where did this interface come from? The story is worth two
-			minutes of your time.
+			Text in, text out is also how language models work — which is why so many coding agents drive
+			a shell. Learning to read that text is how you supervise them instead of hoping for the best.
+			But where did this interface come from? The story is worth two minutes of your time.
 		</p>
 	</div>
 

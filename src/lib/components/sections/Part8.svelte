@@ -23,16 +23,18 @@
 			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
 			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
 		>
-			"Fifty years of bytes through a pipe — and the machine has never been more alive."
+			"Every key you press is a byte on a wire. This is where you meet the wire."
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
 			For seven parts you've driven this machine without once opening the hood. Now you've earned
-			the wrench. This part is the victory-lap deep dive: first <em
-				>how the terminal actually works</em
-			> — ttys, PTYs, escape sequences, and what Ctrl+C really does — and then what that machinery is
-			becoming in the AI era, and the genuinely advanced things you can build now that you understand
-			it. Nothing here is required to use the terminal. All of it makes you dangerous in the best way.
+			the wrench. This part is the optional deep dive: first <em>how the terminal actually works</em
+			>
+			— ttys, PTYs, escape sequences, and what Ctrl+C really does — and then what that machinery is becoming
+			in the AI era, and the genuinely advanced things you can build now that you understand it. Nothing
+			here is required to use the terminal. All of it makes the everyday mysteries — <Code
+				code="tty"
+			/>, <Code code="^[[A" />, Ctrl+C — feel ordinary.
 		</p>
 
 		<!-- 8.1 How the Terminal Works -->
@@ -310,8 +312,8 @@
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				That's the entire machine: an app impersonating 1970s furniture, a kernel pipe in costume, a
 				tiny in-kernel line editor, and a shell that just reads and writes bytes. From here on,
-				nothing the terminal does will look like magic — you now know more about it than most people
-				who use it professionally.
+				nothing the terminal does will look like magic — every key press is a byte with a place to
+				go, and now you can name every stop on the way.
 			</p>
 
 			<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -544,8 +546,8 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 				<strong>Take stock of where you're standing.</strong> You can narrate a keystroke's journey
 				through the kernel, read the invisible protocol your terminal speaks to your editor, pipe a
 				language model like it's <Code code="grep" />, and write scripts that clean up after
-				themselves when signals fly. That's a deeper understanding of the terminal than most working
-				professionals carry — and the tour is nearly over. One part to go: the send-off.
+				themselves when signals fly. That's a working model of the machine most day-to-day use never
+				requires — and the tour is nearly over. One part to go: the send-off.
 			</Callout>
 		</div>
 	</div>

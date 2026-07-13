@@ -39,8 +39,8 @@
 			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
 			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
 		>
-			"You'll spend thousands of hours in this window. Make it fast, make it comfortable, make it
-			yours."
+			"If you're going to live in this window, you might as well like it: readable fonts, a prompt
+			that helps, history that finds last Tuesday's command."
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -420,9 +420,9 @@ sudo !!
 			</p>
 
 			<Callout type="important">
-				<strong>This is where vibe coding actually happens.</strong> When a coding agent in VS Code
-				— Copilot, Claude Code, Cursor's agent — runs a command, it runs in this integrated
-				terminal:
+				<strong>This is where a lot of AI coding actually lands.</strong> When a coding agent in VS
+				Code — Copilot, Claude Code, Cursor's agent — runs a command, it usually runs in this
+				integrated terminal:
 				<em>the same panel you can read, scroll, and type into</em>. The agent proposes
 				<Code code="npm test" />, you watch it execute, you scroll back through the failures, you
 				run your own
@@ -434,8 +434,7 @@ sudo !!
 				That shared visibility is the practical payoff of Part 6: when the agent asks permission to
 				run a command, you audit it (6.1); when it writes a <Code code="setup.sh" />, you read it
 				(6.2); when it says "tests failed," you can see the exit code it saw (6.3). The integrated
-				terminal is the glass cockpit where all of that happens in one place — code, agent, and
-				shell in a single window.
+				terminal is the one place code, agent, and shell meet — all in a single window.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -548,10 +547,10 @@ sudo !!
 				practice: <strong style="color: var(--color-text);"
 					>people now run multiple AI agents in parallel</strong
 				> — one agent per pane or tab, each pointed at its own copy of the project (its own git worktree)
-				so they never collide. The split layout stops being "server here, logs there" and becomes an agent-fleet
-				dashboard: three panes, three agents on three tasks, and you sweeping your eyes across all of
-				them, approving and course-correcting. Every pane is just a shell — which is why everything in
-				this course scales from one terminal to ten.
+				so they never collide. The split layout stops being "server here, logs there" and becomes several
+				agents, each in its own pane: three panes, three agents on three tasks, and you sweeping your
+				eyes across all of them, approving and course-correcting. Every pane is just a shell — which is
+				why everything in this course scales from one terminal to ten.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -559,8 +558,8 @@ sudo !!
 				terminal multiplexer that does tabs and splits <em>inside</em> the terminal itself — and
 				whose sessions survive the window closing, your laptop sleeping, even an SSH connection
 				dropping. You log back in, reattach, and every pane is exactly where you left it (agents
-				included — which is exactly why the agent-fleet crowd lives in it). If tmux's keybindings
-				feel arcane,
+				included — which is exactly why people running several at once tend to live in it). If
+				tmux's keybindings feel arcane,
 				<strong style="color: var(--color-text);">Zellij</strong> is the friendlier modern multiplexer
 				with the shortcuts printed on screen. Overkill for today; indispensable the day you work on remote
 				servers. It'll be waiting.

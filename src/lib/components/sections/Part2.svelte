@@ -366,12 +366,11 @@ cat projects/app/README.md`}
 			</p>
 
 			<Callout type="important">
-				<strong>TAB completion is not optional.</strong> Type the first few letters of any path and
-				press <strong>TAB</strong>: the shell finishes the name for you. Nothing happens? Press TAB
-				twice to see every possible completion. This is THE typo-prevention habit — a completed path
-				is a path that <em>exists</em>, spelled exactly right, with spaces and special characters
-				escaped for you. Professionals never type a full path by hand, and after this section,
-				neither do you. Try it:
+				<strong>Treat TAB completion as a habit, not a convenience.</strong> Type the first few
+				letters of any path and press <strong>TAB</strong>: the shell finishes the name for you.
+				Nothing happens? Press TAB twice to see every possible completion. A completed path is a
+				path that <em>exists</em>, spelled exactly right, with spaces and special characters escaped
+				for you. Most people who look fast in a terminal are completing, not typing. Try it:
 				<Code code="cd pro" />, TAB, watch it become
 				<Code code="cd projects/" />.
 			</Callout>

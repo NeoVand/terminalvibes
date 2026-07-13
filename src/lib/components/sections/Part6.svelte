@@ -43,10 +43,10 @@
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			This is the chapter this whole course exists for. Your AI assistant proposes shell commands
-			all day long — install this, delete that, pipe this into that. Everything you've learned so
-			far (paths, wildcards, pipes, permissions) was building toward one skill: <strong
-				style="color: var(--color-text);">reading a command you didn't write</strong
+			Everything so far was building toward one skill. Your AI assistant proposes shell commands all
+			day long — install this, delete that, pipe this into that. Paths, wildcards, pipes,
+			permissions — they were all groundwork for this: <strong style="color: var(--color-text);"
+				>reading a command you didn't write</strong
 			>
 			and deciding, with confidence, whether to let it run. In this part you'll learn a repeatable audit
 			routine, write your first script (so agent-written scripts stop being mysterious), and learn the
@@ -352,9 +352,8 @@ rm -rf build/*`}
 			</p>
 
 			<Callout type="important">
-				<strong>You are the approval step — and the prompt is your moment.</strong> Every major
-				agent — Claude Code, Codex CLI, Copilot's agent mode — asks "allow this command?" before
-				running it, and
+				<strong>You are the approval step.</strong> Every major agent — Claude Code, Codex CLI,
+				Copilot's agent mode — asks "allow this command?" before running it, and
 				<a
 					href="https://www.anthropic.com/engineering/claude-code-sandboxing"
 					target="_blank"
@@ -364,9 +363,9 @@ rm -rf build/*`}
 				>
 				(macOS Seatbelt, Linux bubblewrap) is becoming the default posture underneath. That permission
 				prompt <em>is</em> the modern read-before-you-run: the skill this course teaches is what you
-				do in the seconds it's on screen. Never YOLO-approve. An agent can propose a thousand
-				commands an hour; it only takes one unread
-				<Code code="rm" /> to make it a bad day.
+				do in the seconds it's on screen. Don't approve on autopilot — an agent can propose commands
+				faster than you can casually skim them, and it only takes one unread
+				<Code code="rm" /> to ruin an afternoon.
 			</Callout>
 
 			<h4
@@ -540,6 +539,17 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 # Backed up recipes to backups/recipes-backup-2026-07-12`}
 			/>
 
+			<Callout type="note">
+				<strong>What's <Code code="$(date +%F)" />?</strong> The
+				<Code code="$( ... )" /> around a command means "run this, and drop its output right here" — command
+				substitution. So
+				<Code code="$(date +%F)" /> becomes today's date, and the backup name carries it. Agents lean
+				on this constantly, so it's worth recognizing on sight. One caveat for the sandbox just below:
+				this in-browser playground doesn't run <Code code="$( ... )" /> yet, so build your
+				<Code code="backup.sh" /> there with a plain fixed name (the audit habit is the point). On your
+				real machine, the dated version works exactly as shown.
+			</Callout>
+
 			<Callout type="important">
 				<strong>Agents write scripts constantly.</strong> Ask an AI to "set up the project" or
 				"automate the deploy" and odds are it produces a
@@ -633,7 +643,7 @@ echo $?
 			/>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				On its own that's a curiosity. It becomes a superpower with the three <strong
+				On its own that's a curiosity. It earns its keep with the three <strong
 					style="color: var(--color-text);">chaining operators</strong
 				>, which decide whether the next command runs based on the last one's exit code:
 			</p>
