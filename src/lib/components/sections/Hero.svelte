@@ -280,7 +280,7 @@
 					in this course works the same in both.
 				</p>
 			</div>
-			<div class="mx-auto w-48 flex-shrink-0 sm:mx-0 sm:w-52">
+			<div class="mx-auto w-72 flex-shrink-0 sm:mx-0 sm:w-80">
 				<ExpandableImage
 					src="{base}/images/thompson-ritchie.webp"
 					alt="Ken Thompson and Dennis Ritchie at a PDP-11 running Unix at Bell Labs"
@@ -295,7 +295,7 @@
 			{#each shellTimeline as entry (entry.year)}
 				<div class="flex gap-4 py-2">
 					<span
-						class="w-20 flex-shrink-0 text-right text-[12px] font-semibold"
+						class="w-12 flex-shrink-0 text-right text-[12px] font-semibold"
 						style="color: var(--color-primary-text); font-family: var(--font-mono);"
 					>
 						{entry.year}
