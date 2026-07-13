@@ -4,6 +4,7 @@ export const sectionIds = [
 	'section-intro-history',
 	'section-intro-shells',
 	'section-intro-anatomy',
+	'section-intro-under-the-hood',
 	'part-1',
 	'section-1-1',
 	'section-1-2',

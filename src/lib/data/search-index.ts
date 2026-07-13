@@ -237,6 +237,75 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
+	{
+		id: 'topic-under-the-hood',
+		sectionId: 'section-intro-under-the-hood',
+		title: 'Under the Hood',
+		part: 'Introduction',
+		description: 'TTYs, the PTY pair, and the line discipline — how the terminal actually works.',
+		keywords: [
+			'under the hood',
+			'how does the terminal work',
+			'how terminal works',
+			'tty',
+			'teletype',
+			'pty',
+			'pseudo-terminal',
+			'pseudoterminal',
+			'terminal emulator',
+			'line discipline',
+			'raw mode',
+			'cooked mode',
+			'canonical mode',
+			'stty',
+			'internals'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-escape-sequences',
+		sectionId: 'section-intro-under-the-hood',
+		title: 'Escape sequences & ANSI colors',
+		part: 'Introduction',
+		description: 'Colors and cursor movement are in-band bytes — \\e[32m turns the text green.',
+		keywords: [
+			'escape sequence',
+			'escape sequences',
+			'ansi',
+			'ansi colors',
+			'terminal colors',
+			'colored output',
+			'\\e[32m',
+			'esc',
+			'^[[a',
+			'arrow keys print characters',
+			'weird characters',
+			'cursor movement',
+			'vt100',
+			'garbled terminal'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-ctrl-c-sigint',
+		sectionId: 'section-intro-under-the-hood',
+		title: 'What Ctrl+C really does',
+		part: 'Introduction',
+		description: 'The tty driver turns Ctrl+C into SIGINT — a kernel signal, not input.',
+		keywords: [
+			'ctrl+c',
+			'ctrl c',
+			'sigint',
+			'signal',
+			'signals',
+			'interrupt',
+			'what does ctrl+c do',
+			'how does ctrl+c work',
+			'stop a running command',
+			'kill a program'
+		],
+		kind: 'topic'
+	},
 	// ───── Part 1: First Contact ─────
 	{
 		id: 'topic-opening-terminal',

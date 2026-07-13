@@ -3,6 +3,7 @@ import {
 	BookOpen,
 	Bot,
 	Braces,
+	Cog,
 	Compass,
 	Copy,
 	Eye,
@@ -63,7 +64,8 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-intro-what', label: 'What Is the Terminal?', icon: HelpCircle },
 			{ id: 'section-intro-history', label: 'A Brief History', icon: History },
 			{ id: 'section-intro-shells', label: "Your Machine's Terminal", icon: Laptop },
-			{ id: 'section-intro-anatomy', label: 'Anatomy of a Prompt', icon: Terminal }
+			{ id: 'section-intro-anatomy', label: 'Anatomy of a Prompt', icon: Terminal },
+			{ id: 'section-intro-under-the-hood', label: 'Under the Hood', icon: Cog }
 		]
 	},
 	{
