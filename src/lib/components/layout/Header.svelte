@@ -193,8 +193,10 @@
 <style>
 	/* Frosted glass, matching the sidebar's treatment: content scrolls
 	   visibly behind the header through the blur. */
+
+	/* The logo webp is transparent — no plate behind it, so the pane
+	   reads as one continuous modal surface. */
 	.about-logo-pane {
-		background: #0d0906;
 		min-height: 220px;
 	}
 
