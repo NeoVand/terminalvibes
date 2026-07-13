@@ -93,7 +93,13 @@ export class LocalBackend implements AgentBackend {
 				opts.onPhase?.(`warming up (${device})`);
 				const started = performance.now();
 				const out = await withTimeout(
-					model.host.generate([new HumanMessage('Reply with the single word: ok')], undefined, false, undefined, 8),
+					model.host.generate(
+						[new HumanMessage('Reply with the single word: ok')],
+						undefined,
+						false,
+						undefined,
+						8
+					),
 					probeTimeout,
 					`${device} warm-up generate`
 				);

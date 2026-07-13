@@ -1,8 +1,27 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { Bot, X, ArrowUp, Square, ChevronRight, ArrowRight } from 'lucide-svelte';
+	import {
+		Bot,
+		X,
+		ArrowUp,
+		Square,
+		ChevronRight,
+		ArrowRight,
+		Check,
+		Download,
+		RotateCcw,
+		Search,
+		Settings
+	} from 'lucide-svelte';
 	import { autohideScroll } from '$lib/actions/autohide-scroll';
 	import { agentRuntime } from '$lib/ai/runtime.svelte';
+	import {
+		canRunModel,
+		DEFAULT_MODEL_ID,
+		getModelSpec,
+		QUALITY_MODEL_ID,
+		type LocalModelSpec
+	} from '$lib/ai/local/models';
 	import { titleForId } from '$lib/ai/retrieval';
 
 	let {
@@ -16,7 +35,8 @@
 	} = $props();
 
 	let hasOpened = $state(false);
-	let noticeDismissed = $state(false);
+	let modelCardDismissed = $state(false);
+	let settingsOpen = $state(false);
 	let input = $state('');
 	let taEl: HTMLTextAreaElement | undefined = $state(undefined);
 	let messagesEl: HTMLDivElement | undefined = $state(undefined);
@@ -30,6 +50,9 @@
 	$effect(() => {
 		if (open) {
 			hasOpened = true;
+			// Capability sniff + auto-warm of a previously downloaded model
+			// (from Cache Storage — never a fresh download without a click).
+			agentRuntime.initLocal();
 			// Autofocus on desktop only — on mobile the keyboard would cover
 			// the panel before the user has read anything.
 			if (window.innerWidth >= 768) {
@@ -37,6 +60,14 @@
 			}
 		}
 	});
+
+	const defaultSpec = getModelSpec(DEFAULT_MODEL_ID)!;
+	const qualitySpec = getModelSpec(QUALITY_MODEL_ID)!;
+	const busyPhases = ['downloading', 'loading', 'probing'] as const;
+	let localBusy = $derived((busyPhases as readonly string[]).includes(agentRuntime.localPhase));
+	let activeLocalId = $derived(
+		agentRuntime.backendName === 'local' ? agentRuntime.localModelId : null
+	);
 
 	// Follow the streaming answer.
 	$effect(() => {
@@ -126,6 +157,91 @@
 	}
 </script>
 
+{#snippet modelCard(spec: LocalModelSpec, tint: 'tan' | 'amber')}
+	{@const gate = canRunModel(spec, agentRuntime.caps)}
+	{@const downloaded = agentRuntime.downloaded.includes(spec.id)}
+	{@const active = activeLocalId === spec.id}
+	{@const busy = localBusy && agentRuntime.localModelId === spec.id}
+	{@const sizeLabel =
+		spec.sizeMb >= 1000 ? `${(spec.sizeMb / 1000).toFixed(1)} GB` : `${spec.sizeMb} MB`}
+	<div
+		class="agent-model-card agent-model-{tint}"
+		class:active
+		class:dimmed={!gate.ok || (!downloaded && !busy)}
+	>
+		<span class="agent-model-name">{spec.label}</span>
+		<span class="agent-model-meta">
+			~{sizeLabel} · {spec.requiresWebGpu ? 'better answers · needs WebGPU' : 'runs anywhere'}
+		</span>
+		{#if active}
+			<span class="agent-model-active"><Check size={9} /> active</span>
+		{/if}
+		{#if busy}
+			<div class="agent-model-progress" role="status" aria-live="polite">
+				{#if agentRuntime.localPhase === 'downloading'}
+					<span class="agent-model-pct">
+						{agentRuntime.download.percent}% · {Math.round(
+							(spec.sizeMb * agentRuntime.download.percent) / 100
+						)} / {spec.sizeMb} MB
+					</span>
+				{:else if agentRuntime.localPhase === 'loading'}
+					<span class="agent-model-pct">loading into memory…</span>
+				{:else}
+					<span class="agent-model-pct">warming up…</span>
+				{/if}
+				<button
+					type="button"
+					class="agent-model-cancel"
+					onclick={() => agentRuntime.cancelActivation()}
+				>
+					Cancel
+				</button>
+				<div class="agent-model-track" aria-hidden="true">
+					{#if agentRuntime.localPhase === 'downloading'}
+						<div class="agent-model-fill" style:width="{agentRuntime.download.percent}%"></div>
+					{:else}
+						<div class="agent-model-fill indeterminate"></div>
+					{/if}
+				</div>
+			</div>
+		{:else if !downloaded}
+			<!-- Download gates activation: until the weights are local, the only
+			     live affordance is the download itself (and not even that when
+			     the device can't run the model — no 1.3 GB bricks). -->
+			<button
+				type="button"
+				class="agent-model-dl"
+				disabled={!gate.ok || localBusy}
+				onclick={() => agentRuntime.activateLocal(spec.id)}
+			>
+				<Download size={11} />
+				Download · {sizeLabel}
+			</button>
+		{:else if !active}
+			<button
+				type="button"
+				class="agent-model-use"
+				disabled={!gate.ok || localBusy}
+				onclick={() => agentRuntime.activateLocal(spec.id)}
+			>
+				Use this model
+			</button>
+		{/if}
+		{#if !gate.ok}
+			<span class="agent-model-reason">{gate.reason}</span>
+		{/if}
+	</div>
+{/snippet}
+
+{#snippet modelPicker()}
+	<!-- The two local models, side by side: tan 0.8B, amber 2B — clearly
+	     siblings, each carrying its own download / activate lifecycle. -->
+	<div class="agent-model-grid">
+		{@render modelCard(defaultSpec, 'tan')}
+		{@render modelCard(qualitySpec, 'amber')}
+	</div>
+{/snippet}
+
 <svelte:window onkeydown={handleKeydown} />
 
 {#if open}
@@ -152,33 +268,95 @@
 			>
 				<Bot size={14} style="color: var(--color-important);" />
 				<span class="text-sm font-semibold" style="color: var(--color-text);">Agent</span>
-				<span class="agent-badge hidden sm:inline">local · in your browser</span>
+				<span class="agent-badge hidden sm:inline">{agentRuntime.badgeLabel}</span>
 
 				<div class="ml-auto flex items-center gap-1.5 sm:gap-2">
+					<button
+						type="button"
+						onclick={() => (settingsOpen = !settingsOpen)}
+						class="agent-icon-btn"
+						class:agent-icon-btn-on={settingsOpen}
+						aria-label="Agent settings"
+						aria-expanded={settingsOpen}
+					>
+						<Settings size={14} />
+					</button>
 					<button type="button" onclick={onToggle} class="agent-icon-btn" aria-label="Close agent">
 						<X size={14} />
 					</button>
 				</div>
 			</header>
 
-			{#if !noticeDismissed}
-				<div
-					class="relative shrink-0 px-3 py-2.5 text-[11px] leading-relaxed sm:px-5 sm:text-xs"
-					style="color: var(--color-text-secondary); border-bottom: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-important) 6%, transparent);"
-				>
-					Right now I'm a <strong style="color: var(--color-text);">scripted guide</strong> — I
-					answer strictly from the course lessons, with links to the source. The real local model
-					(~450 MB, runs entirely in your browser) arrives soon.
-					<button
-						type="button"
-						onclick={() => (noticeDismissed = true)}
-						class="absolute top-2 right-2 flex h-5 w-5 cursor-pointer items-center justify-center rounded transition-opacity hover:opacity-70"
-						style="color: var(--color-text-muted);"
-						aria-label="Dismiss notice"
-					>
-						<X size={12} />
-					</button>
+			{#if settingsOpen}
+				<button
+					class="agent-settings-backdrop"
+					type="button"
+					aria-label="Close settings"
+					onclick={() => (settingsOpen = false)}
+				></button>
+				<div class="agent-settings" role="dialog" aria-label="Agent settings">
+					<!-- A tiny settings list — future entries (generation speed,
+					     clear conversation, …) append as further .agent-setting rows. -->
+					<div class="agent-setting">
+						<p class="agent-setting-label">Model</p>
+						{@render modelPicker()}
+					</div>
+					<div class="agent-setting">
+						<p class="agent-setting-label">Mode</p>
+						{#if agentRuntime.backendName === 'local'}
+							<button type="button" class="agent-mode-link" onclick={() => agentRuntime.useMock()}>
+								use scripted mode
+							</button>
+						{:else}
+							<p class="agent-card-note">Scripted guide (answers come from the course index).</p>
+						{/if}
+					</div>
 				</div>
+			{/if}
+
+			{#if agentRuntime.backendName !== 'local'}
+				{#if agentRuntime.localPhase === 'error'}
+					<div class="agent-card relative shrink-0">
+						<p class="agent-card-title">
+							The local model couldn't start: <span style="color: var(--color-caution);"
+								>{agentRuntime.localError}</span
+							>
+						</p>
+						<div class="mt-2 flex items-center gap-2">
+							<button
+								type="button"
+								class="agent-dl-btn"
+								onclick={() =>
+									agentRuntime.activateLocal(agentRuntime.localModelId ?? DEFAULT_MODEL_ID)}
+							>
+								<RotateCcw size={12} />
+								Retry
+							</button>
+							<span class="agent-card-note"
+								>Meanwhile I'll keep answering as the scripted guide.</span
+							>
+						</div>
+					</div>
+				{:else if !modelCardDismissed}
+					<div class="agent-card relative shrink-0">
+						<p class="agent-card-title">
+							Right now I'm a <strong>scripted guide</strong> answering strictly from the lessons. Want
+							the real thing? Download a model once — it runs entirely in your browser.
+						</p>
+						<div class="mt-2">
+							{@render modelPicker()}
+						</div>
+						<button
+							type="button"
+							onclick={() => (modelCardDismissed = true)}
+							class="absolute top-2 right-2 flex h-5 w-5 cursor-pointer items-center justify-center rounded transition-opacity hover:opacity-70"
+							style="color: var(--color-text-muted);"
+							aria-label="Use scripted mode"
+						>
+							<X size={12} />
+						</button>
+					</div>
+				{/if}
 			{/if}
 
 			<div
@@ -246,9 +424,28 @@
 								</div>
 							{/if}
 						{/each}
+						{#if agentRuntime.activity}
+							<div class="agent-activity" role="status">
+								<Search size={11} class="shrink-0" />
+								{agentRuntime.activity}
+							</div>
+						{/if}
 					</div>
 				{/if}
 			</div>
+
+			{#if agentRuntime.backendName === 'local'}
+				<div class="agent-mode-row shrink-0">
+					<span
+						>{agentRuntime.badgeLabel}{agentRuntime.localDevice
+							? ` · ${agentRuntime.localDevice}`
+							: ''}</span
+					>
+					<button type="button" class="agent-mode-link" onclick={() => agentRuntime.useMock()}>
+						use scripted mode
+					</button>
+				</div>
+			{/if}
 
 			<!-- Seamless composer: a label so clicking anywhere focuses the field;
 			     the send affordance floats in the corner over the same surface.
@@ -480,5 +677,358 @@
 		display: inline-block;
 		margin-left: 2px;
 		vertical-align: text-bottom;
+	}
+
+	/* ── Local-model card (download offer / progress / error) ───────────── */
+	.agent-card {
+		padding: 0.625rem 0.75rem 0.75rem;
+		border-bottom: 1px solid var(--color-border);
+		background: color-mix(in srgb, var(--color-important) 6%, transparent);
+	}
+
+	@media (min-width: 640px) {
+		.agent-card {
+			padding-left: 1.25rem;
+			padding-right: 1.25rem;
+		}
+	}
+
+	.agent-card-title {
+		font-size: 11.5px;
+		line-height: 1.5;
+		color: var(--color-text-secondary);
+	}
+
+	.agent-card-title strong {
+		color: var(--color-text);
+	}
+
+	.agent-card-note {
+		font-size: 10.5px;
+		color: var(--color-text-muted);
+	}
+
+	.agent-dl-btn {
+		display: inline-flex;
+		cursor: pointer;
+		align-items: center;
+		gap: 0.4rem;
+		border-radius: 0.5rem;
+		border: 1px solid color-mix(in srgb, var(--color-important) 45%, transparent);
+		background: color-mix(in srgb, var(--color-important) 12%, var(--color-surface));
+		padding: 0.375rem 0.625rem;
+		text-align: left;
+		font-size: 11px;
+		font-weight: 600;
+		line-height: 1.4;
+		color: var(--color-important);
+		transition: border-color 0.15s ease;
+	}
+
+	.agent-dl-btn:hover {
+		border-color: var(--color-important);
+	}
+
+	@keyframes agent-dl-slide {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(320%);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.agent-model-fill.indeterminate {
+			animation: none;
+			width: 100%;
+			opacity: 0.5;
+		}
+	}
+
+	/* Live "searching the course…" note while the agent uses a tool. */
+	.agent-activity {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		font-style: italic;
+		color: var(--color-text-muted);
+	}
+
+	/* Slim mode row above the composer when the real model is active. */
+	.agent-mode-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 0.25rem 1.25rem;
+		font-size: 10px;
+		color: var(--color-text-muted);
+		border-top: 1px solid var(--color-border-light);
+	}
+
+	.agent-mode-link {
+		cursor: pointer;
+		border: none;
+		background: transparent;
+		padding: 0;
+		font-size: 10px;
+		color: var(--color-text-muted);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.agent-mode-link:hover {
+		color: var(--color-important);
+	}
+
+	/* ── Settings popover (gear in the header) ──────────────────────────── */
+	.agent-icon-btn-on {
+		border-color: var(--color-important);
+		color: var(--color-important);
+	}
+
+	.agent-settings-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 45;
+		border: 0;
+		padding: 0;
+		background: transparent;
+		cursor: default;
+	}
+
+	.agent-settings {
+		position: absolute;
+		top: calc(var(--header-height) + 3rem);
+		right: 0.75rem;
+		z-index: 46;
+		width: min(22rem, calc(100% - 1.5rem));
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		padding: 0.75rem;
+		border-radius: 0.75rem;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 14px 36px -16px rgba(0, 0, 0, 0.5);
+	}
+
+	.agent-setting {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
+	.agent-setting-label {
+		font-size: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-text-muted);
+	}
+
+	/* ── Side-by-side model cards: tan 0.8B / amber 2B ──────────────────── */
+	.agent-model-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5rem;
+	}
+
+	@media (max-width: 420px) {
+		.agent-model-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.agent-model-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.3rem;
+		overflow: hidden;
+		padding: 0.5rem 0.625rem 0.625rem;
+		border-radius: 0.625rem;
+		text-align: left;
+	}
+
+	/* Not yet downloaded (and not busy): the card body reads as inert — the
+	   download button is the only live affordance. */
+	.agent-model-card.dimmed > .agent-model-name,
+	.agent-model-card.dimmed > .agent-model-meta {
+		opacity: 0.6;
+	}
+
+	.agent-model-name {
+		font-size: 12px;
+		font-weight: 700;
+		color: var(--color-text);
+	}
+
+	.agent-model-meta {
+		font-size: 10.5px;
+		line-height: 1.4;
+		color: var(--color-text-secondary);
+	}
+
+	.agent-model-active {
+		position: absolute;
+		top: 0.4rem;
+		right: 0.5rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.15rem;
+		border-radius: 9999px;
+		padding: 0.05rem 0.4rem;
+		font-size: 9px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-primary-text);
+		background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+	}
+
+	.agent-model-reason {
+		font-size: 9.5px;
+		font-style: italic;
+		color: var(--color-text-muted);
+	}
+
+	/* In-card download / activate buttons */
+	.agent-model-dl,
+	.agent-model-use {
+		display: inline-flex;
+		cursor: pointer;
+		align-items: center;
+		gap: 0.3rem;
+		border-radius: 0.4rem;
+		padding: 0.25rem 0.5rem;
+		font-size: 10.5px;
+		font-weight: 700;
+		transition:
+			border-color 0.15s ease,
+			opacity 0.15s ease;
+	}
+
+	.agent-model-dl:disabled,
+	.agent-model-use:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	/* In-card progress (download percent / load / warm-up) */
+	.agent-model-progress {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.agent-model-pct {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 600;
+	}
+
+	.agent-model-cancel {
+		margin-left: auto;
+		cursor: pointer;
+		border: none;
+		background: transparent;
+		padding: 0;
+		font-size: 10px;
+		color: var(--color-text-muted);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.agent-model-cancel:hover {
+		color: var(--color-caution);
+	}
+
+	.agent-model-track {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 2px;
+		overflow: hidden;
+	}
+
+	.agent-model-fill {
+		height: 100%;
+		transition: width 0.25s ease;
+	}
+
+	.agent-model-fill.indeterminate {
+		width: 35%;
+		animation: agent-dl-slide 1.1s ease-in-out infinite;
+	}
+
+	/* Sibling tints: same structure, different family. The active model gets
+	   a stronger wash of its own tint. */
+	.agent-model-tan {
+		border: 1px solid color-mix(in srgb, var(--color-vibe) 35%, transparent);
+		background: color-mix(in srgb, var(--color-vibe) 6%, var(--color-surface));
+	}
+
+	.agent-model-tan.active {
+		border: 2px solid var(--color-vibe);
+		background: color-mix(in srgb, var(--color-vibe) 16%, var(--color-surface));
+		padding: calc(0.5rem - 1px) calc(0.625rem - 1px) calc(0.625rem - 1px);
+	}
+
+	.agent-model-tan .agent-model-dl,
+	.agent-model-tan .agent-model-use {
+		border: 1px solid color-mix(in srgb, var(--color-vibe) 45%, transparent);
+		background: color-mix(in srgb, var(--color-vibe) 12%, var(--color-surface));
+		color: var(--color-vibe-text);
+	}
+
+	.agent-model-tan .agent-model-dl:hover:not(:disabled),
+	.agent-model-tan .agent-model-use:hover:not(:disabled) {
+		border-color: var(--color-vibe);
+	}
+
+	.agent-model-tan .agent-model-pct {
+		color: var(--color-vibe-text);
+	}
+
+	.agent-model-tan .agent-model-fill {
+		background: var(--color-vibe);
+	}
+
+	.agent-model-amber {
+		border: 1px solid color-mix(in srgb, var(--color-important) 35%, transparent);
+		background: color-mix(in srgb, var(--color-important) 6%, var(--color-surface));
+	}
+
+	.agent-model-amber.active {
+		border: 2px solid var(--color-important);
+		background: color-mix(in srgb, var(--color-important) 16%, var(--color-surface));
+		padding: calc(0.5rem - 1px) calc(0.625rem - 1px) calc(0.625rem - 1px);
+	}
+
+	.agent-model-amber .agent-model-dl,
+	.agent-model-amber .agent-model-use {
+		border: 1px solid color-mix(in srgb, var(--color-important) 45%, transparent);
+		background: color-mix(in srgb, var(--color-important) 12%, var(--color-surface));
+		color: var(--color-important);
+	}
+
+	.agent-model-amber .agent-model-dl:hover:not(:disabled),
+	.agent-model-amber .agent-model-use:hover:not(:disabled) {
+		border-color: var(--color-important);
+	}
+
+	.agent-model-amber .agent-model-pct {
+		color: var(--color-important);
+	}
+
+	.agent-model-amber .agent-model-fill {
+		background: var(--color-important);
 	}
 </style>

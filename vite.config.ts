@@ -13,6 +13,14 @@ export default defineConfig({
 		port: Number(process.env.PORT) || 4173
 	},
 	optimizeDeps: {
-		include: ['mermaid']
+		include: ['mermaid'],
+		// transformers.js loads ONNX/WASM backends dynamically inside the model
+		// worker; pre-bundling rewrites those asset URLs and breaks the worker.
+		exclude: ['@huggingface/transformers']
+	},
+	// The model worker (src/lib/ai/local/worker.ts) uses dynamic imports via
+	// transformers.js — only the ES worker format supports code-splitting.
+	worker: {
+		format: 'es'
 	}
 });

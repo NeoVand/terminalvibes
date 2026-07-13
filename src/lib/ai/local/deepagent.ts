@@ -11,8 +11,22 @@
  *    async-context shim only carries graph context to the first await);
  *  - ToolMessage order matches tool_call order.
  */
-import { StateGraph, START, END, MemorySaver, MessagesAnnotation, Command, interrupt } from '@langchain/langgraph/web';
-import { AIMessage, HumanMessage, SystemMessage, ToolMessage, type BaseMessage } from '@langchain/core/messages';
+import {
+	StateGraph,
+	START,
+	END,
+	MemorySaver,
+	MessagesAnnotation,
+	Command,
+	interrupt
+} from '@langchain/langgraph/web';
+import {
+	AIMessage,
+	HumanMessage,
+	SystemMessage,
+	ToolMessage,
+	type BaseMessage
+} from '@langchain/core/messages';
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import type { StructuredToolInterface, StructuredTool, ToolInterface } from '@langchain/core/tools';
 
@@ -61,7 +75,13 @@ export interface CourseAgent {
 
 function normalizeResume(value: unknown): AgentDecision {
 	const v = value as AgentDecision | { decisions?: AgentDecision[] };
-	if (v && typeof v === 'object' && 'decisions' in v && Array.isArray(v.decisions) && v.decisions[0])
+	if (
+		v &&
+		typeof v === 'object' &&
+		'decisions' in v &&
+		Array.isArray(v.decisions) &&
+		v.decisions[0]
+	)
 		return v.decisions[0];
 	if (v && typeof v === 'object' && 'type' in v) return v as AgentDecision;
 	return { type: 'approve' };

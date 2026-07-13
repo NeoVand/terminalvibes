@@ -40,10 +40,13 @@ export class AgentRuntime {
 	localError = $state<string | null>(null);
 	download = $state<DownloadProgress>({ file: null, percent: 0, status: null });
 	caps = $state<DeviceCaps>({ webgpu: false, ramGb: null });
+	/** Reactive mirror of the localStorage downloaded-models flags. */
+	downloaded = $state<string[]>([]);
 
 	#mock: AgentBackend = new MockBackend();
 	#local: LocalBackend | null = null;
 	#abort: AbortController | null = null;
+	#warmAbort: AbortController | null = null;
 	#initDone = false;
 
 	get backend(): AgentBackend {
@@ -67,6 +70,7 @@ export class AgentRuntime {
 		if (this.#initDone) return;
 		this.#initDone = true;
 		this.caps = detectCaps();
+		this.downloaded = downloadedModels();
 		const remembered = selectedModel();
 		if (remembered && downloadedModels().includes(remembered) && getModelSpec(remembered)) {
 			void this.activateLocal(remembered);
@@ -88,33 +92,63 @@ export class AgentRuntime {
 		this.localPhase = cached ? 'loading' : 'downloading';
 		this.download = { file: null, percent: 0, status: null };
 
+		this.#warmAbort = new AbortController();
+		const cancelled = new Promise<never>((_, reject) => {
+			this.#warmAbort!.signal.addEventListener('abort', () =>
+				reject(new Error('activation cancelled'))
+			);
+		});
+
 		try {
 			const { LocalBackend } = await import('./local/local-backend');
 			this.#local?.dispose();
 			this.#local = null;
 			const backend = new LocalBackend(modelId);
-			const result = await backend.warm({
-				onProgress: (p) => {
-					if (p.file) this.download.file = p.file;
-					if (p.status) this.download.status = p.status;
-					if (typeof p.progress === 'number') this.download.percent = Math.round(p.progress);
-				},
-				onPhase: (phase) => {
-					if (phase.startsWith('warming')) this.localPhase = 'probing';
-				}
-			});
+			const result = await Promise.race([
+				backend.warm({
+					onProgress: (p) => {
+						if (p.file) this.download.file = p.file;
+						if (p.status) this.download.status = p.status;
+						if (typeof p.progress === 'number') this.download.percent = Math.round(p.progress);
+					},
+					onPhase: (phase) => {
+						if (phase.startsWith('warming')) this.localPhase = 'probing';
+					}
+				}),
+				cancelled
+			]);
 			this.#local = backend;
 			this.localDevice = result.device;
+			// Breadcrumbs for the real-model smoke test (harmless in production).
+			(globalThis as { __tvAgentDevice?: string }).__tvAgentDevice = result.device;
+			(globalThis as { __tvAgentProbeMs?: number }).__tvAgentProbeMs = backend.probeMs ?? -1;
 			markDownloaded(modelId);
+			this.downloaded = downloadedModels();
 			rememberSelectedModel(modelId);
 			this.backendName = 'local';
 			this.localPhase = 'ready';
 			if (this.status === 'idle') this.status = 'ready';
 		} catch (e) {
-			this.localPhase = 'error';
-			this.localError = e instanceof Error ? e.message : String(e);
+			if (e instanceof Error && e.message === 'activation cancelled') {
+				// User pressed Cancel: tear down whatever was mid-flight and go
+				// back to the offer state — no error banner for a chosen exit.
+				const { disposeHost } = await import('./local/transformers-js');
+				disposeHost();
+				this.localPhase = 'idle';
+				this.localModelId = null;
+			} else {
+				this.localPhase = 'error';
+				this.localError = e instanceof Error ? e.message : String(e);
+			}
 			this.backendName = 'mock';
+		} finally {
+			this.#warmAbort = null;
 		}
+	}
+
+	/** Cancel an in-flight download/warm (the Cancel affordance on the card). */
+	cancelActivation(): void {
+		this.#warmAbort?.abort();
 	}
 
 	/** Fall back to the scripted guide (keeps the downloaded weights cached). */
@@ -150,6 +184,9 @@ export class AgentRuntime {
 						this.activity = event.call.args.query
 							? `searching the course for “${event.call.args.query}”`
 							: 'searching the course';
+						(globalThis as { __tvAgentSearches?: string[] }).__tvAgentSearches?.push(
+							event.call.args.query ?? ''
+						);
 					} else if (event.type === 'error') {
 						reply.content += `${reply.content ? '\n\n' : ''}Something went wrong: ${event.message}`;
 					}

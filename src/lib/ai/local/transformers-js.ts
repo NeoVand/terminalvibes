@@ -25,7 +25,10 @@ import type { ToolCall } from '@langchain/core/messages/tool';
 import { ChatGenerationChunk, type ChatResult } from '@langchain/core/outputs';
 import type { CallbackManagerForLLMRun } from '@langchain/core/callbacks/manager';
 import { convertToOpenAITool } from '@langchain/core/utils/function_calling';
-import { browser } from '$app/environment';
+
+// Plain runtime check instead of SvelteKit's $app/environment so this module
+// stays importable from vitest (node) without aliasing.
+const browser = typeof window !== 'undefined' && typeof Worker !== 'undefined';
 
 /** Call options carry the tools bound via `.bindTools([...])`. */
 export interface TransformersJsCallOptions extends BaseChatModelCallOptions {

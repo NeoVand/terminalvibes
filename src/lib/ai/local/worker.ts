@@ -94,20 +94,26 @@ async function runGenerate(msg: GenerateMsg) {
 		// the whole budget thinking and return an empty visible answer. Disabling
 		// thinking makes them answer directly. With tools present the same call
 		// advertises them in the model's native (Hermes-style) format.
-		const input = generator.tokenizer.apply_chat_template(msg.messages as never, {
-			...(msg.tools && msg.tools.length ? { tools: msg.tools } : {}),
-			add_generation_prompt: true,
-			tokenize: false,
-			enable_thinking: false
-		} as never) as unknown as string;
+		const input = generator.tokenizer.apply_chat_template(
+			msg.messages as never,
+			{
+				...(msg.tools && msg.tools.length ? { tools: msg.tools } : {}),
+				add_generation_prompt: true,
+				tokenize: false,
+				enable_thinking: false
+			} as never
+		) as unknown as string;
 
-		const result = (await generator(input as never, {
-			max_new_tokens: msg.max_new_tokens ?? 512,
-			temperature: msg.temperature ?? 0.7,
-			do_sample: (msg.temperature ?? 0.7) > 0,
-			return_full_text: false,
-			...streamerOpt
-		} as never)) as unknown;
+		const result = (await generator(
+			input as never,
+			{
+				max_new_tokens: msg.max_new_tokens ?? 512,
+				temperature: msg.temperature ?? 0.7,
+				do_sample: (msg.temperature ?? 0.7) > 0,
+				return_full_text: false,
+				...streamerOpt
+			} as never
+		)) as unknown;
 
 		let final = '';
 		if (Array.isArray(result) && result.length) {
