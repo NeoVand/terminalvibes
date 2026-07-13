@@ -14,8 +14,8 @@ export interface ChatMessage {
 
 export interface ToolCall {
 	id: string;
-	name: 'bash' | 'done';
-	args: { cmd?: string; summary?: string };
+	name: 'bash' | 'done' | 'search_course';
+	args: { cmd?: string; summary?: string; query?: string };
 }
 
 export type AgentEvent =

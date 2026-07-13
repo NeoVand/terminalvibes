@@ -284,9 +284,9 @@
 				<ExpandableImage
 					src="{base}/images/thompson-ritchie.webp"
 					alt="Ken Thompson and Dennis Ritchie at a PDP-11 running Unix at Bell Labs"
-					caption="Ken Thompson (seated) and Dennis Ritchie at Bell Labs, creators of Unix. Photo: Wikimedia Commons"
-					width={720}
-					height={1080}
+					caption="Ken Thompson (seated) and Dennis Ritchie at Bell Labs, creators of Unix — an illustrated homage"
+					width={1122}
+					height={1402}
 				/>
 			</div>
 		</div>

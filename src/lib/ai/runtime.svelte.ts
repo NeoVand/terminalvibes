@@ -1,22 +1,127 @@
 /**
- * The Agent panel's reactive store. Owns the conversation, the active
- * backend, and abort plumbing. The backend hides behind `AgentBackend`, so
- * swapping the mock for the transformers.js local model next phase is a
- * one-line change here and zero changes in the UI.
+ * The Agent panel's reactive store. Owns the conversation, the backend
+ * selection (mock ↔ local Qwen), the download/activation state machine, and
+ * abort plumbing. The local backend is dynamically imported on activation so
+ * transformers.js + langgraph never weigh down the initial bundle.
  */
 import { MockBackend } from './mock-backend';
 import type { AgentBackend, ChatMessage, RuntimeStatus } from './types';
+import {
+	detectCaps,
+	downloadedModels,
+	forgetSelectedModel,
+	getModelSpec,
+	markDownloaded,
+	rememberSelectedModel,
+	selectedModel,
+	type DeviceCaps
+} from './local/models';
+import type { LocalBackend } from './local/local-backend';
+
+export type LocalPhase = 'idle' | 'downloading' | 'loading' | 'probing' | 'ready' | 'error';
+
+export interface DownloadProgress {
+	file: string | null;
+	percent: number;
+	status: string | null;
+}
 
 export class AgentRuntime {
 	status = $state<RuntimeStatus>('idle');
 	backendName = $state<'mock' | 'local'>('mock');
 	messages = $state<ChatMessage[]>([]);
+	/** Live note while the agent works: "searching the course for …". */
+	activity = $state<string | null>(null);
 
-	#backend: AgentBackend = new MockBackend();
+	/* ── local model lifecycle ── */
+	localPhase = $state<LocalPhase>('idle');
+	localModelId = $state<string | null>(null);
+	localDevice = $state<'webgpu' | 'wasm' | null>(null);
+	localError = $state<string | null>(null);
+	download = $state<DownloadProgress>({ file: null, percent: 0, status: null });
+	caps = $state<DeviceCaps>({ webgpu: false, ramGb: null });
+
+	#mock: AgentBackend = new MockBackend();
+	#local: LocalBackend | null = null;
 	#abort: AbortController | null = null;
+	#initDone = false;
 
 	get backend(): AgentBackend {
-		return this.#backend;
+		return this.backendName === 'local' && this.#local ? this.#local : this.#mock;
+	}
+
+	/** Label for the header badge: model when local, honest mock note otherwise. */
+	get badgeLabel(): string {
+		if (this.backendName === 'local' && this.localModelId) {
+			return `${getModelSpec(this.localModelId)?.label ?? 'local model'} · local`;
+		}
+		return 'local · in your browser';
+	}
+
+	/**
+	 * Called when the panel first opens (browser only): sniff capabilities and,
+	 * if a model was downloaded + selected before, warm it from Cache Storage —
+	 * never a fresh download without an explicit click.
+	 */
+	initLocal(): void {
+		if (this.#initDone) return;
+		this.#initDone = true;
+		this.caps = detectCaps();
+		const remembered = selectedModel();
+		if (remembered && downloadedModels().includes(remembered) && getModelSpec(remembered)) {
+			void this.activateLocal(remembered);
+		}
+	}
+
+	/** Explicit activation (download button, retry, model switch, revisit warm). */
+	async activateLocal(modelId: string): Promise<void> {
+		if (
+			this.localPhase === 'downloading' ||
+			this.localPhase === 'loading' ||
+			this.localPhase === 'probing'
+		) {
+			return;
+		}
+		const cached = downloadedModels().includes(modelId);
+		this.localError = null;
+		this.localModelId = modelId;
+		this.localPhase = cached ? 'loading' : 'downloading';
+		this.download = { file: null, percent: 0, status: null };
+
+		try {
+			const { LocalBackend } = await import('./local/local-backend');
+			this.#local?.dispose();
+			this.#local = null;
+			const backend = new LocalBackend(modelId);
+			const result = await backend.warm({
+				onProgress: (p) => {
+					if (p.file) this.download.file = p.file;
+					if (p.status) this.download.status = p.status;
+					if (typeof p.progress === 'number') this.download.percent = Math.round(p.progress);
+				},
+				onPhase: (phase) => {
+					if (phase.startsWith('warming')) this.localPhase = 'probing';
+				}
+			});
+			this.#local = backend;
+			this.localDevice = result.device;
+			markDownloaded(modelId);
+			rememberSelectedModel(modelId);
+			this.backendName = 'local';
+			this.localPhase = 'ready';
+			if (this.status === 'idle') this.status = 'ready';
+		} catch (e) {
+			this.localPhase = 'error';
+			this.localError = e instanceof Error ? e.message : String(e);
+			this.backendName = 'mock';
+		}
+	}
+
+	/** Fall back to the scripted guide (keeps the downloaded weights cached). */
+	useMock(): void {
+		this.backendName = 'mock';
+		forgetSelectedModel();
+		if (this.localPhase === 'ready') this.localPhase = 'idle';
 	}
 
 	/** Chat entry point: append the question, stream the answer. */
@@ -30,27 +135,34 @@ export class AgentRuntime {
 		const history = this.messages.slice(0, -1);
 
 		this.status = 'generating';
+		this.activity = null;
 		this.#abort = new AbortController();
 
 		try {
-			await this.#backend.generate(history, {
+			await this.backend.generate(history, {
 				tools: false,
 				signal: this.#abort.signal,
 				onEvent: (event) => {
 					if (event.type === 'token') {
+						this.activity = null;
 						reply.content += event.text;
+					} else if (event.type === 'toolCall' && event.call.name === 'search_course') {
+						this.activity = event.call.args.query
+							? `searching the course for “${event.call.args.query}”`
+							: 'searching the course';
 					} else if (event.type === 'error') {
-						reply.content += `\n\nSomething went wrong: ${event.message}`;
+						reply.content += `${reply.content ? '\n\n' : ''}Something went wrong: ${event.message}`;
 					}
 				}
 			});
 		} catch (error) {
-			reply.content += `\n\nSomething went wrong: ${error instanceof Error ? error.message : String(error)}`;
+			reply.content += `${reply.content ? '\n\n' : ''}Something went wrong: ${error instanceof Error ? error.message : String(error)}`;
 		} finally {
 			if (reply.content === '') {
 				// Aborted before the first token — drop the empty bubble.
 				this.messages.pop();
 			}
+			this.activity = null;
 			this.status = 'ready';
 			this.#abort = null;
 		}
