@@ -175,3 +175,12 @@ export function retrieve(query: string, k = 3): RetrievalHit[] {
 export function titleForId(id: string): string | null {
 	return chunks.find((c) => c.id === id)?.title ?? null;
 }
+
+/**
+ * The raw course chunks belonging to one section id, in index order — for
+ * grounding prompts about the spot the learner is reading (as opposed to
+ * `retrieve`, which searches the whole course by query).
+ */
+export function sectionChunks(id: string, k = 3): CourseChunk[] {
+	return chunks.filter((c) => c.id === id).slice(0, k);
+}

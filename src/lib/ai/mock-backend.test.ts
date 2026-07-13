@@ -220,4 +220,61 @@ describe('mock backend — gated demo flow (the e2e harness)', () => {
 		const toolEvents = events.filter((e) => e.type === 'toolCall');
 		expect(toolEvents).toHaveLength(0);
 	});
+
+	it('demo: sandbox proposes a single ls (the seeded-home showcase)', async () => {
+		const { bash, proposed, ran } = autoGate(['allow']);
+		const events: AgentEvent[] = [];
+		await new MockBackend().generate([{ role: 'user', content: 'demo: sandbox' }], {
+			bash,
+			onEvent: (e) => events.push(e)
+		});
+		expect(proposed).toEqual(['ls']);
+		expect(ran).toEqual(['ls']);
+		expect(streamedText(events)).toContain('[[section-2-1]]');
+	});
+});
+
+describe('mock backend — contextual suggestions', () => {
+	async function collectSuggestion(label: string): Promise<string> {
+		let out = '';
+		await new MockBackend().suggest(
+			{ label, snippets: [] },
+			{ onToken: (t) => (out += t), instant: true }
+		);
+		return out;
+	}
+
+	it('streams exactly 4 numbered questions about the reading spot', async () => {
+		const text = await collectSuggestion('5.2 chmod — Permissions & Environment');
+		const lines = text.trim().split('\n');
+		expect(lines).toHaveLength(4);
+		lines.forEach((line, i) => expect(line).toMatch(new RegExp(`^${i + 1}\\. `)));
+		expect(text).toContain('chmod');
+		// Exactly one chip invites a live demonstration.
+		expect(lines.filter((l) => /terminal/i.test(l))).toHaveLength(1);
+	});
+
+	it('is deterministic: same spot, same questions', async () => {
+		const first = await collectSuggestion('4.2 Pipes — Text & Pipes');
+		const second = await collectSuggestion('4.2 Pipes — Text & Pipes');
+		expect(first).toBe(second);
+		expect(first).toContain('Pipes');
+	});
+
+	it('abort stops the token stream', async () => {
+		const controller = new AbortController();
+		let tokens = 0;
+		await new MockBackend().suggest(
+			{ label: '5.2 chmod', snippets: [] },
+			{
+				instant: true,
+				signal: controller.signal,
+				onToken: () => {
+					tokens++;
+					if (tokens === 2) controller.abort();
+				}
+			}
+		);
+		expect(tokens).toBe(2);
+	});
 });

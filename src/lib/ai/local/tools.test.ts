@@ -3,7 +3,8 @@ import {
 	buildAgentTools,
 	createSearchCourseTool,
 	formatCourseHits,
-	TUTOR_SYSTEM_PROMPT
+	TUTOR_SYSTEM_PROMPT,
+	tutorSystemPrompt
 } from './tools';
 
 describe('tutor system prompt', () => {
@@ -12,6 +13,28 @@ describe('tutor system prompt', () => {
 		expect(TUTOR_SYSTEM_PROMPT).toContain('bash');
 		expect(TUTOR_SYSTEM_PROMPT).toContain('search_course');
 		expect(TUTOR_SYSTEM_PROMPT).toContain('[[section-5-2]]');
+	});
+
+	it('teaches the sandbox rules: use listed files, create first, never invent paths', () => {
+		expect(TUTOR_SYSTEM_PROMPT).toContain('pre-stocked with demo');
+		expect(TUTOR_SYSTEM_PROMPT).toContain('CREATE it first');
+		expect(TUTOR_SYSTEM_PROMPT).toMatch(/NEVER run a command against a path/);
+	});
+});
+
+describe('tutorSystemPrompt (sandbox listing injection)', () => {
+	it('without a listing it is exactly the static tutor contract', () => {
+		expect(tutorSystemPrompt()).toBe(TUTOR_SYSTEM_PROMPT);
+		expect(tutorSystemPrompt(null)).toBe(TUTOR_SYSTEM_PROMPT);
+	});
+
+	it('appends the live listing under the FILES header', () => {
+		const listing = 'cwd: ~\n~/\n  notes/\n    monday.md\n  todo.txt';
+		const prompt = tutorSystemPrompt(listing);
+		expect(prompt.startsWith(TUTOR_SYSTEM_PROMPT)).toBe(true);
+		expect(prompt).toContain('FILES IN YOUR SANDBOX RIGHT NOW');
+		expect(prompt).toContain(listing);
+		expect(prompt).toContain('Anything not listed above does not exist yet.');
 	});
 });
 

@@ -14,6 +14,9 @@ export default defineConfig({
 		timeout: 180_000
 	},
 	testMatch: '**/*.e2e.{ts,js}',
+	// Agent worktrees under .claude/ ship their own node_modules copy of
+	// Playwright; collecting their specs loads two Playwright versions at once.
+	testIgnore: '**/.claude/**',
 	// CI runners are slow enough that parallel workers make the
 	// playground's timing-sensitive tests flaky
 	workers: process.env.CI ? 1 : undefined

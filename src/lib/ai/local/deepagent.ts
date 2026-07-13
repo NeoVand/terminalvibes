@@ -43,7 +43,12 @@ export interface AgentHooks {
 export interface CourseAgentOptions {
 	model: BaseChatModel;
 	tools?: AnyTool[];
-	systemPrompt?: string;
+	/**
+	 * The system prompt, or a function producing it — called fresh on EVERY
+	 * model round, so live context (e.g. the sandbox file listing) stays
+	 * truthful after tools mutate state mid-turn.
+	 */
+	systemPrompt?: string | (() => string);
 	/** Tool names that pause for a human decision before running. */
 	interruptOn?: string[];
 	hooks?: AgentHooks;
@@ -99,8 +104,10 @@ export function createCourseAgent(opts: CourseAgentOptions): CourseAgent {
 	const graph = new StateGraph(MessagesAnnotation)
 		.addNode('agent', async (state) => {
 			let messages = state.messages as BaseMessage[];
-			if (opts.systemPrompt) {
-				const sys = new SystemMessage(opts.systemPrompt);
+			const promptText =
+				typeof opts.systemPrompt === 'function' ? opts.systemPrompt() : opts.systemPrompt;
+			if (promptText) {
+				const sys = new SystemMessage(promptText);
 				messages =
 					messages[0] instanceof SystemMessage ? [sys, ...messages.slice(1)] : [sys, ...messages];
 			}

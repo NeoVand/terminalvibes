@@ -17,6 +17,7 @@
 	import Part9 from '$lib/components/sections/Part9.svelte';
 	import { anchorIds } from '$lib/data/sections';
 	import { markSectionVisited } from '$lib/data/progress';
+	import { readingContext } from '$lib/ai/reading-context.svelte';
 	import { decodeSharedFromHash, type SharedSession } from '$lib/playground/share';
 	import {
 		loadThemePreference,
@@ -34,6 +35,13 @@
 	let activeSection = $state('hero');
 	let theme = $state<ThemePreference>('system');
 	let navClickActive = false;
+
+	// The Agent panel grounds its suggested questions in the section the
+	// learner is reading — mirror the existing scroll-spy value, no second
+	// observer.
+	$effect(() => {
+		readingContext.sectionId = activeSection;
+	});
 
 	function getEffectiveThemeLocal(): 'light' | 'dark' {
 		return getEffectiveTheme(theme);

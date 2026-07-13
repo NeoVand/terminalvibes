@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import {
 		Bot,
 		X,
@@ -10,12 +10,15 @@
 		Check,
 		Download,
 		Pencil,
+		RefreshCw,
 		Settings,
 		ShieldAlert,
 		Terminal
 	} from 'lucide-svelte';
 	import { autohideScroll } from '$lib/actions/autohide-scroll';
 	import { agentRuntime } from '$lib/ai/runtime.svelte';
+	import { readingContext } from '$lib/ai/reading-context.svelte';
+	import { STATIC_STARTERS, SUGGESTION_COUNT } from '$lib/ai/suggestions';
 	import {
 		canRunModel,
 		DEFAULT_MODEL_ID,
@@ -54,11 +57,15 @@
 	let editingCmd = $state(false);
 	let editedCmd = $state('');
 
-	const starters = [
-		'What does chmod +x do?',
-		'Is rm -rf build/ safe to approve?',
-		'How do pipes work?'
-	];
+	/* ── suggested questions: contextual when a model is ready, static else ── */
+	let contextualChips = $derived(
+		agentRuntime.canSuggest && (agentRuntime.suggesting || agentRuntime.suggestions.length > 0)
+	);
+	let chips = $derived(contextualChips ? agentRuntime.suggestions : [...STATIC_STARTERS]);
+	/** Shimmer placeholders for chips still streaming in. */
+	let ghostCount = $derived(
+		agentRuntime.suggesting ? Math.max(0, SUGGESTION_COUNT - agentRuntime.suggestions.length) : 0
+	);
 
 	$effect(() => {
 		if (open) {
@@ -71,6 +78,16 @@
 			if (window.innerWidth >= 768) {
 				tick().then(() => taEl?.focus());
 			}
+		}
+	});
+
+	// Opening the panel with a ready model kicks off contextual suggestions
+	// for wherever the learner is reading. The context read is untracked on
+	// purpose: scrolling the course must not churn regenerations — the
+	// refresh button is the "bring me up to here" affordance.
+	$effect(() => {
+		if (open && agentRuntime.canSuggest && agentRuntime.messages.length === 0) {
+			agentRuntime.refreshSuggestions(untrack(() => readingContext.current));
 		}
 	});
 
@@ -424,12 +441,44 @@
 								Ask anything about the terminal — answers come straight from the course, with links
 								to the right section.
 							</p>
-							<div class="flex flex-col items-stretch gap-2">
-								{#each starters as starter (starter)}
-									<button type="button" class="agent-chip" onclick={() => askStarter(starter)}>
-										<span class="truncate">{starter}</span>
+							<div class="flex flex-col items-stretch gap-2" data-testid="agent-suggestions">
+								{#if agentRuntime.canSuggest}
+									<!-- Contextual questions carry a tiny provenance row: where
+									     they were generated for, and the "regenerate for HERE"
+									     refresh. Static starters never show it. -->
+									<div class="agent-chips-head">
+										<span class="agent-chips-label">
+											{agentRuntime.suggestedTitle
+												? `questions for ${agentRuntime.suggestedTitle}`
+												: 'suggested questions'}
+										</span>
+										<button
+											type="button"
+											class="agent-chip-refresh"
+											onclick={() => agentRuntime.refreshSuggestions(readingContext.current, true)}
+											disabled={agentRuntime.suggesting}
+											aria-label="Refresh suggested questions"
+											data-testid="suggest-refresh"
+										>
+											<span class="agent-refresh-icon" class:spinning={agentRuntime.suggesting}>
+												<RefreshCw size={12} />
+											</span>
+										</button>
+									</div>
+								{/if}
+								{#each chips as chip (chip)}
+									<button
+										type="button"
+										class="agent-chip agent-chip-in"
+										data-testid="agent-chip"
+										onclick={() => askStarter(chip)}
+									>
+										<span class="truncate">{chip}</span>
 										<ChevronRight size={12} class="shrink-0" />
 									</button>
+								{/each}
+								{#each Array.from({ length: ghostCount }, (_, i) => i) as g (g)}
+									<div class="agent-chip-ghost" aria-hidden="true"></div>
 								{/each}
 							</div>
 						</div>
@@ -737,6 +786,120 @@
 	.agent-chip:hover {
 		border-color: var(--color-important);
 		color: var(--color-important);
+	}
+
+	/* ── Contextual suggestions: streamed chips + shimmer placeholders ───── */
+	.agent-chip-in {
+		animation: agent-chip-in 0.28s ease-out both;
+	}
+
+	@keyframes agent-chip-in {
+		from {
+			opacity: 0;
+			transform: translateY(5px);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	/* A chip-shaped promise: same footprint, dashed edge, phosphor shimmer. */
+	.agent-chip-ghost {
+		height: 1.95rem;
+		border-radius: 0.5rem;
+		border: 1px dashed var(--color-border);
+		background: linear-gradient(
+			100deg,
+			transparent 30%,
+			color-mix(in srgb, var(--color-important) 9%, transparent) 50%,
+			transparent 70%
+		);
+		background-size: 220% 100%;
+		animation: agent-ghost-shimmer 1.3s ease-in-out infinite;
+	}
+
+	@keyframes agent-ghost-shimmer {
+		0% {
+			background-position: 160% 0;
+		}
+		100% {
+			background-position: -60% 0;
+		}
+	}
+
+	.agent-chips-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 0 0.125rem;
+	}
+
+	.agent-chips-label {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		color: var(--color-text-muted);
+		text-align: left;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.agent-chip-refresh {
+		display: inline-flex;
+		height: 1.375rem;
+		width: 1.375rem;
+		flex-shrink: 0;
+		cursor: pointer;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0.4rem;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-text-muted);
+		transition:
+			border-color 0.15s ease,
+			color 0.15s ease;
+	}
+
+	.agent-chip-refresh:hover:not(:disabled) {
+		border-color: var(--color-important);
+		color: var(--color-important);
+	}
+
+	.agent-chip-refresh:disabled {
+		cursor: default;
+		opacity: 0.6;
+	}
+
+	.agent-refresh-icon {
+		display: inline-flex;
+	}
+
+	.agent-refresh-icon.spinning {
+		animation: agent-refresh-spin 0.9s linear infinite;
+	}
+
+	@keyframes agent-refresh-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.agent-chip-in {
+			animation: none;
+		}
+
+		.agent-chip-ghost {
+			animation: none;
+			opacity: 0.6;
+		}
+
+		.agent-refresh-icon.spinning {
+			animation: none;
+		}
 	}
 
 	.agent-msg-user {

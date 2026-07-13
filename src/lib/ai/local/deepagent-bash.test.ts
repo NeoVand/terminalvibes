@@ -10,13 +10,14 @@ import { BaseChatModel, type BindToolsInput } from '@langchain/core/language_mod
 import { AIMessage, ToolMessage, type BaseMessage } from '@langchain/core/messages';
 import type { ChatResult } from '@langchain/core/outputs';
 import { createCourseAgent } from './deepagent';
-import { buildAgentTools, TUTOR_SYSTEM_PROMPT } from './tools';
+import { buildAgentTools, TUTOR_SYSTEM_PROMPT, tutorSystemPrompt } from './tools';
 import { createBashBridge, type TerminalLine } from '../bash-bridge';
 import type { AgentBash } from '../types';
 
 AsyncLocalStorageProviderSingleton.initializeGlobalInstance(new AsyncLocalStorage());
 
 class FakeChatModel extends BaseChatModel {
+	calls: BaseMessage[][] = [];
 	#script: AIMessage[];
 	constructor(script: AIMessage[]) {
 		super({});
@@ -30,7 +31,7 @@ class FakeChatModel extends BaseChatModel {
 		return this as never;
 	}
 	async _generate(messages: BaseMessage[]): Promise<ChatResult> {
-		void messages;
+		this.calls.push(messages);
 		const message = this.#script.shift();
 		if (!message) throw new Error('FakeChatModel script exhausted');
 		return { generations: [{ text: String(message.content), message }] };
@@ -136,5 +137,42 @@ describe('deepagent gated bash loop', () => {
 		expect(tms).toHaveLength(2);
 		expect(String(tms[1].content)).toMatch(/2\s+a/);
 		expect(String(tms[1].content)).toMatch(/1\s+b/);
+	});
+
+	it('injects a FRESH sandbox listing into the system prompt on every round', async () => {
+		// The exact wiring local-backend.ts uses: a callable systemPrompt that
+		// snapshots the bridge's listing at each model call.
+		const model = new FakeChatModel([
+			bashCall('touch minted-this-turn.txt', 'call_f1'),
+			new AIMessage('There it is — `touch` created the file.')
+		]);
+		const bridge = await createBashBridge({});
+		const bash: AgentBash = {
+			propose: (cmd) => bridge.propose(cmd),
+			run: (cmd) => bridge.run(cmd),
+			listing: () => bridge.listing()
+		};
+		const agent = createCourseAgent({
+			model: model as unknown as BaseChatModel,
+			tools: buildAgentTools({ bash }),
+			systemPrompt: () => tutorSystemPrompt(bash.listing?.() ?? null),
+			interruptOn: ['bash']
+		});
+
+		const paused = await agent.start('make me a file');
+		expect(paused.status).toBe('interrupted');
+		const done = await agent.resume({ type: 'approve' });
+		expect(done.status).toBe('done');
+
+		expect(model.calls).toHaveLength(2);
+		const sys1 = String(model.calls[0][0].content);
+		const sys2 = String(model.calls[1][0].content);
+		// Both rounds carry the seeded home…
+		expect(sys1).toContain('FILES IN YOUR SANDBOX RIGHT NOW');
+		expect(sys1).toContain('todo.txt');
+		expect(sys1).toContain('hello.sh');
+		// …but only round 2 sees the file the agent just created.
+		expect(sys1).not.toContain('minted-this-turn.txt');
+		expect(sys2).toContain('minted-this-turn.txt');
 	});
 });

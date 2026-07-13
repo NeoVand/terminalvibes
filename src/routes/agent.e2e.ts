@@ -157,6 +157,69 @@ test.describe('Agent panel', () => {
 		await expect(sources.locator('a[href="#section-4-2"]')).toBeVisible();
 	});
 
+	test('the agent terminal is seeded: ls shows the demo files', async ({ page }) => {
+		await page.goto('/');
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		const panel = page.locator('aside[aria-label="Agent"]');
+		const input = page.getByLabel('Ask the agent');
+
+		await input.fill('demo: sandbox');
+		await input.press('Enter');
+		const card = panel.locator('[data-testid="approval-card"]');
+		await expect(card).toBeVisible({ timeout: 15000 });
+		await expect(panel.locator('[data-testid="approval-cmd"]')).toContainText('ls');
+		await card.getByRole('button', { name: /Allow/ }).click();
+
+		// The seeded home, not an empty sandbox: folders and files are there
+		// for the agent to demonstrate on.
+		const terminal = panel.locator('[data-testid="agent-terminal"]');
+		await expect(terminal).toBeVisible({ timeout: 15000 });
+		await expect(terminal).toContainText('notes');
+		await expect(terminal).toContainText('projects');
+		await expect(terminal).toContainText('todo.txt');
+		// The dotfile stays hidden from plain ls — that is its whole joke.
+		await expect(terminal).not.toContainText('.secret-of-the-sandbox');
+	});
+
+	test('contextual suggestions stream in for the section being read', async ({ page }) => {
+		// Test breadcrumb: force the mock backend to serve suggestions (the
+		// product rule is "downloaded + ready local model only").
+		await page.addInitScript(() => localStorage.setItem('tv-agent-suggest-mock', '1'));
+		await page.goto('/#section-5-2');
+
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		const panel = page.locator('aside[aria-label="Agent"]');
+		const chips = panel.locator('[data-testid="agent-chip"]');
+
+		// Four questions materialize, grounded in the chmod section.
+		await expect(chips).toHaveCount(4, { timeout: 15000 });
+		await expect(chips.first()).toContainText('chmod');
+		await expect(panel.getByText('questions for 5.2 chmod')).toBeVisible();
+
+		// The refresh affordance regenerates for wherever the user is NOW.
+		const refresh = panel.locator('[data-testid="suggest-refresh"]');
+		await expect(refresh).toBeVisible();
+		await refresh.click();
+		await expect(chips).toHaveCount(4, { timeout: 15000 });
+		await expect(chips.first()).toContainText('chmod');
+
+		// Clicking a chip asks it like any typed question.
+		await chips.first().click();
+		await expect(panel.locator('[data-role="assistant"]').first()).toContainText(/chmod/i, {
+			timeout: 15000
+		});
+	});
+
+	test('no model, no breadcrumb: the static starters stay untouched', async ({ page }) => {
+		await page.goto('/#section-5-2');
+		await page.getByRole('button', { name: 'Open Agent' }).click();
+		const panel = page.locator('aside[aria-label="Agent"]');
+		const chips = panel.locator('[data-testid="agent-chip"]');
+		await expect(chips).toHaveCount(3);
+		await expect(panel.getByRole('button', { name: 'How do pipes work?' })).toBeVisible();
+		await expect(panel.locator('[data-testid="suggest-refresh"]')).toHaveCount(0);
+	});
+
 	test('teaching answers render markdown with a code block and a sources row', async ({ page }) => {
 		await page.goto('/');
 		await page.getByRole('button', { name: 'Open Agent' }).click();

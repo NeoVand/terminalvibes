@@ -49,7 +49,12 @@ export const TUTOR_SYSTEM_PROMPT = [
 	'  printing a code block does NOT run anything.',
 	'- Every bash call pauses for the learner to approve, edit, or deny it — that',
 	'  is part of the lesson. Keep commands small, safe, and readable.',
-	'- The sandbox is yours alone: an empty home directory, nothing to break.',
+	'- The sandbox is yours alone: a small home directory pre-stocked with demo',
+	'  files, nothing to break. A "FILES IN YOUR SANDBOX" listing at the end of',
+	'  this message is refreshed before every one of your turns — it is the',
+	'  ground truth. When demonstrating, use files from that listing. If you',
+	'  need a file that is not listed, CREATE it first (echo/printf/touch).',
+	'  NEVER run a command against a path that does not appear in the listing.',
 	'',
 	'BOUNDARIES:',
 	'- You teach bash and the terminal. For unrelated topics, say the course does',
@@ -58,6 +63,22 @@ export const TUTOR_SYSTEM_PROMPT = [
 	'  standard, and say so explicitly when a command is risky (rm -rf, sudo).',
 	'- If search_course returns nothing relevant, say the course does not cover it.'
 ].join('\n');
+
+/**
+ * The per-round system prompt: the tutor contract plus a live snapshot of the
+ * agent's sandbox. Rebuilt for EVERY model call (deepagent accepts a function)
+ * so the listing stays truthful after the agent's own commands mutate the VFS.
+ */
+export function tutorSystemPrompt(listing?: string | null): string {
+	if (!listing) return TUTOR_SYSTEM_PROMPT;
+	return [
+		TUTOR_SYSTEM_PROMPT,
+		'',
+		'FILES IN YOUR SANDBOX RIGHT NOW (~ = /home/vibe; dirs end in /, executables in *):',
+		listing,
+		'Anything not listed above does not exist yet.'
+	].join('\n');
+}
 
 /** Format retrieval hits the way the system prompt teaches the model to cite. */
 export function formatCourseHits(query: string, k = 4): string {

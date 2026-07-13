@@ -6,10 +6,18 @@
  * which is talking.
  */
 import { HumanMessage, AIMessage, type BaseMessage } from '@langchain/core/messages';
-import type { AgentBackend, AgentBash, ChatMessage, GenerateOptions } from '../types';
+import type {
+	AgentBackend,
+	AgentBash,
+	ChatMessage,
+	GenerateOptions,
+	SuggestContext,
+	SuggestOptions
+} from '../types';
 import { TransformersJsChatModel, disposeHost, type TjsProgress } from './transformers-js';
 import { createCourseAgent, type CourseAgent } from './deepagent';
-import { buildAgentTools, TUTOR_SYSTEM_PROMPT } from './tools';
+import { buildAgentTools, tutorSystemPrompt } from './tools';
+import { buildSuggestionPrompt } from '../suggestions';
 import { attemptCascade, detectCaps, getModelSpec, type LocalModelSpec } from './models';
 
 export interface WarmResult {
@@ -265,7 +273,10 @@ export class LocalBackend implements AgentBackend {
 			this.#agent = createCourseAgent({
 				model: this.#model,
 				tools: buildAgentTools({ bash: bashDelegate }),
-				systemPrompt: TUTOR_SYSTEM_PROMPT,
+				// Rebuilt per model round: the tutor contract plus a live snapshot
+				// of the sandbox files, so demos always target paths that exist —
+				// even after the agent's own commands mutated the VFS mid-turn.
+				systemPrompt: () => tutorSystemPrompt(this.#bash?.listing?.() ?? null),
 				// Every bash call pauses for a human verdict BEFORE executing.
 				interruptOn: ['bash'],
 				hooks: {
@@ -372,6 +383,32 @@ export class LocalBackend implements AgentBackend {
 			host.modelOpts.onCallStart = undefined;
 			host.modelOpts.onLiveToken = undefined;
 		}
+	}
+
+	/**
+	 * Lightweight no-tools generation of 4 suggested questions: one direct
+	 * worker call (no agent graph, no search_course), a small token budget,
+	 * and the same marker-guard filter chat uses so <think> blocks or stray
+	 * tool syntax never leak into the chips. The worker serializes jobs, so
+	 * this never corrupts a chat generation — at worst it queues ahead of one,
+	 * which is why the budget stays small.
+	 */
+	async suggest(ctx: SuggestContext, opts: SuggestOptions): Promise<void> {
+		if (!this.#model) throw new Error('LocalBackend.warm() must succeed before suggest().');
+		if (opts.signal?.aborted) return;
+		const filter = new StreamFilter((t) => {
+			if (!opts.signal?.aborted) opts.onToken(t);
+		});
+		await this.#model.host.generate(
+			[new HumanMessage(buildSuggestionPrompt(ctx))],
+			(t) => {
+				if (!opts.signal?.aborted) filter.push(t);
+			},
+			true,
+			undefined,
+			160
+		);
+		filter.flush();
 	}
 
 	dispose() {

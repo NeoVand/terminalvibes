@@ -4,9 +4,17 @@
  * abort plumbing. The local backend is dynamically imported on activation so
  * transformers.js + langgraph never weigh down the initial bundle.
  */
+import { SvelteMap } from 'svelte/reactivity';
 import { MockBackend } from './mock-backend';
 import { createGate, type Gate, type GateDecision } from './gate';
 import { createBashBridge, type BashBridge, type TerminalLine } from './bash-bridge';
+import {
+	groundingSnippets,
+	SuggestionLineParser,
+	topUpSuggestions,
+	STATIC_STARTERS
+} from './suggestions';
+import type { ReadingSpot } from './reading-context.svelte';
 import type { AgentBackend, AgentBash, ChatMessage, RuntimeStatus } from './types';
 import {
 	deleteLegacyModelCaches,
@@ -28,6 +36,20 @@ export interface DownloadProgress {
 	file: string | null;
 	percent: number;
 	status: string | null;
+}
+
+/**
+ * Test breadcrumb (like __tvAgentClear): lets e2e force the mock backend to
+ * serve contextual suggestions — the product rule stays "real model only".
+ */
+function mockSuggestForced(): boolean {
+	try {
+		return (
+			typeof localStorage !== 'undefined' && localStorage.getItem('tv-agent-suggest-mock') === '1'
+		);
+	} catch {
+		return false;
+	}
 }
 
 export class AgentRuntime {
@@ -52,6 +74,17 @@ export class AgentRuntime {
 	terminalOpen = $state(false);
 	/** Command awaiting a human verdict (renders the inline approval card). */
 	pendingCmd = $state<string | null>(null);
+
+	/* ── contextual suggested questions ── */
+	/** The generated chips (never the static starters — the panel falls back). */
+	suggestions = $state<string[]>([]);
+	/** A suggestion round is streaming in. */
+	suggesting = $state(false);
+	/** Short title of the spot the current suggestions are about. */
+	suggestedTitle = $state<string | null>(null);
+	#suggestedKey: string | null = null;
+	#suggestCache = new SvelteMap<string, string[]>();
+	#suggestSeq = 0;
 
 	#mock: AgentBackend = new MockBackend();
 	#local: LocalBackend | null = null;
@@ -102,6 +135,70 @@ export class AgentRuntime {
 		return this.downloaded.length === 0;
 	}
 
+	/**
+	 * Contextual suggestions run only when a real model is downloaded + ready
+	 * (or under the mock test breadcrumb) — otherwise the static starters stay
+	 * exactly as they are today.
+	 */
+	get canSuggest(): boolean {
+		if (this.backendName === 'local') {
+			return this.localPhase === 'ready' && typeof this.#local?.suggest === 'function';
+		}
+		return mockSuggestForced();
+	}
+
+	/**
+	 * Generate (or serve from the session cache) 4 questions about `spot`.
+	 * Fire-and-forget from the panel: never blocks the composer, and a failed
+	 * or aborted round simply leaves the static starters in place. `force`
+	 * (the refresh button) always regenerates for the spot handed in.
+	 */
+	refreshSuggestions(spot: ReadingSpot, force = false): void {
+		if (!this.canSuggest || this.status === 'generating') return;
+		if (!force) {
+			const cached = this.#suggestCache.get(spot.key);
+			if (cached) {
+				this.suggestions = [...cached];
+				this.suggestedTitle = spot.title;
+				this.#suggestedKey = spot.key;
+				return;
+			}
+			// Already streaming this very spot — let it finish.
+			if (this.suggesting && this.#suggestedKey === spot.key) return;
+		}
+		void this.#generateSuggestions(spot);
+	}
+
+	async #generateSuggestions(spot: ReadingSpot): Promise<void> {
+		const seq = ++this.#suggestSeq;
+		this.suggesting = true;
+		this.suggestedTitle = spot.title;
+		this.#suggestedKey = spot.key;
+		this.suggestions = [];
+		const parser = new SuggestionLineParser();
+		try {
+			await this.backend.suggest!(
+				{ label: spot.label, snippets: groundingSnippets(spot) },
+				{
+					onToken: (text) => {
+						if (seq !== this.#suggestSeq) return;
+						// Each completed line materializes as a chip immediately.
+						for (const q of parser.push(text)) this.suggestions.push(q);
+					}
+				}
+			);
+			if (seq !== this.#suggestSeq) return;
+			for (const q of parser.flush()) this.suggestions.push(q);
+			this.suggestions = topUpSuggestions(this.suggestions, STATIC_STARTERS);
+			this.#suggestCache.set(spot.key, [...this.suggestions]);
+		} catch {
+			// Silent fallback: an empty list makes the panel show the starters.
+			if (seq === this.#suggestSeq) this.suggestions = [];
+		} finally {
+			if (seq === this.#suggestSeq) this.suggesting = false;
+		}
+	}
+
 	/** Resolve the pending approval card (allow / edit / deny). */
 	decide(decision: GateDecision, opts?: { cmd?: string; reason?: string }): void {
 		if (this.pendingCmd === null) return;
@@ -126,7 +223,8 @@ export class AgentRuntime {
 		}
 		return {
 			propose: (cmd) => this.#bridge!.propose(cmd),
-			run: (cmd) => this.#bridge!.run(cmd)
+			run: (cmd) => this.#bridge!.run(cmd),
+			listing: () => this.#bridge!.listing()
 		};
 	}
 

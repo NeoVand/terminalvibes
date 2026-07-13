@@ -1,5 +1,6 @@
 <script lang="ts">
 	import TerminalPlayground from '$lib/components/playground/TerminalPlayground.svelte';
+	import { readingContext } from '$lib/ai/reading-context.svelte';
 	import type { SharedSession } from '$lib/playground/share';
 
 	let {
@@ -18,6 +19,13 @@
 		if (open) {
 			hasOpened = true;
 		}
+	});
+
+	// While the panel is open, the Agent's suggested questions are about the
+	// scenario it opened on (the panel's own prop — in-panel scenario switches
+	// stay internal to TerminalPlayground).
+	$effect(() => {
+		readingContext.scenarioId = open ? (shared?.scenarioId ?? 'first-steps') : null;
 	});
 
 	function handleKeydown(e: KeyboardEvent) {

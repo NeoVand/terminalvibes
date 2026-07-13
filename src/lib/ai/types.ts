@@ -40,6 +40,27 @@ export interface AgentBashDecision {
 export interface AgentBash {
 	propose(cmd: string): Promise<AgentBashDecision>;
 	run(cmd: string): Promise<{ output: string; error?: boolean }>;
+	/**
+	 * Compact current-file listing of the sandbox (one path per line). Backends
+	 * inject it into the system context so demonstrations target real files.
+	 */
+	listing?(): string;
+}
+
+/** Where the learner is reading, for contextual suggested questions. */
+export interface SuggestContext {
+	/** Human label of the spot, e.g. "5.2 chmod — Permissions & Environment". */
+	label: string;
+	/** Course excerpts grounding the questions (top chunks for the spot). */
+	snippets: string[];
+}
+
+export interface SuggestOptions {
+	/** Raw suggestion tokens as they decode; the caller parses lines. */
+	onToken: (text: string) => void;
+	signal?: AbortSignal;
+	/** Skip streaming delays (tests). Test mode always skips. */
+	instant?: boolean;
 }
 
 export interface GenerateOptions {
@@ -56,6 +77,12 @@ export interface GenerateOptions {
 export interface AgentBackend {
 	readonly name: string;
 	generate(messages: ChatMessage[], opts: GenerateOptions): Promise<void>;
+	/**
+	 * Lightweight, no-tools generation of 4 short learner questions about the
+	 * given reading spot, streamed as numbered lines. Optional — the panel
+	 * falls back to its static starters when absent or when generation fails.
+	 */
+	suggest?(ctx: SuggestContext, opts: SuggestOptions): Promise<void>;
 }
 
 export type RuntimeStatus = 'unavailable' | 'idle' | 'ready' | 'generating';

@@ -7,8 +7,16 @@
  * The real transformers.js local backend lands next phase behind the same
  * `AgentBackend` interface; nothing above this file will change.
  */
-import type { AgentBackend, ChatMessage, GenerateOptions, ToolCall } from './types';
+import type {
+	AgentBackend,
+	ChatMessage,
+	GenerateOptions,
+	SuggestContext,
+	SuggestOptions,
+	ToolCall
+} from './types';
 import { retrieve, type RetrievalHit } from './retrieval';
+import { suggestionTopic } from './suggestions';
 
 /** Below this score the mock refuses to bluff and says so. */
 const CONFIDENT_SCORE = 3;
@@ -167,6 +175,13 @@ const DEMOS: Demo[] = [
 		cmds: ['echo "hello, terminal" > greeting.txt', 'cat greeting.txt'],
 		wrap: '`>` sent the output into `greeting.txt` instead of the screen, and `cat` read it back. `>>` would have appended instead of replacing.',
 		citations: ['section-4-1']
+	},
+	{
+		match: /^demo:\s*sandbox/i,
+		intro: "Let's peek inside my sandbox — one `ls` and you'll see everything I keep in there.",
+		cmds: ['ls'],
+		wrap: 'That is my whole home: `notes/` and `projects/` to explore, plus `todo.txt`. Ask me to `cat` or `grep` any of them — there is even a hidden file for `ls -a` to find.',
+		citations: ['section-2-1']
 	}
 ];
 
@@ -241,6 +256,29 @@ export class MockBackend implements AgentBackend {
 		await this.#stream(answer, opts, instant);
 		if (signal?.aborted) return;
 		onEvent({ type: 'doneTurn' });
+	}
+
+	/**
+	 * Deterministic contextual suggestions: the same four templates around the
+	 * topic of wherever the learner is reading, streamed as numbered lines the
+	 * way the local model would — so unit and e2e tests cover the exact parse
+	 * → chip flow without any weights.
+	 */
+	async suggest(ctx: SuggestContext, opts: SuggestOptions): Promise<void> {
+		const instant = opts.instant || import.meta.env.MODE === 'test';
+		const topic = suggestionTopic(ctx.label);
+		const text =
+			[
+				`1. Can you explain ${topic} in plain words?`,
+				`2. What's the most common ${topic} mistake?`,
+				`3. When would I actually use ${topic}?`,
+				`4. Show me ${topic} live in your terminal.`
+			].join('\n') + '\n';
+		for (const word of text.match(/\S+\s*/g) ?? []) {
+			if (opts.signal?.aborted) return;
+			opts.onToken(word);
+			if (!instant) await sleep(14);
+		}
 	}
 
 	async #stream(text: string, opts: GenerateOptions, instant: boolean): Promise<void> {
