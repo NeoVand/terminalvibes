@@ -13,11 +13,11 @@
 	 * respects prefers-reduced-motion.
 	 */
 
-	const CELL = 16; // grid pitch in px
-	const DOT = 3; // drawn dot size
-	const AMBIENT_BIRTHS_PER_SEC = 26; // whole-screen baseline flicker
-	const MOUSE_BIRTHS_PER_MOVE = 3; // extra sparks near the cursor
-	const MOUSE_RADIUS = 110; // px
+	const CELL = 24; // grid pitch in px
+	const DOT = 10; // drawn dot size
+	const AMBIENT_BIRTHS_PER_SEC = 70; // whole-screen baseline flicker
+	const MOUSE_BIRTHS_PER_MOVE = 5; // extra sparks near the cursor
+	const MOUSE_RADIUS = 140; // px
 	const FADE_PER_SEC = 0.9; // alpha decay rate
 
 	let canvas: HTMLCanvasElement;
@@ -74,7 +74,7 @@
 			const existing = cells.find((c) => c.cx === cx && c.cy === cy);
 			if (existing) {
 				existing.a = Math.max(existing.a, strength);
-			} else if (cells.length < 400) {
+			} else if (cells.length < 800) {
 				cells.push({ cx, cy, a: strength });
 			}
 		}
