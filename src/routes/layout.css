@@ -421,8 +421,8 @@ kbd {
 .tv-watermarked {
 	background-image: var(--tv-watermark, none);
 	background-repeat: no-repeat;
-	background-position: center;
-	background-size: min(34%, 230px);
+	background-position: right 14px bottom 12px;
+	background-size: min(16%, 96px);
 	image-rendering: pixelated;
 }
 
