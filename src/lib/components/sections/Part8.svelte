@@ -127,7 +127,7 @@
 			</div>
 
 			<MermaidDiagram
-				definition={`flowchart LR
+				definition={`flowchart TD
   A(["Terminal emulator"]) <-->|"bytes"| B(["PTY master"])
   B <-->|"line discipline"| C(["PTY slave"])
   C <-->|"read / write"| D(["Shell"])
@@ -136,8 +136,7 @@
 				id="under-the-hood-chain"
 			/>
 			<p class="mt-2 mb-6 px-1 text-xs" style="color: var(--color-text-muted);">
-				Keystrokes travel left to right, output travels right to left — and every hop is plain
-				bytes.
+				Keystrokes travel down the chain, output travels back up — and every hop is plain bytes.
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -417,7 +416,7 @@
 			</p>
 
 			<MermaidDiagram
-				definition={`flowchart LR
+				definition={`flowchart TD
   A(["133;A · prompt starts"]) --> B(["133;B · command starts"])
   B -->|"you press Enter"| C(["133;C · output begins"])
   C --> D(["command output"])
