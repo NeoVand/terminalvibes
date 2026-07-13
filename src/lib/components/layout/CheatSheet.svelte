@@ -172,6 +172,7 @@
 	style="padding-top: var(--header-height); border-color: var(--color-border);"
 	class:translate-x-0={open}
 	class:translate-x-full={!open}
+	data-fabric
 >
 	<!-- Header -->
 	<div

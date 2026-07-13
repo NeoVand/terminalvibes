@@ -295,9 +295,11 @@
 	}
 
 	/* Above the page surfaces it ripples through, below the header (50)
-	   and every modal; difference blend inverts instead of glowing. */
+	   and every modal; difference blend inverts instead of glowing, and a
+	   whisper of blur melts the dots into the glass they pass behind. */
 	.bg-pixels-overlay {
 		z-index: 45;
 		mix-blend-mode: difference;
+		filter: blur(2px);
 	}
 </style>

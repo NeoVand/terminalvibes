@@ -308,6 +308,7 @@
 			<header
 				class="flex shrink-0 items-center gap-2 px-3 py-2 sm:gap-2.5 sm:px-5 sm:py-3"
 				style="background: color-mix(in srgb, var(--color-bg-tertiary) 55%, transparent); border-bottom: 1px solid var(--color-border);"
+				data-fabric
 			>
 				<Bot size={14} style="color: var(--color-important);" />
 				<span class="text-sm font-semibold" style="color: var(--color-text);">Agent</span>

@@ -139,6 +139,7 @@
 	style="width: var(--sidebar-width); padding-top: var(--header-height); border-color: var(--color-border-light);"
 	class:translate-x-0={open}
 	class:-translate-x-full={!open}
+	data-fabric
 >
 	<div class="flex items-center justify-between px-4 py-3">
 		<span
@@ -196,7 +197,7 @@
 		</div>
 	{/if}
 
-	<nav class="flex-1 overflow-y-auto px-3 py-2" use:autohideScroll data-fabric>
+	<nav class="flex-1 overflow-y-auto px-3 py-2" use:autohideScroll>
 		{#each sections as section (section.id)}
 			{@const active = isActive(section.id)}
 			<div class="mb-0.5">
@@ -294,6 +295,7 @@
 	<aside
 		class="sidebar-collapsed fixed top-0 bottom-0 left-0 z-40 flex flex-col items-center border-r py-2"
 		style="width: var(--sidebar-collapsed-width); padding-top: calc(var(--header-height) + 8px); border-color: var(--color-border-light);"
+		data-fabric
 	>
 		<button
 			onclick={onToggle}
