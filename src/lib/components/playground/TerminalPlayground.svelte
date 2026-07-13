@@ -362,15 +362,19 @@
 			});
 		} else if (event.type === 'end') {
 			if (event.reason === 'done') {
-				if (event.ranCount === 0) {
-					// The model wrapped up without running anything — say so plainly
+				if (event.ranCount > 0) {
+					pushLine({ type: 'system', text: `✔ agent: ${event.summary ?? 'done.'}` });
+				} else if (event.summary) {
+					// Nothing ran, but the agent explained why (e.g. every command was
+					// denied) — show that, no false checkmark.
+					pushLine({ type: 'system', text: `agent: ${event.summary}` });
+				} else {
+					// The model wrapped up without proposing anything — say so plainly
 					// instead of a hollow success line.
 					pushLine({
 						type: 'system',
 						text: 'agent: finished without running any commands. Try rephrasing the task, or switch to the higher-quality model in the Agent panel settings.'
 					});
-				} else {
-					pushLine({ type: 'system', text: `✔ agent: ${event.summary ?? 'done.'}` });
 				}
 			} else if (event.reason === 'interrupted') {
 				pushLine({
