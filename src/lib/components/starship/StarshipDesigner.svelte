@@ -20,6 +20,8 @@
 	let dropdownOpen = $state(false);
 	let copied = $state(false);
 	let linkCopied = $state(false);
+	let cmdCopied = $state(false);
+	let showCommand = $state(false);
 	let shell = $state<'zsh' | 'bash' | 'fish'>('zsh');
 
 	// A shared "?sp=…" link restores an exact design on load.
@@ -141,6 +143,16 @@
 			await navigator.clipboard.writeText(toml);
 			copied = true;
 			setTimeout(() => (copied = false), 1800);
+		} catch {
+			/* clipboard unavailable */
+		}
+	}
+
+	async function copyOneLiner() {
+		try {
+			await navigator.clipboard.writeText(oneLiner);
+			cmdCopied = true;
+			setTimeout(() => (cmdCopied = false), 1800);
 		} catch {
 			/* clipboard unavailable */
 		}
@@ -398,30 +410,30 @@
 			</div>
 		</div>
 
-		<!-- Fast path: one self-contained command per shell -->
-		<div class="sd-oneliner">
-			<div class="sd-oneliner-head">
-				<span class="sd-oneliner-title"><Zap size={14} /> One command, done</span>
-				<div class="sd-shell-tabs">
-					{#each ['zsh', 'bash', 'fish'] as sh (sh)}
-						<button class:sd-on={shell === sh} onclick={() => (shell = sh as typeof shell)}
-							>{sh}</button
-						>
-					{/each}
-				</div>
+		<!-- Fast path: one self-contained command, kept minimal -->
+		<div class="sd-run">
+			<span class="sd-run-title"><Zap size={14} /> One-command install</span>
+			<div class="sd-shell-tabs sd-run-tabs">
+				{#each ['zsh', 'bash', 'fish'] as sh (sh)}
+					<button class:sd-on={shell === sh} onclick={() => (shell = sh as typeof shell)}
+						>{sh}</button
+					>
+				{/each}
 			</div>
-			<CodeBlock
-				code={oneLiner}
-				title="paste into {shell} — assumes Starship is installed"
-				lang="bash"
-			/>
-			<p class="sd-oneliner-note">
-				This writes your config to <code>~/.config/starship.toml</code>, turns Starship on, and
-				reloads your shell — the new prompt appears immediately. It's deliberately <em>not</em> a
-				<code>curl … | sh</code>: the whole config is right there in the command, so you can read
-				every line before you run it — exactly the habit from Part 6.
-			</p>
+			<button type="button" class="sd-btn sd-btn-primary sd-run-copy" onclick={copyOneLiner}>
+				{#if cmdCopied}<Check size={13} /> Copied{:else}<Copy size={13} /> Copy command{/if}
+			</button>
 		</div>
+		<p class="sd-run-note">
+			Pastes into {shell}, writes your config, enables Starship, and reloads — assuming it's already
+			installed. Everything's inline (not a <code>curl … | sh</code>), so you can
+			<button type="button" class="sd-run-toggle" onclick={() => (showCommand = !showCommand)}
+				>{showCommand ? 'hide the command' : 'read it first'}</button
+			>.
+		</p>
+		{#if showCommand}
+			<CodeBlock code={oneLiner} title="paste into {shell}" lang="bash" />
+		{/if}
 
 		<CodeBlock code={toml} title="starship.toml" lang="toml" />
 
@@ -440,14 +452,8 @@
 					<code>mkdir -p ~/.config</code> first if that folder doesn't exist).
 				</li>
 				<li>
-					<strong>Turn it on in your shell.</strong> Add one line to your config and reload:
-					<div class="sd-shell-tabs">
-						{#each ['zsh', 'bash', 'fish'] as sh (sh)}
-							<button class:sd-on={shell === sh} onclick={() => (shell = sh as typeof shell)}
-								>{sh}</button
-							>
-						{/each}
-					</div>
+					<strong>Turn it on in your <span class="sd-run-shell">{shell}</span>.</strong> Add one
+					line to your config and reload (switch shell in the bar above):
 					<pre class="sd-shell-cmd">echo '{INIT_LINES[shell].line}' >> {INIT_LINES[shell].file}
 source {INIT_LINES[shell].file}</pre>
 				</li>
@@ -867,41 +873,55 @@ source {INIT_LINES[shell].file}</pre>
 		background: var(--color-bg-secondary);
 		padding: 1.1rem 1.2rem;
 	}
-	.sd-oneliner {
-		margin-bottom: 0.9rem;
-		padding: 0.85rem 0.9rem 0.7rem;
-		border-radius: 12px;
-		border: 1px solid color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
-		background: color-mix(in srgb, var(--color-primary) 6%, transparent);
-	}
-	.sd-oneliner-head {
+	.sd-run {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
+		gap: 0.55rem;
+		margin-bottom: 0.5rem;
 	}
-	.sd-oneliner-title {
+	.sd-run-title {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.4rem;
-		font-size: 13.5px;
+		font-size: 13px;
 		font-weight: 700;
 		color: var(--color-text);
 		font-family: var(--font-heading);
 	}
-	.sd-oneliner-note {
-		margin: 0.1rem 0 0;
+	.sd-run-tabs {
+		margin: 0;
+	}
+	.sd-run-copy {
+		margin-left: auto;
+	}
+	.sd-run-note {
+		margin: 0 0 0.9rem;
 		font-size: 12px;
 		line-height: 1.55;
 		color: var(--color-text-muted);
 	}
-	.sd-oneliner-note code {
+	.sd-run-note code {
 		font-family: var(--font-mono);
 		font-size: 0.9em;
 		background: var(--color-code-bg);
 		border-radius: 4px;
 		padding: 0.03em 0.3em;
+	}
+	.sd-run-toggle {
+		padding: 0;
+		font: inherit;
+		font-weight: 600;
+		color: var(--color-primary-text);
+		background: none;
+		border: none;
+		cursor: pointer;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+	.sd-run-shell {
+		font-family: var(--font-mono);
+		color: var(--color-primary-text);
 	}
 	.sd-export-head {
 		display: flex;
