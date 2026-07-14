@@ -809,6 +809,30 @@ const topicEntries: SearchEntry[] = [
 	},
 	// ───── Part 7: Your Cockpit ─────
 	{
+		id: 'tool-prompt-designer',
+		sectionId: 'prompt-designer',
+		title: 'Design Your Prompt (Starship)',
+		part: 'Your Cockpit',
+		description:
+			'Interactive prompt designer: pick a theme, customize modules, and download a real starship.toml for your shell.',
+		keywords: [
+			'starship',
+			'prompt',
+			'designer',
+			'design your prompt',
+			'theme',
+			'powerline',
+			'tokyo night',
+			'gruvbox',
+			'catppuccin',
+			'nerd font',
+			'customize prompt',
+			'starship.toml',
+			'ps1'
+		],
+		kind: 'topic'
+	},
+	{
 		id: 'topic-make-it-yours',
 		sectionId: 'section-7-1',
 		title: 'Make It Yours',

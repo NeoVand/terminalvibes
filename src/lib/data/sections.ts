@@ -73,5 +73,13 @@ export const playgroundAnchorIds = [
 	'capstone'
 ] as const;
 
+/** Sub-anchors for notable interactive tools that aren't full sections but
+ *  should be deep-linkable and reachable from the sidebar. */
+export const toolAnchorIds = ['prompt-designer'] as const;
+
 /** Every id that can appear in the URL hash and the sidebar scroll-spy. */
-export const anchorIds: readonly string[] = [...sectionIds, ...playgroundAnchorIds];
+export const anchorIds: readonly string[] = [
+	...sectionIds,
+	...playgroundAnchorIds,
+	...toolAnchorIds
+];

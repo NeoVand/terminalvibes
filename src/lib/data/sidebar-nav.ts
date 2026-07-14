@@ -156,6 +156,7 @@ export const sidebarNav: NavSection[] = [
 		icon: Gauge,
 		children: [
 			{ id: 'section-7-1', label: 'Make It Yours', icon: Palette },
+			{ id: 'prompt-designer', label: 'Design Your Prompt', icon: Wand2 },
 			{ id: 'section-7-2', label: 'History Superpowers', icon: History },
 			{ id: 'section-7-3', label: 'Terminal in VS Code', icon: Layout },
 			{ id: 'section-7-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal }

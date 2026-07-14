@@ -24,6 +24,7 @@
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 	import VibeBox from '../ui/VibeBox.svelte';
+	import StarshipDesigner from '../starship/StarshipDesigner.svelte';
 </script>
 
 <section id="part-7" class="py-10">
@@ -243,6 +244,27 @@ PS1="🌲 \\W $ "
 					'Set up a terminal color scheme and font that are easy on the eyes for long sessions on my OS'
 				]}
 			/>
+
+			<h4
+				id="prompt-designer"
+				class="mt-8 mb-2 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: Design Your Prompt
+			</h4>
+			<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+				Enough talk — build one. Pick a design, make it yours, and take the real
+				<Code code="starship.toml" /> home. This is a genuine config for
+				<a
+					href="https://starship.rs/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">Starship</a
+				>, the cross-shell prompt — nothing here touches your machine until you choose to install
+				it.
+			</p>
+			<StarshipDesigner />
 		</div>
 
 		<!-- 7.2 History Superpowers -->
