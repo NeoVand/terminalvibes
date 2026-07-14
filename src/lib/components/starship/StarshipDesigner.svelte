@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Copy, Check, Download, ChevronDown, Terminal, Link2, Palette } from 'lucide-svelte';
+	import { Copy, Check, Download, ChevronDown, Terminal, Link2, Palette, Zap } from 'lucide-svelte';
 	import PromptPreview from './PromptPreview.svelte';
 	import { PRESETS, getPreset } from '$lib/starship/presets';
 	import { PALETTES, rolesOf, resolvePalette } from '$lib/starship/palettes';
-	import { toToml, INIT_LINES } from '$lib/starship/generate';
+	import { toToml, toOneLiner, INIT_LINES } from '$lib/starship/generate';
 	import { encodeDesign, decodeDesign } from '$lib/starship/share';
 	import {
 		MODULE_IDS,
@@ -134,6 +134,7 @@
 	}
 
 	let toml = $derived(toToml(design));
+	let oneLiner = $derived(toOneLiner(toml, shell));
 
 	async function copyToml() {
 		try {
@@ -397,10 +398,35 @@
 			</div>
 		</div>
 
+		<!-- Fast path: one self-contained command per shell -->
+		<div class="sd-oneliner">
+			<div class="sd-oneliner-head">
+				<span class="sd-oneliner-title"><Zap size={14} /> One command, done</span>
+				<div class="sd-shell-tabs">
+					{#each ['zsh', 'bash', 'fish'] as sh (sh)}
+						<button class:sd-on={shell === sh} onclick={() => (shell = sh as typeof shell)}
+							>{sh}</button
+						>
+					{/each}
+				</div>
+			</div>
+			<CodeBlock
+				code={oneLiner}
+				title="paste into {shell} — assumes Starship is installed"
+				lang="bash"
+			/>
+			<p class="sd-oneliner-note">
+				This writes your config to <code>~/.config/starship.toml</code>, turns Starship on, and
+				reloads your shell — the new prompt appears immediately. It's deliberately <em>not</em> a
+				<code>curl … | sh</code>: the whole config is right there in the command, so you can read
+				every line before you run it — exactly the habit from Part 6.
+			</p>
+		</div>
+
 		<CodeBlock code={toml} title="starship.toml" lang="toml" />
 
 		<div class="sd-steps">
-			<p class="sd-steps-title">Three steps to wear it:</p>
+			<p class="sd-steps-title">Prefer to do it by hand? Three steps:</p>
 			<ol>
 				<li>
 					<strong>Install Starship.</strong> The official one-liner is
@@ -840,6 +866,42 @@ source {INIT_LINES[shell].file}</pre>
 		border: 1px solid var(--sd-border);
 		background: var(--color-bg-secondary);
 		padding: 1.1rem 1.2rem;
+	}
+	.sd-oneliner {
+		margin-bottom: 0.9rem;
+		padding: 0.85rem 0.9rem 0.7rem;
+		border-radius: 12px;
+		border: 1px solid color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+		background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+	}
+	.sd-oneliner-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+	.sd-oneliner-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 13.5px;
+		font-weight: 700;
+		color: var(--color-text);
+		font-family: var(--font-heading);
+	}
+	.sd-oneliner-note {
+		margin: 0.1rem 0 0;
+		font-size: 12px;
+		line-height: 1.55;
+		color: var(--color-text-muted);
+	}
+	.sd-oneliner-note code {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		background: var(--color-code-bg);
+		border-radius: 4px;
+		padding: 0.03em 0.3em;
 	}
 	.sd-export-head {
 		display: flex;

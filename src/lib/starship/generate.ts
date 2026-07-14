@@ -231,3 +231,38 @@ export const INIT_LINES: Record<string, { file: string; line: string }> = {
 	zsh: { file: '~/.zshrc', line: 'eval "$(starship init zsh)"' },
 	fish: { file: '~/.config/fish/config.fish', line: 'starship init fish | source' }
 };
+
+export type ShellId = 'zsh' | 'bash' | 'fish';
+
+/**
+ * A single copy-paste block that writes the config, turns Starship on for the
+ * given shell (idempotently — it won't double-add the init line), and reloads
+ * so the new prompt appears immediately. Assumes Starship is already installed.
+ *
+ * Deliberately NOT a `curl … | sh`: the whole config is inline and every line
+ * is readable before you run it — the exact "read before you run" habit the
+ * course teaches. bash/zsh use a quoted heredoc (the TOML stays literal); fish
+ * has no heredoc, so it writes via `printf` with the body single-quote-escaped.
+ */
+export function toOneLiner(toml: string, shell: ShellId): string {
+	const body = toml.trimEnd();
+	const { file, line } = INIT_LINES[shell];
+
+	if (shell === 'fish') {
+		const escaped = body.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+		return [
+			'mkdir -p ~/.config/fish',
+			`printf '%s\\n' '${escaped}' > ~/.config/starship.toml`,
+			`grep -q 'starship init fish' ${file} 2>/dev/null; or echo '${line}' >> ${file}`,
+			'exec fish'
+		].join('\n');
+	}
+
+	return [
+		"mkdir -p ~/.config && cat > ~/.config/starship.toml <<'STARSHIP_TOML'",
+		body,
+		'STARSHIP_TOML',
+		`grep -qF 'starship init ${shell}' ${file} 2>/dev/null || echo '${line}' >> ${file}`,
+		`exec ${shell}`
+	].join('\n');
+}
