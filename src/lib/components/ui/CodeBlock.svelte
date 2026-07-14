@@ -12,7 +12,13 @@
 	const lines = $derived(
 		tokenizeCodeBlock(
 			code,
-			lang === 'gitignore' ? 'gitignore' : SHELL_LANGS.includes(lang) ? 'shell' : 'plain'
+			lang === 'gitignore'
+				? 'gitignore'
+				: lang === 'toml'
+					? 'toml'
+					: SHELL_LANGS.includes(lang)
+						? 'shell'
+						: 'plain'
 		)
 	);
 

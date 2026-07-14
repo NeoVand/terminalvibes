@@ -114,7 +114,7 @@
 				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
 					<span
 						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-						style="background: var(--color-primary); color: white;">1</span
+						style="background: var(--color-primary); color: var(--color-text-inverse);">1</span
 					>
 					<div>
 						<p class="text-[13px] font-medium" style="color: var(--color-text);">
@@ -131,7 +131,7 @@
 				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
 					<span
 						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-						style="background: var(--color-primary); color: white;">2</span
+						style="background: var(--color-primary); color: var(--color-text-inverse);">2</span
 					>
 					<div>
 						<p class="text-[13px] font-medium" style="color: var(--color-text);">Read each flag</p>
@@ -146,7 +146,7 @@
 				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
 					<span
 						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-						style="background: var(--color-primary); color: white;">3</span
+						style="background: var(--color-primary); color: var(--color-text-inverse);">3</span
 					>
 					<div>
 						<p class="text-[13px] font-medium" style="color: var(--color-text);">
@@ -163,7 +163,7 @@
 				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
 					<span
 						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-						style="background: var(--color-primary); color: white;">4</span
+						style="background: var(--color-primary); color: var(--color-text-inverse);">4</span
 					>
 					<div>
 						<p class="text-[13px] font-medium" style="color: var(--color-text);">Rehearse it</p>
@@ -593,6 +593,13 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 				Now make it reusable. A hard-coded path backs up one folder; <Code code="$1" /> backs up whatever
 				you name. Same audit habit applies — read the script before you run it.
 			</p>
+			<h4
+				id="script-args"
+				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: One Script, Any Folder
+			</h4>
 			<LessonActivity title="One Script, Any Folder" scenarioId="script-args" id="script-args" />
 
 			<VibeBox

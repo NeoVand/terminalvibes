@@ -390,6 +390,17 @@ cat projects/app/README.md`}
 					'Give me the absolute path to my current directory and a relative path from here to my home folder'
 				]}
 			/>
+			<h4
+				id="quoting"
+				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: Mind the Gap
+			</h4>
+			<PlaygroundNote>
+				Two folders here have spaces in their names — the classic trap. Quote the path to
+				<Code code="cd &quot;My Projects&quot;" />, then leave a <Code code="shipped.txt" /> behind.
+			</PlaygroundNote>
 			<LessonActivity title="Mind the Gap" scenarioId="quoting" id="quoting" />
 		</div>
 

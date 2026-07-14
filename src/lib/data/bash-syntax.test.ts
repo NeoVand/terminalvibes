@@ -175,3 +175,31 @@ describe('config mode', () => {
 		expect(rebuilt).toBe(SAMPLE);
 	});
 });
+
+describe('toml mode', () => {
+	const SAMPLE = [
+		'# a comment',
+		'[character]',
+		"success_symbol = '[❯](bold fg:#9ece6a)'",
+		'add_newline = false',
+		'truncation_length = 3'
+	].join('\n');
+
+	it('colors sections, keys, operators, strings, and scalar values', () => {
+		const lines = tokenizeCodeBlock(SAMPLE, 'toml');
+		expect(lines[0][0].type).toBe('comment');
+		expect(lines[1][0]).toEqual({ text: '[character]', type: 'command' });
+		const kv = lines[2].map((t) => t.type);
+		expect(kv).toContain('flag'); // the key
+		expect(kv).toContain('hash'); // the '='
+		expect(kv).toContain('string'); // the quoted value
+		expect(lines[3].find((t) => t.text === 'false')?.type).toBe('arg');
+		expect(lines[4].find((t) => t.text === '3')?.type).toBe('arg');
+	});
+
+	it('round-trips each line exactly', () => {
+		const lines = tokenizeCodeBlock(SAMPLE, 'toml');
+		const rebuilt = lines.map((line) => line.map((t) => t.text).join('')).join('\n');
+		expect(rebuilt).toBe(SAMPLE);
+	});
+});

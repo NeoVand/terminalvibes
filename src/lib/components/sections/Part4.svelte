@@ -143,6 +143,18 @@ ls: missing/: No such file or directory`}
 					"Append today's date and a one-line status to my notes.txt without overwriting what's there"
 				]}
 			/>
+			<h4
+				id="capture-errors"
+				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: Catch the Red Text
+			</h4>
+			<PlaygroundNote>
+				List one real file and one missing one, then split the streams — the useful listing into
+				<Code code="found.txt" />, the scary error into <Code code="errors.txt" /> — with
+				<Code code=">" /> and <Code code="2>" />.
+			</PlaygroundNote>
 			<LessonActivity title="Catch the Red Text" scenarioId="capture-errors" id="capture-errors" />
 		</div>
 

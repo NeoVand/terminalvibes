@@ -273,8 +273,56 @@ function tokenizeConfigLine(line: string): ShellToken[] {
 	return tokens;
 }
 
+/** Highlight one line of TOML: `# comments`, `[section]` headers, and
+ *  `key = value` (keys, the `=` operator, and quoted/scalar values each get a
+ *  color). Multi-line string bodies (inside `"""…"""`) stay plain, which is
+ *  fine for the prompt configs this renders. */
+function tokenizeTomlLine(line: string): ShellToken[] {
+	if (!line) return [];
+	const trimmed = line.trimStart();
+	const leading = line.length - trimmed.length;
+	const out: ShellToken[] = [];
+	if (leading > 0) out.push({ text: line.slice(0, leading), type: 'space' });
+
+	if (trimmed.startsWith('#')) {
+		out.push({ text: trimmed, type: 'comment' });
+		return out;
+	}
+	// [table] or [[array-of-tables]]
+	if (/^\[\[?.+?\]?\]$/.test(trimmed)) {
+		out.push({ text: trimmed, type: 'command' });
+		return out;
+	}
+	const eq = trimmed.indexOf('=');
+	if (eq > 0) {
+		const rawKey = trimmed.slice(0, eq);
+		const key = rawKey.trimEnd();
+		out.push({ text: key, type: 'flag' });
+		const keyPad = rawKey.slice(key.length);
+		if (keyPad) out.push({ text: keyPad, type: 'space' });
+		out.push({ text: '=', type: 'hash' });
+
+		const rawVal = trimmed.slice(eq + 1);
+		const val = rawVal.trimStart();
+		const valPad = rawVal.slice(0, rawVal.length - val.length);
+		if (valPad) out.push({ text: valPad, type: 'space' });
+		if (val) {
+			const type =
+				val[0] === '"' || val[0] === "'"
+					? 'string'
+					: /^(true|false|[-+]?\d)/.test(val)
+						? 'arg'
+						: 'text';
+			out.push({ text: val, type });
+		}
+		return out;
+	}
+	out.push({ text: trimmed, type: 'text' });
+	return out;
+}
+
 // 'gitignore' is a legacy alias for 'config' so existing call sites keep working.
-export type CodeBlockMode = 'shell' | 'plain' | 'config' | 'gitignore';
+export type CodeBlockMode = 'shell' | 'plain' | 'config' | 'gitignore' | 'toml';
 
 /**
  * Tokenize one line of a code block. In `shell` mode the code portion is
@@ -285,6 +333,10 @@ export type CodeBlockMode = 'shell' | 'plain' | 'config' | 'gitignore';
 function tokenizeLine(line: string, mode: CodeBlockMode): ShellToken[] {
 	if (mode === 'config' || mode === 'gitignore') {
 		return tokenizeConfigLine(line);
+	}
+
+	if (mode === 'toml') {
+		return tokenizeTomlLine(line);
 	}
 
 	if (CONFLICT_MARKER.test(line)) {

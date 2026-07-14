@@ -732,7 +732,7 @@ source {INIT_LINES[shell].file}</pre>
 	}
 	.sd-toggle button.sd-on {
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-inverse);
 	}
 	.sd-chars {
 		display: flex;
@@ -752,7 +752,7 @@ source {INIT_LINES[shell].file}</pre>
 	}
 	.sd-char.sd-on {
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-inverse);
 		border-color: var(--color-primary);
 	}
 	.sd-modules {
@@ -880,7 +880,7 @@ source {INIT_LINES[shell].file}</pre>
 	}
 	.sd-btn-primary {
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-inverse);
 		border-color: var(--color-primary);
 	}
 	.sd-steps {
@@ -937,7 +937,7 @@ source {INIT_LINES[shell].file}</pre>
 	}
 	.sd-shell-tabs button.sd-on {
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-inverse);
 	}
 	.sd-shell-cmd {
 		font-family: var(--font-mono);
