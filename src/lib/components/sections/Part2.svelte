@@ -390,6 +390,7 @@ cat projects/app/README.md`}
 					'Give me the absolute path to my current directory and a relative path from here to my home folder'
 				]}
 			/>
+			<LessonActivity title="Mind the Gap" scenarioId="quoting" id="quoting" />
 		</div>
 
 		<!-- 2.3 Changing Directories -->

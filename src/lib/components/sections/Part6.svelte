@@ -589,6 +589,12 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 			</PlaygroundNote>
 			<LessonActivity title="Automate the Backup" scenarioId="first-script" id="first-script" />
 
+			<p class="mt-6 mb-3 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+				Now make it reusable. A hard-coded path backs up one folder; <Code code="$1" /> backs up whatever
+				you name. Same audit habit applies — read the script before you run it.
+			</p>
+			<LessonActivity title="One Script, Any Folder" scenarioId="script-args" id="script-args" />
+
 			<VibeBox
 				prompts={[
 					'Write a bash script that backs up a folder I pass as $1, and explain every line before I run it',

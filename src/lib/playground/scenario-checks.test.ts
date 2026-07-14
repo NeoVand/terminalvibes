@@ -25,7 +25,10 @@ beforeEach(() => {
 const EXPECTED_CHIP_FAILURES: Record<string, string[]> = {
 	'fix-permissions': ['./setup.sh'],
 	'path-repair': ['deploy', 'which deploy'],
-	'exit-codes': ['false', 'false && ./deploy.sh']
+	'exit-codes': ['false', 'false && ./deploy.sh'],
+	// The whole lesson: ls hits a missing file, so these exit nonzero on
+	// purpose (the error is the point — it goes to stderr / errors.txt).
+	'capture-errors': ['ls app.log ghost.log', 'ls app.log ghost.log > found.txt 2> errors.txt']
 };
 
 describe('scenario checks — click-only solvability', () => {

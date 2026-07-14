@@ -70,7 +70,10 @@ export const playgroundAnchorIds = [
 	'audit-the-agent',
 	'first-script',
 	'exit-codes',
-	'capstone'
+	'capstone',
+	'quoting',
+	'capture-errors',
+	'script-args'
 ] as const;
 
 /** Sub-anchors for notable interactive tools that aren't full sections but

@@ -89,6 +89,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-2-2', label: 'Paths', icon: Route },
 			{ id: 'section-2-3', label: 'Changing Directories', icon: MoveRight },
 			{ id: 'navigation', label: 'Find the Lost API Key', icon: Gamepad2, isPlayground: true },
+			{ id: 'quoting', label: 'Mind the Gap', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-2-4', label: 'Making Things', icon: FolderPlus },
 			{ id: 'section-2-5', label: 'Looking Inside Files', icon: Eye },
 			{ id: 'workspace-setup', label: 'Build Your Workspace', icon: Gamepad2, isPlayground: true }
@@ -113,6 +114,7 @@ export const sidebarNav: NavSection[] = [
 		icon: Workflow,
 		children: [
 			{ id: 'section-4-1', label: 'Redirection', icon: MoveRight },
+			{ id: 'capture-errors', label: 'Catch the Red Text', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-4-2', label: 'Pipes', icon: Workflow },
 			{ id: 'section-4-3', label: 'Searching Text', icon: Search },
 			{ id: 'log-detective', label: 'Find the Crash', icon: Gamepad2, isPlayground: true },
@@ -146,6 +148,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'audit-the-agent', label: 'Audit the Agent', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-6-2', label: 'Your First Script', icon: FileCode2 },
 			{ id: 'first-script', label: 'Automate the Backup', icon: Gamepad2, isPlayground: true },
+			{ id: 'script-args', label: 'One Script, Any Folder', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-6-3', label: 'Exit Codes & Chaining', icon: Braces },
 			{ id: 'exit-codes', label: 'Deploy Only on Green', icon: Gamepad2, isPlayground: true }
 		]

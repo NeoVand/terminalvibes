@@ -143,6 +143,7 @@ ls: missing/: No such file or directory`}
 					"Append today's date and a one-line status to my notes.txt without overwriting what's there"
 				]}
 			/>
+			<LessonActivity title="Catch the Red Text" scenarioId="capture-errors" id="capture-errors" />
 		</div>
 
 		<!-- 4.2 Pipes -->

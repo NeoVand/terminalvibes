@@ -560,6 +560,82 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			if (!errorReport || !errorReport.includes('ERROR')) return false;
 			return engine.isExecutable('~/backup.sh') && engine.isFile('~/backups/ideas.md');
 		}
+	},
+	{
+		id: 'quoting',
+		title: 'Mind the gap: spaces in names',
+		description:
+			'Two folders here have spaces in their names — the classic trap. Type one without quotes and the shell hears two separate words. Quote it, and the space is just a space. Get inside "My Projects" and leave a shipped.txt behind.',
+		hint: 'A space separates arguments, so `cd My Projects` looks like two folders to the shell. Wrap the name in quotes — `cd "My Projects"` — then `touch shipped.txt`. (TAB completion escapes the space for you too.)',
+		suggestedCommands: ['ls', 'cd "My Projects"', 'touch shipped.txt', 'ls -a'],
+		seed: {
+			files: {
+				'~/My Projects/app.js': 'console.log("ship it")\n',
+				'~/My Notes/todo.txt': '- quote paths that contain spaces\n'
+			}
+		},
+		goal: 'shipped.txt now lives inside "My Projects"',
+		check: async (engine) => engine.isFile('~/My Projects/shipped.txt')
+	},
+	{
+		id: 'capture-errors',
+		title: 'Catch the red text',
+		description:
+			'A command can produce two streams at once: normal output (stdout) and errors (stderr). List one real file and one missing one, then split the streams — the useful listing into found.txt, the scary error into errors.txt — with > and 2>.',
+		hint: '`>` captures normal output; `2>` captures errors (stream 2). Run `ls app.log ghost.log` to see both mixed on screen, then send them to separate files: `ls app.log ghost.log > found.txt 2> errors.txt`.',
+		suggestedCommands: [
+			'ls',
+			'ls app.log ghost.log',
+			'ls app.log ghost.log > found.txt 2> errors.txt',
+			'cat found.txt',
+			'cat errors.txt'
+		],
+		seed: {
+			files: {
+				'~/app.log': '2026-07-14 09:12 INFO  server started\n2026-07-14 09:13 INFO  ready\n',
+				'~/notes.md': '# scratch\n'
+			}
+		},
+		goal: 'the listing landed in found.txt and the error in errors.txt',
+		check: async (engine) => {
+			const errs = engine.readFile('~/errors.txt');
+			const found = engine.readFile('~/found.txt');
+			return (
+				engine.isFile('~/found.txt') &&
+				engine.isFile('~/errors.txt') &&
+				!!errs &&
+				errs.includes('cannot access') &&
+				!!found &&
+				found.includes('app.log')
+			);
+		}
+	},
+	{
+		id: 'script-args',
+		title: 'One script, any folder',
+		description:
+			'A script with a hard-coded path only ever backs up one thing. Swap the path for $1 — "the first word after the script\'s name" — and the same backup.sh works on any folder you hand it. Build it, then back up notes/ by running ./backup.sh notes.',
+		hint: 'Inside a script, `$1` becomes whatever you type after its name. Build backup.sh with `echo >`/`>>`: a shebang, `mkdir -p ~/backups`, then `cp -r "$1" ~/backups/`. `chmod +x` it, then run `./backup.sh notes`.',
+		suggestedCommands: [
+			"echo '#!/usr/bin/env bash' > backup.sh",
+			"echo 'mkdir -p ~/backups' >> backup.sh",
+			'echo \'cp -r "$1" ~/backups/\' >> backup.sh',
+			'cat backup.sh',
+			'chmod +x backup.sh',
+			'./backup.sh notes',
+			'ls ~/backups'
+		],
+		seed: {
+			files: {
+				'~/notes/ideas.md': '- make the backup script reusable\n',
+				'~/notes/todo.md': '- run it on any folder with $1\n'
+			}
+		},
+		goal: 'backup.sh copied the notes folder using its $1 argument',
+		check: async (engine) =>
+			engine.isExecutable('~/backup.sh') &&
+			engine.isDir('~/backups/notes') &&
+			engine.isFile('~/backups/notes/ideas.md')
 	}
 ];
 
@@ -589,7 +665,12 @@ export const lessonScenarioIds = [
 	'audit-the-agent',
 	'first-script',
 	'exit-codes',
-	'capstone'
+	'capstone',
+	// Added later; each is embedded in its curriculum Part (2, 4, 6) via a
+	// LessonActivity — the array order here only sets the scenario-picker order.
+	'quoting',
+	'capture-errors',
+	'script-args'
 ] as const;
 
 export type LessonScenarioId = (typeof lessonScenarioIds)[number];
