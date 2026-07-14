@@ -65,25 +65,31 @@ export function toSegments(design: PromptDesign): {
 } {
 	const pal = getPalette(design.palette);
 	const powerline = design.separator === 'powerline' || design.separator === 'round';
+	// Plain mode drops the icons/glyphs for text labels (`on main`, `node
+	// v20.11`) so the preview mirrors what the generated symbols produce.
+	const nerd = design.symbols === 'nerd';
 	const line: PreviewSegment[] = [];
 	let ring = 0;
 	for (const { key, hasStatus } of normalized(design.modules)) {
+		const bg = powerline ? pal.ring[ring % pal.ring.length] : undefined;
 		if (key === 'git') {
+			const branch = 'main' + (hasStatus ? ' ✱' : '');
 			line.push({
 				id: 'git_branch',
-				icon: 'GitBranch',
-				text: 'main' + (hasStatus ? ' ✱' : ''),
-				bg: powerline ? pal.ring[ring % pal.ring.length] : undefined,
+				icon: nerd ? 'GitBranch' : undefined,
+				text: nerd ? branch : 'on ' + branch,
+				bg,
 				fg: powerline ? pal.onRing : pal.text.git_branch
 			});
 		} else {
 			const meta = META[key];
 			line.push({
 				id: key,
-				icon: meta.icon,
-				glyph: meta.icon ? undefined : meta.glyph,
-				text: meta.sample,
-				bg: powerline ? pal.ring[ring % pal.ring.length] : undefined,
+				icon: nerd ? meta.icon : undefined,
+				glyph: nerd && !meta.icon ? meta.glyph : undefined,
+				// Plain: prepend the text label (e.g. 'node ') to the sample.
+				text: nerd ? meta.sample : (meta.plain || '') + meta.sample,
+				bg,
 				fg: powerline ? pal.onRing : pal.text[key]
 			});
 		}

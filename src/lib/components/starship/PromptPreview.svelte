@@ -28,6 +28,11 @@
 		</div>
 	{/if}
 
+	<!-- add_newline: a blank line separating this prompt from what came before -->
+	{#if design.addNewline}
+		<div class="ppv-newline"></div>
+	{/if}
+
 	<div class="ppv-line">
 		{#if powerline}
 			{#each parts.line as seg, i (i)}
@@ -98,6 +103,9 @@
 		font-size: 12px;
 		margin-bottom: 0.4rem;
 		font-style: italic;
+	}
+	.ppv-newline {
+		height: 1.4em;
 	}
 	.ppv-line {
 		display: flex;
