@@ -504,8 +504,8 @@ cd -              # Bounce back to wherever you just were`}
 			</div>
 
 			<Callout type="note">
-				<strong>The scenario:</strong> The AI proposes a project layout — "create a src folder with a components
-				subfolder, plus a README." You could click through a file manager… or type one line.
+				<strong>The scenario:</strong> The AI proposes a project layout — "create a src folder with a
+				components subfolder, plus a README." You could click through a file manager… or type one line.
 			</Callout>
 
 			<CodeBlock
