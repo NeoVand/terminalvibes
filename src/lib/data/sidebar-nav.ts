@@ -77,7 +77,8 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-1-1', label: 'Opening Your Terminal', icon: Monitor },
 			{ id: 'section-1-2', label: 'Your First Commands', icon: Sparkles },
 			{ id: 'first-steps', label: 'Say Hello to the Machine', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-1-3', label: 'Getting Help', icon: HelpCircle }
+			{ id: 'section-1-3', label: 'Getting Help', icon: HelpCircle },
+			{ id: 'help-lookup', label: 'Read the Manual First', icon: Gamepad2, isPlayground: true }
 		]
 	},
 	{
@@ -119,6 +120,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-4-3', label: 'Searching Text', icon: Search },
 			{ id: 'log-detective', label: 'Find the Crash', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-4-4', label: 'Counting & Shaping', icon: ListOrdered },
+			{ id: 'count-lines', label: 'Count Before You Fix', icon: Gamepad2, isPlayground: true },
 			{ id: 'pipeline-practice', label: 'Build a Pipeline', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-4-5', label: 'Finding Files', icon: FileSearch },
 			{ id: 'find-files', label: 'Hunt Down Every TODO', icon: Gamepad2, isPlayground: true }
@@ -161,6 +163,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-7-1', label: 'Make It Yours', icon: Palette },
 			{ id: 'prompt-designer', label: 'Design Your Prompt', icon: Wand2 },
 			{ id: 'section-7-2', label: 'History Superpowers', icon: History },
+			{ id: 'history-recall', label: 'Retrace Your Steps', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-7-3', label: 'Terminal in VS Code', icon: Layout },
 			{ id: 'section-7-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal }
 		]

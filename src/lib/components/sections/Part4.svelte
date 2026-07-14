@@ -420,6 +420,20 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 				— sort herds the duplicates together first, then uniq collapses them.
 			</Callout>
 
+			<h4
+				id="count-lines"
+				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: Count Before You Fix
+			</h4>
+			<PlaygroundNote>
+				Before ranking anything, answer the simplest question: how many? Pipe
+				<Code code="grep ERROR server.log" /> into
+				<Code code="wc -l" /> to count the error lines, and save the total to a file.
+			</PlaygroundNote>
+			<LessonActivity title="Count Before You Fix" scenarioId="count-lines" id="count-lines" />
+
 			<p class="mt-6 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Now the payoff. Your web server writes one line per visit to <Code code="access.log" />, and
 				you want to know your top visitors. This is the most famous pipeline in Unix history, and

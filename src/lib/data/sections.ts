@@ -73,7 +73,10 @@ export const playgroundAnchorIds = [
 	'capstone',
 	'quoting',
 	'capture-errors',
-	'script-args'
+	'script-args',
+	'help-lookup',
+	'count-lines',
+	'history-recall'
 ] as const;
 
 /** Sub-anchors for notable interactive tools that aren't full sections but

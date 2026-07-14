@@ -373,8 +373,8 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		id: 'alias-workshop',
 		title: 'Make your own shortcuts',
 		description:
-			'You type ls -l and cd ~/projects a dozen times a day. An alias is a nickname the shell expands for you — define ll and proj, then actually use them. (In real life they live in ~/.bashrc so they survive restarts.)',
-		hint: "`alias ll='ls -l'` defines the shortcut — no spaces around the `=`, quotes around the expansion. Then just type `ll`. Plain `alias` with no arguments lists everything you've defined.",
+			'You type ls -l and cd ~/projects a dozen times a day. An alias is a nickname the shell expands for you — define ll and proj and use them, then make one permanent the way real aliases live: appended to ~/.bashrc, the file every new shell reads on startup.',
+		hint: "`alias ll='ls -l'` defines the shortcut — no spaces around the `=`, quotes around the expansion. Type `ll` to use it. To keep it past this session, append the same line to `~/.bashrc` with `echo \"...\" >> ~/.bashrc`, then `source ~/.bashrc` to load it into the shell you're in right now.",
 		suggestedCommands: [
 			'cat ~/.bashrc',
 			"alias ll='ls -l'",
@@ -382,25 +382,30 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			"alias proj='cd ~/projects'",
 			'proj',
 			'alias',
-			'pwd'
+			'echo "alias ll=\'ls -l\'" >> ~/.bashrc',
+			'source ~/.bashrc',
+			'cat ~/.bashrc'
 		],
 		seed: {
 			files: {
 				'~/.bashrc':
-					'# ~/.bashrc — runs at the start of every new shell session.\n# Aliases defined here come back in every terminal you open.\n# (In this sandbox, just define them at the prompt.)\n',
+					'# ~/.bashrc — runs at the start of every new shell session.\n# Whatever you add here comes back in every terminal you open.\n',
 				'~/projects/zine-bot/README.md': '# zine-bot\n',
 				'~/projects/orbit/README.md': '# orbit\n',
 				'~/downloads/wallpaper.jpg': '<jpeg data>\n'
 			}
 		},
-		goal: 'll and proj are defined — and you used both',
+		goal: 'll and proj work — and ll is saved in ~/.bashrc for next time',
 		check: async (engine) => {
 			const used = (name: string) => engine.historyLog.some((line) => line.trim() === name);
+			const bashrc = engine.readFile('~/.bashrc') ?? '';
 			return (
 				engine.aliases.get('ll') === 'ls -l' &&
 				engine.aliases.get('proj') === 'cd ~/projects' &&
 				used('ll') &&
-				used('proj')
+				used('proj') &&
+				bashrc.includes("alias ll='ls -l'") &&
+				ranCommand(engine, 'source')
 			);
 		}
 	},
@@ -636,6 +641,87 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			engine.isExecutable('~/backup.sh') &&
 			engine.isDir('~/backups/notes') &&
 			engine.isFile('~/backups/notes/ideas.md')
+	},
+	{
+		id: 'help-lookup',
+		title: 'Read the manual first',
+		description:
+			"You've hit a command you don't recognize yet: head. The habit that carries you through the whole course — and every command an AI hands you — is to look it up before you run it. Read head's built-in manual, then use what it taught you to save the first 3 lines of server.log into top3.txt.",
+		hint: '`man head` opens the built-in manual — read it right here (on a real machine, press q to leave the pager). The SYNOPSIS shows `head [-n N]`, so `head -n 3 server.log` prints the first three lines. Send them to a file with `>`.',
+		suggestedCommands: [
+			'man head',
+			'head -n 3 server.log',
+			'head -n 3 server.log > top3.txt',
+			'cat top3.txt'
+		],
+		seed: {
+			files: {
+				'~/server.log':
+					'boot sequence initiated\nloading configuration\ndatabase connection established\ncache warm-up complete\nlistening on port 8080\nfirst request served\n'
+			}
+		},
+		goal: "You read head's manual, then saved its first 3 lines to top3.txt",
+		check: async (engine) => {
+			const consultedHelp = ranCommand(engine, 'man') || historyContains(engine, 'man head');
+			const out = engine.readFile('~/top3.txt');
+			return (
+				consultedHelp &&
+				!!out &&
+				out.includes('boot sequence initiated') &&
+				out.includes('database connection established') &&
+				!out.includes('cache warm-up')
+			);
+		}
+	},
+	{
+		id: 'count-lines',
+		title: 'Count before you fix',
+		description:
+			"Before digging into a noisy log, quantify the problem: how many ERROR lines are in it? `wc -l` counts lines, and a pipe feeds grep's matches straight into it — so you count the errors instead of reading them. Save the total to error-count.txt.",
+		hint: '`grep ERROR server.log` prints the matching lines; pipe them into `wc -l` to count them instead: `grep ERROR server.log | wc -l`. Then send just that number to a file with `>`.',
+		suggestedCommands: [
+			'cat server.log',
+			'grep ERROR server.log',
+			'grep ERROR server.log | wc -l',
+			'grep ERROR server.log | wc -l > error-count.txt',
+			'cat error-count.txt'
+		],
+		seed: {
+			files: {
+				'~/server.log':
+					'08:00 INFO  boot ok\n08:01 ERROR disk full\n08:02 INFO  retrying\n08:03 ERROR disk full\n08:04 WARN  slow query\n08:05 ERROR request timeout\n08:06 INFO  recovered\n08:07 ERROR request timeout\n'
+			}
+		},
+		goal: 'You counted the ERROR lines and saved the total (4) to error-count.txt',
+		check: async (engine) => {
+			const out = engine.readFile('~/error-count.txt');
+			return !!out && Number(out.trim()) === 4;
+		}
+	},
+	{
+		id: 'history-recall',
+		title: 'Retrace your steps',
+		description:
+			'Every command you run this session is remembered. Instead of retyping a long one, ask your history for it. Run a couple of commands, then pipe `history` into `grep` to dig one back out — and save the line you found to recall.txt.',
+		hint: "`history` prints your numbered command list, and because it's just text, all of Part 4 applies: `history | grep releases` filters it to the lines mentioning releases. Send the result to a file with `>`. (Up-arrow and Ctrl+R recall commands live at the prompt — grep is how you search a long history.)",
+		suggestedCommands: [
+			'mkdir -p ~/releases/v2',
+			'cp ~/notes.md ~/releases/v2/notes.md',
+			'history',
+			'history | grep releases',
+			'history | grep releases > recall.txt',
+			'cat recall.txt'
+		],
+		seed: {
+			files: {
+				'~/notes.md': '# release notes\n- v2 ships Friday\n'
+			}
+		},
+		goal: 'You searched your history and saved the recalled command to recall.txt',
+		check: async (engine) => {
+			const out = engine.readFile('~/recall.txt');
+			return !!out && out.includes('mkdir -p ~/releases/v2');
+		}
 	}
 ];
 
@@ -666,11 +752,14 @@ export const lessonScenarioIds = [
 	'first-script',
 	'exit-codes',
 	'capstone',
-	// Added later; each is embedded in its curriculum Part (2, 4, 6) via a
+	// Added later; each is embedded in its curriculum Part (1, 2, 4, 6, 7) via a
 	// LessonActivity — the array order here only sets the scenario-picker order.
 	'quoting',
 	'capture-errors',
-	'script-args'
+	'script-args',
+	'help-lookup',
+	'count-lines',
+	'history-recall'
 ] as const;
 
 export type LessonScenarioId = (typeof lessonScenarioIds)[number];

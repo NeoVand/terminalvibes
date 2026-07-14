@@ -166,8 +166,8 @@
 			</div>
 
 			<Callout type="note">
-				<strong>The moment:</strong> A blinking cursor is waiting for you, and you have no idea what
-				the machine will understand — or what's safe to try.
+				<strong>The moment:</strong> A blinking cursor is waiting for you, and you have no idea what the
+				machine will understand — or what's safe to try.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -360,6 +360,20 @@ clear
 				<em>ground truth from the machine</em> — that habit is the heart of Part 6, and you can start
 				it today.
 			</Callout>
+
+			<h4
+				id="help-lookup"
+				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: Read the Manual First
+			</h4>
+			<PlaygroundNote>
+				Before you run an unfamiliar command, look it up. Open <Code code="head" />'s manual with
+				<Code code="man head" />, then use what it taught you to save the first three lines of a
+				log.
+			</PlaygroundNote>
+			<LessonActivity title="Read the Manual First" scenarioId="help-lookup" id="help-lookup" />
 
 			<VibeBox
 				prompts={[

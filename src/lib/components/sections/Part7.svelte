@@ -24,6 +24,8 @@
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 	import VibeBox from '../ui/VibeBox.svelte';
+	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
+	import LessonActivity from '../ui/LessonActivity.svelte';
 	import StarshipDesigner from '../starship/StarshipDesigner.svelte';
 </script>
 
@@ -392,6 +394,20 @@ sudo !!
 				search would have had it already. And for commands you recall <em>constantly</em>, promote
 				them to an alias (section 5.5) and stop searching altogether.
 			</Callout>
+
+			<h4
+				id="history-recall"
+				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: Retrace Your Steps
+			</h4>
+			<PlaygroundNote>
+				Ctrl+R lives at a real prompt, but you can practice the other half here: run a couple of
+				commands, then pipe <Code code="history" /> into
+				<Code code="grep" /> to dig one back out — and save the line you found.
+			</PlaygroundNote>
+			<LessonActivity title="Retrace Your Steps" scenarioId="history-recall" id="history-recall" />
 
 			<VibeBox
 				prompts={[

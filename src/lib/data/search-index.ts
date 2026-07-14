@@ -1412,6 +1412,67 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
+	{
+		id: 'topic-pg-help-lookup',
+		sectionId: 'help-lookup',
+		title: 'Playground: Read the Manual First',
+		part: 'First Contact',
+		description: 'Look up a command with man before you run it, then use it.',
+		keywords: ['playground', 'practice', 'man page', 'help lookup', 'read the manual', 'head'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-count-lines',
+		sectionId: 'count-lines',
+		title: 'Playground: Count Before You Fix',
+		part: 'Text & Pipes',
+		description: 'Count matching lines with grep piped into wc -l, and save the total.',
+		keywords: ['playground', 'practice', 'wc', 'count lines', 'wc -l', 'how many', 'grep wc'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-history-recall',
+		sectionId: 'history-recall',
+		title: 'Playground: Retrace Your Steps',
+		part: 'Your Cockpit',
+		description: 'Search your command history with history | grep and save what you find.',
+		keywords: ['playground', 'practice', 'history', 'history grep', 'recall command', 'retrace'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-quoting',
+		sectionId: 'quoting',
+		title: 'Playground: Mind the Gap',
+		part: 'Moving Around',
+		description: 'Handle spaces in file names by quoting the path.',
+		keywords: [
+			'playground',
+			'practice',
+			'quoting',
+			'spaces in names',
+			'quote path',
+			'mind the gap'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-capture-errors',
+		sectionId: 'capture-errors',
+		title: 'Playground: Catch the Red Text',
+		part: 'Text & Pipes',
+		description: 'Split stdout and stderr into separate files with > and 2>.',
+		keywords: ['playground', 'practice', 'stderr', '2>', 'capture errors', 'redirect errors'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-script-args',
+		sectionId: 'script-args',
+		title: 'Playground: One Script, Any Folder',
+		part: 'Terminal for the AI Era',
+		description: 'Make a script reusable by swapping a hard-coded path for $1.',
+		keywords: ['playground', 'practice', 'script arguments', '$1', 'reusable script', 'parameters'],
+		kind: 'topic'
+	},
 	// ───── Panic queries ─────
 	{
 		id: 'topic-panic-deleted',
