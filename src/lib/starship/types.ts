@@ -39,8 +39,28 @@ export type Separator = 'powerline' | 'round' | 'plain' | 'brackets';
 /** Nerd Font glyphs vs plain ASCII/Unicode that renders in any terminal. */
 export type SymbolSet = 'nerd' | 'plain';
 
+/**
+ * The five role colors a learner edits to build their own theme, plus the
+ * terminal background. A full `Palette` is derived from these (see
+ * `buildCustomPalette`). All values are `#rrggbb` hex strings.
+ */
+export interface CustomColors {
+	/** directory / path */
+	dir: string;
+	/** git branch + status */
+	git: string;
+	/** language & tool versions */
+	runtime: string;
+	/** clock, battery, cloud context — the quieter modules */
+	meta: string;
+	/** username & hostname */
+	user: string;
+	/** terminal background */
+	bg: string;
+}
+
 export interface PromptDesign {
-	/** id of the palette in PALETTES */
+	/** id of the palette in PALETTES, or 'custom' for a user-built theme */
 	palette: string;
 	separator: Separator;
 	symbols: SymbolSet;
@@ -54,6 +74,8 @@ export interface PromptDesign {
 	addNewline?: boolean;
 	/** directory truncation length; 0 = full path. Default 3. */
 	truncation?: number;
+	/** role colors used when palette === 'custom' */
+	customColors?: CustomColors;
 }
 
 export interface Preset extends PromptDesign {

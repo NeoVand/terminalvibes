@@ -2,14 +2,14 @@
 	import { Folder, GitBranch, Package, Timer, Clock, BatteryMedium } from 'lucide-svelte';
 	import type { PromptDesign } from '$lib/starship/types';
 	import { toSegments } from '$lib/starship/generate';
-	import { getPalette } from '$lib/starship/palettes';
+	import { resolvePalette } from '$lib/starship/palettes';
 
 	let { design, mini = false }: { design: PromptDesign; mini?: boolean } = $props();
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const ICONS: Record<string, any> = { Folder, GitBranch, Package, Timer, Clock, BatteryMedium };
 
-	let pal = $derived(getPalette(design.palette));
+	let pal = $derived(resolvePalette(design));
 	let parts = $derived(toSegments(design));
 	let powerline = $derived(design.separator === 'powerline' || design.separator === 'round');
 	let round = $derived(design.separator === 'round');

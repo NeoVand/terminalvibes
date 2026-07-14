@@ -1,5 +1,5 @@
 import type { ModuleId, PromptDesign, PreviewSegment } from './types';
-import { getPalette } from './palettes';
+import { resolvePalette } from './palettes';
 
 /** Per-module metadata: sample values for the preview, and the real symbols
  *  (Nerd Font glyph vs plain text) used in the generated config. */
@@ -63,7 +63,7 @@ export function toSegments(design: PromptDesign): {
 	line: PreviewSegment[];
 	char: PreviewSegment;
 } {
-	const pal = getPalette(design.palette);
+	const pal = resolvePalette(design);
 	const powerline = design.separator === 'powerline' || design.separator === 'round';
 	// Plain mode drops the icons/glyphs for text labels (`on main`, `node
 	// v20.11`) so the preview mirrors what the generated symbols produce.
@@ -104,7 +104,7 @@ function sym(design: PromptDesign, id: ModuleId): string {
 
 /** Generate a real, valid `starship.toml` from the design. */
 export function toToml(design: PromptDesign): string {
-	const pal = getPalette(design.palette);
+	const pal = resolvePalette(design);
 	const powerline = design.separator === 'powerline' || design.separator === 'round';
 	const round = design.separator === 'round';
 	const brackets = design.separator === 'brackets';

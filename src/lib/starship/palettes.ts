@@ -1,4 +1,4 @@
-import type { ModuleId, Palette } from './types';
+import type { CustomColors, ModuleId, Palette, PromptDesign } from './types';
 
 /** Build a per-module text-color map from a small set of role colors. */
 function text(roles: {
@@ -240,4 +240,51 @@ export const PALETTES: Palette[] = [
 
 export function getPalette(id: string): Palette {
 	return PALETTES.find((p) => p.id === id) ?? PALETTES[0];
+}
+
+/** Sensible starting point for a hand-built theme (Tokyo Night's roles). */
+export const DEFAULT_CUSTOM: CustomColors = {
+	dir: '#7aa2f7',
+	git: '#bb9af7',
+	runtime: '#7dcfff',
+	meta: '#565f89',
+	user: '#9ece6a',
+	bg: '#1a1b26'
+};
+
+/** Read the five role colors back out of an existing palette, so entering
+ *  "custom" mode starts from whatever theme you were already on. */
+export function rolesOf(pal: Palette): CustomColors {
+	return {
+		dir: pal.text.directory,
+		git: pal.text.git_branch,
+		runtime: pal.text.nodejs,
+		meta: pal.text.time,
+		user: pal.text.username,
+		bg: pal.bg
+	};
+}
+
+/** Turn a learner's five role colors into a full Palette. The powerline ring
+ *  cycles the role colors; text is dark-on-color for powerline (onRing = bg). */
+export function buildCustomPalette(c: CustomColors): Palette {
+	return {
+		id: 'custom',
+		name: 'Custom',
+		bg: c.bg,
+		fg: '#e6e6e6',
+		ring: [c.dir, c.git, c.runtime, c.user, c.meta],
+		onRing: c.bg,
+		text: text({ dir: c.dir, git: c.git, runtime: c.runtime, meta: c.meta, user: c.user }),
+		charOk: c.runtime,
+		charErr: '#f7768e'
+	};
+}
+
+/** The palette a design should render with: a custom one if the learner built
+ *  it, otherwise the named preset palette. Used by both the preview and TOML. */
+export function resolvePalette(design: PromptDesign): Palette {
+	return design.palette === 'custom' && design.customColors
+		? buildCustomPalette(design.customColors)
+		: getPalette(design.palette);
 }

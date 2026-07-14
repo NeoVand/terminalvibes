@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { Copy, Check, Download, ChevronDown, Terminal } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import { Copy, Check, Download, ChevronDown, Terminal, Link2, Palette } from 'lucide-svelte';
 	import PromptPreview from './PromptPreview.svelte';
 	import { PRESETS, getPreset } from '$lib/starship/presets';
-	import { PALETTES } from '$lib/starship/palettes';
+	import { PALETTES, rolesOf, resolvePalette } from '$lib/starship/palettes';
 	import { toToml, INIT_LINES } from '$lib/starship/generate';
+	import { encodeDesign, decodeDesign } from '$lib/starship/share';
 	import {
 		MODULE_IDS,
+		type CustomColors,
 		type ModuleId,
 		type PromptDesign,
 		type Separator
@@ -16,7 +19,19 @@
 	let activePreset = $state('tokyonight');
 	let dropdownOpen = $state(false);
 	let copied = $state(false);
+	let linkCopied = $state(false);
 	let shell = $state<'zsh' | 'bash' | 'fish'>('zsh');
+
+	// A shared "?sp=…" link restores an exact design on load.
+	onMount(() => {
+		const sp = new URLSearchParams(window.location.search).get('sp');
+		if (!sp) return;
+		const restored = decodeDesign(sp);
+		if (restored) {
+			design = restored;
+			activePreset = '';
+		}
+	});
 
 	function clone(p: PromptDesign): PromptDesign {
 		return {
@@ -27,7 +42,8 @@
 			charSymbol: p.charSymbol,
 			modules: [...p.modules],
 			addNewline: p.addNewline ?? false,
-			truncation: p.truncation ?? 3
+			truncation: p.truncation ?? 3,
+			...(p.customColors ? { customColors: { ...p.customColors } } : {})
 		};
 	}
 
@@ -38,6 +54,32 @@
 	}
 
 	let currentName = $derived(activePreset ? getPreset(activePreset).name : 'Custom design');
+
+	// ── Custom palette ──────────────────────────────────────────────
+	const COLOR_ROLES: { key: keyof CustomColors; label: string }[] = [
+		{ key: 'dir', label: 'Directory' },
+		{ key: 'git', label: 'Git' },
+		{ key: 'runtime', label: 'Runtime' },
+		{ key: 'user', label: 'User' },
+		{ key: 'meta', label: 'Accent' },
+		{ key: 'bg', label: 'Background' }
+	];
+
+	function pickPalette(id: string) {
+		if (id === 'custom') {
+			// Seed the editor from whatever palette is showing now, so "Custom"
+			// starts from a coherent theme instead of a blank slate.
+			if (!design.customColors) design.customColors = rolesOf(resolvePalette(design));
+		}
+		design.palette = id;
+		activePreset = '';
+	}
+
+	function setColor(key: keyof CustomColors, value: string) {
+		if (!design.customColors) design.customColors = rolesOf(resolvePalette(design));
+		design.customColors[key] = value;
+		activePreset = '';
+	}
 
 	const UI_MODULES: { ids: ModuleId[]; label: string }[] = [
 		{ ids: ['directory'], label: 'Directory' },
@@ -98,6 +140,19 @@
 			await navigator.clipboard.writeText(toml);
 			copied = true;
 			setTimeout(() => (copied = false), 1800);
+		} catch {
+			/* clipboard unavailable */
+		}
+	}
+
+	async function copyLink() {
+		const enc = encodeDesign(design);
+		const { origin, pathname } = window.location;
+		const url = `${origin}${pathname}?sp=${enc}#prompt-designer`;
+		try {
+			await navigator.clipboard.writeText(url);
+			linkCopied = true;
+			setTimeout(() => (linkCopied = false), 1800);
 		} catch {
 			/* clipboard unavailable */
 		}
@@ -173,7 +228,7 @@
 								type="button"
 								class="sd-swatch"
 								class:sd-swatch-on={design.palette === p.id}
-								onclick={() => set('palette', p.id)}
+								onclick={() => pickPalette(p.id)}
 								title={p.name}
 								aria-label={p.name}
 								style="background: {p.bg};"
@@ -183,8 +238,42 @@
 								{/each}
 							</button>
 						{/each}
+						<button
+							type="button"
+							class="sd-swatch sd-swatch-custom"
+							class:sd-swatch-on={design.palette === 'custom'}
+							onclick={() => pickPalette('custom')}
+							title="Design your own colors"
+							aria-label="Custom palette"
+						>
+							<Palette size={15} />
+						</button>
 					</div>
 				</div>
+
+				{#if design.palette === 'custom' && design.customColors}
+					<div class="sd-field sd-field-full sd-custom">
+						<span class="sd-label">Your colors</span>
+						<div class="sd-colors">
+							{#each COLOR_ROLES as role (role.key)}
+								<label class="sd-color">
+									<input
+										type="color"
+										value={design.customColors[role.key]}
+										oninput={(e) => setColor(role.key, e.currentTarget.value)}
+									/>
+									<span class="sd-color-label">{role.label}</span>
+									<span class="sd-color-hex">{design.customColors[role.key]}</span>
+								</label>
+							{/each}
+						</div>
+						<p class="sd-custom-hint">
+							Five roles color the whole prompt — pick each one and watch the preview below.
+							Powerline styles use them as segment backgrounds; plain and bracket styles as text
+							colors.
+						</p>
+					</div>
+				{/if}
 
 				<div class="sd-field">
 					<span class="sd-label">Segment style</span>
@@ -296,6 +385,9 @@
 		<div class="sd-export-head">
 			<span class="sd-export-title"><Download size={15} /> Take it to your terminal</span>
 			<div class="sd-actions">
+				<button type="button" class="sd-btn" onclick={copyLink}>
+					{#if linkCopied}<Check size={13} /> Link copied{:else}<Link2 size={13} /> Copy link{/if}
+				</button>
 				<button type="button" class="sd-btn" onclick={copyToml}>
 					{#if copied}<Check size={13} /> Copied{:else}<Copy size={13} /> Copy{/if}
 				</button>
@@ -340,6 +432,11 @@ source {INIT_LINES[shell].file}</pre>
 				and select it in your terminal's settings, or the arrows and icons show as boxes. The preview
 				above draws them with CSS so you can design without one. Every design here is just a text file
 				— open it, read it, tweak it. It's your prompt now.
+			</p>
+			<p class="sd-steps-foot">
+				<strong style="color: var(--color-text-secondary);">Copy link</strong> saves your whole design
+				— palette, colors and all — into a shareable URL. Bookmark it to come back to this exact prompt,
+				or send it to a friend and they'll open the designer pre-loaded with it.
 			</p>
 		</div>
 	</div>
@@ -534,6 +631,85 @@ source {INIT_LINES[shell].file}</pre>
 	.sd-swatch-on {
 		border-color: var(--color-primary);
 		box-shadow: 0 0 0 1.5px var(--color-primary);
+	}
+	.sd-swatch-custom {
+		width: 29px;
+		align-items: center;
+		justify-content: center;
+		color: var(--color-text-secondary);
+		background: conic-gradient(
+			from 0deg,
+			#f7768e,
+			#e0af68,
+			#9ece6a,
+			#7dcfff,
+			#7aa2f7,
+			#bb9af7,
+			#f7768e
+		);
+	}
+	.sd-swatch-custom :global(svg) {
+		filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
+		color: #fff;
+	}
+
+	/* ── Custom color editor ── */
+	.sd-custom {
+		border-radius: 12px;
+		border: 1px dashed color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+		background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+		padding: 0.85rem 0.9rem;
+	}
+	.sd-colors {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.55rem;
+	}
+	.sd-color {
+		display: flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.32rem 0.55rem 0.32rem 0.35rem;
+		border-radius: 9px;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		cursor: pointer;
+	}
+	.sd-color input[type='color'] {
+		width: 26px;
+		height: 26px;
+		padding: 0;
+		border: none;
+		border-radius: 6px;
+		background: none;
+		cursor: pointer;
+	}
+	.sd-color input[type='color']::-webkit-color-swatch-wrapper {
+		padding: 0;
+	}
+	.sd-color input[type='color']::-webkit-color-swatch {
+		border: 1px solid var(--color-border);
+		border-radius: 6px;
+	}
+	.sd-color input[type='color']::-moz-color-swatch {
+		border: 1px solid var(--color-border);
+		border-radius: 6px;
+	}
+	.sd-color-label {
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--color-text-secondary);
+	}
+	.sd-color-hex {
+		font-size: 10.5px;
+		font-family: var(--font-mono);
+		color: var(--color-text-muted);
+	}
+	.sd-custom-hint {
+		margin: 0.6rem 0 0;
+		font-size: 11.5px;
+		line-height: 1.5;
+		color: var(--color-text-muted);
 	}
 	.sd-toggle {
 		display: inline-flex;
