@@ -26,6 +26,12 @@ const META: Record<ModuleId, ModuleMeta> = {
 	rust: { sample: '1.78', glyph: '🦀', nerd: ' ', plain: 'rs ' },
 	golang: { sample: '1.22', glyph: '🐹', nerd: ' ', plain: 'go ' },
 	package: { sample: 'v1.0.0', icon: 'Package', nerd: ' ', plain: 'pkg ' },
+	docker_context: { sample: 'desktop', glyph: '🐳', nerd: '🐳 ', plain: 'docker ' },
+	java: { sample: '21', glyph: '☕', nerd: '☕ ', plain: 'java ' },
+	ruby: { sample: '3.3', glyph: '💎', nerd: '💎 ', plain: 'rb ' },
+	php: { sample: '8.3', glyph: '🐘', nerd: '🐘 ', plain: 'php ' },
+	aws: { sample: 'us-east-1', glyph: '☁', nerd: '☁ ', plain: 'aws ' },
+	kubernetes: { sample: 'prod', glyph: '☸', nerd: '☸ ', plain: 'k8s ' },
 	cmd_duration: { sample: '2s', icon: 'Timer', nerd: ' ', plain: 'took ' },
 	time: { sample: '14:30', icon: 'Clock', nerd: ' ', plain: '@' },
 	battery: { sample: '82%', icon: 'BatteryMedium', nerd: ' ', plain: 'bat ' }
@@ -104,7 +110,7 @@ export function toToml(design: PromptDesign): string {
 
 	const lines: string[] = [];
 	lines.push('"$schema" = \'https://starship.rs/config-schema.json\'', '');
-	lines.push('add_newline = false', '');
+	lines.push(`add_newline = ${design.addNewline ? 'true' : 'false'}`, '');
 
 	// ── format string ───────────────────────────────────────────────
 	const fmt: string[] = [];
@@ -172,8 +178,16 @@ export function toToml(design: PromptDesign): string {
 			continue;
 		}
 		if (key === 'directory') {
+			const trunc = design.truncation ?? 3;
 			emit('directory', 'directory', pad('$path'), {
-				extra: ['truncation_length = 3', "truncation_symbol = '…/'"]
+				extra:
+					trunc > 0
+						? [
+								`truncation_length = ${trunc}`,
+								"truncation_symbol = '…/'",
+								'truncate_to_repo = false'
+							]
+						: ['truncation_length = 0', 'truncate_to_repo = false']
 			});
 			continue;
 		}

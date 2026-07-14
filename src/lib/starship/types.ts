@@ -20,6 +20,12 @@ export const MODULE_IDS = [
 	'rust',
 	'golang',
 	'package',
+	'docker_context',
+	'java',
+	'ruby',
+	'php',
+	'aws',
+	'kubernetes',
 	'cmd_duration',
 	'time',
 	'battery'
@@ -44,6 +50,10 @@ export interface PromptDesign {
 	charSymbol: string;
 	/** enabled modules, in display order (subset of MODULE_IDS) */
 	modules: ModuleId[];
+	/** blank line above the prompt (Starship add_newline). Default false. */
+	addNewline?: boolean;
+	/** directory truncation length; 0 = full path. Default 3. */
+	truncation?: number;
 }
 
 export interface Preset extends PromptDesign {

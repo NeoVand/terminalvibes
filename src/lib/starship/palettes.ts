@@ -19,6 +19,12 @@ function text(roles: {
 		rust: roles.runtime,
 		golang: roles.runtime,
 		package: roles.runtime,
+		docker_context: roles.runtime,
+		java: roles.runtime,
+		ruby: roles.runtime,
+		php: roles.runtime,
+		aws: roles.meta,
+		kubernetes: roles.meta,
 		cmd_duration: roles.meta,
 		time: roles.meta,
 		battery: roles.meta
@@ -144,6 +150,74 @@ export const PALETTES: Palette[] = [
 		}),
 		charOk: '#9ccfd8',
 		charErr: '#eb6f92'
+	},
+	{
+		id: 'onedark',
+		name: 'One Dark',
+		bg: '#282c34',
+		fg: '#abb2bf',
+		ring: ['#61afef', '#c678dd', '#56b6c2', '#98c379', '#e5c07b', '#e06c75'],
+		onRing: '#282c34',
+		text: text({
+			dir: '#61afef',
+			git: '#c678dd',
+			runtime: '#98c379',
+			meta: '#5c6370',
+			user: '#e5c07b'
+		}),
+		charOk: '#98c379',
+		charErr: '#e06c75'
+	},
+	{
+		id: 'solarized',
+		name: 'Solarized Dark',
+		bg: '#002b36',
+		fg: '#93a1a1',
+		ring: ['#268bd2', '#6c71c4', '#2aa198', '#859900', '#b58900', '#cb4b16'],
+		onRing: '#002b36',
+		text: text({
+			dir: '#268bd2',
+			git: '#6c71c4',
+			runtime: '#2aa198',
+			meta: '#586e75',
+			user: '#859900'
+		}),
+		charOk: '#859900',
+		charErr: '#dc322f'
+	},
+	{
+		id: 'everforest',
+		name: 'Everforest',
+		bg: '#2d353b',
+		fg: '#d3c6aa',
+		ring: ['#7fbbb3', '#d699b6', '#83c092', '#a7c080', '#dbbc7f', '#e67e80'],
+		onRing: '#2d353b',
+		text: text({
+			dir: '#7fbbb3',
+			git: '#d699b6',
+			runtime: '#a7c080',
+			meta: '#859289',
+			user: '#dbbc7f'
+		}),
+		charOk: '#a7c080',
+		charErr: '#e67e80'
+	},
+	{
+		id: 'monokai',
+		name: 'Monokai',
+		bg: '#272822',
+		fg: '#f8f8f2',
+		ring: ['#66d9ef', '#ae81ff', '#a6e22e', '#fd971f', '#f92672', '#e6db74'],
+		onRing: '#272822',
+		text: text({
+			dir: '#66d9ef',
+			git: '#f92672',
+			runtime: '#a6e22e',
+			meta: '#75715e',
+			user: '#e6db74'
+		}),
+		charOk: '#a6e22e',
+		charErr: '#f92672'
 	},
 	{
 		id: 'terminal',

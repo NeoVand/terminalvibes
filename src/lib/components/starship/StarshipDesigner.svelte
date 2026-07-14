@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Copy, Check, Download, Rocket, Palette as PaletteIcon } from 'lucide-svelte';
+	import { Copy, Check, Download, ChevronDown, Terminal } from 'lucide-svelte';
 	import PromptPreview from './PromptPreview.svelte';
 	import { PRESETS, getPreset } from '$lib/starship/presets';
 	import { PALETTES } from '$lib/starship/palettes';
@@ -12,12 +12,11 @@
 	} from '$lib/starship/types';
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 
-	// Start on Tokyo Night. `structuredClone` keeps presets immutable as the
-	// learner edits their working copy.
 	let design = $state<PromptDesign>(clone(getPreset('tokyonight')));
 	let activePreset = $state('tokyonight');
+	let dropdownOpen = $state(false);
 	let copied = $state(false);
-	let shell = $state<'bash' | 'zsh' | 'fish'>('zsh');
+	let shell = $state<'zsh' | 'bash' | 'fish'>('zsh');
 
 	function clone(p: PromptDesign): PromptDesign {
 		return {
@@ -26,16 +25,20 @@
 			symbols: p.symbols,
 			twoLine: p.twoLine,
 			charSymbol: p.charSymbol,
-			modules: [...p.modules]
+			modules: [...p.modules],
+			addNewline: p.addNewline ?? false,
+			truncation: p.truncation ?? 3
 		};
 	}
 
 	function pickPreset(id: string) {
 		activePreset = id;
 		design = clone(getPreset(id));
+		dropdownOpen = false;
 	}
 
-	// UI groups modules into friendly toggles; git branch + status travel together.
+	let currentName = $derived(activePreset ? getPreset(activePreset).name : 'Custom design');
+
 	const UI_MODULES: { ids: ModuleId[]; label: string }[] = [
 		{ ids: ['directory'], label: 'Directory' },
 		{ ids: ['git_branch', 'git_status'], label: 'Git branch + status' },
@@ -43,6 +46,12 @@
 		{ ids: ['python'], label: 'Python' },
 		{ ids: ['rust'], label: 'Rust' },
 		{ ids: ['golang'], label: 'Go' },
+		{ ids: ['java'], label: 'Java' },
+		{ ids: ['ruby'], label: 'Ruby' },
+		{ ids: ['php'], label: 'PHP' },
+		{ ids: ['docker_context'], label: 'Docker' },
+		{ ids: ['kubernetes'], label: 'Kubernetes' },
+		{ ids: ['aws'], label: 'AWS' },
 		{ ids: ['package'], label: 'Package version' },
 		{ ids: ['cmd_duration'], label: 'Command time' },
 		{ ids: ['time'], label: 'Clock' },
@@ -59,7 +68,6 @@
 		const on = isOn(ids);
 		const without = design.modules.filter((m) => !ids.includes(m));
 		const next = on ? without : [...without, ...ids];
-		// Rebuild in canonical order so the prompt stays sensibly arranged.
 		design.modules = MODULE_IDS.filter((id) => next.includes(id));
 		activePreset = '';
 	}
@@ -71,7 +79,12 @@
 		{ id: 'brackets', label: 'Brackets' }
 	];
 
-	const CHAR_SYMBOLS = ['❯', '➜', '$', 'λ', '▶', '»'];
+	const CHAR_SYMBOLS = ['❯', '❯❯', '➜', '→', '$', '%', 'λ', '▶', '»', '✦', '○', '⚡'];
+	const DEPTHS: { v: number; label: string }[] = [
+		{ v: 0, label: 'Full' },
+		{ v: 3, label: '3 deep' },
+		{ v: 1, label: 'Name only' }
+	];
 
 	function set<K extends keyof PromptDesign>(key: K, value: PromptDesign[K]) {
 		design[key] = value;
@@ -104,138 +117,184 @@
 </script>
 
 <div class="sd">
-	<!-- Live preview -->
-	<div class="sd-preview-wrap">
-		<PromptPreview {design} />
-		<p class="sd-note">
-			A live approximation. On your machine the powerline arrows and icons need a
-			<a href="https://www.nerdfonts.com/" target="_blank" rel="noopener noreferrer">Nerd Font</a> — the
-			plain and bracket styles work in any terminal.
-		</p>
-	</div>
-
-	<!-- Preset gallery -->
-	<div class="sd-block">
-		<h4 class="sd-h">
-			<Rocket size={15} style="color: var(--color-primary);" /> Start from a design
-		</h4>
-		<div class="sd-presets">
-			{#each PRESETS as preset (preset.id)}
+	<!-- ── Preset dropdown (graphical) ─────────────────────────────── -->
+	<div class="sd-row">
+		<span class="sd-row-label">Preset</span>
+		<div class="sd-dd">
+			<button
+				type="button"
+				class="sd-dd-trigger"
+				class:sd-open={dropdownOpen}
+				onclick={() => (dropdownOpen = !dropdownOpen)}
+				aria-haspopup="listbox"
+				aria-expanded={dropdownOpen}
+			>
+				<span class="sd-dd-thumb"><PromptPreview {design} mini /></span>
+				<span class="sd-dd-name">{currentName}</span>
+				<ChevronDown size={16} class="sd-dd-caret" />
+			</button>
+			{#if dropdownOpen}
 				<button
-					type="button"
-					class="sd-preset"
-					class:sd-preset-on={activePreset === preset.id}
-					onclick={() => pickPreset(preset.id)}
-				>
-					<PromptPreview design={preset} mini />
-					<span class="sd-preset-name">{preset.name}</span>
-					<span class="sd-preset-desc">{preset.description}</span>
-				</button>
-			{/each}
-		</div>
-	</div>
-
-	<!-- Customizer -->
-	<div class="sd-block">
-		<h4 class="sd-h">
-			<PaletteIcon size={15} style="color: var(--color-primary);" /> Make it yours
-		</h4>
-
-		<div class="sd-controls">
-			<div class="sd-control">
-				<span class="sd-label">Palette</span>
-				<div class="sd-swatches">
-					{#each PALETTES as p (p.id)}
+					class="sd-dd-scrim"
+					aria-label="Close preset list"
+					onclick={() => (dropdownOpen = false)}
+				></button>
+				<div class="sd-dd-menu" role="listbox">
+					{#each PRESETS as p (p.id)}
 						<button
 							type="button"
-							class="sd-swatch"
-							class:sd-swatch-on={design.palette === p.id}
-							onclick={() => set('palette', p.id)}
-							title={p.name}
-							aria-label={p.name}
-							style="background: {p.bg};"
+							class="sd-dd-item"
+							class:sd-dd-item-on={activePreset === p.id}
+							role="option"
+							aria-selected={activePreset === p.id}
+							onclick={() => pickPreset(p.id)}
 						>
-							{#each p.ring.slice(0, 5) as c, i (i)}
-								<span style="background: {c};"></span>
-							{/each}
+							<span class="sd-dd-item-thumb"><PromptPreview design={p} mini /></span>
+							<span class="sd-dd-item-text">
+								<span class="sd-dd-item-name">{p.name}</span>
+								<span class="sd-dd-item-desc">{p.description}</span>
+							</span>
 						</button>
 					{/each}
 				</div>
-			</div>
+			{/if}
+		</div>
+	</div>
 
-			<div class="sd-control">
-				<span class="sd-label">Style</span>
-				<div class="sd-seg-toggle">
-					{#each SEPARATORS as s (s.id)}
-						<button
-							type="button"
-							class:sd-on={design.separator === s.id}
-							onclick={() => set('separator', s.id)}>{s.label}</button
+	<!-- ── Editor: controls + a sticky live preview below them ─────── -->
+	<div class="sd-editor">
+		<div class="sd-panel">
+			<div class="sd-grid">
+				<div class="sd-field sd-field-full">
+					<span class="sd-label">Palette</span>
+					<div class="sd-swatches">
+						{#each PALETTES as p (p.id)}
+							<button
+								type="button"
+								class="sd-swatch"
+								class:sd-swatch-on={design.palette === p.id}
+								onclick={() => set('palette', p.id)}
+								title={p.name}
+								aria-label={p.name}
+								style="background: {p.bg};"
+							>
+								{#each p.ring.slice(0, 5) as c, i (i)}
+									<span style="background: {c};"></span>
+								{/each}
+							</button>
+						{/each}
+					</div>
+				</div>
+
+				<div class="sd-field">
+					<span class="sd-label">Segment style</span>
+					<div class="sd-toggle">
+						{#each SEPARATORS as s (s.id)}
+							<button class:sd-on={design.separator === s.id} onclick={() => set('separator', s.id)}
+								>{s.label}</button
+							>
+						{/each}
+					</div>
+				</div>
+
+				<div class="sd-field">
+					<span class="sd-label">Icons</span>
+					<div class="sd-toggle">
+						<button class:sd-on={design.symbols === 'nerd'} onclick={() => set('symbols', 'nerd')}
+							>Nerd Font</button
 						>
-					{/each}
-				</div>
-			</div>
-
-			<div class="sd-control">
-				<span class="sd-label">Symbols</span>
-				<div class="sd-seg-toggle">
-					<button class:sd-on={design.symbols === 'nerd'} onclick={() => set('symbols', 'nerd')}
-						>Nerd Font</button
-					>
-					<button class:sd-on={design.symbols === 'plain'} onclick={() => set('symbols', 'plain')}
-						>Plain text</button
-					>
-				</div>
-			</div>
-
-			<div class="sd-control">
-				<span class="sd-label">Layout</span>
-				<div class="sd-seg-toggle">
-					<button class:sd-on={!design.twoLine} onclick={() => set('twoLine', false)}
-						>One line</button
-					>
-					<button class:sd-on={design.twoLine} onclick={() => set('twoLine', true)}
-						>Two lines</button
-					>
-				</div>
-			</div>
-
-			<div class="sd-control">
-				<span class="sd-label">Prompt character</span>
-				<div class="sd-seg-toggle sd-chars">
-					{#each CHAR_SYMBOLS as c (c)}
-						<button class:sd-on={design.charSymbol === c} onclick={() => set('charSymbol', c)}
-							>{c}</button
+						<button class:sd-on={design.symbols === 'plain'} onclick={() => set('symbols', 'plain')}
+							>Plain text</button
 						>
-					{/each}
+					</div>
+				</div>
+
+				<div class="sd-field">
+					<span class="sd-label">Layout</span>
+					<div class="sd-toggle">
+						<button class:sd-on={!design.twoLine} onclick={() => set('twoLine', false)}
+							>One line</button
+						>
+						<button class:sd-on={design.twoLine} onclick={() => set('twoLine', true)}
+							>Two lines</button
+						>
+					</div>
+				</div>
+
+				<div class="sd-field">
+					<span class="sd-label">Blank line above</span>
+					<div class="sd-toggle">
+						<button class:sd-on={!design.addNewline} onclick={() => set('addNewline', false)}
+							>Off</button
+						>
+						<button class:sd-on={design.addNewline} onclick={() => set('addNewline', true)}
+							>On</button
+						>
+					</div>
+				</div>
+
+				<div class="sd-field">
+					<span class="sd-label">Path depth</span>
+					<div class="sd-toggle">
+						{#each DEPTHS as d (d.v)}
+							<button
+								class:sd-on={(design.truncation ?? 3) === d.v}
+								onclick={() => set('truncation', d.v)}>{d.label}</button
+							>
+						{/each}
+					</div>
+				</div>
+
+				<div class="sd-field sd-field-full">
+					<span class="sd-label">Prompt character</span>
+					<div class="sd-chars">
+						{#each CHAR_SYMBOLS as c (c)}
+							<button
+								class="sd-char"
+								class:sd-on={design.charSymbol === c}
+								onclick={() => set('charSymbol', c)}>{c}</button
+							>
+						{/each}
+					</div>
+				</div>
+
+				<div class="sd-field sd-field-full">
+					<span class="sd-label">Modules to show</span>
+					<div class="sd-modules">
+						{#each UI_MODULES as m (m.label)}
+							<button
+								type="button"
+								class="sd-mod"
+								class:sd-mod-on={isOn(m.ids)}
+								onclick={() => toggleModule(m.ids)}
+							>
+								<span class="sd-mod-mark">{isOn(m.ids) ? '✓' : '+'}</span>
+								{m.label}
+							</button>
+						{/each}
+					</div>
 				</div>
 			</div>
+		</div>
 
-			<div class="sd-control sd-control-wide">
-				<span class="sd-label">Show</span>
-				<div class="sd-modules">
-					{#each UI_MODULES as m (m.label)}
-						<button
-							type="button"
-							class="sd-mod"
-							class:sd-mod-on={isOn(m.ids)}
-							onclick={() => toggleModule(m.ids)}
-						>
-							{isOn(m.ids) ? '✓' : '+'}
-							{m.label}
-						</button>
-					{/each}
+		<!-- Live preview: a terminal window, pinned to the bottom of the
+		     viewport while you scroll the controls above, so you always see the
+		     effect of your changes. -->
+		<div class="sd-stage">
+			<div class="sd-window">
+				<div class="sd-titlebar">
+					<span class="sd-dots"><i></i><i></i><i></i></span>
+					<span class="sd-title"><Terminal size={11} /> {shell} — starship</span>
 				</div>
+				<PromptPreview {design} />
 			</div>
 		</div>
 	</div>
 
-	<!-- Export -->
-	<div class="sd-block">
+	<!-- ── Export ──────────────────────────────────────────────────── -->
+	<div class="sd-export">
 		<div class="sd-export-head">
-			<h4 class="sd-h">
-				<Download size={15} style="color: var(--color-primary);" /> Take it to your terminal
-			</h4>
+			<span class="sd-export-title"><Download size={15} /> Take it to your terminal</span>
 			<div class="sd-actions">
 				<button type="button" class="sd-btn" onclick={copyToml}>
 					{#if copied}<Check size={13} /> Copied{:else}<Copy size={13} /> Copy{/if}
@@ -278,8 +337,9 @@ source {INIT_LINES[shell].file}</pre>
 			<p class="sd-steps-foot">
 				Using a powerline or Nerd Font design? Install a
 				<a href="https://www.nerdfonts.com/" target="_blank" rel="noopener noreferrer">Nerd Font</a>
-				and select it in your terminal's settings, or the arrows and icons show as boxes. Every design
-				here is just a text file — open it, read it, tweak it. It's your prompt now.
+				and select it in your terminal's settings, or the arrows and icons show as boxes. The preview
+				above draws them with CSS so you can design without one. Every design here is just a text file
+				— open it, read it, tweak it. It's your prompt now.
 			</p>
 		</div>
 	</div>
@@ -289,99 +349,170 @@ source {INIT_LINES[shell].file}</pre>
 	.sd {
 		display: flex;
 		flex-direction: column;
-		gap: 1.5rem;
+		gap: 1.1rem;
+		--sd-border: color-mix(in srgb, var(--color-border) 90%, transparent);
 	}
-	.sd-preview-wrap {
-		border-radius: 12px;
-		padding: 0.5rem;
-		background: var(--color-bg-secondary);
-		border: 1px solid var(--color-border);
-	}
-	.sd-note {
-		font-size: 11.5px;
-		color: var(--color-text-muted);
-		padding: 0.4rem 0.5rem 0.2rem;
-		margin: 0;
-	}
-	.sd-note a,
-	.sd-steps a {
-		color: var(--color-primary);
-		text-decoration: underline;
-		text-underline-offset: 2px;
-	}
-	.sd-block {
-		border-radius: 12px;
-		border: 1px solid var(--color-border);
-		background: var(--color-bg-secondary);
-		padding: 1rem 1.1rem;
-	}
-	.sd-h {
+
+	/* ── Preset dropdown ── */
+	.sd-row {
 		display: flex;
 		align-items: center;
-		gap: 0.45rem;
-		font-size: 14px;
+		gap: 0.75rem;
+	}
+	.sd-row-label {
+		font-size: 11px;
 		font-weight: 700;
-		color: var(--color-text);
-		margin: 0 0 0.9rem;
-		font-family: var(--font-heading);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-text-muted);
+		flex-shrink: 0;
 	}
-	.sd-presets {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-		gap: 0.7rem;
+	.sd-dd {
+		position: relative;
+		flex: 1;
+		min-width: 0;
 	}
-	.sd-preset {
+	.sd-dd-trigger {
 		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-		text-align: left;
-		padding: 0.5rem;
-		border-radius: 9px;
+		align-items: center;
+		gap: 0.65rem;
+		width: 100%;
+		padding: 0.5rem 0.65rem;
+		border-radius: 10px;
 		border: 1px solid var(--color-border);
 		background: var(--color-surface);
 		cursor: pointer;
 		transition:
 			border-color 0.15s ease,
-			transform 0.1s ease;
+			box-shadow 0.15s ease;
 	}
-	.sd-preset:hover {
+	.sd-dd-trigger:hover,
+	.sd-dd-trigger.sd-open {
 		border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
 	}
-	.sd-preset-on {
-		border-color: var(--color-primary);
-		box-shadow: 0 0 0 1px var(--color-primary);
+	.sd-dd-thumb {
+		flex: 0 0 auto;
+		width: 200px;
+		max-width: 42%;
+		overflow: hidden;
+		border-radius: 6px;
 	}
-	.sd-preset-name {
+	.sd-dd-name {
+		font-size: 13.5px;
+		font-weight: 700;
+		color: var(--color-text);
+		font-family: var(--font-heading);
+		flex: 1;
+		text-align: left;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	:global(.sd-dd-caret) {
+		flex-shrink: 0;
+		color: var(--color-text-muted);
+		transition: transform 0.15s ease;
+	}
+	.sd-open :global(.sd-dd-caret) {
+		transform: rotate(180deg);
+	}
+	.sd-dd-scrim {
+		position: fixed;
+		inset: 0;
+		z-index: 30;
+		cursor: default;
+	}
+	.sd-dd-menu {
+		position: absolute;
+		z-index: 31;
+		top: calc(100% + 6px);
+		left: 0;
+		right: 0;
+		max-height: 340px;
+		overflow-y: auto;
+		padding: 0.4rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		border-radius: 12px;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+	}
+	.sd-dd-item {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		padding: 0.45rem;
+		border-radius: 9px;
+		border: 1px solid transparent;
+		background: transparent;
+		cursor: pointer;
+		text-align: left;
+		transition: background 0.12s ease;
+	}
+	.sd-dd-item:hover {
+		background: var(--color-bg-secondary);
+	}
+	.sd-dd-item-on {
+		border-color: var(--color-primary);
+		background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+	}
+	.sd-dd-item-thumb {
+		flex: 0 0 190px;
+		max-width: 50%;
+		overflow: hidden;
+		border-radius: 6px;
+	}
+	.sd-dd-item-text {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		min-width: 0;
+	}
+	.sd-dd-item-name {
 		font-size: 12.5px;
 		font-weight: 700;
 		color: var(--color-text);
 	}
-	.sd-preset-desc {
+	.sd-dd-item-desc {
 		font-size: 11px;
 		color: var(--color-text-muted);
-		line-height: 1.35;
+		line-height: 1.3;
 	}
-	.sd-controls {
+
+	/* ── Editor ── */
+	.sd-editor {
+		display: flex;
+		flex-direction: column;
+	}
+	.sd-panel {
+		border-radius: 14px;
+		border: 1px solid var(--sd-border);
+		background: var(--color-bg-secondary);
+		padding: 1.1rem 1.2rem;
+	}
+	.sd-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-		gap: 1rem 1.4rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.1rem 1.5rem;
 	}
-	.sd-control-wide {
+	.sd-field-full {
 		grid-column: 1 / -1;
 	}
 	.sd-label {
 		display: block;
-		font-size: 11px;
+		font-size: 10.5px;
 		font-weight: 700;
 		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		letter-spacing: 0.06em;
 		color: var(--color-text-muted);
-		margin-bottom: 0.45rem;
+		margin-bottom: 0.5rem;
 	}
 	.sd-swatches {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.35rem;
+		gap: 0.4rem;
 	}
 	.sd-swatch {
 		display: flex;
@@ -390,26 +521,29 @@ source {INIT_LINES[shell].file}</pre>
 		border-radius: 6px;
 		border: 1px solid var(--color-border);
 		cursor: pointer;
+		transition: transform 0.1s ease;
+	}
+	.sd-swatch:hover {
+		transform: translateY(-1px);
 	}
 	.sd-swatch span {
 		width: 9px;
-		height: 16px;
+		height: 17px;
 		border-radius: 1px;
 	}
 	.sd-swatch-on {
 		border-color: var(--color-primary);
-		box-shadow: 0 0 0 1px var(--color-primary);
+		box-shadow: 0 0 0 1.5px var(--color-primary);
 	}
-	.sd-seg-toggle {
+	.sd-toggle {
 		display: inline-flex;
 		flex-wrap: wrap;
-		gap: 0;
-		border-radius: 7px;
+		border-radius: 8px;
 		overflow: hidden;
 		border: 1px solid var(--color-border);
 	}
-	.sd-seg-toggle button {
-		padding: 0.35rem 0.7rem;
+	.sd-toggle button {
+		padding: 0.38rem 0.72rem;
 		font-size: 12px;
 		font-weight: 600;
 		background: var(--color-surface);
@@ -417,16 +551,33 @@ source {INIT_LINES[shell].file}</pre>
 		cursor: pointer;
 		border-right: 1px solid var(--color-border);
 	}
-	.sd-seg-toggle button:last-child {
+	.sd-toggle button:last-child {
 		border-right: none;
 	}
-	.sd-seg-toggle button.sd-on {
+	.sd-toggle button.sd-on {
 		background: var(--color-primary);
 		color: white;
 	}
-	.sd-chars button {
+	.sd-chars {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+	.sd-char {
+		min-width: 2.4ch;
+		padding: 0.3rem 0.5rem;
 		font-family: var(--font-mono);
-		min-width: 2.2ch;
+		font-size: 13px;
+		border-radius: 7px;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-text-secondary);
+		cursor: pointer;
+	}
+	.sd-char.sd-on {
+		background: var(--color-primary);
+		color: white;
+		border-color: var(--color-primary);
 	}
 	.sd-modules {
 		display: flex;
@@ -434,7 +585,10 @@ source {INIT_LINES[shell].file}</pre>
 		gap: 0.4rem;
 	}
 	.sd-mod {
-		padding: 0.3rem 0.65rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		padding: 0.32rem 0.7rem;
 		font-size: 12px;
 		font-weight: 600;
 		border-radius: 999px;
@@ -444,10 +598,72 @@ source {INIT_LINES[shell].file}</pre>
 		cursor: pointer;
 		transition: all 0.12s ease;
 	}
+	.sd-mod-mark {
+		font-weight: 800;
+		opacity: 0.7;
+	}
 	.sd-mod-on {
 		border-color: var(--color-primary);
 		background: color-mix(in srgb, var(--color-primary) 14%, var(--color-surface));
 		color: var(--color-primary);
+	}
+	.sd-mod-on .sd-mod-mark {
+		opacity: 1;
+	}
+
+	/* ── Sticky terminal-window preview ── */
+	.sd-stage {
+		position: sticky;
+		bottom: 0.75rem;
+		z-index: 6;
+		margin-top: 0.85rem;
+	}
+	.sd-window {
+		border-radius: 12px;
+		overflow: hidden;
+		border: 1px solid var(--sd-border);
+		box-shadow: 0 12px 34px -14px rgba(0, 0, 0, 0.6);
+		background: var(--color-bg-secondary);
+	}
+	.sd-titlebar {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.4rem 0.7rem;
+		background: color-mix(in srgb, var(--color-bg-tertiary) 60%, transparent);
+		border-bottom: 1px solid var(--sd-border);
+	}
+	.sd-dots {
+		display: inline-flex;
+		gap: 5px;
+	}
+	.sd-dots i {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background: #ff5f57;
+	}
+	.sd-dots i:nth-child(2) {
+		background: #febc2e;
+	}
+	.sd-dots i:nth-child(3) {
+		background: #28c840;
+	}
+	.sd-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 11px;
+		font-family: var(--font-mono);
+		color: var(--color-text-muted);
+	}
+
+	/* ── Export ── */
+	.sd-export {
+		border-radius: 14px;
+		border: 1px solid var(--sd-border);
+		background: var(--color-bg-secondary);
+		padding: 1.1rem 1.2rem;
 	}
 	.sd-export-head {
 		display: flex;
@@ -455,10 +671,16 @@ source {INIT_LINES[shell].file}</pre>
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.6rem;
-		margin-bottom: 0.4rem;
+		margin-bottom: 0.6rem;
 	}
-	.sd-export-head .sd-h {
-		margin: 0;
+	.sd-export-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--color-text);
+		font-family: var(--font-heading);
 	}
 	.sd-actions {
 		display: flex;
@@ -468,10 +690,10 @@ source {INIT_LINES[shell].file}</pre>
 		display: inline-flex;
 		align-items: center;
 		gap: 0.35rem;
-		padding: 0.4rem 0.75rem;
+		padding: 0.42rem 0.8rem;
 		font-size: 12px;
 		font-weight: 600;
-		border-radius: 7px;
+		border-radius: 8px;
 		border: 1px solid var(--color-border);
 		background: var(--color-surface);
 		color: var(--color-text-secondary);
@@ -513,6 +735,11 @@ source {INIT_LINES[shell].file}</pre>
 		border-radius: 4px;
 		padding: 0.05em 0.35em;
 	}
+	.sd-steps a {
+		color: var(--color-primary);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
 	.sd-shell-tabs {
 		display: inline-flex;
 		margin: 0.5rem 0 0.35rem;
@@ -551,5 +778,14 @@ source {INIT_LINES[shell].file}</pre>
 		margin-top: 0.8rem;
 		font-size: 12px;
 		color: var(--color-text-muted);
+	}
+
+	@media (max-width: 560px) {
+		.sd-grid {
+			grid-template-columns: 1fr;
+		}
+		.sd-dd-thumb {
+			display: none;
+		}
 	}
 </style>
