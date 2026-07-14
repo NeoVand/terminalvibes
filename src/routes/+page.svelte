@@ -298,7 +298,7 @@
 		'@type': 'Course',
 		name: 'TerminalVibes — The Terminal for Vibe Coders',
 		description:
-			'A free, interactive terminal course for developers who work with AI coding agents: navigating the filesystem, managing files safely, pipes and text tools, permissions and environment, and auditing AI-proposed commands — with 15 hands-on exercises in a sandboxed in-browser bash playground.',
+			'A free, interactive terminal course for developers who work with AI coding agents: navigating the filesystem, managing files safely, pipes and text tools, permissions and environment, and auditing AI-proposed commands — with 18 hands-on exercises in a sandboxed in-browser bash playground.',
 		url: 'https://neovand.github.io/terminalvibes/',
 		provider: {
 			'@type': 'Organization',

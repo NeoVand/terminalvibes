@@ -168,7 +168,7 @@
 
 <!-- Right-side sliding panel -->
 <aside
-	class="cheat-panel fixed top-0 right-0 bottom-0 z-40 flex w-84 flex-col border-l transition-transform duration-200 ease-out"
+	class="cheat-panel fixed top-0 right-0 bottom-0 z-40 flex w-full flex-col border-l transition-transform duration-200 ease-out sm:w-84"
 	style="padding-top: var(--header-height); border-color: var(--color-border);"
 	class:translate-x-0={open}
 	class:translate-x-full={!open}
