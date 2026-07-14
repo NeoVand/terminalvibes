@@ -411,7 +411,7 @@ rm -rf build/*`}
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> You keep typing the same three commands to back up your notes.
+				<strong>The chore:</strong> You keep typing the same three commands to back up your notes.
 				And your AI agents keep leaving mysterious <Code code=".sh" /> files in your projects. Both problems
 				have the same answer: a shell script is nothing more than commands saved in a file.
 			</Callout>
@@ -621,7 +621,7 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> You want "run the tests, and deploy
+				<strong>The goal:</strong> You want "run the tests, and deploy
 				<em>only if they pass</em>" — but you've been eyeballing the output and deciding by hand.
 				The shell has a built-in way for commands to report success or failure, and a grammar for
 				acting on it.

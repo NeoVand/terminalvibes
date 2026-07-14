@@ -99,7 +99,7 @@
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> Your AI assistant says "run
+				<strong>The scenario:</strong> Your AI assistant says "run
 				<Code code="npm install" /> in the project folder." Which folder is your terminal actually in
 				right now? Guessing is how dependencies end up installed in your home directory.
 			</Callout>
@@ -417,7 +417,7 @@ cat projects/app/README.md`}
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> Your project lives at
+				<strong>The setup:</strong> Your project lives at
 				<Code code="~/projects/app" />
 				but your terminal opens in
 				<Code code="~" />. Every command the AI gives you assumes you've made the trip.
@@ -504,7 +504,7 @@ cd -              # Bounce back to wherever you just were`}
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> The AI proposes a project layout — "create a src folder with a components
+				<strong>The scenario:</strong> The AI proposes a project layout — "create a src folder with a components
 				subfolder, plus a README." You could click through a file manager… or type one line.
 			</Callout>
 
@@ -584,7 +584,7 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> "What did the agent actually put in
+				<strong>The question:</strong> "What did the agent actually put in
 				<Code code="config.yaml" />?" Reading files is how you verify work — an instinct this whole
 				course keeps returning to.
 			</Callout>

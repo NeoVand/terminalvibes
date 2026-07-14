@@ -193,7 +193,7 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> You (or your AI) created
+				<strong>The situation:</strong> You (or your AI) created
 				<Code code="backup.sh" />, but running it fails with
 				<Code code="permission denied" />.
 			</Callout>

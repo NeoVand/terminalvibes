@@ -76,7 +76,7 @@
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> You're about to let an AI agent rewrite
+				<strong>The stakes:</strong> You're about to let an AI agent rewrite
 				<Code code="config.yaml" />. If its "improvement" breaks everything, you want the original
 				back in one command.
 			</Callout>
@@ -418,7 +418,7 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> The agent's test run left 40
+				<strong>The mess:</strong> The agent's test run left 40
 				<Code code=".tmp" /> files scattered through your project. Deleting them one by one would take
 				ten minutes. One pattern does it in a second — if you can trust what the pattern matches.
 			</Callout>

@@ -166,7 +166,7 @@
 			</div>
 
 			<Callout type="note">
-				<strong>The Problem:</strong> A blinking cursor is waiting for you, and you have no idea what
+				<strong>The moment:</strong> A blinking cursor is waiting for you, and you have no idea what
 				the machine will understand — or what's safe to try.
 			</Callout>
 

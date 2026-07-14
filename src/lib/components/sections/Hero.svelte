@@ -338,10 +338,11 @@
 		</Callout>
 
 		<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Why does this history matter to you? Because a design from 1969 — small tools, plain text,
-			composable commands — is <em>exactly</em> the interface AI agents use to act on your machine. The
-			terminal isn't legacy technology you're forced to learn; it's the control panel that was already
-			waiting for the AI era.
+			Why does this history matter to you? Because the same design from 1969 — small tools, plain
+			text, composable commands — is what AI agents reach for to act on your machine today. The
+			terminal isn't legacy technology you're stuck with; small, sharp tools and plain text are
+			simply still the most direct way to tell a computer what to do — whether the one typing is you
+			or your agent.
 		</p>
 	</div>
 
