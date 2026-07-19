@@ -99,6 +99,7 @@ export const BIN_COMMANDS = [
 	'pwd',
 	'rm',
 	'rmdir',
+	'sed',
 	'seq',
 	'sh',
 	'sleep',
