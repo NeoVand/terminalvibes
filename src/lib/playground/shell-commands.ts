@@ -700,6 +700,8 @@ async function dispatch(
 			return cmdTr(args, stdin);
 		case 'sed':
 			return cmdSed(engine, args, stdin);
+		case 'awk':
+			return cmdAwk(engine, args, stdin);
 		case 'echo':
 			return cmdEcho(args);
 		case 'printf':
@@ -2025,6 +2027,117 @@ function cmdSed(engine: ShellEngine, args: string[], stdin: string | null): Exec
 	};
 }
 
+/* ── awk (teaching subset: field printing with an optional /pattern/) ── */
+
+interface AwkProgram {
+	/** Line guard — null runs the action on every line. */
+	pattern: RegExp | null;
+	/** 1-based field numbers to print ($0 → 0); empty prints the whole line. */
+	fields: number[];
+}
+
+function parseAwkProgram(script: string): AwkProgram {
+	let src = script.trim();
+	let pattern: RegExp | null = null;
+	const guard = src.match(/^\/((?:[^/\\]|\\.)*)\/\s*/);
+	if (guard) {
+		try {
+			pattern = new RegExp(sedRegexSource(guard[1], true, '/'));
+		} catch {
+			throw new CmdError(
+				`awk: can't make sense of the pattern /${guard[1]}/ — check for unbalanced ( ) or [ ]`
+			);
+		}
+		src = src.slice(guard[0].length);
+	}
+	if (!src) {
+		if (!pattern) {
+			throw new CmdError("awk: the program is empty — tell awk what to do, like '{print $1}'");
+		}
+		return { pattern, fields: [] };
+	}
+	// The rest of the awk language gets a friendly refusal, not a half-answer.
+	if (/\bBEGIN\b|\bEND\b/.test(src)) {
+		throw new CmdError(
+			'awk: BEGIN and END blocks are real awk, but beyond this playground — piping into sort, uniq or wc covers the same ground here'
+		);
+	}
+	if (/\bprintf\b/.test(src)) {
+		throw new CmdError(
+			'awk: printf formatting is beyond this playground — plain print joins fields with spaces, which is all this course needs'
+		);
+	}
+	if (/\b(if|while|for)\b/.test(src)) {
+		throw new CmdError(
+			"awk: conditions and loops are a whole programming language — beyond this playground. To filter lines, put a /pattern/ in front: awk '/error/ {print $1}'"
+		);
+	}
+	const action = src.match(/^\{\s*print\b([^}]*)\}$/);
+	if (!action) {
+		throw new CmdError(
+			"awk: this playground understands programs shaped like '/pattern/ {print $1, $2}' — see man awk"
+		);
+	}
+	const list = action[1].trim();
+	if (!list) return { pattern, fields: [] };
+	const fields: number[] = [];
+	for (const tok of list.split(',').map((t) => t.trim())) {
+		const f = tok.match(/^\$(\d+)$/);
+		if (!f) {
+			if (tok === 'NF' || tok === '$NF') {
+				throw new CmdError(
+					'awk: NF (the last field) is real awk, but beyond this playground — count the columns and use their number instead'
+				);
+			}
+			throw new CmdError(
+				`awk: can't print '${tok}' — this playground prints fields, comma-separated: $0 is the whole line, $1 the first column (awk '{print $1, $3}')`
+			);
+		}
+		fields.push(Number(f[1]));
+	}
+	return { pattern, fields };
+}
+
+function cmdAwk(engine: ShellEngine, args: string[], stdin: string | null): ExecResult {
+	let fieldSep: string | null = null;
+	let script: string | null = null;
+	const files: string[] = [];
+	for (let i = 0; i < args.length; i++) {
+		const a = args[i];
+		if (a === '-F') fieldSep = args[++i] ?? null;
+		else if (a.startsWith('-F')) fieldSep = a.slice(2);
+		else if (a === '-v') {
+			throw new CmdError(
+				"awk: -v variables are real awk, but beyond this playground — a fixed program like '{print $2}' covers this course"
+			);
+		} else if (a.startsWith('-') && a !== '-') {
+			throw new CmdError(
+				`awk: invalid option '${a}'\n(this playground supports -F for the field separator)`
+			);
+		} else if (script === null) script = a;
+		else files.push(a);
+	}
+	if (script === null) {
+		throw new CmdError(
+			"awk: usage: awk [-F,] 'PROGRAM' [file ...] — example: awk '{print $2}' table.txt"
+		);
+	}
+	const prog = parseAwkProgram(script);
+	const { content, errs } = readSources(engine, files, stdin, 'awk');
+	if (errs.length) return fail(errs.join('\n'));
+	const out: string[] = [];
+	for (const line of toLines(content)) {
+		if (prog.pattern && !prog.pattern.test(line)) continue;
+		if (!prog.fields.length) {
+			out.push(line);
+			continue;
+		}
+		const parts = fieldSep === null ? line.trim().split(/\s+/) : line.split(fieldSep);
+		out.push(prog.fields.map((n) => (n === 0 ? line : (parts[n - 1] ?? ''))).join(' '));
+	}
+	return ok(out.length ? out.join('\n') + '\n' : '');
+}
+
 function cmdEcho(args: string[]): ExecResult {
 	let noNewline = false;
 	let interpret = false;
@@ -3036,6 +3149,19 @@ const MAN_PAGES: Record<string, ManPage> = {
 			"sed -i.bak 's/http:/https:/g' config.yml"
 		],
 		vibe: 'Find & replace, unplugged from any editor.'
+	},
+	awk: {
+		name: 'pull columns out of text',
+		synopsis: "awk [-F,] 'PROGRAM' [file ...]",
+		description:
+			"Splits every line into fields and prints the ones you ask for: awk '{print $2}' prints the second column, $0 is the whole line, and commas join fields with a space — awk '{print $1, $3}'. Fields split on runs of spaces by default, which is what makes awk shine on ragged output like ps aux; -F sets a different separator (-F, for CSV, -F: for /etc/passwd style). A /pattern/ in front filters which lines the action runs on: awk '/error/ {print $1}'. Rule of thumb: cut for clean single-character delimiters, awk when the spacing is messy. Real awk is a whole programming language (BEGIN blocks, variables, printf) — this playground speaks just the field-printing dialect this course teaches.",
+		examples: [
+			"awk '{print $2}' table.txt",
+			"awk -F, '{print $1, $3}' signups.csv",
+			"awk '/error/ {print $1}' server.log",
+			"ps aux | awk '{print $2}'"
+		],
+		vibe: 'The column-puller for ragged tables.'
 	},
 	echo: {
 		name: 'print text',

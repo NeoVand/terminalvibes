@@ -440,6 +440,68 @@ describe('sed', () => {
 	});
 });
 
+describe('awk', () => {
+	it('prints fields split on runs of whitespace by default', async () => {
+		expect((await run("printf 'a  b c\\nd e f\\n' | awk '{print $2}'")).output).toBe('b\ne');
+		expect((await run("printf '  padded line\\n' | awk '{print $1}'")).output).toBe('padded');
+	});
+
+	it('joins comma-separated fields with a space; $0 is the whole line', async () => {
+		expect((await run("printf 'a b c\\n' | awk '{print $3, $1}'")).output).toBe('c a');
+		expect((await run("printf 'a b\\n' | awk '{print $0}'")).output).toBe('a b');
+		expect((await run("printf 'a b\\n' | awk '{print}'")).output).toBe('a b');
+	});
+
+	it('-F sets the field separator, attached or separate', async () => {
+		expect((await run("printf 'x,y,z\\n' | awk -F, '{print $2}'")).output).toBe('y');
+		expect((await run("printf 'x:y\\n' | awk -F : '{print $2}'")).output).toBe('y');
+	});
+
+	it('a /pattern/ guard filters lines, with ERE support', async () => {
+		expect((await run("printf 'ok 1\\nerror 2\\nok 3\\n' | awk '/error/ {print $2}'")).output).toBe(
+			'2'
+		);
+		expect((await run("printf 'aa\\nab\\n' | awk '/a+b/ {print $1}'")).output).toBe('ab');
+		expect((await run("printf 'one\\ntwo\\n' | awk '/two/'")).output).toBe('two');
+	});
+
+	it('missing fields print as empty; reads files too', async () => {
+		expect((await run("printf 'a\\n' | awk '{print $5}'")).output).toBe('');
+		expect((await run("awk '{print $1}' notes.txt")).output).toBe('alpha\nbeta\ngamma');
+	});
+
+	it('rejects bad programs with teaching errors', async () => {
+		const empty = await run("printf 'x\\n' | awk ''");
+		expect(empty.error).toBe(true);
+		expect(empty.output).toContain('{print $1}');
+		const shape = await run("printf 'x\\n' | awk 'print $1'");
+		expect(shape.error).toBe(true);
+		expect(shape.output).toContain('{print $1, $2}');
+		const notField = await run("printf 'x\\n' | awk '{print name}'");
+		expect(notField.error).toBe(true);
+		expect(notField.output).toContain('$1 the first column');
+	});
+
+	it('names the awk features beyond the playground, kindly', async () => {
+		const begin = await run("printf 'x\\n' | awk 'BEGIN {print $1}'");
+		expect(begin.error).toBe(true);
+		expect(begin.output).toContain('BEGIN');
+		const nf = await run("printf 'x\\n' | awk '{print NF}'");
+		expect(nf.error).toBe(true);
+		expect(nf.output).toContain('last field');
+		const vflag = await run("printf 'x\\n' | awk -v n=1 '{print $1}'");
+		expect(vflag.error).toBe(true);
+		expect(vflag.output).toContain('-v');
+	});
+
+	it('has a man page and shows up in help and on PATH', async () => {
+		const man = await run('man awk');
+		expect(man.output).toContain('SYNOPSIS');
+		expect(strip(man.output)).toContain('-F');
+		expect((await run('which awk')).output).toBe('/usr/bin/awk');
+	});
+});
+
 describe('text shaping: sort, uniq, cut, tr, echo, printf', () => {
 	it('sorts alphabetically, numerically, reversed and unique', async () => {
 		expect((await run('printf "b\\na\\nc\\n" | sort')).output).toBe('a\nb\nc');
