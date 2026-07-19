@@ -298,6 +298,148 @@ describe('grep', () => {
 	});
 });
 
+describe('sed', () => {
+	it('substitutes the first match per line; g replaces them all', async () => {
+		expect((await run("echo 'aaa' | sed 's/a/b/'")).output).toBe('baa');
+		expect((await run("echo 'a-a-a' | sed 's/a/b/g'")).output).toBe('b-b-b');
+		expect((await run("sed 's/alpha/ALPHA/' notes.txt")).output).toBe('ALPHA\nbeta\ngamma');
+	});
+
+	it('I ignores case; an empty replacement deletes the match', async () => {
+		expect((await run("echo 'Hello' | sed 's/hello/bye/'")).output).toBe('Hello');
+		expect((await run("echo 'Hello' | sed 's/hello/bye/I'")).output).toBe('bye');
+		expect((await run("echo 'hello world' | sed 's/ world//'")).output).toBe('hello');
+	});
+
+	it('accepts alternate delimiters — no escaping slashes in paths', async () => {
+		expect((await run("echo '/usr/bin' | sed 's|/usr|/opt|'")).output).toBe('/opt/bin');
+		expect((await run("echo 'path' | sed 's,path,trail,'")).output).toBe('trail');
+	});
+
+	it('& in the replacement is the whole match; \\& is a literal &', async () => {
+		expect((await run("echo 'cat' | sed 's/cat/[&]/'")).output).toBe('[cat]');
+		expect((await run("echo 'x' | sed 's/x/a\\&b/'")).output).toBe('a&b');
+	});
+
+	it('applies addresses to s', async () => {
+		expect((await run("sed '2s/beta/B/' notes.txt")).output).toBe('alpha\nB\ngamma');
+		expect((await run("sed '/alpha/s/a/A/' notes.txt")).output).toBe('Alpha\nbeta\ngamma');
+	});
+
+	it('d deletes by regex, line number, range and $', async () => {
+		expect((await run("sed '/beta/d' notes.txt")).output).toBe('alpha\ngamma');
+		expect((await run("sed '1d' notes.txt")).output).toBe('beta\ngamma');
+		expect((await run("sed '2,3d' notes.txt")).output).toBe('alpha');
+		expect((await run("sed '$d' notes.txt")).output).toBe('alpha\nbeta');
+	});
+
+	it('-n with p prints only the selected lines', async () => {
+		expect((await run("sed -n '2p' notes.txt")).output).toBe('beta');
+		expect((await run("seq 10 | sed -n '5,9p'")).output).toBe('5\n6\n7\n8\n9');
+		expect((await run("sed -n '2,$p' notes.txt")).output).toBe('beta\ngamma');
+		expect((await run("sed -n '$p' notes.txt")).output).toBe('gamma');
+	});
+
+	it('without -n, p prints selected lines twice — the classic gotcha', async () => {
+		expect((await run("sed '2p' notes.txt")).output).toBe('alpha\nbeta\nbeta\ngamma');
+	});
+
+	it('regex ranges open at /start/, close at /stop/, and re-arm after', async () => {
+		expect((await run("sed -n '/bob/,/carol/p' logs/access.log")).output).toBe(
+			'bob GET /about\nalice POST /login\ncarol GET /\nbob GET /'
+		);
+		await run("printf 'a\\nBEGIN\\nx\\nEND\\nb\\nBEGIN\\ny\\nEND\\n' > blocks.txt");
+		expect((await run("sed -n '/BEGIN/,/END/p' blocks.txt")).output).toBe(
+			'BEGIN\nx\nEND\nBEGIN\ny\nEND'
+		);
+		expect((await run("sed -n '1,/POST/p' logs/access.log")).output).toBe(
+			'alice GET /\nbob GET /about\nalice POST /login'
+		);
+	});
+
+	it('edits in place with -i; a suffix keeps the original as a backup', async () => {
+		const res = await run("sed -i.bak 's/beta/BETA/' notes.txt");
+		expect(res.output).toBe('');
+		expect(engine.readFile('/home/vibe/notes.txt')).toBe('alpha\nBETA\ngamma\n');
+		expect(engine.readFile('/home/vibe/notes.txt.bak')).toBe('alpha\nbeta\ngamma\n');
+		await run("sed -i 's/BETA/beta2/' notes.txt");
+		expect(engine.readFile('/home/vibe/notes.txt')).toBe('alpha\nbeta2\ngamma\n');
+		expect(engine.readFile('/home/vibe/notes.txt.bak')).toBe('alpha\nbeta\ngamma\n');
+	});
+
+	it('-i handles several files at once, and insists on having one', async () => {
+		await run('echo mango > m1.txt');
+		await run('echo mango > m2.txt');
+		await run("sed -i 's/mango/kiwi/' m1.txt m2.txt");
+		expect(engine.readFile('/home/vibe/m1.txt')).toBe('kiwi\n');
+		expect(engine.readFile('/home/vibe/m2.txt')).toBe('kiwi\n');
+		const res = await run("sed -i 's/a/b/'");
+		expect(res.error).toBe(true);
+		expect(res.output).toContain('file');
+	});
+
+	it('treats + ? ( ) as literal without -E, special with it', async () => {
+		expect((await run("echo 'a+b' | sed 's/a+/X/'")).output).toBe('Xb');
+		expect((await run("echo 'aaa' | sed 's/a+/X/'")).output).toBe('aaa');
+		expect((await run("echo 'aaa' | sed -E 's/a+/X/'")).output).toBe('X');
+		expect((await run("echo 'aaa' | sed 's/a\\+/X/'")).output).toBe('X');
+		expect((await run("echo '(x)' | sed 's/(x)/y/'")).output).toBe('y');
+		expect((await run("echo 'abc' | sed 's/./X/g'")).output).toBe('XXX');
+		expect((await run("echo 'cat hat' | sed 's/[ch]at/X/g'")).output).toBe('X X');
+	});
+
+	it('reads files and pipes alike', async () => {
+		expect((await run("cat notes.txt | sed 's/beta/B/'")).output).toBe('alpha\nB\ngamma');
+		expect((await run("sed 's/hello/goodbye/' projects/readme.md")).output).toBe('goodbye world');
+	});
+
+	it('reports missing scripts, broken scripts and unreadable files', async () => {
+		const noScript = await run('sed');
+		expect(noScript.error).toBe(true);
+		expect(noScript.output).toContain('missing script');
+		const unterminated = await run("sed 's/a/b' notes.txt");
+		expect(unterminated.error).toBe(true);
+		expect(unterminated.output).toContain('unterminated');
+		const unknown = await run("sed 'q' notes.txt");
+		expect(unknown.error).toBe(true);
+		expect(unknown.output).toContain('unknown command');
+		const badRe = await run("echo aa | sed -E 's/(a/X/'");
+		expect(badRe.error).toBe(true);
+		expect(badRe.output).toContain('pattern');
+		const ghost = await run("sed 's/a/b/' ghost.txt");
+		expect(ghost.error).toBe(true);
+		expect(ghost.output).toContain("can't read");
+		expect(engine.lastExitCode).toBe(2);
+	});
+
+	it('names the sed features beyond the playground, kindly', async () => {
+		const y = await run("sed 'y/abc/xyz/' notes.txt");
+		expect(y.error).toBe(true);
+		expect(y.output).toContain('tr');
+		const hold = await run("sed 'G' notes.txt");
+		expect(hold.error).toBe(true);
+		expect(hold.output).toContain('hold space');
+		const branch = await run("sed ':top' notes.txt");
+		expect(branch.error).toBe(true);
+		expect(branch.output).toContain('branching');
+		const append = await run("sed '1a hello' notes.txt");
+		expect(append.error).toBe(true);
+		expect(append.output).toContain('appends');
+		const wflag = await run("sed 's/a/b/w out.txt' notes.txt");
+		expect(wflag.error).toBe(true);
+		expect(wflag.output).toContain('redirection');
+		expect(engine.exists('/home/vibe/out.txt')).toBe(false);
+	});
+
+	it('has a man page and shows up in help and on PATH', async () => {
+		const man = await run('man sed');
+		expect(man.output).toContain('SYNOPSIS');
+		expect(strip(man.output)).toContain('-i.bak');
+		expect((await run('help')).output).toContain('sed');
+		expect((await run('which sed')).output).toBe('/usr/bin/sed');
+	});
+});
+
 describe('text shaping: sort, uniq, cut, tr, echo, printf', () => {
 	it('sorts alphabetically, numerically, reversed and unique', async () => {
 		expect((await run('printf "b\\na\\nc\\n" | sort')).output).toBe('a\nb\nc');

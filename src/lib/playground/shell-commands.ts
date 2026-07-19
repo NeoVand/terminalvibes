@@ -698,6 +698,8 @@ async function dispatch(
 			return cmdCut(engine, args, stdin);
 		case 'tr':
 			return cmdTr(args, stdin);
+		case 'sed':
+			return cmdSed(engine, args, stdin);
 		case 'echo':
 			return cmdEcho(args);
 		case 'printf':
@@ -1621,6 +1623,408 @@ function cmdTr(args: string[], stdin: string | null): ExecResult {
 	return ok([...stdin].map((c) => map.get(c) ?? c).join(''));
 }
 
+/* ── sed — the stream editor ──────────────────────────────────────── */
+
+/** One sed address: a line number, $ (the last line), or /regex/. */
+type SedAddr = { kind: 'line'; n: number } | { kind: 'last' } | { kind: 're'; re: RegExp };
+
+/** One parsed sed script: an optional address (or range) plus s, d or p. */
+interface SedCommand {
+	addr: SedAddr | null;
+	addr2: SedAddr | null;
+	kind: 's' | 'd' | 'p';
+	re?: RegExp;
+	repl?: string;
+}
+
+/** Index of the ] that closes a [...] class, or -1 (classes copy verbatim). */
+function charClassEnd(pat: string, start: number): number {
+	let j = start + 1;
+	if (pat[j] === '^') j++;
+	if (pat[j] === ']') j++; // a ] right after [ (or [^) is a literal ]
+	for (; j < pat.length; j++) {
+		if (pat[j] === '\\') j++;
+		else if (pat[j] === ']') return j;
+	}
+	return -1;
+}
+
+/**
+ * sed's regex dialect → JS RegExp source. Without -E (classic BRE):
+ * . * ^ $ [ ] are special; + ? | ( ) { } are literal unless escaped —
+ * \+ IS special, the reverse of what modern regex users expect. With -E
+ * all of them are special directly. `delim` is the enclosing delimiter,
+ * so an escaped delimiter always means the literal character.
+ */
+function sedRegexSource(pat: string, extended: boolean, delim: string): string {
+	let src = '';
+	for (let i = 0; i < pat.length; i++) {
+		const c = pat[i];
+		if (c === '\\') {
+			const n = pat[i + 1];
+			if (n === undefined) {
+				src += '\\\\';
+				break;
+			}
+			i++;
+			if (n === delim) src += escapeRegExp(n);
+			else if ('+?|(){}'.includes(n)) src += extended ? escapeRegExp(n) : n;
+			else if ('.*^$[]'.includes(n) || n === '\\') src += '\\' + n;
+			else if (/[nrtwWsSbBdD1-9]/.test(n)) src += '\\' + n;
+			else src += escapeRegExp(n);
+			continue;
+		}
+		if (c === '[') {
+			const end = charClassEnd(pat, i);
+			if (end === -1) src += '\\[';
+			else {
+				src += pat.slice(i, end + 1);
+				i = end;
+			}
+			continue;
+		}
+		if ('.*^$'.includes(c)) src += c;
+		else if ('+?|(){}'.includes(c)) src += extended ? c : escapeRegExp(c);
+		else src += escapeRegExp(c);
+	}
+	return src;
+}
+
+/** User patterns never reach `new RegExp` untranslated; failures stay friendly. */
+function buildSedRegex(pat: string, extended: boolean, flags: string, delim: string): RegExp {
+	try {
+		return new RegExp(sedRegexSource(pat, extended, delim), flags);
+	} catch {
+		throw new CmdError(
+			`sed: can't make sense of the pattern '${pat}' — check for unbalanced ( ) or [ ]`
+		);
+	}
+}
+
+/** Scan from `pos` to the next unescaped delimiter; \x pairs stay intact. */
+function sedCut(script: string, pos: number, delim: string): { piece: string; end: number } {
+	let piece = '';
+	while (pos < script.length && script[pos] !== delim) {
+		if (script[pos] === '\\' && pos + 1 < script.length) {
+			piece += script[pos] + script[pos + 1];
+			pos += 2;
+		} else {
+			piece += script[pos++];
+		}
+	}
+	return { piece, end: pos };
+}
+
+/** Fill in a replacement: & is the whole match; \& \\ and \<delim> are literals. */
+function sedReplacement(template: string, match: string): string {
+	let out = '';
+	for (let i = 0; i < template.length; i++) {
+		const c = template[i];
+		if (c === '\\' && i + 1 < template.length) out += template[++i];
+		else if (c === '&') out += match;
+		else out += c;
+	}
+	return out;
+}
+
+/**
+ * Parse one sed script: [address[,address]] then s///, d or p. The rest of
+ * real sed (hold space, branching, y///, a/i/c) gets a named, friendly
+ * refusal instead of a silent mystery.
+ */
+function parseSedScript(script: string, extended: boolean): SedCommand {
+	let pos = 0;
+	const skipBlanks = () => {
+		while (script[pos] === ' ' || script[pos] === '\t') pos++;
+	};
+
+	const parseAddr = (): SedAddr | null => {
+		const c = script[pos];
+		if (c === '$') {
+			pos++;
+			return { kind: 'last' };
+		}
+		if (/\d/.test(c ?? '')) {
+			let digits = '';
+			while (pos < script.length && /\d/.test(script[pos])) digits += script[pos++];
+			const n = parseInt(digits, 10);
+			if (n === 0) throw new CmdError('sed: line numbers start at 1 — there is no line 0');
+			return { kind: 'line', n };
+		}
+		if (c === '/') {
+			const { piece, end } = sedCut(script, pos + 1, '/');
+			if (script[end] !== '/') {
+				throw new CmdError('sed: unterminated address — close the /regex/ with a second /');
+			}
+			pos = end + 1;
+			if (!piece) {
+				throw new CmdError(
+					'sed: empty address // — put a pattern between the slashes, like /error/d'
+				);
+			}
+			return { kind: 're', re: buildSedRegex(piece, extended, '', '/') };
+		}
+		return null;
+	};
+
+	skipBlanks();
+	const addr = parseAddr();
+	let addr2: SedAddr | null = null;
+	if (addr && script[pos] === ',') {
+		pos++;
+		skipBlanks();
+		addr2 = parseAddr();
+		if (!addr2) {
+			throw new CmdError(
+				'sed: an address range needs a second address after the comma — like 5,9 or /start/,/stop/'
+			);
+		}
+	}
+	skipBlanks();
+
+	const c = script[pos];
+	if (c === undefined) {
+		throw new CmdError(
+			addr
+				? 'sed: the address needs a command after it — d deletes those lines, p prints them, s/old/new/ substitutes'
+				: "sed: the script is empty — tell sed what to do, like 's/old/new/' (man sed has the map)"
+		);
+	}
+
+	if (c === 's') {
+		const delim = script[pos + 1];
+		if (delim === undefined) {
+			throw new CmdError(
+				"sed: unterminated 's' command — the full shape is s/old/new/ (three delimiters)"
+			);
+		}
+		if (delim === '\\') {
+			throw new CmdError(
+				"sed: a backslash can't be the s delimiter — try s/old/new/ or s|old|new|"
+			);
+		}
+		const oldPart = sedCut(script, pos + 2, delim);
+		const newPart = script[oldPart.end] === delim ? sedCut(script, oldPart.end + 1, delim) : null;
+		if (!newPart || script[newPart.end] !== delim) {
+			throw new CmdError(
+				`sed: unterminated 's' command — it needs three '${delim}' delimiters: s${delim}old${delim}new${delim}`
+			);
+		}
+		pos = newPart.end + 1;
+		if (!oldPart.piece) {
+			throw new CmdError(
+				'sed: nothing to search for — the part between the first two delimiters is empty'
+			);
+		}
+		let global = false;
+		let ignoreCase = false;
+		while (pos < script.length) {
+			const f = script[pos++];
+			if (f === 'g') global = true;
+			else if (f === 'I' || f === 'i') ignoreCase = true;
+			else if (f === 'w') {
+				throw new CmdError(
+					"sed: the w flag writes matches to a file — real sed, but beyond this playground.\n(redirection does the same job: sed -n '/error/p' log.txt > matches.txt)"
+				);
+			} else if (f === ' ' || f === '\t') skipBlanks();
+			else {
+				throw new CmdError(
+					`sed: unknown flag '${f}' after the s command — this playground supports g (every match) and I (ignore case)`
+				);
+			}
+		}
+		const reFlags = (global ? 'g' : '') + (ignoreCase ? 'i' : '');
+		return {
+			addr,
+			addr2,
+			kind: 's',
+			re: buildSedRegex(oldPart.piece, extended, reFlags, delim),
+			repl: newPart.piece
+		};
+	}
+
+	if (c === 'd' || c === 'p') {
+		pos++;
+		skipBlanks();
+		if (pos < script.length) {
+			throw new CmdError(
+				`sed: extra text after '${c}': '${script.slice(pos)}' — this playground runs one command per script`
+			);
+		}
+		return { addr, addr2, kind: c };
+	}
+
+	if (c === 'y') {
+		throw new CmdError(
+			"sed: 'y///' transliterates characters one-for-one — real sed, but beyond this playground.\n(tr does exactly that job: cat file.txt | tr a-z A-Z)"
+		);
+	}
+	if ('hHgGx'.includes(c)) {
+		throw new CmdError(
+			`sed: '${c}' uses the hold space, sed's hidden second buffer — real sed, but beyond this playground.\n(everything this course needs works one line at a time, no hidden buffer required)`
+		);
+	}
+	if ('btT:'.includes(c)) {
+		throw new CmdError(
+			`sed: '${c}' is for labels and branching — little loops inside sed scripts. Real sed, but beyond this playground.\n(a script that needs loops is usually a job for a real editor or a few piped commands)`
+		);
+	}
+	if ('aic'.includes(c)) {
+		const verb = c === 'a' ? 'appends' : c === 'i' ? 'inserts' : 'changes';
+		throw new CmdError(
+			`sed: '${c}' ${verb} whole lines of text — real sed, but beyond this playground.\n(echo with >> appends lines: echo 'new line' >> file.txt)`
+		);
+	}
+	if (c === 'w') {
+		throw new CmdError(
+			"sed: 'w' writes lines to a file — real sed, but beyond this playground.\n(redirection does the same job: sed -n '/error/p' log.txt > matches.txt)"
+		);
+	}
+	throw new CmdError(
+		`sed: unknown command: '${c}'\n(this playground supports s/old/new/, d and p — see man sed)`
+	);
+}
+
+const matchSedAddr = (a: SedAddr, idx: number, line: string, total: number): boolean =>
+	a.kind === 'line' ? idx === a.n : a.kind === 'last' ? idx === total : a.re.test(line);
+
+/** Run one compiled command over content — the film strip: every line passes through. */
+function applySed(cmd: SedCommand, content: string, suppress: boolean): string {
+	const lines = toLines(content);
+	const total = lines.length;
+	const out: string[] = [];
+	let inRange = false;
+	lines.forEach((line, i) => {
+		const idx = i + 1;
+		let selected: boolean;
+		if (!cmd.addr) selected = true;
+		else if (!cmd.addr2) selected = matchSedAddr(cmd.addr, idx, line, total);
+		else if (inRange) {
+			selected = true;
+			// Numeric ends close at their line; regex and $ ends close when they match.
+			if (
+				cmd.addr2.kind === 'line' ? idx >= cmd.addr2.n : matchSedAddr(cmd.addr2, idx, line, total)
+			) {
+				inRange = false;
+			}
+		} else {
+			selected = matchSedAddr(cmd.addr, idx, line, total);
+			// A freshly opened range stays open unless its numeric end is already
+			// behind us; regex ends are only tested from the NEXT line (real sed's rule).
+			if (selected) inRange = !(cmd.addr2.kind === 'line' && cmd.addr2.n <= idx);
+		}
+		if (cmd.kind === 'd') {
+			if (!selected && !suppress) out.push(line);
+		} else if (cmd.kind === 'p') {
+			if (!suppress) out.push(line);
+			if (selected) out.push(line);
+		} else {
+			const res = selected ? line.replace(cmd.re!, (m) => sedReplacement(cmd.repl!, m)) : line;
+			if (!suppress) out.push(res);
+		}
+	});
+	return out.length ? out.join('\n') + '\n' : '';
+}
+
+function cmdSed(engine: ShellEngine, args: string[], stdin: string | null): ExecResult {
+	let script: string | null = null;
+	let suppress = false;
+	let extended = false;
+	let inPlace = false;
+	let suffix = '';
+	const files: string[] = [];
+	let noMore = false;
+	for (let i = 0; i < args.length; i++) {
+		const a = args[i];
+		if (!noMore && a === '--') {
+			noMore = true;
+			continue;
+		}
+		if (!noMore && a.startsWith('-') && a.length > 1) {
+			const letters = a.slice(1);
+			for (let k = 0; k < letters.length; k++) {
+				const ch = letters[k];
+				if (ch === 'n') suppress = true;
+				else if (ch === 'E') extended = true;
+				else if (ch === 'i') {
+					// -i.bak: the backup suffix rides directly on the flag, GNU style.
+					inPlace = true;
+					suffix = letters.slice(k + 1);
+					break;
+				} else if (ch === 'e') {
+					throw new CmdError(
+						"sed: -e isn't needed here — just put the script right after the flags: sed 's/old/new/' file.txt"
+					);
+				} else {
+					throw new CmdError(
+						`sed: invalid option -- '${ch}'\n(this playground supports: -n (quiet), -E (extended regex) and -i[.bak] (edit in place))`
+					);
+				}
+			}
+			continue;
+		}
+		if (script === null) script = a;
+		else files.push(a);
+	}
+	if (script === null) {
+		throw new CmdError(
+			"sed: missing script — tell sed what to do, like: sed 's/old/new/' file.txt (man sed has the map)"
+		);
+	}
+	const cmd = parseSedScript(script, extended);
+
+	if (inPlace) {
+		if (!files.length) {
+			throw new CmdError(
+				"sed: -i edits files in place, so it needs at least one file name\n(example: sed -i.bak 's/old/new/' notes.txt — the .bak keeps a backup)"
+			);
+		}
+		const errs: string[] = [];
+		for (const f of files) {
+			const abs = engine.resolve(f);
+			if (engine.isDir(abs)) {
+				errs.push(`sed: couldn't edit ${f}: Is a directory`);
+				continue;
+			}
+			const original = engine.readFile(abs);
+			if (original === null) {
+				errs.push(`sed: can't read ${f}: No such file or directory`);
+				continue;
+			}
+			// With a suffix, the untouched original is saved FIRST — instant undo.
+			if (suffix) engine.writeFile(engine.resolve(f + suffix), original);
+			engine.writeFile(abs, applySed(cmd, original, suppress));
+		}
+		return errs.length ? fail(errs.join('\n'), 2) : ok();
+	}
+
+	let content = '';
+	const errs: string[] = [];
+	if (files.length) {
+		for (const f of files) {
+			const abs = engine.resolve(f);
+			if (engine.isDir(abs)) {
+				errs.push(`sed: read error on ${f}: Is a directory`);
+				continue;
+			}
+			const c = engine.readFile(abs);
+			if (c === null) errs.push(`sed: can't read ${f}: No such file or directory`);
+			else content += c;
+		}
+	} else if (stdin !== null) {
+		content = stdin;
+	} else {
+		throw new CmdError(
+			"sed: no input — give it a file (sed 's/old/new/' notes.txt) or pipe text in (cat notes.txt | sed 's/old/new/')"
+		);
+	}
+	return {
+		out: applySed(cmd, content, suppress),
+		err: errs.length ? errs.join('\n') + '\n' : '',
+		code: errs.length ? 2 : 0
+	};
+}
+
 function cmdEcho(args: string[]): ExecResult {
 	let noNewline = false;
 	let interpret = false;
@@ -2446,7 +2850,7 @@ function cmdWget(engine: ShellEngine, args: string[]): ExecResult {
 const HELP_LINES: [string, string][] = [
 	['Orientation', 'pwd  ls  cd  clear  whoami  date  cal  history  help  man'],
 	['Files & dirs', 'mkdir  touch  cp  mv  rm  rmdir  cat  less  head  tail  file  stat'],
-	['Text tools', 'grep  sort  uniq  cut  tr  wc  echo  printf  seq  tee  xargs'],
+	['Text tools', 'grep  sed  sort  uniq  cut  tr  wc  echo  printf  seq  tee  xargs'],
 	['Finding', 'find  which  type'],
 	['Permissions', 'chmod  (read them with ls -l)'],
 	['Environment', 'env  export  unset  alias  unalias  source'],
@@ -2619,6 +3023,19 @@ const MAN_PAGES: Record<string, ManPage> = {
 			'Replaces every character in SET1 with the matching character in SET2 (ranges like a-z work), or deletes them with -d. Reads from a pipe.',
 		examples: ['echo hello | tr a-z A-Z', "echo 'ha-ha' | tr -d '-'"],
 		vibe: 'Tiny find-and-replace, one character at a time.'
+	},
+	sed: {
+		name: 'stream editor — find & replace on flowing text',
+		synopsis: "sed [-n] [-E] [-i[.bak]] 'SCRIPT' [file ...]",
+		description:
+			'Edits text line by line as it streams past. The star is substitution — read s/mango/kiwi/g as: s (substitute), / (a delimiter; s|mango|kiwi| and s,mango,kiwi, work too), mango (find this), kiwi (replace with this — & in the replacement stands for the whole match), g (every match on the line, not just the first; I ignores case). A command can take an address first: a line number (5), a range (5,9), $ (the last line), a /regex/, or /start/,/stop/. d deletes the selected lines and p prints them — pair p with -n, which silences the default printing, to show only what you select: sed -n \'5,9p\'. -E turns on extended regex, making + ? | ( ) special without backslashes. sed never touches the input file unless you pass -i, and the house rule is -i.bak: the original is kept as file.bak — instant backup, instant undo. grep answers "which lines?"; sed makes them different.',
+		examples: [
+			"sed 's/mango/kiwi/g' menu.txt",
+			"sed -n '5,9p' server.log",
+			"sed '/DEBUG/d' app.log > clean.log",
+			"sed -i.bak 's/http:/https:/g' config.yml"
+		],
+		vibe: 'Find & replace, unplugged from any editor.'
 	},
 	echo: {
 		name: 'print text',
