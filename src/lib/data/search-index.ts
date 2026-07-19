@@ -26,7 +26,7 @@ function resolveSectionId(command: string, category: string): string {
 
 	// Panic-row keys and history tricks first — they contain words that would
 	// otherwise match broader rules below.
-	if (cmd.includes('!!') || first === 'history') return 'section-7-2';
+	if (cmd.includes('!!') || first === 'history') return 'section-11-2';
 	if (first === 'ctrl+c' || first === 'ctrl+d' || first === 'ctrl+l' || first === 'reset')
 		return 'section-1-2';
 	if (first === 'q' || first === ':q!') return 'section-1-3';
@@ -99,7 +99,7 @@ function resolveSectionId(command: string, category: string): string {
 		'Panic Button': 'section-1-3'
 	};
 
-	return categoryFallback[category] ?? 'section-9-2';
+	return categoryFallback[category] ?? 'section-13-2';
 }
 
 function slugify(value: string): string {
@@ -807,7 +807,7 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 7: Your Cockpit ─────
+	// ───── Part 11: Your Cockpit ─────
 	{
 		id: 'tool-prompt-designer',
 		sectionId: 'prompt-designer',
@@ -834,7 +834,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-make-it-yours',
-		sectionId: 'section-7-1',
+		sectionId: 'section-11-1',
 		title: 'Make It Yours',
 		part: 'Your Cockpit',
 		description: 'Themes, fonts, and prompt customization — PS1 and starship.',
@@ -854,7 +854,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-terminal-apps',
-		sectionId: 'section-7-1',
+		sectionId: 'section-11-1',
 		title: 'Terminal apps: Ghostty, iTerm2, Warp, Windows Terminal',
 		part: 'Your Cockpit',
 		description:
@@ -876,7 +876,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-history-superpowers',
-		sectionId: 'section-7-2',
+		sectionId: 'section-11-2',
 		title: 'History Superpowers',
 		part: 'Your Cockpit',
 		description: 'Up arrow, history, !!, sudo !!, and Ctrl+R reverse search.',
@@ -896,7 +896,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-vscode-terminal',
-		sectionId: 'section-7-3',
+		sectionId: 'section-11-3',
 		title: 'Terminal in VS Code',
 		part: 'Your Cockpit',
 		description: 'The integrated terminal — where vibe coders live.',
@@ -915,7 +915,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-agent-allowlist',
-		sectionId: 'section-7-3',
+		sectionId: 'section-11-3',
 		title: 'VS Code agent allowlist & denylist',
 		part: 'Your Cockpit',
 		description:
@@ -936,7 +936,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-many-terminals',
-		sectionId: 'section-7-4',
+		sectionId: 'section-11-4',
 		title: 'Many Terminals at Once',
 		part: 'Your Cockpit',
 		description: 'Tabs, splits, and a one-line introduction to tmux.',
@@ -954,7 +954,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-parallel-agents',
-		sectionId: 'section-7-4',
+		sectionId: 'section-11-4',
 		title: 'Parallel AI agents in split panes',
 		part: 'Your Cockpit',
 		description:
@@ -973,10 +973,10 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 8: Under the Hood ─────
+	// ───── Part 12: Under the Hood ─────
 	{
 		id: 'topic-under-the-hood',
-		sectionId: 'section-8-1',
+		sectionId: 'section-12-1',
 		title: 'How the Terminal Works',
 		part: 'Under the Hood',
 		description: 'TTYs, the PTY pair, and the line discipline — how the terminal actually works.',
@@ -1001,7 +1001,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-escape-sequences',
-		sectionId: 'section-8-1',
+		sectionId: 'section-12-1',
 		title: 'Escape sequences & ANSI colors',
 		part: 'Under the Hood',
 		description: 'Colors and cursor movement are in-band bytes — \\e[32m turns the text green.',
@@ -1025,7 +1025,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-ctrl-c-sigint',
-		sectionId: 'section-8-1',
+		sectionId: 'section-12-1',
 		title: 'What Ctrl+C really does',
 		part: 'Under the Hood',
 		description: 'The tty driver turns Ctrl+C into SIGINT — a kernel signal, not input.',
@@ -1045,7 +1045,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-shell-integration',
-		sectionId: 'section-8-2',
+		sectionId: 'section-12-2',
 		title: 'Shell integration: OSC 133 & OSC 633',
 		part: 'Under the Hood',
 		description:
@@ -1067,7 +1067,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-agent-terminals',
-		sectionId: 'section-8-2',
+		sectionId: 'section-12-2',
 		title: 'Agent-aware terminals: Warp, cmux, libghostty',
 		part: 'Under the Hood',
 		description:
@@ -1089,7 +1089,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-agent-pipelines',
-		sectionId: 'section-8-2',
+		sectionId: 'section-12-2',
 		title: 'The agent as a shell command (claude -p)',
 		part: 'Under the Hood',
 		description:
@@ -1110,7 +1110,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-robust-scripts',
-		sectionId: 'section-8-2',
+		sectionId: 'section-12-2',
 		title: 'Robust bash scripts: set -euo pipefail & trap',
 		part: 'Under the Hood',
 		description:
@@ -1131,10 +1131,10 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 9: Conclusion ─────
+	// ───── Part 13: Conclusion ─────
 	{
 		id: 'topic-mindset',
-		sectionId: 'section-9-1',
+		sectionId: 'section-13-1',
 		title: 'The Command-Line Mindset',
 		part: 'Conclusion',
 		description: 'Compose small tools, read before running — the AI-native interface.',
@@ -1152,7 +1152,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-quick-reference',
-		sectionId: 'section-9-2',
+		sectionId: 'section-13-2',
 		title: 'Quick Reference',
 		part: 'Conclusion',
 		description: 'The dense every-command table — the whole course at a glance.',
@@ -1169,7 +1169,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-final-challenge',
-		sectionId: 'section-9-3',
+		sectionId: 'section-13-3',
 		title: 'The Final Challenge',
 		part: 'Conclusion',
 		description: 'One messy home folder — the capstone that proves you can do it.',
@@ -1186,7 +1186,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-keep-learning',
-		sectionId: 'section-9-4',
+		sectionId: 'section-13-4',
 		title: 'Keep Learning',
 		part: 'Conclusion',
 		description: 'The Linux Command Line, OverTheWire Bandit, explainshell, tldr.',

@@ -13,7 +13,7 @@
  *
  * Run with: npm run build:index  (commit the JSON — CI never rebuilds it).
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
@@ -70,6 +70,11 @@ function stripMarkup(src) {
 	s = s.replace(/^[^<>]*>/, ' ');
 	s = s.replace(/<[^<>]*$/, ' ');
 	s = s.replace(/<!--[\s\S]*?-->/g, ' ');
+	// code="…" string attributes (<Code code="sort" />) hold the other half of
+	// the shell commands. Hoist each tag's code value out as plain text before
+	// tag-stripping eats the whole tag — same for already-stashed {`…`} values.
+	// eslint-disable-next-line no-control-regex -- \u0001 is our own chunk sentinel
+	s = s.replace(/<[A-Za-z][^<>]*?\bcode=(?:"([^"]*)"|(\u0001\d+\u0001))[^<>]*?>/g, ' $1$2 ');
 	// Svelte expressions (attribute handlers, {#if}/{#each} tags, {base}, …),
 	// innermost first so nested braces unwind. Must run before tag-stripping:
 	// an inline `onclick={() => …}` would otherwise break the <[^>]+> regex.
@@ -108,17 +113,12 @@ function chunkText(text) {
 
 /* ── walk the section files in page order ───────────────────────────────── */
 
+// Hero first, then every PartN component in numeric page order.
 const files = [
 	'Hero.svelte',
-	'Part1.svelte',
-	'Part2.svelte',
-	'Part3.svelte',
-	'Part4.svelte',
-	'Part5.svelte',
-	'Part6.svelte',
-	'Part7.svelte',
-	'Part8.svelte',
-	'Part9.svelte'
+	...readdirSync(SECTIONS_DIR)
+		.filter((f) => /^Part\d+\.svelte$/.test(f))
+		.sort((a, b) => parseInt(a.slice(4), 10) - parseInt(b.slice(4), 10))
 ];
 
 const entries = [];

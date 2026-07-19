@@ -76,11 +76,11 @@
 	];
 </script>
 
-<section id="part-9" class="py-10">
+<section id="part-13" class="py-10">
 	<div class="mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={BookOpen}
-			partLabel="Part 9"
+			partLabel="Part 13"
 			title="Conclusion: The Terminal Is Yours Now"
 			color="var(--color-primary)"
 		/>
@@ -99,12 +99,12 @@
 			keep growing.
 		</p>
 
-		<!-- 9.1 The Command-Line Mindset -->
-		<div id="section-9-1" class="mb-14">
+		<!-- 13.1 The Command-Line Mindset -->
+		<div id="section-13-1" class="mb-14">
 			<SectionHeader
 				level="section"
 				icon={Wand2}
-				title="9.1 The Command-Line Mindset"
+				title="13.1 The Command-Line Mindset"
 				color="var(--color-primary)"
 			/>
 
@@ -210,12 +210,12 @@
 			/>
 		</div>
 
-		<!-- 9.2 Quick Reference -->
-		<div id="section-9-2" class="mb-8">
+		<!-- 13.2 Quick Reference -->
+		<div id="section-13-2" class="mb-8">
 			<SectionHeader
 				level="section"
 				icon={Table}
-				title="9.2 Quick Reference Card"
+				title="13.2 Quick Reference Card"
 				color="var(--color-primary)"
 			/>
 
@@ -449,12 +449,12 @@
 			</div>
 		</div>
 
-		<!-- 9.3 The Final Challenge -->
-		<div id="section-9-3" class="mb-14">
+		<!-- 13.3 The Final Challenge -->
+		<div id="section-13-3" class="mb-14">
 			<SectionHeader
 				level="section"
 				icon={Trophy}
-				title="9.3 The Final Challenge"
+				title="13.3 The Final Challenge"
 				color="var(--color-primary)"
 			/>
 
@@ -535,12 +535,12 @@
 			</div>
 		</div>
 
-		<!-- 9.4 Keep Learning -->
-		<div id="section-9-4" class="mb-14">
+		<!-- 13.4 Keep Learning -->
+		<div id="section-13-4" class="mb-14">
 			<SectionHeader
 				level="section"
 				icon={Library}
-				title="9.4 Keep Learning — The References That Matter"
+				title="13.4 Keep Learning — The References That Matter"
 				color="var(--color-primary)"
 			/>
 

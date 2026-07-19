@@ -10,11 +10,11 @@
 	import VibeBox from '../ui/VibeBox.svelte';
 </script>
 
-<section id="part-8" class="py-10">
+<section id="part-12" class="py-10">
 	<div class="mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={Cog}
-			partLabel="Part 8"
+			partLabel="Part 12"
 			title="Under the Hood: The Machine You've Been Driving"
 			color="var(--color-primary)"
 		/>
@@ -37,12 +37,12 @@
 			/>, <Code code="^[[A" />, Ctrl+C — feel ordinary.
 		</p>
 
-		<!-- 8.1 How the Terminal Works -->
-		<div id="section-8-1" class="mb-14">
+		<!-- 12.1 How the Terminal Works -->
+		<div id="section-12-1" class="mb-14">
 			<SectionHeader
 				level="section"
 				icon={Wrench}
-				title="8.1 How the Terminal Works"
+				title="12.1 How the Terminal Works"
 				color="var(--color-primary)"
 			/>
 
@@ -328,12 +328,12 @@
 			</p>
 		</div>
 
-		<!-- 8.2 The Terminal, Evolving -->
-		<div id="section-8-2" class="mb-8">
+		<!-- 12.2 The Terminal, Evolving -->
+		<div id="section-12-2" class="mb-8">
 			<SectionHeader
 				level="section"
 				icon={Sprout}
-				title="8.2 The Terminal, Evolving"
+				title="12.2 The Terminal, Evolving"
 				color="var(--color-primary)"
 			/>
 
@@ -360,7 +360,7 @@
 			</h4>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Remember the trick from 8.1 — instructions traveling <em>in-band</em>, mixed into the text?
+				Remember the trick from 12.1 — instructions traveling <em>in-band</em>, mixed into the text?
 				Modern shells and terminals use the same trick to talk
 				<em>about the conversation itself</em>. A standard called
 				<strong style="color: var(--color-text);">OSC 133</strong>
@@ -411,7 +411,7 @@
 				<strong style="color: var(--color-text);">Ghostty</strong> 1.3 (March 2026) restructured
 				itself so its entire terminal core is a reusable library,
 				<Code code="libghostty" />
-				— the machinery of 8.1, packaged for any app that wants to embed a real terminal. On the other
+				— the machinery of 12.1, packaged for any app that wants to embed a real terminal. On the other
 				side, a new generation is being designed <em>around</em> agents:
 				<strong style="color: var(--color-text);">Warp</strong> now calls itself an "agentic
 				development environment" and open-sourced its core (dual MIT/AGPL) — its pitch is
@@ -423,7 +423,7 @@
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Here's the through-line, and it's the whole reason 8.1 was worth your time: every one of
+				Here's the through-line, and it's the whole reason 12.1 was worth your time: every one of
 				these — the speed demons, the agent fleets, the socket-driven panes — still speaks the same
 				protocol. Bytes through a PTY, escape sequences in-band, signals from the line discipline. A
 				fifty-year-old interface turned out to be so simple, so universal, and so
@@ -493,7 +493,7 @@ trap cleanup EXIT INT            # runs on normal exit AND on Ctrl+C`}
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				That <Code code="trap" />
-				line is 8.1's SIGINT lesson cashed in: Ctrl+C sends a signal, signals can be caught, and
+				line is 12.1's SIGINT lesson cashed in: Ctrl+C sends a signal, signals can be caught, and
 				<Code code="trap" />
 				is how a script catches one — so your temp files get cleaned up even when you interrupt it mid-run.
 				Put the armor on a real job and you get something like this: a script that runs an agent review

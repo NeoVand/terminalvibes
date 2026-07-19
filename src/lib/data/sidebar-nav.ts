@@ -156,37 +156,37 @@ export const sidebarNav: NavSection[] = [
 		]
 	},
 	{
-		id: 'part-7',
+		id: 'part-11',
 		label: 'Your Cockpit',
 		icon: Gauge,
 		children: [
-			{ id: 'section-7-1', label: 'Make It Yours', icon: Palette },
+			{ id: 'section-11-1', label: 'Make It Yours', icon: Palette },
 			{ id: 'prompt-designer', label: 'Design Your Prompt', icon: Wand2 },
-			{ id: 'section-7-2', label: 'History Superpowers', icon: History },
+			{ id: 'section-11-2', label: 'History Superpowers', icon: History },
 			{ id: 'history-recall', label: 'Retrace Your Steps', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-7-3', label: 'Terminal in VS Code', icon: Layout },
-			{ id: 'section-7-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal }
+			{ id: 'section-11-3', label: 'Terminal in VS Code', icon: Layout },
+			{ id: 'section-11-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal }
 		]
 	},
 	{
-		id: 'part-8',
+		id: 'part-12',
 		label: 'Under the Hood',
 		icon: Cog,
 		children: [
-			{ id: 'section-8-1', label: 'How the Terminal Works', icon: Wrench },
-			{ id: 'section-8-2', label: 'The Terminal, Evolving', icon: Sprout }
+			{ id: 'section-12-1', label: 'How the Terminal Works', icon: Wrench },
+			{ id: 'section-12-2', label: 'The Terminal, Evolving', icon: Sprout }
 		]
 	},
 	{
-		id: 'part-9',
+		id: 'part-13',
 		label: 'Conclusion',
 		icon: BookOpen,
 		children: [
-			{ id: 'section-9-1', label: 'The Command-Line Mindset', icon: Wand2 },
-			{ id: 'section-9-2', label: 'Quick Reference', icon: Table },
-			{ id: 'section-9-3', label: 'Final Challenge', icon: Trophy },
+			{ id: 'section-13-1', label: 'The Command-Line Mindset', icon: Wand2 },
+			{ id: 'section-13-2', label: 'Quick Reference', icon: Table },
+			{ id: 'section-13-3', label: 'Final Challenge', icon: Trophy },
 			{ id: 'capstone', label: 'One Messy Home Folder', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-9-4', label: 'Keep Learning', icon: Library }
+			{ id: 'section-13-4', label: 'Keep Learning', icon: Library }
 		]
 	}
 ];
