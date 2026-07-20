@@ -456,6 +456,42 @@ export const cheatSheet: CheatSheetCategory[] = [
 		]
 	},
 	{
+		label: 'The Toolshed',
+		icon: 'package',
+		commands: [
+			{
+				command: 'brew install NAME',
+				description: 'Install a tool (macOS)',
+				detail:
+					'Linux: sudo apt install NAME. JavaScript tools: npm i -g NAME. All three fetch the tool and drop it somewhere on your $PATH — which is all "installed" means. Check with which NAME.'
+			},
+			{
+				command: 'tar -tzf archive.tar.gz',
+				description: 'List what is inside an archive without unpacking',
+				detail:
+					'Peek first: an archive decides where its own files land, and a badly built one scatters them across your folder. unzip -l does the same for .zip.'
+			},
+			{
+				command: 'tar -xzf archive.tar.gz',
+				description: 'Extract a .tar.gz archive',
+				detail:
+					'x extract, z un-gzip, f this file. Swap x for c to create (tar -czf backup.tar.gz notes/) or t to list. The letters are separate instructions, not one magic word.'
+			},
+			{
+				command: 'ln -s target linkname',
+				description: 'Create a symlink — a signpost, not a copy',
+				detail:
+					'That -> arrow in ls -l is a symlink. Deleting the link leaves the original; deleting the original leaves a broken link. Homebrew and node_modules/.bin are full of them.'
+			},
+			{
+				command: 'du -sh *',
+				description: 'Size of every folder here, biggest hog obvious',
+				detail:
+					'-h for human numbers, -s for one line per item. Measure before you delete — the same discipline as ls before rm. df -h shows how full the whole disk is.'
+			}
+		]
+	},
+	{
 		label: 'Permissions',
 		icon: 'lock',
 		commands: [

@@ -1070,6 +1070,85 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
+	// ───── Part 10: The Toolshed ─────
+	{
+		id: 'topic-package-managers',
+		sectionId: 'section-10-1',
+		title: 'Package Managers',
+		part: 'The Toolshed',
+		description: 'brew, apt and npm fetch a tool and put it where $PATH already looks.',
+		keywords: [
+			'install',
+			'brew',
+			'homebrew',
+			'apt',
+			'apt install',
+			'npm install -g',
+			'package manager',
+			'command not found after install',
+			'how to install a tool'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-archives',
+		sectionId: 'section-10-2',
+		title: 'Archives — tar & zip',
+		part: 'The Toolshed',
+		description: 'tar -xzf decoded letter by letter — and tar -tzf to peek before unpacking.',
+		keywords: [
+			'tar',
+			'tar -xzf',
+			'tar flags',
+			'extract',
+			'unzip',
+			'zip',
+			'archive',
+			'tar.gz',
+			'unpack',
+			'compress',
+			'how to open tar.gz'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-symlinks',
+		sectionId: 'section-10-3',
+		title: 'Symlinks',
+		part: 'The Toolshed',
+		description: 'The -> arrow in ls -l: a signpost to the real file, not a copy.',
+		keywords: [
+			'symlink',
+			'symbolic link',
+			'ln -s',
+			'arrow in ls -l',
+			'broken link',
+			'node_modules/.bin',
+			'wrong version',
+			'where is it really installed'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-disk-usage',
+		sectionId: 'section-10-4',
+		title: 'Disk Usage — du & df',
+		part: 'The Toolshed',
+		description:
+			'du -sh * finds the space hog; df -h shows the whole disk. Measure before deleting.',
+		keywords: [
+			'du',
+			'df',
+			'disk full',
+			'disk space',
+			'du -sh',
+			'what is using space',
+			'node_modules size',
+			'free up space',
+			'storage'
+		],
+		kind: 'topic'
+	},
 	// ───── Part 11: Your Cockpit ─────
 	{
 		id: 'tool-prompt-designer',

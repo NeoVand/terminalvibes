@@ -1023,6 +1023,103 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 				mode === 'rw-------'
 			);
 		}
+	},
+	{
+		id: 'open-the-crate',
+		title: 'Peek, then unpack',
+		description:
+			'A release archive landed in your downloads. Before you scatter its contents across your folder, look inside — tar -t lists an archive without unpacking it. Then extract it for real.',
+		hint: 'Decode the flags: t lists, x extracts, z means gzipped, f names the file. So `tar -tzf release.tar.gz` peeks and `tar -xzf release.tar.gz` unpacks. Peek first — that is the habit.',
+		suggestedCommands: [
+			'ls',
+			'file release.tar.gz',
+			'tar -tzf release.tar.gz',
+			'tar -xzf release.tar.gz',
+			'ls release'
+		],
+		seed: {
+			files: {
+				'~/README.txt':
+					'release.tar.gz just arrived. List what is inside BEFORE unpacking it,\nthen extract it.\n',
+				// Archives are files whose content is a manifest — see readArchive()
+				// in shell-commands.ts for the format this mirrors.
+				'~/release.tar.gz':
+					'#!tv-archive\n' +
+					JSON.stringify({
+						format: 'tar.gz',
+						entries: {
+							'release/README.md': '# vibecafe 2.1.0\nThanks for downloading!\n',
+							'release/bin/app': '#!/usr/bin/env bash\necho "vibecafe 2.1.0"\n',
+							'release/docs/guide.md': '# Guide\nRun bin/app to start.\n'
+						}
+					}) +
+					'\n'
+			}
+		},
+		goal: 'you listed the archive first, then extracted it',
+		check: async (engine) => {
+			const listedAt = engine.historyLog.findIndex((l) => /tar\s+-?[a-z]*t[a-z]*f/.test(l));
+			const extractedAt = engine.historyLog.findIndex((l) => /tar\s+-?[a-z]*x[a-z]*f/.test(l));
+			return (
+				listedAt !== -1 &&
+				extractedAt !== -1 &&
+				listedAt < extractedAt &&
+				engine.isFile('~/release/README.md') &&
+				engine.isFile('~/release/bin/app')
+			);
+		}
+	},
+	{
+		id: 'summon-a-tool',
+		title: 'Install a tool',
+		description:
+			'A command your machine has never heard of is not a mystery — it is a file that is not there yet. Watch cowsay fail, install it, and watch the same command start working. Installing really is just "put a file where $PATH looks".',
+		hint: '`cowsay hello` fails with "command not found" — nothing on your PATH has that name. `brew install cowsay` puts it in /usr/local/bin, which is on your PATH. Then `which cowsay` proves where it landed.',
+		suggestedCommands: [
+			'cowsay hello',
+			'which cowsay',
+			'brew install cowsay',
+			'which cowsay',
+			'cowsay hello there'
+		],
+		seed: {
+			files: {
+				'~/README.txt':
+					'cowsay is not installed. Try it, install it, then try again —\nand notice where the file lands.\n'
+			}
+		},
+		goal: 'cowsay is installed on your PATH and moos on demand',
+		check: async (engine) =>
+			engine.isFile('/usr/local/bin/cowsay') &&
+			engine.historyLog.some((l) => l.trim().startsWith('cowsay')) &&
+			historyContains(engine, 'install')
+	},
+	{
+		id: 'space-hog',
+		title: 'Find the space hog',
+		description:
+			'Your disk is nearly full and you are about to delete things. Measure first: du -sh */ sizes every folder here, so you delete the one that actually matters instead of guessing.',
+		hint: '`du -sh *` prints the size of each thing in this folder — the hog is obvious. Only then remove it with `rm -r`. Measuring before deleting is the whole lesson.',
+		suggestedCommands: ['ls', 'du -sh *', 'du -sh node_modules', 'rm -r node_modules', 'du -sh *'],
+		seed: {
+			files: {
+				'~/project/README.md': '# my project\nA small app with a very large dependency folder.\n',
+				'~/project/src/main.js': 'console.log("hello")\n',
+				'~/project/src/utils.js': 'export const noop = () => {}\n',
+				// Bulk, so du's numbers make the hog unmistakable.
+				'~/project/node_modules/left-pad/index.js': `// left-pad\n${'x'.repeat(2400)}\n`,
+				'~/project/node_modules/react/index.js': `// react\n${'y'.repeat(3200)}\n`,
+				'~/project/node_modules/lodash/index.js': `// lodash\n${'z'.repeat(4100)}\n`
+			},
+			cwd: '~/project'
+		},
+		goal: 'you measured with du, then removed the folder that was actually big',
+		check: async (engine) =>
+			ranCommand(engine, 'du') &&
+			!engine.exists('~/project/node_modules') &&
+			engine.isFile('~/project/src/main.js') &&
+			engine.historyLog.findIndex((l) => l.trim().startsWith('du')) <
+				engine.historyLog.findIndex((l) => l.includes('rm'))
 	}
 ];
 
@@ -1073,7 +1170,11 @@ export const lessonScenarioIds = [
 	// Part 9 — Talking to the Network.
 	'health-check',
 	'api-detective',
-	'secret-keeper'
+	'secret-keeper',
+	// Part 10 — The Toolshed.
+	'open-the-crate',
+	'summon-a-tool',
+	'space-hog'
 ] as const;
 
 export type LessonScenarioId = (typeof lessonScenarioIds)[number];

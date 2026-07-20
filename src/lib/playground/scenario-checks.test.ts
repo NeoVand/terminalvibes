@@ -31,7 +31,11 @@ const EXPECTED_CHIP_FAILURES: Record<string, string[]> = {
 	'capture-errors': ['ls app.log ghost.log', 'ls app.log ghost.log > found.txt 2> errors.txt'],
 	// The whole lesson: the first serve hits the squatter on :3000 and the
 	// final lsof finds the port free of the OLD server (exit 1 = silence).
-	'free-the-port': ['serve']
+	'free-the-port': ['serve'],
+	// The whole lesson: the tool genuinely isn't installed yet, so the first
+	// attempt and the first `which` both fail — that's what makes the install
+	// mean something.
+	'summon-a-tool': ['cowsay hello', 'which cowsay']
 };
 
 describe('scenario checks — click-only solvability', () => {

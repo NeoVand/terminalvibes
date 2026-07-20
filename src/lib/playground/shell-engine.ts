@@ -119,10 +119,13 @@ const DEFAULT_ENV: Record<string, string> = {
 export const BIN_COMMANDS = [
 	'agent',
 	'alias',
+	'apt',
+	'apt-get',
 	'awk',
 	'basename',
 	'bash',
 	'bg',
+	'brew',
 	'cal',
 	'cat',
 	'cd',
@@ -157,6 +160,7 @@ export const BIN_COMMANDS = [
 	'mkdir',
 	'more',
 	'mv',
+	'npm',
 	'pgrep',
 	'printf',
 	'ps',
@@ -173,6 +177,7 @@ export const BIN_COMMANDS = [
 	'ssh',
 	'stat',
 	'tail',
+	'tar',
 	'tee',
 	'touch',
 	'tr',
@@ -181,11 +186,13 @@ export const BIN_COMMANDS = [
 	'unalias',
 	'uniq',
 	'unset',
+	'unzip',
 	'wc',
 	'wget',
 	'which',
 	'whoami',
-	'xargs'
+	'xargs',
+	'zip'
 ];
 
 export class ShellEngine {

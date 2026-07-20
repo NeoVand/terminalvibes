@@ -624,6 +624,60 @@
 		"text": "When you do have a server to reach, ask your assistant to walk you through generating a key with ssh-keygen and installing it; it's a five-minute setup you do once per machine. You can now start a server, prove it's alive, read what it says, keep its keys safe, and step onto another machine entirely. One more part of tooling to go — how to get new tools, unpack what arrives, and find out what's eating your disk."
 	},
 	{
+		"id": "part-10",
+		"part": 10,
+		"title": "Part 10 · The Toolshed",
+		"text": "\"First, install X.\" — every setup guide ever written This part is about owning your machine: fetching new tools, unpacking what arrives, knowing where things actually live, and finding out what's eating your disk. Four everyday chores that every guide assumes you already know — and that your agent will hand you commands for without explaining. The thread running through this part: none of it is magic, it's all just files in places . Installing puts a file where your shell looks. An archive is one file holding many. A symlink is a file that points at another. Disk pressure is files being bigger than you thought."
+	},
+	{
+		"id": "section-10-1",
+		"part": 10,
+		"title": "10.1 Package Managers",
+		"text": "When a command doesn't exist, your shell says command not found — which, as Part 5 taught you, means \"nothing on your $PATH has that name.\" A package manager fixes that in one step: it fetches the tool, unpacks it, and puts it somewhere your PATH already looks. brew install cowsay # macOS (Homebrew) sudo apt install cowsay # Debian/Ubuntu Linux npm i -g serve # tools from the JavaScript world which cowsay # where did it land? /usr/local/bin/cowsay # ...somewhere on $PATH. That's all \"installed\" means. That last pair of lines is the whole concept. Before the install, which cowsay finds nothing and the command fails. After it, there's a file at /usr/local/bin/cowsay , that directory is listed in your $PATH , and so typing cowsay works. Installing a command-line tool is mostly just putting a file somewhere the shell already looks . Read what an install pulls in — especially from an agent."
+	},
+	{
+		"id": "section-10-1",
+		"part": 10,
+		"title": "10.1 Package Managers",
+		"text": "Three things deserve a second look: sudo npm install (a global npm install should rarely need root, and needing it usually means something is misconfigured); curl … | bash installers (Part 9 explained exactly why — download, read, then run); and any package whose name is one typo away from a popular one, which is a real and common attack. Try It: Install a Tool Watch cowsay fail, install it, and watch the same command start working — then use which to see exactly where the file landed."
+	},
+	{
+		"id": "section-10-2",
+		"part": 10,
+		"title": "10.2 Archives — tar & zip",
+		"text": "tar -xzf release.tar.gz is probably the most-copied command in computing, and almost nobody can explain the letters. They're not magic — they're four separate instructions jammed together: tar -xzf release.tar.gz │││ ││└── f: \"the next word is the archive's filename\" │└─── z: it's gzip-compressed (that's the .gz) └──── x: extract tar -tzf release.tar.gz # t: LIST what's inside — don't unpack yet tar -czf backup.tar.gz notes/ # c: create an archive from notes/ Swap one letter and you change the verb: x extracts, c creates, t lists. The z and f stay put. Once you can read them, the command stops being an incantation you paste and becomes a sentence you understand — which is the entire thesis of this course applied to one very ugly command. Peek before you unpack. An archive decides where its own contents land, and a badly-built one scatters files all over your current folder instead of tidying them into one directory. tar -tzf archive.tar.gz lists everything without extracting anything — it costs a second and it's the same \"look before you leap\" habit as echo-the-glob in Part 3. The zip equivalent is unzip -l . Try It: Peek, Then Unpack A release archive just landed."
+	},
+	{
+		"id": "section-10-2",
+		"part": 10,
+		"title": "10.2 Archives — tar & zip",
+		"text": "List what's inside with tar -tzf before extracting it — then unpack it for real."
+	},
+	{
+		"id": "section-10-3",
+		"part": 10,
+		"title": "10.3 Links & Where Things Live",
+		"text": "You've been seeing these for nine parts without being told what they are. Run ls -l in the right folder and some entries have an arrow: releases/v2.1 pointing at a lit cabin, beside a dark broken signpost\" caption=\"A signpost, not a copy\" /> ls -l /usr/local/bin lrwxr-xr-x node -> /opt/homebrew/Cellar/node/22.3.0/bin/node └── a symbolic link: a signpost pointing somewhere else ln -s releases/v2.1 current # plant your own signpost ls -l current -> releases/v2.1 A symlink is a tiny file whose entire content is \"look over there instead.\" It is not a copy: there's still one real thing, and the link is a pointer to it. That's why deleting the link leaves the original alone — and why deleting the original leaves a broken link , an arrow pointing at nothing, which is the source of a whole genre of confusing errors. This is how a surprising amount of your machine is wired. Homebrew installs the real files deep in its own folders and drops symlinks into /usr/local/bin ; node_modules/.bin is full of them; version managers switch which node you get by re-pointing one link."
+	},
+	{
+		"id": "section-10-3",
+		"part": 10,
+		"title": "10.3 Links & Where Things Live",
+		"text": "When a tool insists it's installed but the command \"isn't found\" — or points at the wrong version — a symlink is usually the culprit, and ls -l plus which is how you catch it. This one is a real-machine lesson — the sandbox has no symlinks to practise on. Next time you're in a terminal, run ls -l /usr/local/bin (or ls -l node_modules/.bin in any JavaScript project) and read the arrows. It's a good five-minute tour of how your tools are actually assembled."
+	},
+	{
+		"id": "section-10-4",
+		"part": 10,
+		"title": "10.4 Disk Detective",
+		"text": "\"Your disk is almost full\" arrives at the worst possible moment, and the panic response — deleting things that look big — is how people lose work. Two commands turn the guess into a measurement. du -sh * # how big is each thing HERE? 1.9G node_modules 204M .cache 12M src 3.1M docs df -h # how full is the whole disk? Filesystem Size Used Avail Capacity /dev/disk1 494G 405G 89G 82% du is \"disk usage\" — -h makes the numbers human (K, M, G) and -s gives one summary line per item instead of every nested folder. df is \"disk free\", the whole-disk view. The everyday move is du -sh * : one number per folder, sorted out by eye, and the hog is immediately obvious. It's usually node_modules , a build cache, or old container images — things that regenerate, which is exactly why they're safe to delete. Measure, then delete — in that order. It's the same discipline as ls before rm from Part 3 and echo-the-glob from Part 3.4: make the invisible visible before the irreversible step. Deleting the wrong 200 MB is annoying; deleting the wrong 200 MB because you never checked is avoidable. Try It: Find the Space Hog The disk is filling up."
+	},
+	{
+		"id": "section-10-4",
+		"part": 10,
+		"title": "10.4 Disk Detective",
+		"text": "Size every folder with du -sh * first, then remove the one that's actually large — measurement before deletion. That's the toolshed stocked. You can install what you're missing, open what arrives, follow the arrows to where things really live, and find what's eating your disk — the last of the everyday chores that used to require someone else's help."
+	},
+	{
 		"id": "part-11",
 		"part": 11,
 		"title": "Part 11 · Your Cockpit",
@@ -916,6 +970,12 @@
 		"part": 0,
 		"title": "Cheat Sheet · Network & Secrets",
 		"text": "curl localhost:3000/health — Ask a server directly and print its reply. The one-line way to check \"is it actually running?\" instead of trusting a claim. \"Connection refused\" means nothing is listening — check with lsof -i :3000. curl -s -o out.json URL — Save the reply to a file, quietly. -o writes the body to a file instead of the screen; -s hides the progress meter, which you always want inside scripts and pipelines. -I asks for just the headers. curl -s URL | jq -r .field — Fetch JSON and pull one value out of it. A jq filter is a path: . is everything, .latest is a key, .server.port goes deeper, .items[0] indexes a list. -r drops the quotes so the value can feed the next command. echo 'KEY=value' > .env && chmod 600 .env — Put a secret in a file only you can read. Never type a key directly into a command — your shell history keeps it. Load it with source .env and use $KEY, and add .env to .gitignore. ssh user@host — Open a shell on another machine. Every command in this course works there too. The prompt changes to show the other machine — check it before running anything destructive. exit comes home."
+	},
+	{
+		"id": "cheat-the-toolshed",
+		"part": 0,
+		"title": "Cheat Sheet · The Toolshed",
+		"text": "brew install NAME — Install a tool (macOS). Linux: sudo apt install NAME. JavaScript tools: npm i -g NAME. All three fetch the tool and drop it somewhere on your $PATH — which is all \"installed\" means. Check with which NAME. tar -tzf archive.tar.gz — List what is inside an archive without unpacking. Peek first: an archive decides where its own files land, and a badly built one scatters them across your folder. unzip -l does the same for .zip. tar -xzf archive.tar.gz — Extract a .tar.gz archive. x extract, z un-gzip, f this file. Swap x for c to create (tar -czf backup.tar.gz notes/) or t to list. The letters are separate instructions, not one magic word. ln -s target linkname — Create a symlink — a signpost, not a copy. That -> arrow in ls -l is a symlink. Deleting the link leaves the original; deleting the original leaves a broken link. Homebrew and node_modules/.bin are full of them. du -sh * — Size of every folder here, biggest hog obvious. -h for human numbers, -s for one line per item. Measure before you delete — the same discipline as ls before rm. df -h shows how full the whole disk is."
 	},
 	{
 		"id": "cheat-permissions",
