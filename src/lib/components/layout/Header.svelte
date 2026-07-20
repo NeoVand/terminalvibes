@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { Sun, Moon, ScrollText, Github, Gamepad2, Bot, X, Linkedin } from 'lucide-svelte';
+	import { Sun, Moon, ScrollText, Gamepad2, Bot, X } from 'lucide-svelte';
+	// Brand marks live locally: lucide removed them in v1. See GithubIcon.svelte.
+	import Github from '$lib/components/ui/GithubIcon.svelte';
+	import Linkedin from '$lib/components/ui/LinkedinIcon.svelte';
 	import { base } from '$app/paths';
 	import Search from './Search.svelte';
 
