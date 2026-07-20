@@ -420,6 +420,42 @@ export const cheatSheet: CheatSheetCategory[] = [
 		]
 	},
 	{
+		label: 'Network & Secrets',
+		icon: 'globe',
+		commands: [
+			{
+				command: 'curl localhost:3000/health',
+				description: 'Ask a server directly and print its reply',
+				detail:
+					'The one-line way to check "is it actually running?" instead of trusting a claim. "Connection refused" means nothing is listening — check with lsof -i :3000.'
+			},
+			{
+				command: 'curl -s -o out.json URL',
+				description: 'Save the reply to a file, quietly',
+				detail:
+					'-o writes the body to a file instead of the screen; -s hides the progress meter, which you always want inside scripts and pipelines. -I asks for just the headers.'
+			},
+			{
+				command: 'curl -s URL | jq -r .field',
+				description: 'Fetch JSON and pull one value out of it',
+				detail:
+					'A jq filter is a path: . is everything, .latest is a key, .server.port goes deeper, .items[0] indexes a list. -r drops the quotes so the value can feed the next command.'
+			},
+			{
+				command: "echo 'KEY=value' > .env  &&  chmod 600 .env",
+				description: 'Put a secret in a file only you can read',
+				detail:
+					'Never type a key directly into a command — your shell history keeps it. Load it with source .env and use $KEY, and add .env to .gitignore.'
+			},
+			{
+				command: 'ssh user@host',
+				description: 'Open a shell on another machine',
+				detail:
+					'Every command in this course works there too. The prompt changes to show the other machine — check it before running anything destructive. exit comes home.'
+			}
+		]
+	},
+	{
 		label: 'Permissions',
 		icon: 'lock',
 		commands: [

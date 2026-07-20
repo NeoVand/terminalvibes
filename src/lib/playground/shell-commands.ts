@@ -629,18 +629,7 @@ const KEYWORDS = new Set([
 	'function'
 ]);
 
-const STUBS = new Set([
-	'nano',
-	'vim',
-	'vi',
-	'sudo',
-	'curl',
-	'wget',
-	'ssh',
-	'open',
-	'xdg-open',
-	'top'
-]);
+const STUBS = new Set(['nano', 'vim', 'vi', 'sudo', 'wget', 'ssh', 'open', 'xdg-open', 'top']);
 
 const ASSIGN_RE = /^[A-Za-z_][A-Za-z0-9_]*=/;
 
@@ -838,7 +827,9 @@ async function dispatch(
 		case 'sudo':
 			return cmdSudo(args);
 		case 'curl':
-			return cmdCurl(args);
+			return cmdCurl(engine, args);
+		case 'jq':
+			return cmdJq(engine, args, stdin);
 		case 'wget':
 			return cmdWget(engine, args);
 		case 'ssh':
@@ -1009,12 +1000,9 @@ function cmdCd(engine: ShellEngine, args: string[]): ExecResult {
 	return ok(echoTarget ? abs + '\n' : '');
 }
 
-/** Display modes for chmod-octal'd nodes; keyed by live VFS node. */
-const customModes = new WeakMap<VfsNode, string>();
-
 function modeString(node: VfsNode): string {
-	const custom = customModes.get(node);
-	if (custom) return custom;
+	const type = node.kind === 'dir' ? 'd' : '-';
+	if (node.mode) return type + node.mode;
 	if (node.kind === 'dir') return 'drwxr-xr-x';
 	return node.executable ? '-rwxr-xr-x' : '-rw-r--r--';
 }
@@ -2860,13 +2848,13 @@ function cmdChmod(engine: ShellEngine, args: string[]): ExecResult {
 		}
 		if (symbolic) {
 			if (node.kind === 'file') node.executable = symbolic[1] === '+';
-			customModes.delete(node);
+			delete node.mode;
 		} else {
 			const digits = mode.split('').map(Number);
 			// Only the owner-execute bit changes real behavior in the sandbox;
 			// the full string is remembered so ls -l tells the truth about it.
 			if (node.kind === 'file') node.executable = (digits[0] & 1) === 1;
-			customModes.set(node, (node.kind === 'dir' ? 'd' : '-') + digits.map(octalTriple).join(''));
+			node.mode = digits.map(octalTriple).join('');
 		}
 	}
 	return errs.length ? fail(errs.join('\n')) : ok();
@@ -3179,15 +3167,127 @@ function cannedBody(url: string): string {
 	return url.includes('json') || url.includes('/api') ? CANNED_JSON : CANNED_HTML;
 }
 
-function cmdCurl(args: string[]): ExecResult {
-	const url = args.find((a) => !a.startsWith('-'));
-	if (!url)
-		return fail(
-			'curl: no URL specified\n(usage: curl https://example.com — the response is simulated here)'
+/** A URL split into the pieces 9.1 teaches learners to read. */
+interface ParsedUrl {
+	host: string;
+	port?: number;
+	path: string;
+	isLocal: boolean;
+}
+
+function parseUrl(raw: string): ParsedUrl {
+	const withoutScheme = raw.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
+	const slash = withoutScheme.indexOf('/');
+	const authority = slash === -1 ? withoutScheme : withoutScheme.slice(0, slash);
+	const path = slash === -1 ? '/' : withoutScheme.slice(slash);
+	const colon = authority.lastIndexOf(':');
+	const host = colon === -1 ? authority : authority.slice(0, colon);
+	const port = colon === -1 ? undefined : Number(authority.slice(colon + 1));
+	return {
+		host,
+		port,
+		path,
+		isLocal: host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0'
+	};
+}
+
+/**
+ * What a request gets back. localhost is answered by the process holding the
+ * port — so `kill`ing a server really does break `curl`, which is the Part
+ * 8 → Part 9 payoff. Remote hosts come from the scenario's canned network.
+ */
+function respond(engine: ShellEngine, url: ParsedUrl): { body: string; error?: string } {
+	if (url.isLocal) {
+		const port = url.port ?? 80;
+		const server = engine.findByPort(port);
+		if (!server) {
+			return {
+				body: '',
+				error:
+					`curl: (7) Failed to connect to ${url.host} port ${port}: Connection refused\n` +
+					`(nothing is listening on port ${port} — start a server, or check with: lsof -i :${port})`
+			};
+		}
+		// A tiny router: every seeded server answers /health and echoes back
+		// anything else as a small JSON object naming the path.
+		if (/^\/(health|healthz|api\/health)\/?$/.test(url.path)) {
+			return { body: '{"status":"ok"}' };
+		}
+		if (url.path === '/' || url.path === '') {
+			return { body: `<!doctype html>\n<h1>It works</h1>\n<p>served by ${server.command}</p>` };
+		}
+		return { body: `{"path":"${url.path}","served_by":"${server.command}"}` };
+	}
+	const key = `${url.host}${url.path}`.replace(/\/$/, '');
+	const canned = engine.network[key] ?? engine.network[`${url.host}${url.path}`];
+	if (canned !== undefined) return { body: canned };
+	if (Object.keys(engine.network).length) {
+		return {
+			body: '',
+			error:
+				`curl: (6) Could not resolve host: ${url.host}\n` +
+				`(this scenario's sandbox network knows: ${Object.keys(engine.network).join(', ')})`
+		};
+	}
+	// No scenario network configured — fall back to the generic teaching body.
+	return { body: cannedBody(`${url.host}${url.path}`) };
+}
+
+function cmdCurl(engine: ShellEngine, args: string[]): ExecResult {
+	let output: string | null = null;
+	let silent = false;
+	let headersOnly = false;
+	const headers: string[] = [];
+	const positional: string[] = [];
+	for (let i = 0; i < args.length; i++) {
+		const a = args[i];
+		if (a === '-o' || a === '--output') output = args[++i] ?? null;
+		else if (a === '-s' || a === '--silent') silent = true;
+		else if (a === '-I' || a === '--head') headersOnly = true;
+		else if (a === '-H' || a === '--header') headers.push(args[++i] ?? '');
+		else if (a === '-L' || a === '--location')
+			continue; // follow redirects: no-op here
+		else if (a === '-fsSL' || /^-[a-zA-Z]{2,}$/.test(a)) {
+			// Bundled short flags (curl -fsSL …) — accept the common ones.
+			for (const ch of a.slice(1)) {
+				if (ch === 's') silent = true;
+				else if (ch === 'I') headersOnly = true;
+			}
+		} else if (a.startsWith('-')) {
+			throw new CmdError(
+				`curl: option '${a}' is beyond this playground\n(it supports -o FILE, -s, -I and -H "Name: value")`
+			);
+		} else positional.push(a);
+	}
+	const raw = positional[0];
+	if (!raw) {
+		throw new CmdError(
+			'curl: no URL specified\n(usage: curl localhost:3000/health — or curl -o page.html https://example.com)'
 		);
-	return ok(
-		`${cannedBody(url)}\n(simulated response — the playground has no real network access)\n`
-	);
+	}
+	const url = parseUrl(raw);
+	const { body, error } = respond(engine, url);
+	if (error) return fail(error, 7);
+
+	if (headersOnly) {
+		const head =
+			`HTTP/1.1 200 OK\n` +
+			`content-type: ${body.trimStart().startsWith('{') ? 'application/json' : 'text/html'}\n` +
+			`content-length: ${body.length}\n`;
+		return ok(head);
+	}
+	if (output) {
+		engine.writeFile(engine.resolve(output), body + '\n');
+		// Real curl prints a progress meter to stderr; -s silences it.
+		return silent
+			? ok()
+			: {
+					out: '',
+					err: `  % Total    Received\n100  ${body.length}  ${body.length}  (saved to ${output})\n`,
+					code: 0
+				};
+	}
+	return ok(body + '\n');
 }
 
 function cmdWget(engine: ShellEngine, args: string[]): ExecResult {
@@ -3202,6 +3302,73 @@ function cmdWget(engine: ShellEngine, args: string[]): ExecResult {
 	return ok(
 		`Saving to: '${target}'\n'${target}' saved\n(simulated download — the playground has no real network access)\n`
 	);
+}
+
+/**
+ * jq, reduced to the part this course teaches: walk into a JSON value with a
+ * dot path and print what you find. Real jq is a query language; the filters
+ * below are the ones that read like "give me this field".
+ */
+function applyJqFilter(value: unknown, filter: string): unknown {
+	const path = filter.trim();
+	if (path === '.' || path === '') return value;
+	if (!path.startsWith('.')) {
+		throw new CmdError(
+			`jq: a filter starts with a dot — try '.${path}' (or '.' for the whole document)`
+		);
+	}
+	let current: unknown = value;
+	for (const rawKey of path.slice(1).split('.')) {
+		if (!rawKey) continue;
+		// .items[0] — index straight after a key.
+		const match = rawKey.match(/^([A-Za-z0-9_-]*)(\[(\d+)\])?$/);
+		if (!match) {
+			throw new CmdError(
+				`jq: '${rawKey}' is beyond this playground — it walks object keys and array indexes, like .latest or .items[0]`
+			);
+		}
+		const [, key, , index] = match;
+		if (key) {
+			if (current === null || typeof current !== 'object' || Array.isArray(current)) return null;
+			current = (current as Record<string, unknown>)[key];
+			if (current === undefined) return null;
+		}
+		if (index !== undefined) {
+			if (!Array.isArray(current)) return null;
+			current = current[Number(index)];
+			if (current === undefined) return null;
+		}
+	}
+	return current;
+}
+
+function cmdJq(engine: ShellEngine, args: string[], stdin: string | null): ExecResult {
+	let raw = false;
+	const rest: string[] = [];
+	for (const a of args) {
+		if (a === '-r' || a === '--raw-output') raw = true;
+		else if (a.startsWith('-') && a !== '.') {
+			throw new CmdError(
+				`jq: option '${a}' is beyond this playground\n(it supports -r, which prints a string without its quotes)`
+			);
+		} else rest.push(a);
+	}
+	const filter = rest[0] ?? '.';
+	const files = rest.slice(1);
+	const { content, errs } = readSources(engine, files, stdin, 'jq');
+	if (errs.length) return fail(errs.join('\n'));
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(content);
+	} catch {
+		return fail(
+			'jq: parse error — that input is not valid JSON\n(pipe it through `cat` first to see what actually arrived; an error page is HTML, not JSON)',
+			2
+		);
+	}
+	const result = applyJqFilter(parsed, filter);
+	if (raw && typeof result === 'string') return ok(result + '\n');
+	return ok(JSON.stringify(result, null, 2) + '\n');
 }
 
 /* ── help & man ───────────────────────────────────────────────────── */
@@ -3733,13 +3900,28 @@ const MAN_PAGES: Record<string, ManPage> = {
 		simulated: true
 	},
 	curl: {
-		name: 'fetch a URL',
-		synopsis: 'curl URL',
+		name: 'send a request, print the reply',
+		synopsis: 'curl [-s] [-I] [-o FILE] [-H "Name: value"] URL',
 		description:
-			"Downloads a web resource and prints it — the terminal's window onto the network, beloved for testing APIs. The playground has no network, so responses are canned.",
-		examples: ['curl https://api.example.com/status.json'],
-		vibe: 'The whole internet, one URL at a time.',
-		simulated: true
+			'Asks a server for something and prints what comes back — the terminal\'s way of checking a claim like "the dev server is running". curl localhost:3000/health is the fastest way to find out for yourself. -o FILE saves the reply instead of printing it, -s hides the progress meter (use it in scripts and pipelines), -I asks for just the headers, and -H adds a request header. The reply is usually JSON, so it pipes straight into jq. In this sandbox localhost is answered by whatever process actually holds the port — kill the server and curl fails with "Connection refused", exactly like the real thing; other hosts answer from the scenario\'s canned network.',
+		examples: [
+			'curl localhost:3000/health',
+			'curl -o page.html https://example.com',
+			'curl -s api.vibecloud.dev/releases | jq -r .latest'
+		],
+		vibe: 'Ask the network. Believe the answer, not the promise.'
+	},
+	jq: {
+		name: 'read a value out of JSON',
+		synopsis: 'jq [-r] FILTER [file]',
+		description:
+			'APIs answer in JSON — nested boxes of values. A jq filter is the path to the box you want: `.` is the whole document, `.latest` is one key, `.server.port` walks deeper, `.items[0]` picks the first element of an array. By default jq prints valid JSON, so a string comes back with its quotes; -r ("raw") hands you the bare value, which is what you want when the result feeds another command. If jq says "parse error", look at the raw response with cat — an error page is HTML, not JSON.',
+		examples: [
+			'curl -s api.vibecloud.dev/releases | jq .',
+			'curl -s api.vibecloud.dev/releases | jq -r .latest',
+			'jq .server.port config.json'
+		],
+		vibe: 'The key to the nested jar.'
 	},
 	wget: {
 		name: 'download a file from a URL',

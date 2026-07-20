@@ -558,6 +558,72 @@
 		"text": "For an everyday setup (server in one pane, logs in another, a free shell for you), the split terminals in Part 11 are nicer to live with than juggling %1 and %2 . Try It: Two Things at Once Send the slow build backstage with & , confirm it's there with jobs , then bring it forward with fg %1 and check what it left behind. You can now see what's running, stop it politely or firmly, and free a port that's been taken hostage — the three moves that unstick a machine. Next: the server you just started is waiting on port 3000. Time to talk to it."
 	},
 	{
+		"id": "part-9",
+		"part": 9,
+		"title": "Part 9 · Talking to the Network",
+		"text": "\"The server is running.\" — prove it. In Part 8 you took a port back and started a server on it. Now let's talk to it. This part is about asking questions over the network and reading the answers: what localhost actually means, how to check a server yourself instead of trusting a claim, how to pull one value out of a wall of JSON — and how to handle the API keys that make all of it work without leaving them lying around in your shell history. The habit this part builds is the same one Part 6 started, aimed at a new target: verify with your own command . When an agent says the server is up, the deploy worked, or the API returned success, there is a one-line way to check — and now you'll know it."
+	},
+	{
+		"id": "section-9-1",
+		"part": 9,
+		"title": "9.1 What Is localhost?",
+		"text": "localhost is the name your machine uses for itself . When your dev server prints \"listening on http://localhost:3000\", it isn't on the internet — it's a program on your own computer, waiting at door number 3000, and only you can knock. A URL packs several answers into one line: http://localhost:3000/api/health └─┬─┘ └───┬───┘ └─┬┘ └────┬────┘ │ │ │ └── which room inside — the path │ │ └── which door — the port │ └── which machine — here, this one └── the language — http You've met ports already: they're the numbered doors from Part 8, and the same rule applies — one program per port. That's why the numbers recur. 3000 is the Node convention, 5173 is Vite's, 8080 is the classic alternate web port. If your agent starts a project and mentions a number in that neighborhood, it's telling you which door to knock on. 127.0.0.1 is the same place as localhost — the numeric version of \"here.\" You'll see both in error messages and config files; they mean the same machine."
+	},
+	{
+		"id": "section-9-2",
+		"part": 9,
+		"title": "9.2 curl — Ask the Network",
+		"text": "curl sends a request and prints the reply. That's it — and that's enough to settle most arguments with an agent. Instead of trusting \"the server is running,\" you ask the server: curl localhost:3000/health {\"status\":\"ok\"} curl localhost:3000/health # with nothing listening curl: (7) Failed to connect to localhost port 3000: Connection refused curl -s -o status.json localhost:3000/health # save it instead of printing curl -I localhost:3000/health # just the headers Four flags cover almost everything you'll need. -o FILE saves the reply instead of printing it. -s (\"silent\") hides the progress meter — always use it inside pipelines and scripts. -I asks for just the headers, which is the quickest \"is this thing alive and what does it serve?\" And -H adds a request header, which is how APIs receive your key. Now you can read the red-flag pattern properly. Back in Part 6 you learned to distrust curl ... | bash . Here's exactly what it does: curl fetches a script from the internet and the pipe feeds it straight into a shell that runs it — unread, unreviewed, with your permissions. The fix is the same two-step as always: curl -o install.sh , read the file, then run it. Try It: Is It Alive?"
+	},
+	{
+		"id": "section-9-2",
+		"part": 9,
+		"title": "9.2 curl — Ask the Network",
+		"text": "The agent says the server is up. Ask it yourself with curl , then save the reply to status.json with -s -o so you have the receipt."
+	},
+	{
+		"id": "section-9-3",
+		"part": 9,
+		"title": "9.3 Reading JSON",
+		"text": "APIs answer in JSON — labelled boxes inside labelled boxes. Printed raw it's a wall of braces; what you usually want is one value out of the middle. jq is the tool that reaches in and takes it, and since it reads from a pipe, it joins the pipelines you built in Part 4: curl -s api.vibecloud.dev/releases {\"latest\":\"2.1.0\",\"downloads\":48213,\"items\":[{\"tag\":\"2.1.0\"}]} curl -s api.vibecloud.dev/releases | jq .latest \"2.1.0\" curl -s api.vibecloud.dev/releases | jq -r .latest # -r = raw, no quotes 2.1.0 curl -s api.vibecloud.dev/releases | jq -r .items[0].tag 2.1.0 A filter is just a path: . is the whole document, .latest is one key, .server.port walks deeper, and .items[0] takes the first element of a list. The -r flag matters more than it looks: without it a string keeps its JSON quotes, which breaks the next command in the pipeline. Reach for -r whenever the value is going somewhere else. If jq says \"parse error\", look at the raw reply. Nine times out of ten the server answered with an HTML error page instead of JSON, and the real problem is a wrong URL or a dead server. Drop the | jq and read what actually arrived — the same build-the-pipeline-one-stage-at-a-time habit from Part 4."
+	},
+	{
+		"id": "section-9-3",
+		"part": 9,
+		"title": "9.3 Reading JSON",
+		"text": "Try It: Question the API Ask api.vibecloud.dev/releases for the latest version, pull it out with jq -r , and leave just the number in version.txt ."
+	},
+	{
+		"id": "section-9-4",
+		"part": 9,
+		"title": "9.4 Keys & Secrets",
+		"text": "Every API you talk to wants a key, and keys are the one kind of text you must never type casually into a terminal. Here's the uncomfortable reason: your shell writes down everything you type . A key pasted into a command lives on in ~/.bash_history — the same history you'll learn to search in Part 11 works just as well for anyone else at your machine. Never put a secret directly in a command. Not in curl -H , not in an export you type by hand, not in a script you commit. It lands in your history, in your terminal scrollback, and often in logs you don't control — and unlike a password, an API key is usually a straight line to a bill. The standard answer is a .env file: keys live in a file, the file is locked down, and commands reference the variable instead of the value."
+	},
+	{
+		"id": "section-9-4",
+		"part": 9,
+		"title": "9.4 Keys & Secrets",
+		"text": "That's Part 5's environment variables and Part 5's permissions doing real work together: echo 'API_KEY=sk-vibe-9c2f10ab' > .env # the key lives here chmod 600 .env # only you can read it source .env # load it into this shell curl -H \"Authorization: Bearer $API_KEY\" https://api.example.com/deploy # ↑ the variable, never the key itself echo \".env\" >> .gitignore # and never commit it chmod 600 is the Part 5 permission lesson with the stakes turned up: read and write for you, nothing at all for anyone else. And .gitignore is the line that keeps the key out of your repository — because a key pushed to GitHub is a key that belongs to the internet, usually within minutes. If that happens, the only real fix is to revoke and reissue the key; deleting the commit does not un-publish it. Agents leak keys by accident. An assistant that can read your files can read your .env , and one that writes code may inline a key it found \"to make the example runnable.\" When you review agent-written code, grep for the shape of a key — grep -rn 'sk-' . — before you commit anything. Try It: Keep the Key Secret deploy.sh has a key typed straight into it."
+	},
+	{
+		"id": "section-9-4",
+		"part": 9,
+		"title": "9.4 Keys & Secrets",
+		"text": "Move it into .env , lock the file with chmod 600 , and point the script at $API_KEY instead — with a .bak , naturally."
+	},
+	{
+		"id": "section-9-5",
+		"part": 9,
+		"title": "9.5 A Door to Another Machine",
+		"text": "One last idea, and it reframes everything you've learned: with ssh , the same terminal can drive a different computer — a server in a data center, a Raspberry Pi in your closet, a cloud box that runs your app. Every command in this course works there, unchanged. vibe@laptop:~$ ssh vibe@garden.example.com vibe@garden:~$ # the prompt changed — you are THERE now vibe@garden:~$ ls # this lists the server's files vibe@garden:~$ exit # back to your own machine vibe@laptop:~$ This is where Part 0's prompt anatomy earns its keep: the prompt tells you which machine you're on . That is not a cosmetic detail. A rm -rf typed on the wrong side of that door is a very different afternoon, and the habit of glancing at the hostname before running anything destructive is one experienced people never drop. You log in with a key pair rather than a password: two matching files, of which the public half goes onto the server (it's a lock — anyone may see it) and the private half never leaves your machine. Same rule as 9.4, in a different costume: the secret stays in a file, on your computer, with tight permissions. This is a real-machine lesson — the sandbox has no other computer to visit."
+	},
+	{
+		"id": "section-9-5",
+		"part": 9,
+		"title": "9.5 A Door to Another Machine",
+		"text": "When you do have a server to reach, ask your assistant to walk you through generating a key with ssh-keygen and installing it; it's a five-minute setup you do once per machine. You can now start a server, prove it's alive, read what it says, keep its keys safe, and step onto another machine entirely. One more part of tooling to go — how to get new tools, unpack what arrives, and find out what's eating your disk."
+	},
+	{
 		"id": "part-11",
 		"part": 11,
 		"title": "Part 11 · Your Cockpit",
@@ -844,6 +910,12 @@
 		"part": 0,
 		"title": "Cheat Sheet · Processes & Ports",
 		"text": "Ctrl+Z hands your prompt back; bg keeps the job running backstage."
+	},
+	{
+		"id": "cheat-network-secrets",
+		"part": 0,
+		"title": "Cheat Sheet · Network & Secrets",
+		"text": "curl localhost:3000/health — Ask a server directly and print its reply. The one-line way to check \"is it actually running?\" instead of trusting a claim. \"Connection refused\" means nothing is listening — check with lsof -i :3000. curl -s -o out.json URL — Save the reply to a file, quietly. -o writes the body to a file instead of the screen; -s hides the progress meter, which you always want inside scripts and pipelines. -I asks for just the headers. curl -s URL | jq -r .field — Fetch JSON and pull one value out of it. A jq filter is a path: . is everything, .latest is a key, .server.port goes deeper, .items[0] indexes a list. -r drops the quotes so the value can feed the next command. echo 'KEY=value' > .env && chmod 600 .env — Put a secret in a file only you can read. Never type a key directly into a command — your shell history keeps it. Load it with source .env and use $KEY, and add .env to .gitignore. ssh user@host — Open a shell on another machine. Every command in this course works there too. The prompt changes to show the other machine — check it before running anything destructive. exit comes home."
 	},
 	{
 		"id": "cheat-permissions",

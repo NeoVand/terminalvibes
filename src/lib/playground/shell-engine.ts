@@ -17,6 +17,8 @@ export interface VfsFile {
 	content: string;
 	executable: boolean;
 	mtime: number;
+	/** Display mode set by octal chmod (e.g. 'rw-------'); see ShellEngine.modeOf. */
+	mode?: string;
 }
 
 export interface VfsDir {
@@ -24,6 +26,8 @@ export interface VfsDir {
 	name: string;
 	children: Map<string, VfsNode>;
 	mtime: number;
+	/** Display mode set by octal chmod; see ShellEngine.modeOf. */
+	mode?: string;
 }
 
 export type VfsNode = VfsFile | VfsDir;
@@ -87,6 +91,13 @@ export interface FsSeed {
 	aliases?: Record<string, string>;
 	/** Programs already running when the scenario opens. */
 	processes?: ProcessSeed[];
+	/**
+	 * Canned responses for remote hosts, keyed by "host/path" without the
+	 * scheme (e.g. 'api.vibecloud.dev/releases'). localhost is never listed
+	 * here — it is answered by whatever process holds the port, so killing a
+	 * server really does break curl.
+	 */
+	network?: Record<string, string>;
 }
 
 export const HOME = '/home/vibe';
@@ -118,6 +129,7 @@ export const BIN_COMMANDS = [
 	'chmod',
 	'clear',
 	'cp',
+	'curl',
 	'cut',
 	'date',
 	'df',
@@ -136,6 +148,7 @@ export const BIN_COMMANDS = [
 	'help',
 	'history',
 	'jobs',
+	'jq',
 	'kill',
 	'less',
 	'ls',
@@ -157,6 +170,7 @@ export const BIN_COMMANDS = [
 	'sleep',
 	'sort',
 	'source',
+	'ssh',
 	'stat',
 	'tail',
 	'tee',
@@ -168,6 +182,7 @@ export const BIN_COMMANDS = [
 	'uniq',
 	'unset',
 	'wc',
+	'wget',
 	'which',
 	'whoami',
 	'xargs'
@@ -183,6 +198,8 @@ export class ShellEngine {
 	historyLog: string[] = [];
 	/** Programs currently "running" — see SandboxProcess. */
 	processes: SandboxProcess[] = [];
+	/** Canned remote responses, keyed by host/path (see FsSeed.network). */
+	network: Record<string, string> = {};
 	/** The shell itself is always pid 1's child; learner processes start here. */
 	private nextPid = 400;
 	private nextJob = 1;
@@ -195,6 +212,7 @@ export class ShellEngine {
 		this.lastExitCode = 0;
 		this.historyLog = [];
 		this.processes = [];
+		this.network = {};
 		this.nextPid = 400;
 		this.nextJob = 1;
 
@@ -226,6 +244,7 @@ export class ShellEngine {
 		for (const proc of seed.processes ?? []) {
 			this.spawnProcess(proc);
 		}
+		if (seed.network) this.network = { ...seed.network };
 	}
 
 	/* ── processes ────────────────────────────────────────────────── */
@@ -262,6 +281,19 @@ export class ShellEngine {
 	/** The process listening on a port, if any. */
 	findByPort(port: number): SandboxProcess | undefined {
 		return this.processes.find((p) => p.port === port);
+	}
+
+	/**
+	 * The 9-character permission string ls -l shows, without the leading type
+	 * character: an explicit octal chmod wins, otherwise it follows the
+	 * executable bit.
+	 */
+	modeOf(path: string): string {
+		const node = this.getNode(this.resolve(path));
+		if (!node) return '';
+		if (node.mode) return node.mode;
+		if (node.kind === 'dir') return 'rwxr-xr-x';
+		return node.executable ? 'rwxr-xr-x' : 'rw-r--r--';
 	}
 
 	findJob(job: number): SandboxProcess | undefined {

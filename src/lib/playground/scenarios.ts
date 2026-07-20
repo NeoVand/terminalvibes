@@ -931,6 +931,98 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			ranCommand(engine, 'jobs') &&
 			ranCommand(engine, 'fg') &&
 			engine.isFile('~/build.log')
+	},
+	{
+		id: 'health-check',
+		title: 'Is it alive?',
+		description:
+			'Your agent says "the server is running." Maybe. A promise is not evidence — ask the server yourself with curl, and save the answer so you can show it to someone.',
+		hint: 'The server is listening on port 3000. `curl localhost:3000/health` asks it directly and prints the reply. Save that reply with `-o`: `curl -s -o status.json localhost:3000/health`, then `cat` it.',
+		suggestedCommands: [
+			'lsof -i :3000',
+			'curl localhost:3000/health',
+			'curl -s -o status.json localhost:3000/health',
+			'cat status.json'
+		],
+		seed: {
+			files: {
+				'~/README.txt':
+					'The agent claims the dev server is up. Check it yourself, and save the proof\nas status.json.\n'
+			},
+			processes: [{ command: 'node server.js', cpu: 0.5, mem: 1.9, start: '09:04', port: 3000 }]
+		},
+		goal: 'you asked the server directly and saved its reply to status.json',
+		check: async (engine) => {
+			const saved = engine.readFile('~/status.json');
+			return !!saved && saved.includes('"status"') && saved.includes('ok');
+		}
+	},
+	{
+		id: 'api-detective',
+		title: 'Question the API',
+		description:
+			'You need the latest released version number, and the API answers in JSON — a nested pile of braces. Ask it with curl, pull out just the version with jq, and leave the answer in version.txt.',
+		hint: 'Pipe the reply into jq: `curl -s api.vibecloud.dev/releases | jq .latest` shows it with quotes; add `-r` for the bare value. Then redirect into the file with `>`.',
+		suggestedCommands: [
+			'curl -s api.vibecloud.dev/releases',
+			'curl -s api.vibecloud.dev/releases | jq .',
+			'curl -s api.vibecloud.dev/releases | jq -r .latest',
+			'curl -s api.vibecloud.dev/releases | jq -r .latest > version.txt',
+			'cat version.txt'
+		],
+		seed: {
+			files: {
+				'~/README.txt':
+					'Find the latest released version from api.vibecloud.dev/releases\nand save just the number in version.txt.\n'
+			},
+			network: {
+				'api.vibecloud.dev/releases':
+					'{\n  "latest": "2.1.0",\n  "published_at": "2026-07-02",\n  "downloads": 48213,\n  "items": [\n    { "tag": "2.1.0", "prerelease": false },\n    { "tag": "2.0.4", "prerelease": false }\n  ]\n}'
+			}
+		},
+		goal: 'version.txt holds just the version number — no braces, no quotes',
+		check: async (engine) => {
+			const v = engine.readFile('~/version.txt');
+			return !!v && v.trim() === '2.1.0';
+		}
+	},
+	{
+		id: 'secret-keeper',
+		title: 'Keep the key secret',
+		description:
+			'deploy.sh has an API key typed straight into it — anyone who reads the file (or the repo) has your key. Move it into a .env file only you can read, lock the permissions down, and point the script at the variable instead.',
+		hint: "Put the key in .env: `echo 'API_KEY=sk-vibe-9c2f10ab' > .env`, then `chmod 600 .env` so only you can read it. Swap the hard-coded key in the script for $API_KEY with sed — and keep a .bak, the Part 7 house rule.",
+		suggestedCommands: [
+			'cat deploy.sh',
+			"echo 'API_KEY=sk-vibe-9c2f10ab' > .env",
+			'chmod 600 .env',
+			"sed -i.bak 's/sk-vibe-9c2f10ab/$API_KEY/' deploy.sh",
+			'cat deploy.sh',
+			'ls -l .env'
+		],
+		seed: {
+			files: {
+				'~/deploy.sh':
+					'#!/usr/bin/env bash\n# Ship the build to the CDN.\ncurl -H "Authorization: Bearer sk-vibe-9c2f10ab" https://api.vibecloud.dev/deploy\n',
+				'~/README.txt':
+					'The deploy script has the API key typed right into it.\nMove it to .env, lock it down with chmod 600, and use $API_KEY instead.\n'
+			},
+			executables: ['~/deploy.sh']
+		},
+		goal: 'the key lives in a locked-down .env and deploy.sh uses $API_KEY',
+		check: async (engine) => {
+			const env = engine.readFile('~/.env');
+			const script = engine.readFile('~/deploy.sh');
+			const mode = engine.modeOf('~/.env');
+			return (
+				!!env &&
+				env.includes('sk-vibe-9c2f10ab') &&
+				!!script &&
+				!script.includes('sk-vibe-9c2f10ab') &&
+				script.includes('$API_KEY') &&
+				mode === 'rw-------'
+			);
+		}
 	}
 ];
 
@@ -977,7 +1069,11 @@ export const lessonScenarioIds = [
 	// Part 8 — Processes & Ports.
 	'free-the-port',
 	'runaway-process',
-	'backstage-jobs'
+	'backstage-jobs',
+	// Part 9 — Talking to the Network.
+	'health-check',
+	'api-detective',
+	'secret-keeper'
 ] as const;
 
 export type LessonScenarioId = (typeof lessonScenarioIds)[number];
