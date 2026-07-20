@@ -28,7 +28,10 @@ const EXPECTED_CHIP_FAILURES: Record<string, string[]> = {
 	'exit-codes': ['false', 'false && ./deploy.sh'],
 	// The whole lesson: ls hits a missing file, so these exit nonzero on
 	// purpose (the error is the point — it goes to stderr / errors.txt).
-	'capture-errors': ['ls app.log ghost.log', 'ls app.log ghost.log > found.txt 2> errors.txt']
+	'capture-errors': ['ls app.log ghost.log', 'ls app.log ghost.log > found.txt 2> errors.txt'],
+	// The whole lesson: the first serve hits the squatter on :3000 and the
+	// final lsof finds the port free of the OLD server (exit 1 = silence).
+	'free-the-port': ['serve']
 };
 
 describe('scenario checks — click-only solvability', () => {

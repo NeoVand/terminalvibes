@@ -1,11 +1,14 @@
 import {
+	Anchor,
 	AtSign,
+	Ban,
 	BookOpen,
 	Bot,
 	Braces,
 	Cog,
 	Columns3,
 	Compass,
+	Cpu,
 	Copy,
 	Eye,
 	FileCode2,
@@ -20,9 +23,11 @@ import {
 	History,
 	KeyRound,
 	Laptop,
+	Layers,
 	Layout,
 	Library,
 	ListOrdered,
+	ListTree,
 	Lock,
 	MapPin,
 	Monitor,
@@ -172,6 +177,20 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'in-place-audit', label: "The Agent's Mass Edit", icon: Gamepad2, isPlayground: true },
 			{ id: 'section-7-4', label: 'Columns & awk', icon: Columns3 },
 			{ id: 'column-pull', label: 'Pull the Column', icon: Gamepad2, isPlayground: true }
+		]
+	},
+	{
+		id: 'part-8',
+		label: 'Processes & Ports',
+		icon: Cpu,
+		children: [
+			{ id: 'section-8-1', label: 'Everything Is a Process', icon: ListTree },
+			{ id: 'section-8-2', label: 'Stopping Things', icon: Ban },
+			{ id: 'runaway-process', label: 'Stop the Runaway', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-8-3', label: "Who's on Port 3000?", icon: Anchor },
+			{ id: 'free-the-port', label: 'Free Port 3000', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-8-4', label: 'Background & Foreground', icon: Layers },
+			{ id: 'backstage-jobs', label: 'Two Things at Once', icon: Gamepad2, isPlayground: true }
 		]
 	},
 	{

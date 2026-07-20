@@ -510,6 +510,54 @@
 		"text": "When one shows up wearing more syntax than this, that's not a reading failure — that's your cue to ask the agent to explain it line by line. Try It: Pull the Column signups.csv has three columns; the launch email needs one. Pull the email column with awk -F, or cut -d, — your choice — and save it as emails.txt . Your text toolbox is complete: grep finds, sed changes, awk extracts — and pipes chain them into anything. Every one of them previews to the screen before it touches a file, which means every one of them rewards the habit this course keeps drilling: read first, run second ."
 	},
 	{
+		"id": "part-8",
+		"part": 8,
+		"title": "Part 8 · Processes & Ports",
+		"text": "\"Port 3000 is already in use.\" — every web developer, weekly Until now every command you ran started, did its job, and finished. But some programs are meant to keep going : dev servers, watchers, builds — and your AI agent starts them constantly. This part is about the programs that are still running: how to see them, how to stop them, and how to fix the single most common error in modern web development, when yesterday's server is still squatting on the port today's server needs. This is the part that turns \"I'll just restart my laptop\" into a ten-second fix. Every technique here is the same three-beat move: find the process, get its number, act on that number ."
+	},
+	{
+		"id": "section-8-1",
+		"part": 8,
+		"title": "8.1 Everything Is a Process",
+		"text": "Every running program on your machine — the dev server, your editor, the shell you're typing into, the agent itself — is a process , and every process has a number: its PID . That number is the handle you use to do anything to it. ps lists them: ps aux USER PID %CPU %MEM START COMMAND vibe 1024 0.0 0.1 09:10 bash vibe 400 0.4 1.8 08:41 node server.js vibe 437 97.4 0.6 09:07 spinner.sh --forever Three columns matter. PID is the number you'll pass to kill . %CPU is how hard it's working — a runaway sits near 100 and your fans tell you before ps does. COMMAND is what it actually is. Notice bash in that list: the shell you're typing into is just another process, no more special than the rest. ps output is just text — which means Part 4 and Part 7 already taught you how to search it. ps aux | grep node finds a process by name, and awk '{print $2}' pulls the PID column out of the result. This is why the column-shaped output of old Unix tools is worth putting up with: every tool composes. There's a shortcut for the common case too — pgrep node prints matching PIDs directly."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 Stopping Things",
+		"text": "kill has a violent name and a polite default. Plain kill PID sends SIGTERM — a signal that means \"please finish up and stop.\" The program gets to react: save its work, close its files, remove its lock, and exit cleanly. It's a letter, not a bullet. kill 437 # SIGTERM — \"please stop when you can\" (no response — spinner.sh --forever is still running) kill -9 437 # SIGKILL — the floor opens, no cleanup [killed] spinner.sh --forever (PID 437) A program can catch SIGTERM and decide to ignore it — that's a feature, not a bug: it's how servers finish serving the request they're mid-way through instead of dropping it. But it also means a polite kill can bounce. kill -9 sends SIGKILL , which no program can catch, refuse, or prepare for. The kernel simply removes it. Nothing gets saved, no cleanup runs, and any lock files it was holding stay behind. kill -9 is a last resort, not a default. Plenty of guides (and plenty of AI answers) reach for it first because it always works. It always works the way an axe always opens a door."
+	},
+	{
+		"id": "section-8-2",
+		"part": 8,
+		"title": "8.2 Stopping Things",
+		"text": "Ask nicely, give it a second, and escalate only if it refuses — and add kill -9 to your Part 6 red-flag list when an agent proposes it without trying the polite version first. One thing you already knew, renamed: Ctrl+C is a signal too — SIGINT , \"interrupt\" — sent to whatever is running in the foreground. That's why it stops a stuck command but does nothing to a server running in another window; that one needs its PID. Part 12 opens up the machinery underneath all three signals. Try It: Stop the Runaway Your fans are screaming. Find the process burning 97% of a core with ps aux , try kill first and read what happens — then escalate. Leave the innocent server running."
+	},
+	{
+		"id": "section-8-3",
+		"part": 8,
+		"title": "8.3 Who's on Port 3000?",
+		"text": "A port is a numbered door on your machine. A server opens one and waits there for visitors; your browser knocks on it when you visit localhost:3000 . The rule that generates all the pain is simple: one program per port . Try to open a door someone's already standing in and you get the error: serve Error: listen EADDRINUSE: address already in use :::3000 lsof -i :3000 # who's holding the door? COMMAND PID USER TYPE NODE NAME node 400 vibe IPv4 TCP *:3000 (LISTEN) kill 400 # ask yesterday's server to leave serve # the pier is free serve: listening on http://localhost:3000 Memorize that four-beat ritual — read the error, find the PID, stop the squatter, start yours — and one of the most common blockers in web development becomes routine. lsof stands for \"list open files\"; the -i flag narrows it to network connections. Silence from lsof means the port is free. Where do stale servers come from? Usually a terminal window you closed without stopping the server, or an agent that started one in a background shell you never saw. When a port is mysteriously busy right after an AI session, that's the first suspect — and lsof -i :3000 tells you its name."
+	},
+	{
+		"id": "section-8-3",
+		"part": 8,
+		"title": "8.3 Who's on Port 3000?",
+		"text": "Try It: Free Port 3000 Yesterday's server never died. Run serve to meet the error, then work the ritual: lsof -i :3000 for the PID, kill it, and start your own."
+	},
+	{
+		"id": "section-8-4",
+		"part": 8,
+		"title": "8.4 Background & Foreground",
+		"text": "A dev server holds your terminal hostage: it runs until you stop it, and the prompt never comes back. One answer is more terminals (Part 11's tabs and splits). The other is job control — telling this shell to keep the program running backstage while you get your prompt back. ./slowbuild.sh & # & = start it, give me my prompt back [1] 400 # job number, then PID jobs # who's backstage? [1] Running ./slowbuild.sh fg %1 # bring job 1 into the spotlight Two numbers appear here and they're easy to confuse: the job number in [1] is small and belongs to this shell — you use it as %1 . The PID is large and belongs to the whole machine. kill %1 and kill 400 stop the same program here. There's one more move, and it's the rescue you'll actually reach for: you started something long, forgot the & , and now you're stuck watching it. Ctrl+Z pauses it and hands your prompt back; bg resumes it backstage. Same place you'd have been with & , arrived at the hard way. Honest advice: use tabs. Job control is a genuinely useful escape hatch — and mostly a rescue for the terminal you're already in."
+	},
+	{
+		"id": "section-8-4",
+		"part": 8,
+		"title": "8.4 Background & Foreground",
+		"text": "For an everyday setup (server in one pane, logs in another, a free shell for you), the split terminals in Part 11 are nicer to live with than juggling %1 and %2 . Try It: Two Things at Once Send the slow build backstage with & , confirm it's there with jobs , then bring it forward with fg %1 and check what it left behind. You can now see what's running, stop it politely or firmly, and free a port that's been taken hostage — the three moves that unstick a machine. Next: the server you just started is waiting on port 3000. Time to talk to it."
+	},
+	{
 		"id": "part-11",
 		"part": 11,
 		"title": "Part 11 · Your Cockpit",
@@ -784,6 +832,18 @@
 		"part": 0,
 		"title": "Cheat Sheet · Text Surgery",
 		"text": "For clean single-character delimiters cut -d, -f2 does the same job; awk wins when spacing is messy. awk '/error/ {print $1}' FILE — Pull a field from matching lines only. A /pattern/ guard filters which lines the action runs on — grep and column-pull in one step."
+	},
+	{
+		"id": "cheat-processes-ports",
+		"part": 0,
+		"title": "Cheat Sheet · Processes & Ports",
+		"text": "ps aux — List every running process. PID is the number you pass to kill, %CPU shows what is working hard, COMMAND says what it is. It is plain text: pipe it through grep and awk to find what you need. pgrep NAME — Print the PIDs of processes matching a name. The short way to do ps aux | grep NAME. Exits 1 with no output when nothing matches. kill PID — Ask a process to stop (SIGTERM). A polite request: the program can save, clean up and exit. It may also catch the signal and ignore it — then you escalate. kill -9 PID — Force a process to stop (SIGKILL). Cannot be caught or refused, and skips all cleanup — unsaved work is lost and lock files stay behind. Last resort, not first. lsof -i :3000 — Find what is holding a port. The fix for \"EADDRINUSE: address already in use\": this prints the squatter and its PID, then kill it and start yours. Silence means the port is free. command & — Run it in the background, keep your prompt. The shell answers with [1] and a PID. jobs lists what is backstage, fg %1 brings job 1 forward, kill %1 stops it. Ctrl+Z then bg — Pause the foreground job, resume it in the background. The rescue for when you started something long and forgot the &."
+	},
+	{
+		"id": "cheat-processes-ports",
+		"part": 0,
+		"title": "Cheat Sheet · Processes & Ports",
+		"text": "Ctrl+Z hands your prompt back; bg keeps the job running backstage."
 	},
 	{
 		"id": "cheat-permissions",

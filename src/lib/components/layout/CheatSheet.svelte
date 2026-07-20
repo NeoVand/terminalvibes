@@ -10,6 +10,7 @@
 		ChevronRight,
 		AtSign,
 		Compass,
+		Cpu,
 		Eye,
 		FileCode,
 		FolderPlus,
@@ -54,6 +55,7 @@
 	// Map icon string names (from cheat-sheet.ts categories) to lucide components
 	const iconMap: Record<string, typeof Compass> = {
 		compass: Compass,
+		cpu: Cpu,
 		route: Route,
 		'folder-plus': FolderPlus,
 		eye: Eye,

@@ -856,6 +856,81 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 				!emails.includes(',')
 			);
 		}
+	},
+	{
+		id: 'free-the-port',
+		title: 'Free port 3000',
+		description:
+			"You start your dev server and the terminal says EADDRINUSE — address already in use. Yesterday's server never died and it is still holding port 3000. Find out who has the port, stop it, and get your own server listening.",
+		hint: '`serve` tries to take port 3000 and tells you it is busy. `lsof -i :3000` names the squatter and prints its PID. `kill <PID>` asks it to stop — then `serve` again succeeds.',
+		suggestedCommands: ['serve', 'lsof -i :3000', 'ps aux', 'kill 400', 'serve', 'lsof -i :3000'],
+		seed: {
+			files: {
+				'~/README.txt':
+					'Your dev server will not start: "EADDRINUSE: address already in use :::3000".\nYesterday\'s server is still holding the port. Find it, stop it, start yours.\n'
+			},
+			processes: [{ command: 'node server.js', cpu: 0.4, mem: 1.8, start: '08:41', port: 3000 }]
+		},
+		goal: 'the stale node server is gone and your own server holds port 3000',
+		check: async (engine) => {
+			const holder = engine.findByPort(3000);
+			return (
+				!!holder &&
+				!holder.command.includes('node server.js') &&
+				!engine.processes.some((p) => p.command.includes('node server.js'))
+			);
+		}
+	},
+	{
+		id: 'runaway-process',
+		title: 'Stop the runaway',
+		description:
+			'Your laptop fans are screaming. A stray script is burning 97% of a CPU core and it is not listening to reason — a polite kill bounces right off it. Find it, ask nicely first, then escalate.',
+		hint: '`ps aux` shows the %CPU column — the runaway is obvious. Try `kill <PID>` first and read what happens: some programs catch SIGTERM and ignore it. When politeness fails, `kill -9 <PID>` cannot be refused.',
+		suggestedCommands: ['ps aux', 'pgrep spinner', 'kill 437', 'ps aux', 'kill -9 437', 'ps aux'],
+		seed: {
+			files: {
+				'~/README.txt':
+					'Something is eating the CPU. Find the process, try to stop it politely,\nand escalate only if it refuses.\n'
+			},
+			processes: [
+				{ command: 'node server.js', cpu: 0.3, mem: 1.4, start: '09:02', port: 3000 },
+				{
+					command: 'spinner.sh --forever',
+					cpu: 97.4,
+					mem: 0.6,
+					start: '09:07',
+					ignoresTerm: true
+				}
+			]
+		},
+		goal: 'the runaway is gone — and the innocent server is still running',
+		check: async (engine) =>
+			!engine.processes.some((p) => p.command.includes('spinner')) &&
+			engine.processes.some((p) => p.command.includes('node server.js'))
+	},
+	{
+		id: 'backstage-jobs',
+		title: 'Two things at once',
+		description:
+			'A slow build is about to hog your only terminal. Send it backstage with & so you get your prompt back, check what is running with jobs, then bring it into the spotlight with fg when you are ready to watch it finish.',
+		hint: 'Add `&` to the end of a command to send it to the background — the shell answers with [1] and a PID. `jobs` lists what is backstage; `fg %1` brings job 1 forward and runs it.',
+		suggestedCommands: ['ls', './slowbuild.sh &', 'jobs', 'ps aux', 'fg %1', 'cat build.log'],
+		seed: {
+			files: {
+				'~/slowbuild.sh':
+					'#!/usr/bin/env bash\necho "build finished" > build.log\necho "done — check build.log"\n',
+				'~/README.txt':
+					'Run the build without giving up your terminal: send it backstage with &,\nlist it with jobs, then bring it back with fg.\n'
+			},
+			executables: ['~/slowbuild.sh']
+		},
+		goal: 'you backgrounded the build, listed it with jobs, and brought it back with fg',
+		check: async (engine) =>
+			historyContains(engine, '&') &&
+			ranCommand(engine, 'jobs') &&
+			ranCommand(engine, 'fg') &&
+			engine.isFile('~/build.log')
 	}
 ];
 
@@ -898,7 +973,11 @@ export const lessonScenarioIds = [
 	'sed-rename',
 	'log-surgery',
 	'in-place-audit',
-	'column-pull'
+	'column-pull',
+	// Part 8 — Processes & Ports.
+	'free-the-port',
+	'runaway-process',
+	'backstage-jobs'
 ] as const;
 
 export type LessonScenarioId = (typeof lessonScenarioIds)[number];
