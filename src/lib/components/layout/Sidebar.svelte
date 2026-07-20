@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { SvelteSet } from 'svelte/reactivity';
+	import { untrack } from 'svelte';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { ChevronRight, PanelLeftClose, PanelLeft, RotateCcw } from 'lucide-svelte';
 	import { autohideScroll } from '$lib/actions/autohide-scroll';
 	import { sidebarNav, type NavItem } from '$lib/data/sidebar-nav';
@@ -42,7 +43,15 @@
 	const isDone = (id: string) => Boolean($progress.scenarios[id]);
 
 	const expandedSections = new SvelteSet<string>();
-	const manuallyExpanded = new SvelteSet<string>();
+	/**
+	 * What the learner explicitly asked for, which always outranks auto-expand.
+	 *
+	 * Without this, collapsing the part you're currently reading didn't stick:
+	 * scroll-spy keeps `activeSection` inside that part, so the auto-expand
+	 * effect re-opened it on the very next tick. An entry is dropped once the
+	 * reader moves on to a different part, so the automatic behaviour returns.
+	 */
+	const userIntent = new SvelteMap<string, 'open' | 'closed'>();
 	let flyoutSection = $state<string | null>(null);
 	let flyoutY = $state(0);
 
@@ -65,10 +74,10 @@
 	function toggleSection(id: string) {
 		if (expandedSections.has(id)) {
 			expandedSections.delete(id);
-			manuallyExpanded.delete(id);
+			userIntent.set(id, 'closed');
 		} else {
 			expandedSections.add(id);
-			manuallyExpanded.add(id);
+			userIntent.set(id, 'open');
 		}
 	}
 
@@ -106,23 +115,28 @@
 		closeFlyout();
 	}
 
+	/** The part the reader was last inside, so we can forget stale intent. */
+	let lastReadPart: string | null = null;
+
 	$effect(() => {
-		const current = activeSection;
-		let activeSectionParent: string | null = null;
-		for (const section of sections) {
-			if (section.children?.some((c) => c.id === current)) {
-				activeSectionParent = section.id;
-				break;
-			}
+		const parent = childToParent[activeSection] ?? null;
+		if (!parent || !isActive(parent)) return;
+
+		// Moving to a different part retires the previous part's override:
+		// closing one section shouldn't keep it shut forever.
+		if (parent !== lastReadPart) {
+			if (lastReadPart) userIntent.delete(lastReadPart);
+			lastReadPart = parent;
 		}
-		if (activeSectionParent && isActive(activeSectionParent)) {
+
+		untrack(() => {
+			// Collapse whatever opened on its own, keeping deliberate opens.
 			for (const id of [...expandedSections]) {
-				if (!manuallyExpanded.has(id) && id !== activeSectionParent) {
-					expandedSections.delete(id);
-				}
+				if (id !== parent && userIntent.get(id) !== 'open') expandedSections.delete(id);
 			}
-			expandedSections.add(activeSectionParent);
-		}
+			// Follow the reader — unless they closed this one by hand.
+			if (userIntent.get(parent) !== 'closed') expandedSections.add(parent);
+		});
 	});
 </script>
 
@@ -225,11 +239,10 @@
 					{/if}
 					<button
 						onclick={() => {
-							if (section.children) {
-								if (!expandedSections.has(section.id)) {
-									toggleSection(section.id);
-								}
-							}
+							// The label both navigates and toggles: clicking a part opens
+							// it, clicking it again closes it. The caret does the same
+							// without moving the page.
+							if (section.children) toggleSection(section.id);
 							scrollTo(section.id);
 						}}
 						class="flex flex-1 cursor-pointer items-center gap-2.5 text-left"
