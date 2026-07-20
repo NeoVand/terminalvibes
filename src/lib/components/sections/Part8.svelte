@@ -56,9 +56,18 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Every running program on your machine — the dev server, your editor, the shell you're typing
-				into, the agent itself — is a <strong style="color: var(--color-text);">process</strong>,
-				and every process has a number: its <strong style="color: var(--color-text);">PID</strong>.
-				That number is the handle you use to do anything to it. <Code code="ps" /> lists them:
+				into, the agent itself — is a <strong style="color: var(--color-text);">process</strong>:
+				one copy of some code, loaded into memory and kept alive by the operating system. Open three
+				terminal windows and you have three shell processes, each with its own idea of where it's
+				standing. Each one gets a <strong style="color: var(--color-text);">PID</strong> — short for process
+				ID — the moment it starts, a number unique on this machine for as long as it lives. That number
+				is the handle you use to do anything to it.
+			</p>
+
+			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
+				<Code code="ps" /> on its own lists only the processes attached to <em>this</em> terminal —
+				usually two or three, and never the dev server you're hunting. Add
+				<Code code="aux" /> and you get the whole machine:
 			</p>
 
 			<div class="my-6">
@@ -79,11 +88,36 @@ vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Three columns matter. <Code code="PID" /> is the number you'll pass to
-				<Code code="kill" />. <Code code="%CPU" /> is how hard it's working — a runaway sits near 100
-				and your fans tell you before <Code code="ps" /> does. <Code code="COMMAND" /> is what it actually
-				is. Notice <Code code="bash" /> in that list: the shell you're typing into is just another process,
-				no more special than the rest.
+				The three letters earn their place: <Code code="a" /> widens the list to every user's processes,
+				<Code code="u" /> adds the human-readable columns you're about to read, and
+				<Code code="x" /> includes the ones with no terminal attached — which is precisely where background
+				servers hide. (They carry no dash: <Code code="ps" /> takes its options in an older style that
+				predates the convention, the same reason <Code code="tar cf" /> works without one.) Your real
+				output is wider than this too — macOS and Linux both add memory sizes, a terminal name and a state
+				column. Ignore those; the ones that matter are here.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="USER" /> is the account that owns the process — <Code code="vibe" /> is you, which
+				is why you can stop your own dev server and get <Code code="Operation not permitted" /> on one
+				of the system's. <Code code="PID" /> is the number you'll pass to <Code code="kill" />.
+				<Code code="%CPU" /> is how hard it's working, measured against <em>one</em>
+				<strong style="color: var(--color-text);">core</strong>, and your machine has several:
+				separate workers that genuinely run at the same time, so a process using three of them
+				honestly reads 340%. A runaway of yours sits near 100, and your fans tell you before <Code
+					code="ps"
+				/> does.
+				<Code code="%MEM" /> is the share of the machine's memory it's holding, the column to check when
+				everything goes sluggish rather than hot.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="START" /> is the wall-clock time it launched, the one column that separates the server
+				you started a minute ago from yesterday's, still running. <Code code="COMMAND" /> is what it actually
+				is — though that's the <em>interpreter's</em> name, not your project's: a JavaScript server
+				shows up as <Code code="node" />, a Python one as <Code code="python" />, and that's what
+				you grep for. Notice <Code code="bash" /> in that list too: the shell you're typing into is just
+				another process, no more special than the rest.
 			</p>
 
 			<Callout type="tip">
@@ -115,9 +149,14 @@ vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				<Code code="kill" /> has a violent name and a polite default. Plain
-				<Code code="kill PID" /> sends <strong style="color: var(--color-text);">SIGTERM</strong> — a
-				signal that means "please finish up and stop." The program gets to react: save its work, close
-				its files, remove its lock, and exit cleanly. It's a letter, not a bullet.
+				<Code code="kill PID" /> sends <strong style="color: var(--color-text);">SIGTERM</strong> —
+				a
+				<strong style="color: var(--color-text);">signal</strong>, which is a short fixed message
+				the operating system delivers to a running process from outside, nothing to do with whatever
+				the program normally reads. They come in a small vocabulary and all share a prefix: SIG for
+				signal, then what it asks for, so SIGTERM is "terminate" — please finish up and stop. The
+				program gets to react: save its work, close its files, remove its lock, and exit cleanly.
+				It's a letter, not a bullet.
 			</p>
 
 			<div class="my-6">
@@ -130,20 +169,31 @@ vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
 
 			<CodeBlock
 				title="The escalation, in order"
-				code={`kill 437                 # SIGTERM — "please stop when you can"
+				code={`kill 437                 # SIGTERM, signal 15 — "please stop when you can"
 (no response — spinner.sh --forever is still running)
 
-kill -9 437              # SIGKILL — the floor opens, no cleanup
+kill -9 437              # SIGKILL, signal 9 — the floor opens, no cleanup
 [killed] spinner.sh --forever (PID 437)`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The <Code code="9" /> is a signal number, not a count: every signal has one,
+				<Code code="kill -N" /> means "send signal N", and a bare <Code code="kill" /> is
+				<Code code="kill -15" />. That's how you read <Code code="kill -HUP" /> or
+				<Code code="kill -2" /> in an agent's command — same verb, different message.
+			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				A program can <em>catch</em> SIGTERM and decide to ignore it — that's a feature, not a bug:
 				it's how servers finish serving the request they're mid-way through instead of dropping it.
 				But it also means a polite kill can bounce. <Code code="kill -9" /> sends
 				<strong style="color: var(--color-text);">SIGKILL</strong>, which no program can catch,
-				refuse, or prepare for. The kernel simply removes it. Nothing gets saved, no cleanup runs,
-				and any lock files it was holding stay behind.
+				refuse, or prepare for. The <strong style="color: var(--color-text);">kernel</strong> — the
+				core of the operating system, the part that owns the hardware and creates every process,
+				including your shell — simply removes it. Nothing gets saved and no cleanup runs, so any
+				<strong style="color: var(--color-text);">lock file</strong> it was holding stays behind: the
+				marker a program leaves to say "I'm already running". The next copy finds it, believes it, and
+				refuses to start.
 			</p>
 
 			<Callout type="caution">
@@ -159,9 +209,11 @@ kill -9 437              # SIGKILL — the floor opens, no cleanup
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				One thing you already knew, renamed: <Code code="Ctrl+C" /> is a signal too —
 				<strong style="color: var(--color-text);">SIGINT</strong>, "interrupt" — sent to whatever is
-				running in the foreground. That's why it stops a stuck command but does nothing to a server
-				running in another window; that one needs its PID. <CourseLink to="part-12" /> opens up the machinery
-				underneath all three signals.
+				running in the <strong style="color: var(--color-text);">foreground</strong> — the process
+				attached to this terminal right now, the one your keystrokes reach and the reason your
+				prompt hasn't come back. That's why it stops a stuck command but does nothing to a server
+				running in another window; that one needs its PID. <CourseLink to="section-13-1" /> opens up the
+				machinery underneath all three signals.
 			</p>
 
 			<VibeBox
@@ -197,9 +249,17 @@ kill -9 437              # SIGKILL — the floor opens, no cleanup
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				A <strong style="color: var(--color-text);">port</strong> is a numbered door on your
 				machine. A server opens one and waits there for visitors; your browser knocks on it when you
-				visit <Code code="localhost:3000" />. The rule that generates all the pain is simple:
+				visit <Code code="localhost:3000" /> — <Code code="localhost" /> being your machine's name for
+				itself (<CourseLink to="section-9-1" />). The numbers themselves are convention rather than
+				law: 3000 and 5173 are what particular tools happen to pick, and everything here works the
+				same for 8080.
+			</p>
+
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				The rule that generates all the pain is simple:
 				<strong style="color: var(--color-text);">one program per port</strong>. Try to open a door
-				someone's already standing in and you get the error:
+				someone's already standing in — here with <Code code="serve" />, a tiny dev server you
+				install with npm, playing the part of whatever starts your project — and you meet the error:
 			</p>
 
 			<div class="my-6">
@@ -233,16 +293,33 @@ serve: listening on http://localhost:3000`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Memorize that four-beat ritual — read the error, find the PID, stop the squatter, start
-				yours — and one of the most common blockers in web development becomes routine.
+				That's the same three beats from the start of this part, with the error that sent you
+				looking at the front and your own server at the end: read the error, find the PID, stop the
+				squatter, start yours. Memorize it and one of the most common blockers in web development
+				becomes routine.
 				<Code code="lsof" /> stands for "list open files"; the <Code code="-i" /> flag narrows it to network
 				connections. Silence from <Code code="lsof" /> means the port is free.
 			</p>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That one output line is worth reading properly. <Code code="node" /> is the program and
+				<Code code="400" /> is its PID — the only field you actually need. The rest describes the connection
+				it's holding, and a real <Code code="lsof" /> prints a few more of those columns than you see
+				here. <Code code="IPv4 TCP" /> says what kind of connection it is;
+				<Code code="*:3000" /> is the door number with a wildcard host, where <Code code="*" /> means
+				"any address on this machine" rather than the filename glob from <CourseLink
+					to="section-3-4"
+				/> — and the <Code code=":::3000" /> in the error above is that same wildcard, spelled the IPv6
+				way.
+				<Code code="(LISTEN)" /> is the confirmation: that process is sitting at the door waiting for
+				visitors, which is exactly why yours can't have it.
+			</p>
+
 			<Callout type="tip">
-				Where do stale servers come from? Usually a terminal window you closed without stopping the
-				server, or an agent that started one in a background shell you never saw. When a port is
-				mysteriously busy right after an AI session, that's the first suspect — and
+				Where do stale servers come from? Usually an agent that started one in a
+				<strong>background shell</strong> — a whole separate session you never saw, which is not the
+				same thing as the background <em>jobs</em> in 8.4 below. When a port is mysteriously busy
+				right after an AI session, that's the first suspect — and
 				<Code code="lsof -i :3000" /> tells you its name.
 			</Callout>
 
@@ -278,7 +355,7 @@ serve: listening on http://localhost:3000`}
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				A dev server holds your terminal hostage: it runs until you stop it, and the prompt never
 				comes back. One answer is more terminals (the tabs and splits in <CourseLink
-					to="part-11"
+					to="section-12-4"
 				/>). The other is
 				<strong style="color: var(--color-text);">job control</strong> — telling this shell to keep
 				the program running <em>backstage</em> while you get your prompt back.
@@ -312,17 +389,37 @@ fg %1                    # bring job 1 into the spotlight`}
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				A <strong style="color: var(--color-text);">background job</strong> is still yours and still tied
+				to this shell: close the window and it goes with it, unless you take extra steps. Backstage is
+				not the same as somewhere safe — don't send a long build back there and then walk away from the
+				terminal.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				There's one more move, and it's the rescue you'll actually reach for: you started something
 				long, forgot the <Code code="&" />, and now you're stuck watching it.
-				<Code code="Ctrl+Z" /> pauses it and hands your prompt back; <Code code="bg" /> resumes it backstage.
-				Same place you'd have been with <Code code="&" />, arrived at the hard way.
+				<Code code="Ctrl+Z" /> <em>suspends</em> it and hands your prompt back — suspended meaning
+				stopped dead, making no progress at all, which is why <Code code="jobs" /> reports it as
+				<Code code="Stopped" /> rather than <Code code="Running" />. <Code code="bg" /> is what resumes
+				it, backstage: the place you'd have been with <Code code="&" />, arrived at the hard way.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Four ampersands, no relation. <Code code="2>&1" /> is a reference to a stream (<CourseLink
+					to="section-4-1"
+				/>). <Code code="&&" /> runs the next thing only if this one worked (<CourseLink
+					to="section-6-2"
+				/>). <Code code="&" /> inside a <Code code="sed" /> replacement means whatever was just matched
+				(<CourseLink to="section-7-1" />). And a bare <Code code="&" /> at the end of a line is the one
+				this section is about — reading <Code code="npm run build &" /> as a half-typed
+				<Code code="&&" /> is a mistake worth not making.
 			</p>
 
 			<Callout type="tip">
 				<strong>Honest advice: use tabs.</strong> Job control is a genuinely useful escape hatch —
 				and mostly a rescue for the terminal you're already in. For an everyday setup (server in one
 				pane, logs in another, a free shell for you), the split terminals in <CourseLink
-					to="part-11"
+					to="section-12-4"
 				/> are nicer to live with than juggling <Code code="%1" /> and <Code code="%2" />.
 			</Callout>
 

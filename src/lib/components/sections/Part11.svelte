@@ -136,11 +136,11 @@
 					<div>
 						<p class="text-[13px] font-medium" style="color: var(--color-text);">Read each flag</p>
 						<p class="text-xs" style="color: var(--color-text-muted);">
-							Flags change behavior, sometimes drastically — <Code code="rm" />
-							and <Code code="rm -rf" /> are different animals. Look each one up with
+							Flags change behavior, sometimes drastically: <Code code="rm" />
+							and <Code code="rm -rf" /> are different animals. And a letter means whatever its own command
+							decided it means (<CourseLink to="section-1-3" />) — so look each one up with
 							<Code code="man" /> or
-							<Code code="--help" /> (<CourseLink to="part-1" />). Never wave through a flag you
-							can't explain.
+							<Code code="--help" />. Never wave through a flag you can't explain.
 						</p>
 					</div>
 				</div>
@@ -260,8 +260,8 @@ rm -rf build/*`}
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<Code code="sudo" />
-						removes every guardrail the system has (<CourseLink to="part-5" />). The rule from
-						section 5.3 doubles here: never sudo a command you don't understand —
+						removes every guardrail the system has. The rule from <CourseLink to="section-5-3" />
+						doubles here: never sudo a command you don't understand —
 						<em>especially</em> one an AI wrote. Understand first, elevate second.
 					</p>
 				</div>
@@ -274,16 +274,24 @@ rm -rf build/*`}
 						<span><Code code="curl ... | bash" /> — run code straight off the internet</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						This downloads a script and executes it in one motion, sight unseen. Honesty requires a
-						2026 update: it's now an <em>official</em> install method — Claude Code's documented
-						installer is
+						You decoded this pattern in <CourseLink to="section-9-2" /> — curl fetches a script off the
+						internet, and the pipe feeds it straight into a shell that runs it, sight unseen. What's left
+						is the judgement call, and honesty requires a 2026 update: this is now an
+						<em>official</em> install method. Claude Code's documented installer is
 						<Code code="curl -fsSL https://claude.ai/install.sh | bash" />, and Codex CLI ships the
-						same way. The real rule is about the <em>source</em>: piping a script over HTTPS from
-						the documented domain of a vendor you chose is a normal install path; piping one from a
-						random gist, README, or an agent's suggestion is not. When in doubt, the two-step
-						version is always available —
-						<Code code="curl -o install.sh <url>" />, read it, <em>then</em> run it — and package managers
-						(brew, winget, apt) remain the more auditable alternative.
+						same way. Four letters ride along there:
+						<Code code="f" /> fails on a server error instead of saving the error page as your script,
+						<Code code="s" /> silences the progress bar,
+						<Code code="S" /> puts the real error messages back, and
+						<Code code="L" /> follows redirects — so the script that reaches your shell can come from
+						a different host than the address you read. Which is why the real rule is about the
+						<em>source</em>: piping a script over HTTPS from the documented domain of a vendor you
+						chose is a normal install path; piping one from a snippet someone pasted in a forum
+						thread, a README, or an agent's suggestion is not. When in doubt the two-step version is
+						always available —
+						<Code code="curl -o install.sh <url>" />, read it, <em>then</em> run it — and a package
+						manager (brew, apt, or Windows' winget — <CourseLink to="section-10-1" />) remains the
+						more auditable alternative.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -378,8 +386,9 @@ rm -rf build/*`}
 					style="color: var(--color-primary);"
 					>Microsoft's "prompts become shells" research (May 2026)</a
 				>
-				showed injected text escalating all the way to remote code execution in agent frameworks. The
-				consequence for you: an agent's proposed command deserves the full audit
+				showed injected text escalating all the way to remote code execution in agent frameworks — someone
+				else, somewhere else, running whatever commands they like on your machine. The consequence for
+				you: an agent's proposed command deserves the full audit
 				<em>even when you didn't write the prompt that produced it</em> — the instruction may not have
 				come from you at all.
 			</p>
@@ -394,9 +403,11 @@ rm -rf build/*`}
 					class="underline underline-offset-2"
 					style="color: var(--color-primary);">OS-level sandboxing</a
 				>
-				(macOS Seatbelt, Linux bubblewrap) is becoming the default posture underneath. That permission
-				prompt <em>is</em> the modern read-before-you-run: the skill this course teaches is what you
-				do in the seconds it's on screen. Don't approve on autopilot — an agent can propose commands
+				is becoming the default posture underneath — Seatbelt on macOS, bubblewrap on Linux, the operating
+				system itself fencing in what a command can reach, a harder wall than the practice sandbox you've
+				been running commands in. That permission prompt
+				<em>is</em> the modern read-before-you-run: the skill this course teaches is what you do in
+				the seconds it's on screen. Don't approve on autopilot — an agent can propose commands
 				faster than you can casually skim them, and it only takes one unread
 				<Code code="rm" /> to ruin an afternoon.
 			</Callout>

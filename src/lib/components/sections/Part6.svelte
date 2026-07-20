@@ -112,9 +112,12 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 						of the file. <Code code="#!/usr/bin/env bash" />
 						means "run this with bash, wherever bash lives on this machine" — which is why it's preferred
 						over hard-coding a path like
-						<Code code="/bin/bash" />. Everything after it is exactly what you'd type at the prompt
-						(and
-						<Code code="#" /> lines are comments, ignored by the shell).
+						<Code code="/bin/bash" />. There's no magic in it:
+						<Code code="env" /> is itself a program — the one that printed your variables in
+						<CourseLink to="section-5-4" /> — and handed a name, it looks that name up on PATH and runs
+						it. Everything after that first line is what you'd type at the prompt, and the
+						<Code code="#" /> lines are notes to yourself, using the comment character from
+						<CourseLink to="hero" />.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -131,7 +134,9 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 						<Code code="=" />
 						— bash is strict about that), and
 						<Code code="$BACKUP_NAME" /> uses it — the same dollar-sign expansion you met with environment
-						variables in <CourseLink to="part-5" />, just local to the script.
+						variables in <CourseLink to="section-5-4" />. There's no
+						<Code code="export" /> in front of it, so this one stays inside the script and no program
+						the script launches will ever see it.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -144,27 +149,35 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<Code code="&quot;backups/$BACKUP_NAME&quot;" />
-						— double quotes let the variable expand while protecting against spaces. Quoting variables
-						is the habit that separates scripts that work from scripts that work
+						— double quotes, by the rule in <CourseLink to="section-2-2" />: the variable still
+						expands, and any spaces stay put. Quoting variables is the habit that separates scripts
+						that work from scripts that work
 						<em>until</em> a filename has a space in it.
 					</p>
 				</div>
 			</div>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Now make it runnable. Two steps, both from <CourseLink to="part-5" />: give the file execute
-				permission, then run it with the explicit <Code code="./" /> path:
+				Now make it runnable. Two steps, both from <CourseLink to="section-5-2" />: give the file
+				execute permission, then run it with the explicit <Code code="./" /> path. The
+				<Code code=".sh" /> on the end is convention for humans and editors — the execute bit and that
+				first line are what actually run it.
 			</p>
 
 			<CodeBlock
 				title="Make it executable, then run it"
 				code={`chmod +x backup.sh
 ./backup.sh
-# Backed up notes to backups/notes-backup-2026-07-12
-
-# Why ./ ? The shell only searches PATH for commands (Part 5) -
-# ./backup.sh says "the one right here, in this directory."`}
+# Backed up notes to backups/notes-backup-2026-07-12`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The <Code code="./" /> is there for the reason that section gave: a bare
+				<Code code="backup.sh" /> sends the shell hunting through PATH, and this folder deliberately isn't
+				on it. Running it this way also starts a child shell, so the script's variables and any
+				<Code code="cd" /> inside it are gone the moment it exits — exactly the distinction
+				<CourseLink to="section-5-5" /> drew.
+			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
 				Arguments: <Code code="$1" /> makes it reusable
@@ -172,8 +185,10 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Inside a script, <Code code="$1" />
-				is whatever word came first after the script's name —
-				<Code code="$2" /> the second, and so on. One change turns our notes-only script into a back-up-anything
+				is the first argument the script was handed — the words after its name (<CourseLink
+					to="section-1-3"
+				/>), numbered in the order they arrived, so
+				<Code code="$2" /> is the second. One change turns our notes-only script into a back-up-anything
 				script:
 			</p>
 
@@ -215,17 +230,18 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 				"automate the deploy" and odds are it produces a
 				<Code code=".sh" />
 				file. Until today that file was a black box you ran on trust. Now it's a short text file you can
-				<Code code="cat" />, read line by line, and audit with the exact routine from 6.1 — because
-				a script is just commands, and you read commands now.
+				<Code code="cat" />, read line by line, and audit the way you would any command: name it,
+				read every flag, check what it touches, ask whether it's reversible. That routine gets its
+				own section in <CourseLink to="section-11-1" /> — because a script is just commands, and you read
+				commands now.
 			</Callout>
 
 			<Callout type="tip">
-				<strong>Scripts get the audit too — line by line.</strong> Before running any script (yours,
-				an agent's, or one from the internet), read it top to bottom. Each line is a command; each
-				command gets the four-step check. The shebang tells you the language, the variables tell you
-				the moving parts, and the verbs (<Code code="cp" />,
-				<Code code="rm" />,
-				<Code code="curl" />) tell you the risk.
+				<strong>A script has a shape, and it reads in that order.</strong> The shebang tells you the
+				language, the variables tell you the moving parts, and the verbs tell you the risk —
+				<Code code="cp" /> copies,
+				<Code code="rm" /> deletes, and
+				<Code code="curl" /> fetches something off the network to run on your machine.
 			</Callout>
 
 			<h4
@@ -298,7 +314,10 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 				Every command, when it finishes, hands the shell a number called its <strong
 					style="color: var(--color-text);">exit code</strong
 				>: <strong style="color: var(--color-text);">0 means success</strong>, and anything else (1
-				to 255) means some flavor of failure. You never see it unless you ask — the special variable
+				to 255) means some flavor of failure. Which number it picks is each command's own business
+				and means nothing outside that command, so there's no master table to go hunting for — only
+				zero-or-not-zero travels between commands. You never see it unless you ask — the special
+				variable
 				<Code code="$?" /> holds the exit code of the last command:
 			</p>
 
@@ -373,20 +392,31 @@ false && echo "ran"       #            (nothing - && skips after failure)
 true || echo "ran"        #            (nothing - || skips after success)
 false || echo "ran"       # ran
 
-# The pattern you'll actually use every day:
+# The pattern you'll use every day:
 npm test && npm run deploy
 # tests pass  -> deploy runs
 # tests fail  -> deploy never happens
 
-# And the friendly-status combo:
-npm test && echo "all green" || echo "tests failed"`}
+# And the three-operator shape, read left to right:
+npm test && npm run deploy || echo "something failed"`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="true" /> and <Code code="false" /> in the first four lines are real little programs
+				whose entire job is to exit 0 and 1 — which is what makes that truth table runnable rather than
+				illustrative. The last line has a catch. The chain runs left to right and neither operator outranks
+				the other, so the <Code code="||" /> is not paired off against the
+				<Code code="&amp;&amp;" /> — it fires whenever the command immediately before it failed. Tests
+				pass, deploy fails, and the message prints anyway. Useful here, but it is not the one-branch-or-the-other
+				shape it looks like. (<CourseLink to="section-10-1" /> covers what
+				<Code code="npm run deploy" /> is running.)
+			</p>
 
 			<MermaidDiagram
 				definition={`flowchart TD
   A(["npm test"]) --> B{"exit code?"}
   B -->|"0 — success"| C(["npm run deploy"])
-  B -->|"non-zero — failure"| D(["echo 'tests failed'"])
+  B -->|"non-zero — failure"| D(["echo 'something failed'"])
   classDef success stroke:#67b177,stroke-width:2px;
   classDef danger stroke:#9a3412,stroke-width:2px;
   class C success;
@@ -394,8 +424,8 @@ npm test && echo "all green" || echo "tests failed"`}
 				id="exit-code-chaining"
 			/>
 			<p class="mt-2 px-1 text-xs" style="color: var(--color-text-muted);">
-				One number decides which branch runs — this tiny mechanism is the backbone of every CI
-				pipeline.
+				One number decides which branch runs — the same mechanism behind every CI pipeline
+				(continuous integration: servers that build and test your code for you, automatically).
 			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -406,7 +436,9 @@ npm test && echo "all green" || echo "tests failed"`}
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Why does the choice of connector matter so much? Because of lines like this one, which has
-				genuinely destroyed home directories:
+				genuinely destroyed home directories. The target sits in <Code code="/tmp" />, the machine's
+				shared scratch space (<CourseLink to="section-2-2" />), so emptying a folder inside it is a
+				perfectly ordinary thing to want:
 			</p>
 
 			<CodeBlock
@@ -423,7 +455,7 @@ cd /tmp/build && rm -rf *
 
 			<Callout type="caution">
 				<strong>Audit the connectors, not just the commands.</strong> When an AI proposes a chained
-				one-liner, add a fifth question to the 6.1 routine:
+				one-liner, add a fifth question to those four:
 				<em>what happens if the first command fails?</em>
 				A
 				<Code code=";" /> says "I don't care" — which is almost never true when the next command is destructive.
@@ -434,9 +466,10 @@ cd /tmp/build && rm -rf *
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				And here's why this little number matters beyond one-liners: <strong
 					style="color: var(--color-text);">the entire automated world runs on exit codes</strong
-				>. CI pipelines decide pass-or-fail by the exit code of your test command — a green
-				checkmark on GitHub literally means "everything exited 0." And coding agents watch exit
-				codes the same way: run a command, read
+				>. CI pipelines decide pass-or-fail by the exit code of your test command — and GitHub,
+				which stores projects and runs those tests every time someone sends up new code, draws its
+				green checkmark to mean "everything exited 0." Coding agents watch exit codes the same way:
+				run a command, read
 				<Code code="$?" />, and decide whether to continue, retry, or fix. When your agent says "the
 				tests failed, let me look" — it didn't read your mind. It read an exit code. Scripts join
 				the same game: a script's own exit code is that of its last command, so scripts can chain

@@ -22,6 +22,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import OsIcon from '../ui/OsIcon.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import CourseMap from '../ui/CourseMap.svelte';
 
 	let {
@@ -51,7 +52,7 @@
 		},
 		{
 			year: '1989',
-			text: 'Brian Fox releases bash, the "Bourne Again SHell", as free software for the GNU project. Linux adopts it, and it spreads everywhere.'
+			text: 'Brian Fox releases bash, the "Bourne Again SHell", for the GNU project — a decades-long effort to build an operating system anyone is free to use, change and pass on. Linux adopts it, and it spreads everywhere.'
 		},
 		{
 			year: '2019',
@@ -59,7 +60,7 @@
 		},
 		{
 			year: 'Today',
-			text: 'Every server, CI pipeline, Docker container, and AI coding agent speaks bash. "Bash-compatible" is the lingua franca of computing.'
+			text: 'Servers — computers whose job is answering other computers — all speak bash. So do Docker containers, which wrap a program in a mini-Linux of its own, automated build-and-test runs (CI), and AI coding agents. "Bash-compatible" is the lingua franca of computing.'
 		}
 	];
 </script>
@@ -246,10 +247,11 @@
 		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 			If you build with AI assistants, the terminal is <em>more</em> relevant to you, not less.
 			Every major AI lab now ships a
-			<strong style="color: var(--color-text);">terminal-native coding agent</strong> — Anthropic's Claude
-			Code, OpenAI's Codex CLI, Google's CLI agents, Block's Goose, Sourcegraph's Amp. The command line
-			is the execution layer where those agents actually work: install this package, run these tests,
-			move those files. The agents speak fluent bash. With the terminal, you can:
+			<strong style="color: var(--color-text);">terminal-native coding agent</strong> — Anthropic's
+			Claude Code, OpenAI's Codex CLI, Google's CLI agents, Block's Goose, Sourcegraph's Amp. The
+			CLI in those names is the <em>command-line interface</em> — the same command line this course is
+			about. It's the execution layer where those agents actually work: install this package, run these
+			tests, move those files. The agents speak fluent bash. With the terminal, you can:
 		</p>
 
 		<ul
@@ -368,8 +370,9 @@
 
 		<Callout type="note" title="Why 'bash'?">
 			It stands for <em>Bourne Again SHell</em> — a triple pun. It's a free-software rebirth of Stephen
-			Bourne's classic shell, written by Brian Fox for the GNU project in 1989. Programmers have never
-			been able to resist a good name: Unix itself started as a joke on Multics.
+			Bourne's classic shell — free as in free to use, change and pass on, not free as in no charge —
+			written by Brian Fox for the GNU project in 1989. Programmers have never been able to resist a good
+			name: Unix itself started as a joke on Multics.
 		</Callout>
 
 		<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -448,16 +451,20 @@
 					<strong style="color: var(--color-text);">Terminal.app</strong> (in
 					Applications&nbsp;→&nbsp;Utilities) is all you need — and it's better than its reputation:
 					macOS 26 "Tahoe" (2025) gave it its first real modernization in about 24 years, with
-					24-bit true color, Powerline font support, and new themes. There's nothing to install on
-					day one. Many developers later upgrade to
+					24-bit true color (roughly 16.7 million shades, where older terminals were stuck with 16
+					or 256), Powerline font support, and new themes. There's nothing to install on day one.
+					Many developers later upgrade to
 					<strong style="color: var(--color-text);">iTerm2</strong> for extra comfort — same shell inside,
 					nicer window around it.
 				</p>
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-					Since macOS Catalina (2019) the default shell is <strong style="color: var(--color-text);"
-						>zsh</strong
-					>. For this entire course, zsh and bash behave identically — every command works in both.
-					You can check what you're running:
+					Since macOS Catalina (2019), the shell your terminal launches for you — its default, until
+					you go and change it — is <strong style="color: var(--color-text);">zsh</strong>. For this
+					entire course, zsh and bash behave identically; every command works in both. You can check
+					what you're running: the <Code code="$" /> makes the shell swap in the <em>value</em> of
+					<Code code="SHELL" />, which is why a path comes back and not the word (<CourseLink
+						to="section-5-4"
+					/>):
 				</p>
 				<CodeBlock
 					code={`echo $SHELL
@@ -468,9 +475,14 @@
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 					Windows needs one extra step, because its native shells don't speak bash. The recommended
 					path is <strong style="color: var(--color-text);">WSL</strong> (Windows Subsystem for
-					Linux) — a real Ubuntu running inside Windows, and open source since May 2025. Open
-					<strong style="color: var(--color-text);">PowerShell as Administrator</strong>, run one
-					command (it installs Ubuntu by default), and restart:
+					Linux) — a real Ubuntu running inside Windows, and open source since May 2025. Ubuntu is a
+					<em>distribution</em> of Linux: one packaged version of that free, Unix-descended
+					operating system, with its own defaults. It's the most common one, which is why
+					<Code code="wsl --install" /> picks it for you. Open
+					<strong style="color: var(--color-text);">PowerShell as Administrator</strong> —
+					right-click it in the Start menu and choose <em>Run as administrator</em>, which is how
+					you let it change the system itself (<CourseLink to="section-5-3" />) — then run one
+					command and restart:
 				</p>
 				<CodeBlock code="wsl --install" title="Install WSL (one time)" />
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -490,8 +502,8 @@
 					The window around it is already sorted: <strong style="color: var(--color-text);"
 						>Windows Terminal</strong
 					> has been the default console since Windows 11 22H2 (2022) — opening PowerShell or WSL lands
-					in it automatically, with tabs, panes, and profiles for every shell on your machine. Nothing
-					to install.
+					in it automatically, with tabs, panes, and a saved profile — font, colors, and which shell to
+					launch — for every shell on your machine. Nothing to install.
 				</p>
 			{:else}
 				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -500,9 +512,13 @@
 						style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
 						>Ctrl+Alt+T</kbd
 					>
-					on most desktops (GNOME Terminal, Konsole, and friends), and
-					<strong style="color: var(--color-text);">bash</strong> is almost certainly your default shell
-					already.
+					on most desktops (GNOME Terminal, Konsole, and friends), and the shell it launches for you —
+					your default, until you go and change it — is almost certainly
+					<strong style="color: var(--color-text);">bash</strong>. The
+					<Code code="$" /> below makes the shell swap in the <em>value</em> of
+					<Code code="SHELL" />, so a path comes back and not the word (<CourseLink
+						to="section-5-4"
+					/>):
 				</p>
 				<CodeBlock
 					code={`echo $SHELL
@@ -516,8 +532,10 @@
 		</div>
 
 		<Callout type="warning" title="PowerShell is a different language">
-			Windows also ships <strong>PowerShell</strong> and the old <strong>cmd</strong>. They are real
-			shells — but they speak a <em>different language</em> (<Code code="dir" />
+			Windows also ships <strong>PowerShell</strong> and the older <strong>cmd</strong> — Command
+			Prompt,
+			<Code code="cmd.exe" />. They are real shells — but they speak a
+			<em>different language</em> (<Code code="dir" />
 			instead of
 			<Code code="ls" />,
 			<Code code="Remove-Item" />
@@ -589,8 +607,9 @@
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>Who and where:</strong> you're logged in as user <em>vibe</em> on a machine named
-					<em>sandbox</em>. Mostly ignorable — until you're SSH'd into a server and it saves you
-					from typing a command on the wrong machine.
+					<em>sandbox</em>. Mostly ignorable — until you're SSH'd into a server, secure shell, where
+					your keystrokes land on a computer somewhere else (<CourseLink to="section-9-5" />), and
+					the name is what saves you from running a command on the wrong machine.
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -603,7 +622,8 @@
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>Your current directory</strong> — where commands will act. The
-					<Code code="~" /> is shorthand for your home folder. Part 2 is all about moving this around.
+					<Code code="~" /> is shorthand for your home folder.
+					<CourseLink to="part-2" /> is all about moving this around.
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -616,10 +636,9 @@
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>"Your turn":</strong> the shell is ready for a command. A
-					<Code code="$" />
-					means you're a normal user; a
-					<Code code="#" /> means you're root — the all-powerful admin. Docs use a leading $ to mean "type
-					this"; don't copy the $ itself.
+					<Code code="$" /> here means you're a normal user; a
+					<Code code="#" /> in someone else's screenshot means they're running as root — the administrator
+					account (<CourseLink to="section-5-3" />).
 				</p>
 			</div>
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -633,10 +652,31 @@
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>Where your typing goes.</strong> Nothing runs until you press
 					<strong>Enter</strong> — you can type, stare, and edit as long as you like. Press the
-					<strong>up arrow</strong> to recall previous commands instead of retyping them.
+					<strong>up arrow</strong> to recall previous commands instead of retyping them. And when
+					this course writes <Code code="Ctrl+C" />, that's one motion — hold Control, press C. The
+					capital letter is for legibility; you never add Shift. On a Mac, ⌘ is Command and ⌃ is
+					Control, the glyphs printed on the keys.
 				</p>
 			</div>
 		</div>
+
+		<p class="mt-4 mb-3 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+			Two characters do more than one job, and both are worth pinning down now. A <Code code="#" /> at
+			the start of a line in this course's code blocks is the machine's reply, not something you type
+			— command and answer share one pane. On a real command line, a <Code code="#" /> tells the shell
+			to ignore the rest of the line, which is how people leave notes in scripts. And you've already met
+			the third sense a few inches up: as a prompt symbol, it means root.
+		</p>
+
+		<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+			The dollar sign is the other one, and its two jobs are unrelated. Other people's docs print a
+			leading <Code code="$" /> to mean "this is a line you type" — that one you never type. But a
+			<Code code="$" /> stuck to a name, like the one in <Code code="echo $SHELL" />, is real
+			syntax: the shell replaces the name with its value before the command ever runs (<CourseLink
+				to="section-5-4"
+			/>). That one you do type. This course never prints a bare <Code code="$" /> prompt, so every
+			<Code code="$" /> you meet here is the second kind.
+		</p>
 
 		<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 			Every interaction with the shell follows the same loop — you'll run it thousands of times, and
@@ -658,8 +698,8 @@
 
 		<Callout type="tip">
 			Prompts vary from machine to machine — yours might show a different name, extra colors, or
-			even a git branch. The parts are always the same: <em>who@where:directory$</em>. In Part 11
-			you'll learn to customize it yourself.
+			even a git branch. The parts are always the same: <em>who@where:directory$</em>. In
+			<CourseLink to="section-12-1" /> you'll learn to customize it yourself.
 		</Callout>
 	</div>
 </section>

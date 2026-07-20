@@ -99,9 +99,10 @@
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						macOS 26 Tahoe gave the stock Terminal.app its first real overhaul in roughly 24 years —
-						24-bit color, Powerline font support, and a batch of fresh themes. Settings → Profiles:
-						pick one, hit "Default" to keep it — as a beginner you genuinely don't need to install
-						anything. <a
+						24-bit true color (~16.7 million shades, where older terminals were stuck with 16 or
+						256), Powerline font support, and a batch of fresh themes. Settings → Profiles (a
+						profile is one saved bundle of font, colors and behavior): pick one, hit "Default" to
+						keep it. As a beginner you genuinely don't need to install anything. <a
 							href="https://iterm2.com"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -153,8 +154,10 @@
 						Everywhere: the font matters
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						A good monospaced font with a legible <Code code="0" />-vs-<Code code="O" /> and a size you
-						don't squint at. JetBrains Mono, Fira Code, and Cascadia Code are free favorites.
+						Monospaced means every character takes the same width — the only reason columns of
+						output line up, so the choice is less taste than it looks. Pick one with a legible
+						<Code code="0" />-vs-<Code code="O" /> and a size you don't squint at. JetBrains Mono, Fira
+						Code, and Cascadia Code are free favorites.
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -201,9 +204,8 @@
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The prompt itself — that <Code code="user@host:~$" />
 				from the intro — is just a variable named
-				<Code code="PS1" />, and you can set it like any other variable from <CourseLink
-					to="part-5"
-				/>:
+				<Code code="PS1" />, short for prompt string 1, and you set it the way you set any variable
+				(<CourseLink to="section-5-4" />):
 			</p>
 
 			<CodeBlock
@@ -214,6 +216,12 @@
 PS1="🌲 \\W $ "
 # 🌲 projects $             <- yes, emoji work`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The name implies a <Code code="PS2" />, and there is one: the continuation prompt — the bare
+				<Code code=">" /> you get if you press Enter with a quote still hanging open. That's the shell
+				asking you to finish the line, not an error.
+			</p>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Hand-rolling a fancy <Code code="PS1" />
@@ -226,22 +234,33 @@ PS1="🌲 \\W $ "
 					style="color: var(--color-primary);">Starship</a
 				>
 				— a fast, cross-shell prompt that works in bash, zsh, and every OS in this course. One install,
-				one line in your shell config (see <CourseLink to="part-5" />,
+				one line in your shell config (<CourseLink to="section-5-5" />,
 				<Code code=".bashrc" />
 				/
 				<Code code=".zshrc" />), and your prompt shows the current directory, git branch, language
 				versions, and whether the last command failed — the useful stuff, with zero maintenance.
-				It's also where the current consensus landed: 2026 setup guides recommend Starship plus one
-				or two small zsh plugins over the heavyweight all-in-one frameworks (oh-my-zsh) that used to
-				be the default advice.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Pair it with a couple of small zsh <strong style="color: var(--color-text);">plugins</strong
+				>
+				— extra files your shell config loads at startup, the same mechanism as the aliases you added
+				there yourself, only someone else wrote the file. Two earn their place:
+				<Code code="zsh-autosuggestions" /> greys in the rest of a command as you start typing it, and
+				<Code code="zsh-syntax-highlighting" /> turns a command red before you press Enter if the shell
+				can't find it. A framework like oh-my-zsh bundles hundreds instead, and charges you startup time
+				for the ones you'll never use.
 			</p>
 
 			<Callout type="tip">
-				<strong>Practice the 6.1 audit here.</strong> Starship's install command is a
-				<Code code="curl ... | sh" /> one-liner — exactly the red-flag pattern from <CourseLink
-					to="part-6"
-				/>. Perfect low-stakes rehearsal: download the script first, skim it (or ask your AI to),
-				then run it. Trusted source, verified anyway — that's the habit.
+				<strong>Practice the audit from <CourseLink to="section-11-1" /> here.</strong> Starship's
+				install command is a <Code code="curl ... | sh" /> one-liner — the red-flag pattern, with one
+				detail worth catching: it ends in <Code code="sh" />, not <Code code="bash" />. <Code
+					code="sh"
+				/> is an older, more minimal shell that on many systems isn't bash at all — a quiet swap of what
+				runs the script, and the kind of detail an audit is for. Perfect low-stakes rehearsal: download
+				the script first, skim it (or ask your AI to), then run it. Trusted source, verified anyway —
+				that's the habit.
 			</Callout>
 
 			<VibeBox
@@ -291,9 +310,13 @@ PS1="🌲 \\W $ "
 			</div>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Watch someone fluent in the terminal and you'll notice they barely type. The shell remembers
-				every command you've ever run, and the recall tools are the single biggest speed unlock in
-				this entire course:
+				Watch someone fluent in the terminal and you'll notice they barely type. The shell writes
+				down every command you run in a file it keeps between sessions — that record is your
+				<strong style="color: var(--color-text);">history</strong>, and it is not the same thing as
+				<strong style="color: var(--color-text);">scrollback</strong>, the output still sitting in
+				the window above your prompt. Scrollback is what a screenshot captures, and it dies with the
+				window; history outlives it. The recall tools built on that record are the biggest speed
+				unlock in this course:
 			</p>
 
 			<div class="mb-6 space-y-3">
@@ -339,8 +362,10 @@ PS1="🌲 \\W $ "
 						<Code code="!!" />
 						expands to your previous command. Its one legendary use: you run something, it fails with
 						"permission denied," and
-						<Code code="sudo !!" /> re-runs it elevated — no retyping. (All of section 5.3's sudo caution
-						still applies; the shell prints the expanded command so you see exactly what's about to run.)
+						<Code code="sudo !!" /> re-runs it elevated — no retyping. (Every bit of the sudo caution
+						in
+						<CourseLink to="section-5-3" /> still applies; the shell prints the expanded command, so you
+						see what's about to run.)
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -398,7 +423,7 @@ sudo !!
 				>
 				for everything else. If you catch yourself pressing up-arrow more than three times, stop — reverse
 				search would have had it already. And for commands you recall <em>constantly</em>, promote
-				them to an alias (section 5.5) and stop searching altogether.
+				them to an alias (<CourseLink to="section-5-5" />) and stop searching altogether.
 			</Callout>
 
 			<h4
@@ -476,24 +501,24 @@ sudo !!
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				That shared visibility is the practical payoff of <CourseLink to="part-11" />: when the
-				agent asks permission to run a command, you audit it (6.1); when it writes a <Code
+				agent asks permission to run a command, you audit it first; when it writes a <Code
 					code="setup.sh"
-				/>, you read it (6.2); when it says "tests failed," you can see the exit code it saw (6.3).
+				/>, you read it line by line; when it says "tests failed," you can see the exit code it saw.
 				The integrated terminal is the one place code, agent, and shell meet — all in a single
 				window.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				VS Code even builds the red-flag mental model from 6.1 into settings. Copilot's agent mode
-				runs terminal commands <strong style="color: var(--color-text);"
-					>with per-command approval</strong
-				>, and you can maintain an allowlist and denylist of which commands auto-approve — let
+				VS Code even builds the red-flag mental model from <CourseLink to="section-11-1" /> into settings.
+				Copilot's agent mode runs terminal commands
+				<strong style="color: var(--color-text);">with per-command approval</strong>, and you can
+				maintain an allowlist and denylist of which commands auto-approve — let
 				<Code code="git status" />
 				through without asking, always stop on
 				<Code code="rm -rf" />
 				and
-				<Code code="sudo" />. Claude Code ships a GA VS Code extension that drives the same CLI from
-				a panel in the editor — same terminal, same approval moments, same skills.
+				<Code code="sudo" />. Claude Code ships a VS Code extension that drives the same CLI from a
+				panel in the editor — same terminal, same approval moments, same skills.
 			</p>
 
 			<Callout type="note">
@@ -592,7 +617,7 @@ sudo !!
 				And here's the 2026 twist that turned splits from a power-user nicety into standard
 				practice: <strong style="color: var(--color-text);"
 					>people now run multiple AI agents in parallel</strong
-				> — one agent per pane or tab, each pointed at its own copy of the project (its own git worktree)
+				> — one agent per pane or tab, each pointed at its own copy of the project (git calls that a worktree)
 				so they never collide. The split layout stops being "server here, logs there" and becomes several
 				agents, each in its own pane: three panes, three agents on three tasks, and you sweeping your
 				eyes across all of them, approving and course-correcting. Every pane is just a shell — which is
@@ -601,13 +626,25 @@ sudo !!
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				One name to file away for later: <strong style="color: var(--color-text);">tmux</strong>, a
-				terminal multiplexer that does tabs and splits <em>inside</em> the terminal itself — and
-				whose sessions survive the window closing, your laptop sleeping, even an SSH connection
-				dropping. You log back in, reattach, and every pane is exactly where you left it (agents
-				included — which is exactly why people running several at once tend to live in it). If
-				tmux's keybindings feel arcane,
-				<strong style="color: var(--color-text);">Zellij</strong> is the friendlier modern multiplexer
-				with the shortcuts printed on screen. Overkill for today; indispensable the day you work on remote
+				terminal multiplexer that does tabs and splits <em>inside</em> the terminal itself — and whose
+				sessions survive the window closing, your laptop sleeping, even an SSH connection dropping. You
+				log back in, reattach, and every pane is exactly where you left it (agents included — which is
+				why people running several at once tend to live in it).
+			</p>
+
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				Careful with that word, though — everywhere else in this course a session is one shell's
+				lifetime, and it dies with its window. A tmux session is a named collection of panes living
+				in a process of its own, which is how it survives yours closing. Its keybindings feel arcane
+				for one reason: every one of them starts with the same two keys, Ctrl+B, pressed and
+				released
+				<em>before</em> the key that does the work — so splitting a pane is Ctrl+B, then
+				<Code code="%" />.
+			</p>
+
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				<strong style="color: var(--color-text);">Zellij</strong> is the friendlier modern multiplexer,
+				with its shortcuts printed on screen. Overkill for today; indispensable the day you work on remote
 				servers. It'll be waiting.
 			</p>
 
