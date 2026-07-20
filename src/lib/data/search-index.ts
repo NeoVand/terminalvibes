@@ -807,6 +807,87 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
+	// ───── Part 7: Text Surgery ─────
+	{
+		id: 'topic-sed-substitute',
+		sectionId: 'section-7-1',
+		title: 'Find & Replace with sed',
+		part: 'Text Surgery',
+		description: 's/old/new/g — substitute text in a stream; the file stays untouched.',
+		keywords: [
+			'sed',
+			'find and replace',
+			'replace text',
+			'substitute',
+			's/old/new/',
+			'g flag',
+			'rename in file',
+			'stream editor',
+			'change text',
+			'swap word'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-sed-lines',
+		sectionId: 'section-7-2',
+		title: 'Delete & Print Lines with sed',
+		part: 'Text Surgery',
+		description: 'Addresses pick lines; d drops them, -n + p prints only the selection.',
+		keywords: [
+			'sed d',
+			'delete lines',
+			'remove lines',
+			'sed -n',
+			'print lines',
+			'show lines 40 to 55',
+			'line range',
+			'address',
+			'drop debug lines',
+			'extract lines from log'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-sed-in-place',
+		sectionId: 'section-7-3',
+		title: 'sed -i and the .bak Rule',
+		part: 'Text Surgery',
+		description: '-i rewrites the real file — -i.bak keeps the original as your undo button.',
+		keywords: [
+			'sed -i',
+			'in place',
+			'edit file directly',
+			'-i.bak',
+			'backup before edit',
+			'undo sed',
+			'mass edit',
+			'agent proposed sed',
+			'rewrite file',
+			'in-place edit safety'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-awk-columns',
+		sectionId: 'section-7-4',
+		title: 'Columns & awk',
+		part: 'Text Surgery',
+		description: "awk '{print $2}' pulls fields out of tables; -F sets the separator.",
+		keywords: [
+			'awk',
+			'print column',
+			'second column',
+			'fields',
+			'$1',
+			'-F',
+			'csv column',
+			'extract column',
+			'cut vs awk',
+			'table text'
+		],
+		kind: 'topic'
+	},
 	// ───── Part 11: Your Cockpit ─────
 	{
 		id: 'tool-prompt-designer',

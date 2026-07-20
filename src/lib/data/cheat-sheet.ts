@@ -324,6 +324,54 @@ export const cheatSheet: CheatSheetCategory[] = [
 		]
 	},
 	{
+		label: 'Text Surgery',
+		icon: 'scissors',
+		commands: [
+			{
+				command: "sed 's/old/new/g' FILE",
+				description: 'Replace old with new on every line',
+				detail:
+					'Read it as: s(ubstitute) / find this / replace with this / g = every match on the line. Prints the result — the file itself is untouched. Any delimiter works: s|/usr|/opt| saves escaping slashes.'
+			},
+			{
+				command: "sed '/DEBUG/d' FILE",
+				description: 'Drop every line matching a pattern',
+				detail:
+					'Addresses pick lines, d deletes them. Also by position: sed 3d (line 3), sed 2,5d (a range), sed $d (the last line).'
+			},
+			{
+				command: "sed -n '40,55p' FILE",
+				description: 'Print only lines 40–55',
+				detail:
+					'-n silences the default output, p prints the selected lines — the precision way to peek at the middle of a huge log. Regex addresses work too: sed -n /ERROR/p.'
+			},
+			{
+				command: "sed -i.bak 's/old/new/g' FILE",
+				description: 'Edit the file in place — keeping a .bak backup',
+				detail:
+					'The house rule: never bare -i. The suffix saves each original as file.bak first — instant diff, instant undo (mv file.bak file). When an agent proposes bare -i, amend it.'
+			},
+			{
+				command: "awk '{print $2}' FILE",
+				description: 'Print the second column of every line',
+				detail:
+					"Fields split on runs of spaces — perfect for ragged, column-aligned output. $0 is the whole line; commas join fields with a space: awk '{print $1, $3}'."
+			},
+			{
+				command: "awk -F, '{print $2}' FILE",
+				description: 'Same, but split on commas (CSV)',
+				detail:
+					'-F sets the field separator. For clean single-character delimiters cut -d, -f2 does the same job; awk wins when spacing is messy.'
+			},
+			{
+				command: "awk '/error/ {print $1}' FILE",
+				description: 'Pull a field from matching lines only',
+				detail:
+					'A /pattern/ guard filters which lines the action runs on — grep and column-pull in one step.'
+			}
+		]
+	},
+	{
 		label: 'Permissions',
 		icon: 'lock',
 		commands: [

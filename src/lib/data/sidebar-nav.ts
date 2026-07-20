@@ -4,6 +4,7 @@ import {
 	Bot,
 	Braces,
 	Cog,
+	Columns3,
 	Compass,
 	Copy,
 	Eye,
@@ -27,8 +28,11 @@ import {
 	Monitor,
 	MoveRight,
 	Palette,
+	PenLine,
+	Replace,
 	Rocket,
 	Route,
+	Scissors,
 	ScrollText,
 	Search,
 	Shield,
@@ -153,6 +157,21 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'script-args', label: 'One Script, Any Folder', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-6-3', label: 'Exit Codes & Chaining', icon: Braces },
 			{ id: 'exit-codes', label: 'Deploy Only on Green', icon: Gamepad2, isPlayground: true }
+		]
+	},
+	{
+		id: 'part-7',
+		label: 'Text Surgery',
+		icon: Scissors,
+		children: [
+			{ id: 'section-7-1', label: 'Find & Replace', icon: Replace },
+			{ id: 'sed-rename', label: 'Rebrand the Menu', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-7-2', label: 'Line Surgery', icon: Scissors },
+			{ id: 'log-surgery', label: 'Silence the Debug Noise', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-7-3', label: 'Editing in Place', icon: PenLine },
+			{ id: 'in-place-audit', label: "The Agent's Mass Edit", icon: Gamepad2, isPlayground: true },
+			{ id: 'section-7-4', label: 'Columns & awk', icon: Columns3 },
+			{ id: 'column-pull', label: 'Pull the Column', icon: Gamepad2, isPlayground: true }
 		]
 	},
 	{

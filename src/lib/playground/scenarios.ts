@@ -722,6 +722,140 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			const out = engine.readFile('~/recall.txt');
 			return !!out && out.includes('mkdir -p ~/releases/v2');
 		}
+	},
+	{
+		id: 'sed-rename',
+		title: 'Rebrand the menu',
+		description:
+			"Marketing renamed the mango everything — it's kiwi now. Rewrite menu.txt with sed's s/old/new/g and put the result in kiwi-menu.txt. The original file must survive untouched: sed rewrites the stream, and > catches it.",
+		hint: "Read s/mango/kiwi/g as: substitute, find mango, replace with kiwi, g = every match on the line (line 1 has two!). sed prints the result — redirect it: `sed 's/mango/kiwi/g' menu.txt > kiwi-menu.txt`.",
+		suggestedCommands: [
+			'cat menu.txt',
+			"sed 's/mango/kiwi/g' menu.txt",
+			"sed 's/mango/kiwi/g' menu.txt > kiwi-menu.txt",
+			'cat kiwi-menu.txt'
+		],
+		seed: {
+			files: {
+				'~/menu.txt':
+					'mango smoothie — mango, ice, lime\nmango toast with chili flakes\nplain toast\nthe famous mango-lassi float\n'
+			}
+		},
+		goal: 'kiwi-menu.txt has every mango swapped for kiwi; menu.txt is untouched',
+		check: async (engine) => {
+			const rebranded = engine.readFile('~/kiwi-menu.txt');
+			return (
+				rebranded ===
+					'kiwi smoothie — kiwi, ice, lime\nkiwi toast with chili flakes\nplain toast\nthe famous kiwi-lassi float\n' &&
+				engine.readFile('~/menu.txt') ===
+					'mango smoothie — mango, ice, lime\nmango toast with chili flakes\nplain toast\nthe famous mango-lassi float\n'
+			);
+		}
+	},
+	{
+		id: 'log-surgery',
+		title: 'Silence the debug noise',
+		description:
+			"app.log is drowning in DEBUG chatter and you need the story without it. Drop every DEBUG line with sed's d command and save what remains as clean.log — the original log stays intact for the postmortem.",
+		hint: "An address picks lines, a command decides their fate: `sed '/DEBUG/d' app.log` drops every line matching DEBUG and prints the rest. Redirect the survivors: `sed '/DEBUG/d' app.log > clean.log`.",
+		suggestedCommands: [
+			'cat app.log',
+			"sed '/DEBUG/d' app.log",
+			"sed '/DEBUG/d' app.log > clean.log",
+			'cat clean.log'
+		],
+		seed: {
+			files: {
+				'~/app.log':
+					'09:12 INFO  server started\n09:12 DEBUG loading config\n09:13 DEBUG cache warm\n09:13 INFO  ready on port 3000\n09:14 ERROR payment timeout\n09:14 DEBUG retrying\n'
+			}
+		},
+		goal: 'clean.log holds the log minus every DEBUG line; app.log is untouched',
+		check: async (engine) => {
+			const clean = engine.readFile('~/clean.log');
+			const original = engine.readFile('~/app.log');
+			return (
+				clean ===
+					'09:12 INFO  server started\n09:13 INFO  ready on port 3000\n09:14 ERROR payment timeout\n' &&
+				!!original &&
+				original.includes('DEBUG loading config')
+			);
+		}
+	},
+	{
+		id: 'in-place-audit',
+		title: "The agent's mass edit",
+		description:
+			'Your agent proposes a mass find-and-replace: sed -i over every config file, switching http: to https:. Good idea — but its command has no backup, and -i rewrites the real files. Amend it to -i.bak, run it, and keep the undo button.',
+		hint: "The agent's command is right except for one thing: `-i` alone leaves no copy. `-i.bak` does the same edit but saves each original as file.bak first: `sed -i.bak 's/http:/https:/g' config.yml deploy.yml`. Then diff your safety net: `cat config.yml.bak`.",
+		suggestedCommands: [
+			'cat agent-plan.txt',
+			'cat config.yml',
+			"sed -i.bak 's/http:/https:/g' config.yml deploy.yml",
+			'ls',
+			'cat config.yml',
+			'cat config.yml.bak'
+		],
+		seed: {
+			cwd: '~/site',
+			files: {
+				'~/site/agent-plan.txt':
+					"AGENT PLAN — switch the site to https\n\n  sed -i 's/http:/https:/g' config.yml deploy.yml\n\nNote: -i edits files IN PLACE. This plan keeps no backup.\nAmend it before you approve it.\n",
+				'~/site/config.yml':
+					'site:\n  url: http://vibecafe.example.com\n  cdn: http://cdn.example.com/assets\n',
+				'~/site/deploy.yml': 'deploy:\n  healthcheck: http://vibecafe.example.com/health\n'
+			}
+		},
+		goal: 'both .yml files say https everywhere — and both .bak originals exist',
+		check: async (engine) => {
+			const config = engine.readFile('~/site/config.yml');
+			const deploy = engine.readFile('~/site/deploy.yml');
+			const configBak = engine.readFile('~/site/config.yml.bak');
+			const deployBak = engine.readFile('~/site/deploy.yml.bak');
+			return (
+				!!config &&
+				config.includes('https://') &&
+				!config.includes('http://') &&
+				!!deploy &&
+				deploy.includes('https://') &&
+				!deploy.includes('http://') &&
+				!!configBak &&
+				configBak.includes('http://') &&
+				!!deployBak &&
+				deployBak.includes('http://')
+			);
+		}
+	},
+	{
+		id: 'column-pull',
+		title: 'Pull the column',
+		description:
+			'signups.csv has three columns and you only need one: the email addresses, for the launch announcement. Pull column 2 out of the commas — awk -F, or cut -d, both speak CSV — and save it as emails.txt.',
+		hint: "Comma-separated means tell your tool the separator: `awk -F, '{print $2}' signups.csv` or `cut -d, -f2 signups.csv` — same answer here. Redirect whichever you like into emails.txt.",
+		suggestedCommands: [
+			'cat signups.csv',
+			'cut -d, -f2 signups.csv',
+			"awk -F, '{print $2}' signups.csv",
+			"awk -F, '{print $2}' signups.csv > emails.txt",
+			'cat emails.txt'
+		],
+		seed: {
+			files: {
+				'~/signups.csv':
+					'name,email,plan\nAda Lovelace,ada@example.com,pro\nGrace Hopper,grace@example.com,basic\nLinus T,linus@example.com,pro\n'
+			}
+		},
+		goal: 'emails.txt holds just the email column — no names, no commas',
+		check: async (engine) => {
+			const emails = engine.readFile('~/emails.txt');
+			return (
+				!!emails &&
+				emails.includes('ada@example.com') &&
+				emails.includes('grace@example.com') &&
+				emails.includes('linus@example.com') &&
+				!emails.includes(',')
+			);
+		}
 	}
 ];
 
@@ -759,7 +893,12 @@ export const lessonScenarioIds = [
 	'script-args',
 	'help-lookup',
 	'count-lines',
-	'history-recall'
+	'history-recall',
+	// Part 7 — Text Surgery (the Power Tools band).
+	'sed-rename',
+	'log-surgery',
+	'in-place-audit',
+	'column-pull'
 ] as const;
 
 export type LessonScenarioId = (typeof lessonScenarioIds)[number];
