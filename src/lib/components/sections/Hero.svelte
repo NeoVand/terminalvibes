@@ -100,16 +100,20 @@
 		<div class="space-y-3">
 			<div
 				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
-				style="background: var(--color-important-bg);"
+				style="background: color-mix(in srgb, var(--color-btn-playground) 12%, transparent);"
 			>
-				<Gamepad2 size={18} class="mt-0.5 flex-shrink-0" style="color: var(--color-important);" />
+				<Gamepad2
+					size={18}
+					class="mt-0.5 flex-shrink-0"
+					style="color: var(--color-btn-playground);"
+				/>
 				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong style="color: var(--color-text);">Try it now:</strong> Open the
 					<button
 						type="button"
 						onclick={onOpenPlayground}
 						class="cursor-pointer font-medium underline underline-offset-2"
-						style="color: var(--color-important);">Terminal Playground</button
+						style="color: var(--color-btn-playground);">Terminal Playground</button
 					>
 					— a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can
 					touch your real files. No install required.
@@ -118,9 +122,34 @@
 
 			<div
 				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
-				style="background: var(--color-surface);"
+				style="background: color-mix(in srgb, var(--color-btn-agent) 12%, transparent);"
 			>
-				<ScrollText size={18} class="mt-0.5 flex-shrink-0" style="color: var(--color-primary);" />
+				<Bot size={18} class="mt-0.5 flex-shrink-0" style="color: var(--color-btn-agent);" />
+				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
+					<strong style="color: var(--color-text);">Stuck on anything:</strong> this course has its
+					own
+					<button
+						type="button"
+						onclick={onOpenAgent}
+						class="cursor-pointer font-medium underline underline-offset-2"
+						style="color: var(--color-btn-agent);">AI tutor</button
+					>
+					built into the header — it has read every lesson here, answers from them, and links you back
+					to the exact section. It can run commands in its own sandbox terminal to show you, and it asks
+					permission first every time. Which is the whole course in miniature: the agent proposes, you
+					approve.
+				</p>
+			</div>
+
+			<div
+				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
+				style="background: color-mix(in srgb, var(--color-btn-cheatsheet) 12%, transparent);"
+			>
+				<ScrollText
+					size={18}
+					class="mt-0.5 flex-shrink-0"
+					style="color: var(--color-btn-cheatsheet);"
+				/>
 				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong style="color: var(--color-text);">Quick reference:</strong> Need a command fast?
 					Hit
@@ -136,27 +165,6 @@
 					to search, or open the
 					<strong style="color: var(--color-text);">Terminal Cheat Sheet</strong>
 					from the header for a complete command reference.
-				</p>
-			</div>
-
-			<div
-				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
-				style="background: var(--color-surface);"
-			>
-				<Bot size={18} class="mt-0.5 flex-shrink-0" style="color: var(--color-primary);" />
-				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong style="color: var(--color-text);">Stuck on anything:</strong> this course has its
-					own
-					<button
-						type="button"
-						onclick={onOpenAgent}
-						class="cursor-pointer font-medium underline underline-offset-2"
-						style="color: var(--color-primary);">AI tutor</button
-					>
-					built into the header — it has read every lesson here, answers from them, and links you back
-					to the exact section. It can run commands in its own sandbox terminal to show you, and it asks
-					permission first every time. Which is the whole course in miniature: the agent proposes, you
-					approve.
 				</p>
 			</div>
 		</div>
