@@ -658,6 +658,14 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 					'List all the TODO comments left anywhere in src/ with their file names and line numbers'
 				]}
 			/>
+
+			<p class="mt-10 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
+				Notice what all of these have in common: they <em>find</em> and <em>count</em> — none of
+				them changes a single character. That's deliberate, and it's why they're safe to experiment
+				with. When you're ready to make text
+				<em>different</em> — swap a word across a file, drop every DEBUG line, pull one column out
+				of a table — that's <Code code="sed" /> and <Code code="awk" />, waiting in Part 7.
+			</p>
 		</div>
 	</div>
 </section>

@@ -228,10 +228,10 @@
 	/* Same inviting treatment as the playground button, in the cheat
 	   sheet's accent — matching its "Quick reference" callout on the page */
 	.cheatsheet-btn {
-		color: var(--color-primary);
+		color: var(--color-btn-cheatsheet);
 	}
 
 	.cheatsheet-btn:hover {
-		background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+		background: color-mix(in srgb, var(--color-btn-cheatsheet) 10%, transparent);
 	}
 </style>

@@ -355,7 +355,7 @@
 		? 'var(--sidebar-width)'
 		: 'var(--sidebar-collapsed-width)'};"
 >
-	<Hero onOpenPlayground={openPlayground} />
+	<Hero onOpenPlayground={openPlayground} onOpenAgent={toggleAgent} />
 	<Part1 />
 	<Part2 />
 	<Part3 />

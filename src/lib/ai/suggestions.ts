@@ -10,11 +10,19 @@ import type { SuggestContext } from './types';
 /** A suggestion round always aims for exactly four chips. */
 export const SUGGESTION_COUNT = 4;
 
-/** The hand-written fallbacks (also the whole row when no model is ready). */
+/**
+ * The hand-written fallbacks (also the whole row when no model is ready).
+ * Spread across the course so the chips don't all point at Parts 3–5: one
+ * safety question, one plumbing question, and the two failures learners
+ * actually arrive with — a busy port and an unreadable sed command.
+ */
 export const STATIC_STARTERS = [
 	'What does chmod +x do?',
 	'Is rm -rf build/ safe to approve?',
-	'How do pipes work?'
+	'How do pipes work?',
+	'How do I free port 3000?',
+	"What does sed -i.bak 's/a/b/g' do?",
+	'Where should I keep my API keys?'
 ] as const;
 
 /** Prompt asks for ≤70 chars; the parser tolerates a little overshoot. */
