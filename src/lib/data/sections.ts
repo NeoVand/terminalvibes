@@ -51,6 +51,11 @@ export const sectionIds = [
 	'section-9-3',
 	'section-9-4',
 	'section-9-5',
+	'part-10',
+	'section-10-1',
+	'section-10-2',
+	'section-10-3',
+	'section-10-4',
 	'part-11',
 	'section-11-1',
 	'section-11-2',
@@ -102,7 +107,10 @@ export const playgroundAnchorIds = [
 	'backstage-jobs',
 	'health-check',
 	'api-detective',
-	'secret-keeper'
+	'secret-keeper',
+	'open-the-crate',
+	'summon-a-tool',
+	'space-hog'
 ] as const;
 
 /** Sub-anchors for notable interactive tools that aren't full sections but

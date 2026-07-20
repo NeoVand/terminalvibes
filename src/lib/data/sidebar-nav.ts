@@ -3,6 +3,7 @@ import {
 	AtSign,
 	Ban,
 	BookOpen,
+	Boxes,
 	Bot,
 	Braces,
 	Cog,
@@ -20,6 +21,7 @@ import {
 	Gamepad2,
 	Gauge,
 	Globe,
+	HardDrive,
 	Hash,
 	HelpCircle,
 	History,
@@ -29,12 +31,14 @@ import {
 	Layers,
 	Layout,
 	Library,
+	Link2,
 	ListOrdered,
 	ListTree,
 	Lock,
 	MapPin,
 	Monitor,
 	MoveRight,
+	Package,
 	Palette,
 	PenLine,
 	Replace,
@@ -210,6 +214,20 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-9-4', label: 'Keys & Secrets', icon: KeyRound },
 			{ id: 'secret-keeper', label: 'Keep the Key Secret', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-9-5', label: 'A Door to Another Machine', icon: DoorOpen }
+		]
+	},
+	{
+		id: 'part-10',
+		label: 'The Toolshed',
+		icon: Package,
+		children: [
+			{ id: 'section-10-1', label: 'Package Managers', icon: Package },
+			{ id: 'summon-a-tool', label: 'Install a Tool', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-10-2', label: 'Archives — tar & zip', icon: Boxes },
+			{ id: 'open-the-crate', label: 'Peek, Then Unpack', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-10-3', label: 'Links & Where Things Live', icon: Link2 },
+			{ id: 'section-10-4', label: 'Disk Detective', icon: HardDrive },
+			{ id: 'space-hog', label: 'Find the Space Hog', icon: Gamepad2, isPlayground: true }
 		]
 	},
 	{

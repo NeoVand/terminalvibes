@@ -826,6 +826,28 @@ async function dispatch(
 			return cmdEditorStub(cmd, args);
 		case 'sudo':
 			return cmdSudo(args);
+		case 'tar':
+			return cmdTar(engine, args);
+		case 'zip':
+			return cmdZip(engine, args);
+		case 'unzip':
+			return cmdUnzip(engine, args);
+		case 'brew':
+		case 'apt':
+		case 'apt-get':
+		case 'npm':
+			return cmdPackageManager(engine, cmd, args);
+		case 'cowsay':
+		case 'tldr':
+			// Installable tools only answer once they exist on disk — that is the
+			// whole point of 10.1, so the sandbox refuses them until then.
+			if (!engine.isFile(`/usr/local/bin/${cmd}`)) {
+				return fail(
+					`bash: ${cmd}: command not found\n(nothing on your $PATH has that name yet — install it first: brew install ${cmd})`,
+					127
+				);
+			}
+			return cmd === 'cowsay' ? cmdCowsay(args) : cmdTldr(args);
 		case 'curl':
 			return cmdCurl(engine, args);
 		case 'jq':
@@ -1249,6 +1271,15 @@ function toLines(content: string): string[] {
 function cmdCat(engine: ShellEngine, args: string[], stdin: string | null): ExecResult {
 	const { flags, rest } = flagSplit(args, 'n', 'cat');
 	const { content, errs } = readSources(engine, rest, stdin, 'cat');
+	// cat on an archive would spray its manifest across the screen; say what it
+	// is instead, the way a real terminal warns you about binary files.
+	const archive = readArchive(content);
+	if (archive) {
+		return ok(
+			`(this is a packed archive, not text — ${Object.keys(archive.entries).length} files inside)\n` +
+				`(peek without unpacking: tar -tzf ${rest[0] ?? 'ARCHIVE'})\n`
+		);
+	}
 	let out = content;
 	if (flags.has('n') && out) {
 		out =
@@ -2974,7 +3005,13 @@ function cmdFile(engine: ShellEngine, args: string[]): ExecResult {
 		}
 		if (node.kind === 'dir') lines.push(`${p}: directory`);
 		else if (node.content === '') lines.push(`${p}: empty`);
-		else if (node.content.startsWith('#!')) {
+		else if (readArchive(node.content)) {
+			const manifest = readArchive(node.content)!;
+			const count = Object.keys(manifest.entries).length;
+			lines.push(
+				`${p}: ${manifest.format === 'zip' ? 'Zip archive data' : manifest.format === 'tar.gz' ? 'gzip compressed data, tar archive' : 'tar archive'} (${count} entries)`
+			);
+		} else if (node.content.startsWith('#!')) {
 			const interp = node.content.split('\n')[0].slice(2).trim().split('/').pop() ?? 'shell';
 			lines.push(`${p}: ${interp} script, ASCII text executable`);
 		} else lines.push(`${p}: ASCII text`);
@@ -3371,6 +3408,266 @@ function cmdJq(engine: ShellEngine, args: string[], stdin: string | null): ExecR
 	return ok(JSON.stringify(result, null, 2) + '\n');
 }
 
+/* ── archives: tar and zip ────────────────────────────────────────── */
+
+/**
+ * Archives are real files in the VFS whose content is a manifest. A sentinel
+ * first line lets `cat` and `file` recognize one and say "this is packed"
+ * instead of vomiting JSON — the same courtesy a real terminal does when you
+ * cat a binary.
+ */
+const ARCHIVE_SENTINEL = '#!tv-archive';
+
+interface ArchiveManifest {
+	format: 'tar' | 'tar.gz' | 'zip';
+	entries: Record<string, string>;
+}
+
+export function readArchive(content: string): ArchiveManifest | null {
+	if (!content.startsWith(ARCHIVE_SENTINEL)) return null;
+	try {
+		return JSON.parse(content.slice(content.indexOf('\n') + 1)) as ArchiveManifest;
+	} catch {
+		return null;
+	}
+}
+
+function writeArchive(manifest: ArchiveManifest): string {
+	return `${ARCHIVE_SENTINEL}\n${JSON.stringify(manifest)}\n`;
+}
+
+/** Every file at or under `path`, keyed by a path relative to the cwd. */
+function collectForArchive(engine: ShellEngine, path: string): Record<string, string> {
+	const entries: Record<string, string> = {};
+	const abs = engine.resolve(path);
+	const base = engine.cwd.endsWith('/') ? engine.cwd : engine.cwd + '/';
+	const node = engine.getNode(abs);
+	if (!node) throw new CmdError(`tar: ${path}: Cannot stat: No such file or directory`);
+	const walk = (nodePath: string) => {
+		const current = engine.getNode(nodePath);
+		if (!current) return;
+		const rel = nodePath.startsWith(base) ? nodePath.slice(base.length) : nodePath.slice(1);
+		if (current.kind === 'file') {
+			entries[rel] = current.content;
+			return;
+		}
+		const names = [...current.children.keys()].sort((a, b) => a.localeCompare(b));
+		if (!names.length) entries[rel + '/'] = '';
+		for (const name of names) walk(`${nodePath}/${name}`);
+	};
+	walk(abs);
+	return entries;
+}
+
+function cmdTar(engine: ShellEngine, args: string[]): ExecResult {
+	let mode: 'c' | 'x' | 't' | null = null;
+	let gzip = false;
+	let verbose = false;
+	let archiveNext = false;
+	let archive: string | null = null;
+	const targets: string[] = [];
+	for (const a of args) {
+		if (archiveNext) {
+			archive = a;
+			archiveNext = false;
+			continue;
+		}
+		if (a.startsWith('-') || (!targets.length && !archive && /^[cxtzvf]+$/.test(a))) {
+			// tar accepts both -xzf and the old bare xzf spelling.
+			for (const ch of a.replace(/^-/, '')) {
+				if (ch === 'c' || ch === 'x' || ch === 't') mode = ch;
+				else if (ch === 'z') gzip = true;
+				else if (ch === 'v') verbose = true;
+				else if (ch === 'f') archiveNext = true;
+				else {
+					throw new CmdError(
+						`tar: flag '${ch}' is beyond this playground\n(it speaks c create, x extract, t list, z gzip, v verbose and f file)`
+					);
+				}
+			}
+			continue;
+		}
+		targets.push(a);
+	}
+	if (!mode) {
+		throw new CmdError(
+			'tar: you must pick a mode\n(-c create, -x extract, -t list — always with -f and the archive name, as in: tar -xzf release.tar.gz)'
+		);
+	}
+	if (!archive) {
+		throw new CmdError('tar: no archive named — add -f and the filename (tar -xzf release.tar.gz)');
+	}
+	const archiveAbs = engine.resolve(archive);
+
+	if (mode === 'c') {
+		if (!targets.length) {
+			throw new CmdError('tar: nothing to pack — name the files or folders to include');
+		}
+		const entries: Record<string, string> = {};
+		for (const t of targets) Object.assign(entries, collectForArchive(engine, t));
+		engine.writeFile(archiveAbs, writeArchive({ format: gzip ? 'tar.gz' : 'tar', entries }));
+		const names = Object.keys(entries);
+		return ok(verbose ? names.join('\n') + '\n' : '');
+	}
+
+	const content = engine.readFile(archiveAbs);
+	if (content === null) {
+		return fail(
+			`tar: ${archive}: Cannot open: No such file or directory\n(check the name with ls — archive names are long and easy to mistype)`
+		);
+	}
+	const manifest = readArchive(content);
+	if (!manifest) {
+		return fail(
+			`tar: ${archive}: This does not look like an archive\n(it is a plain file — cat it to see what it actually is)`,
+			2
+		);
+	}
+	const names = Object.keys(manifest.entries);
+	if (mode === 't') return ok(names.join('\n') + '\n');
+
+	for (const [rel, body] of Object.entries(manifest.entries)) {
+		const dest = engine.resolve(rel);
+		if (rel.endsWith('/')) engine.mkdirp(dest);
+		else engine.writeFile(dest, body);
+	}
+	return ok(verbose ? names.join('\n') + '\n' : '');
+}
+
+function cmdZip(engine: ShellEngine, args: string[]): ExecResult {
+	const rest = args.filter((a) => !a.startsWith('-'));
+	const archive = rest[0];
+	const targets = rest.slice(1);
+	if (!archive || !targets.length) {
+		throw new CmdError('zip: usage: zip -r archive.zip folder/   (the archive name comes first)');
+	}
+	const entries: Record<string, string> = {};
+	for (const t of targets) Object.assign(entries, collectForArchive(engine, t));
+	const name = archive.endsWith('.zip') ? archive : archive + '.zip';
+	engine.writeFile(engine.resolve(name), writeArchive({ format: 'zip', entries }));
+	return ok(
+		Object.keys(entries)
+			.map((f) => `  adding: ${f}`)
+			.join('\n') + '\n'
+	);
+}
+
+function cmdUnzip(engine: ShellEngine, args: string[]): ExecResult {
+	const listOnly = args.includes('-l');
+	const archive = args.find((a) => !a.startsWith('-'));
+	if (!archive) throw new CmdError('unzip: usage: unzip archive.zip  (or unzip -l to peek inside)');
+	const content = engine.readFile(engine.resolve(archive));
+	if (content === null) {
+		return fail(`unzip: cannot find or open ${archive}\n(check the name with ls)`);
+	}
+	const manifest = readArchive(content);
+	if (!manifest) {
+		return fail(`unzip: ${archive} is not a zip archive\n(cat it to see what it really is)`, 2);
+	}
+	const names = Object.keys(manifest.entries);
+	if (listOnly) return ok(`Archive:  ${archive}\n` + names.map((n) => `  ${n}`).join('\n') + '\n');
+	for (const [rel, body] of Object.entries(manifest.entries)) {
+		const dest = engine.resolve(rel);
+		if (rel.endsWith('/')) engine.mkdirp(dest);
+		else engine.writeFile(dest, body);
+	}
+	return ok(`Archive:  ${archive}\n` + names.map((n) => `  inflating: ${n}`).join('\n') + '\n');
+}
+
+/* ── package managers ─────────────────────────────────────────────── */
+
+/**
+ * A tiny curated registry. Installing writes a real executable into
+ * /usr/local/bin, which is why the PATH lesson from Part 5 pays off here:
+ * "installed" literally means "a file somewhere $PATH looks".
+ */
+const PACKAGES: Record<string, { summary: string; script: string }> = {
+	cowsay: {
+		summary: 'a cow that says things',
+		script: '#!/usr/bin/env bash\n# cowsay — a configurable speaking cow\n'
+	},
+	tldr: {
+		summary: 'community cheat sheets for commands',
+		script: '#!/usr/bin/env bash\n# tldr — practical examples instead of full man pages\n'
+	}
+};
+
+function installPackage(engine: ShellEngine, name: string, manager: string): ExecResult {
+	const pkg = PACKAGES[name];
+	if (!pkg) {
+		return fail(
+			`${manager}: no formula named '${name}' in this playground\n(it stocks: ${Object.keys(PACKAGES).join(', ')})`
+		);
+	}
+	const path = `/usr/local/bin/${name}`;
+	if (engine.isFile(path)) {
+		return ok(`${manager}: ${name} is already installed (${path})\n`);
+	}
+	engine.writeFile(path, pkg.script);
+	const node = engine.getNode(path);
+	if (node?.kind === 'file') node.executable = true;
+	return ok(
+		`==> Fetching ${name}\n==> Installing ${name} (${pkg.summary})\n` +
+			`==> Installed to ${path}\n` +
+			`(that directory is on your $PATH, which is the whole reason you can now just type "${name}")\n`
+	);
+}
+
+function cmdPackageManager(engine: ShellEngine, manager: string, args: string[]): ExecResult {
+	const action = args.find((a) => !a.startsWith('-')) ?? '';
+	const names = args.filter((a) => !a.startsWith('-') && a !== action);
+	// npm spells global installs with -g; brew and apt just take a name.
+	const isInstall = /^(install|i|add|-S)$/.test(action);
+	if (!isInstall) {
+		if (action === 'list' || action === 'ls') {
+			const installed = Object.keys(PACKAGES).filter((p) => engine.isFile(`/usr/local/bin/${p}`));
+			return ok(installed.length ? installed.join('\n') + '\n' : '(nothing installed yet)\n');
+		}
+		return fail(
+			`${manager}: '${action || '(nothing)'}' is beyond this playground\n(it understands: ${manager} install NAME, and ${manager} list)`
+		);
+	}
+	if (!names.length) {
+		return fail(`${manager}: what should it install?\n(example: ${manager} install cowsay)`);
+	}
+	const results = names.map((n) => installPackage(engine, n, manager));
+	return {
+		out: results.map((r) => r.out).join(''),
+		err: results.map((r) => r.err).join(''),
+		code: results.some((r) => r.code !== 0) ? 1 : 0
+	};
+}
+
+/** cowsay is pure delight, and delight is a legitimate reason to install something. */
+function cmdCowsay(args: string[]): ExecResult {
+	const text = args.join(' ') || 'moo';
+	const top = ' ' + '_'.repeat(text.length + 2);
+	const bottom = ' ' + '-'.repeat(text.length + 2);
+	return ok(
+		`${top}\n< ${text} >\n${bottom}\n` +
+			'        \\   ^__^\n' +
+			'         \\  (oo)\\_______\n' +
+			'            (__)\\       )\\/\\\n' +
+			'                ||----w |\n' +
+			'                ||     ||\n'
+	);
+}
+
+/** tldr: the practical-examples answer to man's completeness. */
+function cmdTldr(args: string[]): ExecResult {
+	const name = args.find((a) => !a.startsWith('-'));
+	if (!name) throw new CmdError('tldr: which command?  (example: tldr tar)');
+	const page = MAN_PAGES[MAN_ALIASES[name] ?? name];
+	if (!page) {
+		return fail(`tldr: no page for '${name}' in this playground\n(try: man ${name})`);
+	}
+	return ok(
+		`  ${name}\n\n  ${page.name}\n\n` +
+			page.examples.map((e) => `  - ${e}\n`).join('') +
+			`\n(tldr shows examples; man ${name} has the full story)\n`
+	);
+}
+
 /* ── help & man ───────────────────────────────────────────────────── */
 
 const HELP_LINES: [string, string][] = [
@@ -3760,14 +4057,6 @@ const MAN_PAGES: Record<string, ManPage> = {
 		vibe: 'Is my disk full? The eternal question.',
 		simulated: true
 	},
-	du: {
-		name: 'disk usage of directories',
-		synopsis: 'du [-h] [-s] [path]',
-		description:
-			'Measures how much space directories take (in the sandbox: real byte counts of your files). -h humanizes sizes, -s prints only the total.',
-		examples: ['du -h', 'du -sh projects'],
-		vibe: 'WHERE did my disk space go? du knows.'
-	},
 	file: {
 		name: 'guess what a file is',
 		synopsis: 'file name',
@@ -3910,6 +4199,42 @@ const MAN_PAGES: Record<string, ManPage> = {
 			'curl -s api.vibecloud.dev/releases | jq -r .latest'
 		],
 		vibe: 'Ask the network. Believe the answer, not the promise.'
+	},
+	tar: {
+		name: 'pack many files into one, and unpack them again',
+		synopsis: 'tar -czf ARCHIVE PATHS…   ·   tar -tzf ARCHIVE   ·   tar -xzf ARCHIVE',
+		description:
+			'The flag soup decoded, one letter at a time: c creates an archive, x extracts one, t lists what is inside without unpacking, z means the archive is also gzip-compressed (the .gz in .tar.gz), f says "the next word is the archive filename", and v prints each file as it goes. So tar -xzf release.tar.gz reads: extract, un-gzip, this file. The habit worth keeping: run tar -tzf first to see what will land where — archives can contain paths that scatter files across your folder, and t costs you nothing.',
+		examples: [
+			'tar -tzf release.tar.gz',
+			'tar -xzf release.tar.gz',
+			'tar -czf backup.tar.gz notes/'
+		],
+		vibe: 'Peek before you unpack.'
+	},
+	unzip: {
+		name: 'unpack a .zip archive',
+		synopsis: 'unzip [-l] ARCHIVE',
+		description:
+			"Extracts a zip archive into the current directory. -l lists the contents without extracting — the zip world's version of tar -tzf, and worth the same habit. Its partner zip -r archive.zip folder/ packs one up.",
+		examples: ['unzip -l assets.zip', 'unzip assets.zip', 'zip -r assets.zip images/'],
+		vibe: 'The other crate opener.'
+	},
+	brew: {
+		name: 'install tools (macOS package manager)',
+		synopsis: 'brew install NAME   ·   brew list',
+		description:
+			'Fetches a tool, unpacks it, and puts it somewhere your $PATH already looks — usually /usr/local/bin. That last part is the whole trick: "installing" a command-line tool mostly means placing a file where the shell can find it, which is why Part 5\'s PATH lesson explains what package managers are really doing. Linux uses apt (sudo apt install NAME) and JavaScript tools come from npm (npm i -g NAME); the shape is the same everywhere. Read what an install pulls in before running it, especially when an agent suggests it.',
+		examples: ['brew install cowsay', 'brew list', 'which cowsay'],
+		vibe: 'One command fetches, unpacks and shelves.'
+	},
+	du: {
+		name: 'how much space is this using?',
+		synopsis: 'du -sh [PATH…]',
+		description:
+			'Measures disk usage. -h prints human sizes (K, M, G) and -s gives one summary line per argument instead of every subfolder. The everyday incantation is du -sh */ — the size of each folder here, so the space hog is obvious at a glance. Measure before you delete: it turns "I think node_modules is big" into a number, and it is the honest first step before any rm.',
+		examples: ['du -sh *', 'du -sh node_modules', 'df -h'],
+		vibe: 'Find the space hog before you swing.'
 	},
 	jq: {
 		name: 'read a value out of JSON',

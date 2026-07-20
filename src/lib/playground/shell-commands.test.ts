@@ -706,6 +706,120 @@ describe('curl and jq', () => {
 	});
 });
 
+describe('archives and package managers', () => {
+	beforeEach(async () => {
+		await engine.reset({
+			files: {
+				'~/site/index.html': '<h1>hello</h1>\n',
+				'~/site/css/app.css': 'body { margin: 0 }\n',
+				'~/notes.txt': 'keep me\n'
+			}
+		});
+	});
+
+	it('packs a folder, lists it without unpacking, then extracts it', async () => {
+		await run('tar -czf site.tar.gz site');
+		expect(engine.isFile('~/site.tar.gz')).toBe(true);
+
+		const listed = await run('tar -tzf site.tar.gz');
+		expect(listed.output).toContain('site/index.html');
+		expect(listed.output).toContain('site/css/app.css');
+
+		await run('rm -r site');
+		expect(engine.exists('~/site')).toBe(false);
+
+		await run('tar -xzf site.tar.gz');
+		expect(engine.readFile('~/site/index.html')).toBe('<h1>hello</h1>\n');
+		expect(engine.readFile('~/site/css/app.css')).toBe('body { margin: 0 }\n');
+	});
+
+	it('accepts the bare xzf spelling as well as -xzf', async () => {
+		await run('tar czf a.tar.gz notes.txt');
+		expect((await run('tar tzf a.tar.gz')).output).toContain('notes.txt');
+	});
+
+	it('cat and file describe an archive instead of dumping it', async () => {
+		await run('tar -czf site.tar.gz site');
+		const catted = await run('cat site.tar.gz');
+		expect(catted.output).toContain('packed archive');
+		expect(catted.output).toContain('tar -tzf');
+		expect((await run('file site.tar.gz')).output).toContain('tar archive');
+	});
+
+	it('explains a missing archive and a non-archive', async () => {
+		const missing = await run('tar -xzf nope.tar.gz');
+		expect(missing.error).toBe(true);
+		expect(missing.output).toContain('Cannot open');
+		const plain = await run('tar -xzf notes.txt');
+		expect(plain.error).toBe(true);
+		expect(plain.output).toContain('does not look like an archive');
+	});
+
+	it('names the tar flags it does not know', async () => {
+		const res = await run('tar -xqf site.tar.gz');
+		expect(res.error).toBe(true);
+		expect(res.output).toContain('c create');
+	});
+
+	it('zip and unzip round-trip, and -l peeks', async () => {
+		await run('zip -r site.zip site');
+		expect(engine.isFile('~/site.zip')).toBe(true);
+		expect((await run('unzip -l site.zip')).output).toContain('site/index.html');
+		await run('rm -r site');
+		await run('unzip site.zip');
+		expect(engine.readFile('~/site/index.html')).toBe('<h1>hello</h1>\n');
+	});
+
+	it('an installable tool is missing until a package manager installs it', async () => {
+		const before = await run('cowsay hello');
+		expect(before.error).toBe(true);
+		expect(before.output).toContain('command not found');
+		expect((await run('which cowsay')).error).toBe(true);
+
+		const install = await run('brew install cowsay');
+		expect(install.output).toContain('/usr/local/bin');
+
+		const after = await run('cowsay hello');
+		expect(after.output).toContain('hello');
+		expect(after.output).toContain('^__^');
+		expect((await run('which cowsay')).output.trim()).toBe('/usr/local/bin/cowsay');
+	});
+
+	it('apt installs the same way; sudo points at the plain command', async () => {
+		// The Linux idiom is `sudo apt install`, and the sandbox has no root —
+		// so it refuses, but tells the learner exactly what to run instead.
+		const elevated = await run('sudo apt install tldr');
+		expect(elevated.error).toBe(true);
+		expect(elevated.output).toContain('without sudo');
+
+		await run('apt install tldr');
+		expect(engine.isFile('/usr/local/bin/tldr')).toBe(true);
+		expect((await run('brew list')).output).toContain('tldr');
+		expect((await run('tldr tar')).output).toContain('tar -tzf');
+	});
+
+	it('an unknown package names what the playground stocks', async () => {
+		const res = await run('brew install nonsense');
+		expect(res.error).toBe(true);
+		expect(res.output).toContain('cowsay');
+	});
+
+	it('du measures real sizes so the space hog is obvious', async () => {
+		await run('mkdir big');
+		await run('echo ' + 'x'.repeat(400) + ' > big/blob.txt');
+		const res = await run('du -sh big site');
+		const big = res.output.split('\n').find((l) => l.includes('big'))!;
+		const site = res.output.split('\n').find((l) => l.includes('site'))!;
+		expect(parseInt(big)).toBeGreaterThan(parseInt(site));
+	});
+
+	it('has man pages for the toolshed', async () => {
+		expect(strip((await run('man tar')).output)).toContain('tar -tzf');
+		expect(strip((await run('man brew')).output)).toContain('$PATH');
+		expect(strip((await run('man du')).output)).toContain('du -sh');
+	});
+});
+
 describe('text shaping: sort, uniq, cut, tr, echo, printf', () => {
 	it('sorts alphabetically, numerically, reversed and unique', async () => {
 		expect((await run('printf "b\\na\\nc\\n" | sort')).output).toBe('a\nb\nc');
