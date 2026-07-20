@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {
+		Bot,
 		Gamepad2,
 		ScrollText,
 		HelpCircle,
@@ -23,9 +24,11 @@
 	import OsIcon from '../ui/OsIcon.svelte';
 
 	let {
-		onOpenPlayground
+		onOpenPlayground,
+		onOpenAgent
 	}: {
 		onOpenPlayground?: () => void;
+		onOpenAgent?: () => void;
 	} = $props();
 
 	let activeTab = $state<'mac' | 'windows' | 'linux'>('mac');
@@ -80,7 +83,7 @@
 			shell commands — this guide teaches you to read, verify, and run them with confidence. From
 			your very first
 			<Code code="echo" /> to auditing an agent's script, every concept is explained visually, then practiced
-			hands-on. Two companions will follow you through every part:
+			hands-on. Three companions will follow you through every part:
 		</p>
 
 		<div class="mb-5 flex flex-wrap gap-2">
@@ -133,6 +136,27 @@
 					to search, or open the
 					<strong style="color: var(--color-text);">Terminal Cheat Sheet</strong>
 					from the header for a complete command reference.
+				</p>
+			</div>
+
+			<div
+				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
+				style="background: var(--color-surface);"
+			>
+				<Bot size={18} class="mt-0.5 flex-shrink-0" style="color: var(--color-primary);" />
+				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
+					<strong style="color: var(--color-text);">Stuck on anything:</strong> this course has its
+					own
+					<button
+						type="button"
+						onclick={onOpenAgent}
+						class="cursor-pointer font-medium underline underline-offset-2"
+						style="color: var(--color-primary);">AI tutor</button
+					>
+					built into the header — it has read every lesson here, answers from them, and links you back
+					to the exact section. It can run commands in its own sandbox terminal to show you, and it asks
+					permission first every time. Which is the whole course in miniature: the agent proposes, you
+					approve.
 				</p>
 			</div>
 		</div>

@@ -70,8 +70,10 @@ describe('topUpSuggestions', () => {
 		expect(topUpSuggestions(four)).toEqual(four);
 	});
 
-	it('an empty parse becomes exactly the static starters', () => {
-		expect(topUpSuggestions([])).toEqual([...STATIC_STARTERS]);
+	it('an empty parse fills up from the static starters', () => {
+		const filled = topUpSuggestions([]);
+		expect(filled).toEqual(STATIC_STARTERS.slice(0, SUGGESTION_COUNT));
+		expect(filled).toHaveLength(Math.min(SUGGESTION_COUNT, STATIC_STARTERS.length));
 	});
 });
 

@@ -429,6 +429,127 @@
 							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
 						>
 							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
+								>Text surgery</td
+							>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Find &amp; replace</td>
+							<td class="px-3 py-2"><Code code="sed 's/old/new/g' f.txt" /></td>
+							<td class="px-3 py-2"
+								>Prints the result; the file is untouched until <Code code="-i" /></td
+							>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Edit the file itself</td>
+							<td class="px-3 py-2"><Code code="sed -i.bak 's/a/b/g' f.txt" /></td>
+							<td class="px-3 py-2">Never bare <Code code="-i" /> — the suffix is your undo</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Drop / show lines</td>
+							<td class="px-3 py-2"
+								><Code code="sed '/DEBUG/d'" /> ·
+								<Code code="sed -n '40,55p'" /></td
+							>
+							<td class="px-3 py-2">Address picks lines, command decides their fate</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Pull a column</td>
+							<td class="px-3 py-2"><Code code={`awk '{print $2}'`} /></td>
+							<td class="px-3 py-2"
+								><Code code="-F," /> for CSV; <Code code="cut" /> for clean delimiters</td
+							>
+						</tr>
+						<tr
+							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
+						>
+							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
+								>Processes, ports &amp; the network</td
+							>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">What's running?</td>
+							<td class="px-3 py-2"
+								><Code code="ps aux" /> ·
+								<Code code="pgrep node" /></td
+							>
+							<td class="px-3 py-2">PID is the handle; %CPU finds the runaway</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Stop it</td>
+							<td class="px-3 py-2"
+								><Code code="kill PID" /> ·
+								<Code code="kill -9 PID" /></td
+							>
+							<td class="px-3 py-2">Ask politely first; <Code code="-9" /> skips all cleanup</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">"Address already in use"</td>
+							<td class="px-3 py-2"><Code code="lsof -i :3000" /></td>
+							<td class="px-3 py-2">Find the PID, kill it, start yours</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Background a job</td>
+							<td class="px-3 py-2"
+								><Code code="cmd &" /> ·
+								<Code code="jobs" /> ·
+								<Code code="fg %1" /></td
+							>
+							<td class="px-3 py-2"><Code code="Ctrl+Z" /> pauses, <Code code="bg" /> resumes</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Is the server alive?</td>
+							<td class="px-3 py-2"><Code code="curl localhost:3000/health" /></td>
+							<td class="px-3 py-2">
+								<Code code="-s -o f.json" /> saves it quietly; <Code code="-I" /> = headers</td
+							>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Read JSON</td>
+							<td class="px-3 py-2"><Code code="curl -s URL | jq -r .field" /></td>
+							<td class="px-3 py-2"><Code code="-r" /> drops the quotes for the next command</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Keep a secret</td>
+							<td class="px-3 py-2"
+								><Code code="echo 'K=v' > .env" /> ·
+								<Code code="chmod 600 .env" /></td
+							>
+							<td class="px-3 py-2">Never type a key into a command — history keeps it</td>
+						</tr>
+						<tr
+							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
+						>
+							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
+								>The toolshed</td
+							>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Install a tool</td>
+							<td class="px-3 py-2"><Code code="brew install NAME" /></td>
+							<td class="px-3 py-2"
+								>Linux: <Code code="sudo apt install" />. Confirm with <Code code="which" /></td
+							>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Open an archive</td>
+							<td class="px-3 py-2"
+								><Code code="tar -tzf f.tar.gz" /> ·
+								<Code code="tar -xzf f.tar.gz" /></td
+							>
+							<td class="px-3 py-2">t lists, x extracts — peek before you unpack</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">What's eating the disk?</td>
+							<td class="px-3 py-2"
+								><Code code="du -sh *" /> ·
+								<Code code="df -h" /></td
+							>
+							<td class="px-3 py-2">Measure before you delete</td>
+						</tr>
+						<tr
+							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
+						>
+							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
 								>Chaining, history &amp; help</td
 							>
 						</tr>

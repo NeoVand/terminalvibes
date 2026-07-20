@@ -3,7 +3,7 @@
 		"id": "hero",
 		"part": 0,
 		"title": "Introduction",
-		"text": "TerminalVibes — The Terminal for Vibe Coders Welcome! Your AI assistant keeps proposing shell commands — this guide teaches you to read, verify, and run them with confidence. From your very first echo to auditing an agent's script, every concept is explained visually, then practiced hands-on. Two companions will follow you through every part: Try it now: Open the Terminal Playground — a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can touch your real files. No install required. Quick reference: Need a command fast? Hit ⌘K / Ctrl+K to search, or open the Terminal Cheat Sheet from the header for a complete command reference."
+		"text": "TerminalVibes — The Terminal for Vibe Coders Welcome! Your AI assistant keeps proposing shell commands — this guide teaches you to read, verify, and run them with confidence. From your very first echo to auditing an agent's script, every concept is explained visually, then practiced hands-on. Three companions will follow you through every part: Try it now: Open the Terminal Playground — a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can touch your real files. No install required. Quick reference: Need a command fast? Hit ⌘K / Ctrl+K to search, or open the Terminal Cheat Sheet from the header for a complete command reference. Stuck on anything: this course has its own AI tutor built into the header — it has read every lesson here, answers from them, and links you back to the exact section. It can run commands in its own sandbox terminal to show you, and it asks permission first every time. Which is the whole course in miniature: the agent proposes, you approve."
 	},
 	{
 		"id": "section-intro-what",
@@ -315,7 +315,7 @@
 		"id": "section-4-5",
 		"part": 4,
 		"title": "4.5 Finding Files",
-		"text": "grep — searches contents \"Which lines contain TODO ?\" It reads inside files but doesn't care what they're named. And naturally, they compose. Find the files by name, then grep inside exactly those: find . -name '*.js' | xargs grep -n \"TODO\" ./src/app.js:14: // TODO: handle empty cart ./src/utils.js:3: // TODO: remove this hack # xargs turns the list of paths into arguments for grep. # (For a whole tree, grep -rn \"TODO\" . is the simpler everyday version.) Try It: Hunt Down Every TODO A project tree is scattered with leftover TODOs. Use find . -name '*.js' -type f to locate the source files (quote that glob!), then combine with grep to list every TODO with its file and line number."
+		"text": "grep — searches contents \"Which lines contain TODO ?\" It reads inside files but doesn't care what they're named. And naturally, they compose. Find the files by name, then grep inside exactly those: find . -name '*.js' | xargs grep -n \"TODO\" ./src/app.js:14: // TODO: handle empty cart ./src/utils.js:3: // TODO: remove this hack # xargs turns the list of paths into arguments for grep. # (For a whole tree, grep -rn \"TODO\" . is the simpler everyday version.) Try It: Hunt Down Every TODO A project tree is scattered with leftover TODOs. Use find . -name '*.js' -type f to locate the source files (quote that glob!), then combine with grep to list every TODO with its file and line number. Notice what all of these have in common: they find and count — none of them changes a single character. That's deliberate, and it's why they're safe to experiment with. When you're ready to make text different — swap a word across a file, drop every DEBUG line, pull one column out of a table — that's sed and awk , waiting in Part 7."
 	},
 	{
 		"id": "part-5",
@@ -363,7 +363,13 @@
 		"id": "section-5-4",
 		"part": 5,
 		"title": "5.4 Environment Variables",
-		"text": "python --version bash: python: command not found # 2. ...or it's not installed... # 3. ...or it's installed somewhere # that isn't on PATH. which ls # 'which' shows where a command lives /bin/ls which python # Silence/nothing = not on PATH \"Command not found\" always means exactly one of three things: a typo , a tool that's not installed , or a tool installed outside PATH . Check them in that order — which and echo $PATH settle it in seconds. This is also why installers keep telling you to \"add something to your PATH\": they put the tool in a folder your shell doesn't search yet. Try It: command not found A tool called greet is installed somewhere in the playground, but typing greet only gets you \"command not found.\" Inspect echo $PATH , hunt the executable down with find , and run it — by its full path, or by fixing PATH."
+		"text": "python --version bash: python: command not found # 2. ...or it's not installed... # 3. ...or it's installed somewhere # that isn't on PATH. which ls # 'which' shows where a command lives /bin/ls which python # Silence/nothing = not on PATH \"Command not found\" always means exactly one of three things: a typo , a tool that's not installed , or a tool installed outside PATH . Check them in that order — which and echo $PATH settle it in seconds. This is also why installers keep telling you to \"add something to your PATH\": they put the tool in a folder your shell doesn't search yet. One kind of variable needs extra care: secrets. API keys are usually handed to programs as environment variables, and the tempting move — typing export API_KEY=sk-... straight into your terminal — writes the key into your shell history, where it stays. Part 9.4 covers the safe pattern: keep keys in a .env file, lock it with chmod 600 , and reference $API_KEY instead of the value."
+	},
+	{
+		"id": "section-5-4",
+		"part": 5,
+		"title": "5.4 Environment Variables",
+		"text": "Try It: command not found A tool called greet is installed somewhere in the playground, but typing greet only gets you \"command not found.\" Inspect echo $PATH , hunt the executable down with find , and run it — by its full path, or by fixing PATH."
 	},
 	{
 		"id": "section-5-5",
@@ -873,7 +879,13 @@
 		"id": "section-13-2",
 		"part": 13,
 		"title": "13.2 Quick Reference",
-		"text": "-name \"*.md\" find = filenames, grep = contents Permissions & environment Make runnable chmod +x script.sh Then run with ./script.sh \"command not found\" echo $PATH · which cmd The shell only searches PATH Shortcuts alias gs='git status' Persist in .bashrc / .zshrc , then source it Chaining, history & help Chain on success a && b · a || b $? holds the last exit code; 0 = success Recall a command Ctrl+R · !! · history Ctrl+R is the biggest speed unlock Get help cmd --help · man cmd q quits the pager; tldr for examples Practice all commands Terminal Playground Try-it activities throughout Parts 1–6"
+		"text": "-name \"*.md\" find = filenames, grep = contents Permissions & environment Make runnable chmod +x script.sh Then run with ./script.sh \"command not found\" echo $PATH · which cmd The shell only searches PATH Shortcuts alias gs='git status' Persist in .bashrc / .zshrc , then source it Text surgery Find & replace sed 's/old/new/g' f.txt Prints the result; the file is untouched until -i Edit the file itself sed -i.bak 's/a/b/g' f.txt Never bare -i — the suffix is your undo Drop / show lines sed '/DEBUG/d' · sed -n '40,55p' Address picks lines, command decides their fate Pull a column awk '{print $2}' -F, for CSV; cut for clean delimiters Processes, ports & the network What's running? ps aux · pgrep node PID is the handle; %CPU finds the runaway Stop it kill PID · kill -9 PID Ask politely first; -9 skips all cleanup \"Address already in use\" lsof -i :3000 Find the PID, kill it, start yours Background a job cmd & · jobs · fg %1 Ctrl+Z pauses, bg resumes Is the server alive?"
+	},
+	{
+		"id": "section-13-2",
+		"part": 13,
+		"title": "13.2 Quick Reference",
+		"text": "curl localhost:3000/health -s -o f.json saves it quietly; -I = headers Read JSON curl -s URL | jq -r .field -r drops the quotes for the next command Keep a secret echo 'K=v' > .env · chmod 600 .env Never type a key into a command — history keeps it The toolshed Install a tool brew install NAME Linux: sudo apt install . Confirm with which Open an archive tar -tzf f.tar.gz · tar -xzf f.tar.gz t lists, x extracts — peek before you unpack What's eating the disk? du -sh * · df -h Measure before you delete Chaining, history & help Chain on success a && b · a || b $? holds the last exit code; 0 = success Recall a command Ctrl+R · !! · history Ctrl+R is the biggest speed unlock Get help cmd --help · man cmd q quits the pager; tldr for examples Practice all commands Terminal Playground Try-it activities throughout Parts 1–6"
 	},
 	{
 		"id": "section-13-3",

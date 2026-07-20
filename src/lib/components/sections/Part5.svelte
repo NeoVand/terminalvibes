@@ -469,6 +469,15 @@ which python                         # Silence/nothing = not on PATH`}
 				they put the tool in a folder your shell doesn't search yet.
 			</Callout>
 
+			<Callout type="caution">
+				<strong>One kind of variable needs extra care: secrets.</strong> API keys are usually handed
+				to programs as environment variables, and the tempting move — typing
+				<Code code="export API_KEY=sk-..." /> straight into your terminal — writes the key into your shell
+				history, where it stays. Part 9.4 covers the safe pattern: keep keys in a
+				<Code code=".env" /> file, lock it with <Code code="chmod 600" />, and reference
+				<Code code="$API_KEY" /> instead of the value.
+			</Callout>
+
 			<h4
 				id="path-repair"
 				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
