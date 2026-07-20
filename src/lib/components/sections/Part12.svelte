@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Cog, Sprout, Wrench, AppWindow, Cable, Shell, CookingPot, Zap } from 'lucide-svelte';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -267,7 +268,7 @@
 			</Callout>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You've already felt this from the other side. In Part 8 you sent
+				You've already felt this from the other side. In <CourseLink to="part-8" /> you sent
 				<Code code="SIGTERM" /> with <Code code="kill" /> and watched a stubborn process shrug it off,
 				then sent <Code code="SIGKILL" /> with <Code code="kill -9" />, which it could not refuse.
 				Same machinery, three doors: <Code code="Ctrl+C" /> is SIGINT to whatever is in the foreground,
@@ -314,8 +315,9 @@
 					> reads them, obeys the escapes, and paints glyphs into its character grid.
 				</li>
 				<li class="list-decimal">
-					ls exits; the shell collects its exit code (the <Code code="$?" /> you met in Part 6) and prints
-					a fresh prompt. Your turn.
+					ls exits; the shell collects its exit code (the <Code code="$?" /> you met in <CourseLink
+						to="part-6"
+					/>) and prints a fresh prompt. Your turn.
 				</li>
 			</ol>
 
@@ -404,11 +406,11 @@
 				<strong style="color: var(--color-text);">success or failure dot</strong> next to every
 				command you run, let you jump between commands with a keystroke, and pin the running command
 				to the top of the panel while output scrolls. And they matter double in the AI era: an agent
-				watching a terminal through OSC markers doesn't have to <em>guess</em> where your prompt ends
-				and the output begins, or grep the scrollback for the word "error" — it knows the exact command,
-				the exact output, and the exact exit code, machine-readably. The read-before-you-run contract
-				from Part 6 works in both directions now: you can read what the agent runs, and the agent can
-				reliably read what happened.
+				watching a terminal through OSC markers doesn't have to <em>guess</em> where your prompt
+				ends and the output begins, or grep the scrollback for the word "error" — it knows the exact
+				command, the exact output, and the exact exit code, machine-readably. The
+				read-before-you-run contract from <CourseLink to="part-6" /> works in both directions now: you
+				can read what the agent runs, and the agent can reliably read what happened.
 			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -452,12 +454,14 @@
 				("print mode") and the agent reads stdin, writes stdout, and sets an exit code — the exact contract
 				<Code code="grep" />
 				and
-				<Code code="sort" /> have honored since 1973. Which means everything you learned in Part 4 and
-				Part 5 applies, unchanged, to intelligence itself:
+				<Code code="sort" /> have honored since 1973. Which means everything you learned in <CourseLink
+					to="part-4"
+				/> and
+				<CourseLink to="part-5" /> applies, unchanged, to intelligence itself:
 			</p>
 
 			<CodeBlock
-				title="An AI agent in a pipeline — Part 4 rules apply"
+				title="An AI agent in a pipeline — the same rules as any pipe"
 				code={`# Pipe a diff in, get a review out — stdin to stdout, like any tool
 git diff main | claude -p "review this diff; list issues as filename:line"
 
@@ -468,9 +472,8 @@ git log --oneline -20 \\
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Read that first line again with Part 4 eyes: a program's output flowing through <Code
-					code="|"
-				/>
+				Read that first line again with <CourseLink to="part-4" /> eyes: a program's output flowing through
+				<Code code="|" />
 				into another program's input. The second program just happens to be a language model. It sorts
 				into pipelines, redirects into files, chains with
 				<Code code="&&" />, and reports success through
@@ -532,14 +535,14 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Count the course in that script: redirection and pipes (Part 4), a loop feeding on a file
-				(the <Code code="while read" />
+				Count the course in that script: redirection and pipes (<CourseLink to="part-4" />), a loop
+				feeding on a file (the <Code code="while read" />
 				pattern — each line of
 				<Code code="changed.txt" />
 				lands in
-				<Code code="$file" />), scripting and variables (Part 6), signals and cleanup (this part),
-				and an AI agent doing the reading — supervised by a script <em>you</em> can read line by
-				line. If it fails halfway,
+				<Code code="$file" />), scripting and variables (<CourseLink to="part-6" />), signals and
+				cleanup (this part), and an AI agent doing the reading — supervised by a script <em>you</em>
+				can read line by line. If it fails halfway,
 				<Code code="set -e" />
 				stops it; if you Ctrl+C it, the trap tidies up. This is what "advanced automation" actually looks
 				like: not longer commands — stronger habits.

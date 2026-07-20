@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Terminal, Monitor, Sparkles, HelpCircle } from 'lucide-svelte';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import { base } from '$app/paths';
 	import OsIcon from '../ui/OsIcon.svelte';
 	import Callout from '../ui/Callout.svelte';
@@ -357,8 +358,9 @@ clear
 			<Callout type="tip" title="Ask the AI, verify with --help">
 				Let the assistant explain the command in plain English, then skim <Code code="--help" />
 				or the man page to confirm the flags do what it claimed. Explanation from the AI,
-				<em>ground truth from the machine</em> — that habit is the heart of Part 6, and you can start
-				it today.
+				<em>ground truth from the machine</em> — that habit is the heart of <CourseLink
+					to="part-6"
+				/>, and you can start it today.
 			</Callout>
 
 			<h4

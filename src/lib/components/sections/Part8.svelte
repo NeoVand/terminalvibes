@@ -2,6 +2,7 @@
 	import { Cpu, ListTree, Ban, Anchor, Layers } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -86,8 +87,10 @@ vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
 			</p>
 
 			<Callout type="tip">
-				<strong>ps output is just text</strong> — which means Part 4 and Part 7 already taught you
-				how to search it. <Code code="ps aux | grep node" /> finds a process by name, and
+				<strong>ps output is just text</strong> — which means <CourseLink to="part-4" /> and <CourseLink
+					to="part-7"
+				/> already taught you how to search it. <Code code="ps aux | grep node" /> finds a process by
+				name, and
 				<Code code={`awk '{print $2}'`} /> pulls the PID column out of the result. This is why the column-shaped
 				output of old Unix tools is worth putting up with: every tool composes. There's a shortcut for
 				the common case too — <Code code="pgrep node" /> prints matching PIDs directly.
@@ -147,16 +150,16 @@ kill -9 437              # SIGKILL — the floor opens, no cleanup
 				<strong><Code code="kill -9" /> is a last resort, not a default.</strong> Plenty of guides
 				(and plenty of AI answers) reach for it first because it always works. It always works the
 				way an axe always opens a door. Ask nicely, give it a second, and escalate only if it
-				refuses — and add <Code code="kill -9" /> to your Part 6 red-flag list when an agent proposes
-				it without trying the polite version first.
+				refuses — and add <Code code="kill -9" /> to your <CourseLink to="part-6" /> red-flag list when
+				an agent proposes it without trying the polite version first.
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				One thing you already knew, renamed: <Code code="Ctrl+C" /> is a signal too —
 				<strong style="color: var(--color-text);">SIGINT</strong>, "interrupt" — sent to whatever is
 				running in the foreground. That's why it stops a stuck command but does nothing to a server
-				running in another window; that one needs its PID. Part 12 opens up the machinery underneath
-				all three signals.
+				running in another window; that one needs its PID. <CourseLink to="part-12" /> opens up the machinery
+				underneath all three signals.
 			</p>
 
 			<VibeBox
@@ -272,7 +275,9 @@ serve: listening on http://localhost:3000`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				A dev server holds your terminal hostage: it runs until you stop it, and the prompt never
-				comes back. One answer is more terminals (Part 11's tabs and splits). The other is
+				comes back. One answer is more terminals (the tabs and splits in <CourseLink
+					to="part-11"
+				/>). The other is
 				<strong style="color: var(--color-text);">job control</strong> — telling this shell to keep
 				the program running <em>backstage</em> while you get your prompt back.
 			</p>
@@ -314,8 +319,9 @@ fg %1                    # bring job 1 into the spotlight`}
 			<Callout type="tip">
 				<strong>Honest advice: use tabs.</strong> Job control is a genuinely useful escape hatch —
 				and mostly a rescue for the terminal you're already in. For an everyday setup (server in one
-				pane, logs in another, a free shell for you), the split terminals in Part 11 are nicer to
-				live with than juggling <Code code="%1" /> and <Code code="%2" />.
+				pane, logs in another, a free shell for you), the split terminals in <CourseLink
+					to="part-11"
+				/> are nicer to live with than juggling <Code code="%1" /> and <Code code="%2" />.
 			</Callout>
 
 			<VibeBox

@@ -2,6 +2,7 @@
 	import { Package, Boxes, Link2, HardDrive } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -54,7 +55,8 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				When a command doesn't exist, your shell says
-				<Code code="command not found" /> — which, as Part 5 taught you, means "nothing on your
+				<Code code="command not found" /> — which, as <CourseLink to="part-5" /> taught you, means "nothing
+				on your
 				<Code code="$PATH" /> has that name." A
 				<strong style="color: var(--color-text);">package manager</strong> fixes that in one step: it
 				fetches the tool, unpacks it, and puts it somewhere your PATH already looks.
@@ -90,9 +92,9 @@ which cowsay                   # where did it land?
 				<strong>Read what an install pulls in</strong> — especially from an agent. Three things
 				deserve a second look: <Code code="sudo npm install" /> (a global npm install should rarely need
 				root, and needing it usually means something is misconfigured);
-				<Code code="curl … | bash" /> installers (Part 9 explained exactly why — download, read, then
-				run); and any package whose name is one typo away from a popular one, which is a real and common
-				attack.
+				<Code code="curl … | bash" /> installers (<CourseLink to="part-9" /> explained exactly why — download,
+				read, then run); and any package whose name is one typo away from a popular one, which is a real
+				and common attack.
 			</Callout>
 
 			<VibeBox
@@ -162,8 +164,9 @@ tar -czf backup.tar.gz notes/   # c: create an archive from notes/`}
 				<strong>Peek before you unpack.</strong> An archive decides where its own contents land, and
 				a badly-built one scatters files all over your current folder instead of tidying them into
 				one directory. <Code code="tar -tzf archive.tar.gz" /> lists everything without extracting anything
-				— it costs a second and it's the same "look before you leap" habit as echo-the-glob in Part 3.
-				The zip equivalent is <Code code="unzip -l" />.
+				— it costs a second and it's the same "look before you leap" habit as echo-the-glob in <CourseLink
+					to="part-3"
+				/>. The zip equivalent is <Code code="unzip -l" />.
 			</Callout>
 
 			<VibeBox
@@ -299,9 +302,10 @@ Filesystem  Size  Used Avail Capacity
 
 			<Callout type="tip">
 				<strong>Measure, then delete — in that order.</strong> It's the same discipline as
-				<Code code="ls" /> before <Code code="rm" /> from Part 3 and echo-the-glob from Part 3.4: make
-				the invisible visible <em>before</em> the irreversible step. Deleting the wrong 200 MB is annoying;
-				deleting the wrong 200 MB because you never checked is avoidable.
+				<Code code="ls" /> before <Code code="rm" /> from <CourseLink to="part-3" /> and echo-the-glob
+				from <CourseLink to="part-3" />.4: make the invisible visible <em>before</em> the irreversible
+				step. Deleting the wrong 200 MB is annoying; deleting the wrong 200 MB because you never checked
+				is avoidable.
 			</Callout>
 
 			<VibeBox

@@ -18,6 +18,7 @@
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -141,7 +142,8 @@
 							Flags change behavior, sometimes drastically — <Code code="rm" />
 							and <Code code="rm -rf" /> are different animals. Look each one up with
 							<Code code="man" /> or
-							<Code code="--help" /> (Part 1). Never wave through a flag you can't explain.
+							<Code code="--help" /> (<CourseLink to="part-1" />). Never wave through a flag you
+							can't explain.
 						</p>
 					</div>
 				</div>
@@ -185,7 +187,7 @@
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Here's the routine applied to a real suggestion. The agent proposes <Code
 					code="rm -rf build/*"
-				/> — deleting is irreversible (Part 3), so it earns the full treatment:
+				/> — deleting is irreversible (<CourseLink to="part-3" />), so it earns the full treatment:
 			</p>
 
 			<CodeBlock
@@ -240,7 +242,8 @@ rm -rf build/*`}
 						<span><Code code="rm -rf" /> — recursive, forced deletion</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						No trash can, no confirmation, no undo (Part 3). The danger scales with the target:
+						No trash can, no confirmation, no undo (<CourseLink to="part-3" />). The danger scales
+						with the target:
 						<Code code="rm -rf build" />
 						is routine,
 						<Code code="rm -rf *" />
@@ -260,9 +263,9 @@ rm -rf build/*`}
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<Code code="sudo" />
-						removes every guardrail the system has (Part 5). The rule from section 5.3 doubles here: never
-						sudo a command you don't understand — <em>especially</em> one an AI wrote. Understand first,
-						elevate second.
+						removes every guardrail the system has (<CourseLink to="part-5" />). The rule from
+						section 5.3 doubles here: never sudo a command you don't understand —
+						<em>especially</em> one an AI wrote. Understand first, elevate second.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -295,7 +298,7 @@ rm -rf build/*`}
 						<span><Code code=">" /> — onto a file you care about</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						From Part 4: <Code code=">" />
+						From <CourseLink to="part-4" />: <Code code=">" />
 						<strong>truncates first</strong> — the old contents are gone before the new ones arrive.
 						An agent "updating" your
 						<Code code=".bashrc" />
@@ -314,10 +317,10 @@ rm -rf build/*`}
 						<span><Code code="chmod 777" /> — everyone may do everything</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						The "make the error go away" hammer (Part 5). It works by giving every user on the
-						system full control of the file — which is almost never what the situation actually
-						needs. If an agent reaches for 777, ask it what the <em>minimal</em> permission would be;
-						the answer is usually 755 or 644.
+						The "make the error go away" hammer (<CourseLink to="part-5" />). It works by giving
+						every user on the system full control of the file — which is almost never what the
+						situation actually needs. If an agent reaches for 777, ask it what the <em>minimal</em> permission
+						would be; the answer is usually 755 or 644.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -329,9 +332,9 @@ rm -rf build/*`}
 						<span><Code code="sed -i" /> — a silent mass edit with no undo</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Coming up in Part 7: <Code code="-i" /> rewrites the real files in place, often across a whole
-						glob of them, with no preview and no backup. Unlike the flags above, the fix isn't refusal
-						— it's amendment. Ask for
+						Coming up in <CourseLink to="part-7" />: <Code code="-i" /> rewrites the real files in place,
+						often across a whole glob of them, with no preview and no backup. Unlike the flags above,
+						the fix isn't refusal — it's amendment. Ask for
 						<Code code="-i.bak" />, which keeps every original beside its edited version, and you
 						get an undo button for free.
 					</p>
@@ -345,10 +348,10 @@ rm -rf build/*`}
 						<span><Code code="kill -9" /> — reached for first, not last</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Part 8's lesson, previewed: plain <Code code="kill" /> asks a program to stop and lets it
-						save its work; <Code code="-9" /> removes it mid-sentence, skipping every cleanup. It's a
-						legitimate last resort and a poor default — when an agent opens with it, ask whether the polite
-						version was tried.
+						A lesson from <CourseLink to="part-8" />, previewed: plain <Code code="kill" /> asks a program
+						to stop and lets it save its work; <Code code="-9" /> removes it mid-sentence, skipping every
+						cleanup. It's a legitimate last resort and a poor default — when an agent opens with it, ask
+						whether the polite version was tried.
 					</p>
 				</div>
 			</div>
@@ -504,7 +507,7 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 						<Code code="=" />
 						— bash is strict about that), and
 						<Code code="$BACKUP_NAME" /> uses it — the same dollar-sign expansion you met with environment
-						variables in Part 5, just local to the script.
+						variables in <CourseLink to="part-5" />, just local to the script.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -525,8 +528,8 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 			</div>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Now make it runnable. Two steps, both from Part 5: give the file execute permission, then
-				run it with the explicit <Code code="./" /> path:
+				Now make it runnable. Two steps, both from <CourseLink to="part-5" />: give the file execute
+				permission, then run it with the explicit <Code code="./" /> path:
 			</p>
 
 			<CodeBlock

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Shield, ScrollText, KeyRound, Lock, AtSign, FileText, Play } from 'lucide-svelte';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import { base } from '$app/paths';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -58,8 +59,8 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				You met <Code code="ls -l" />
-				back in Part 2 and politely ignored the cryptic string at the start of each line. Time to decode
-				it — those 10 characters are the entire permission system in miniature.
+				back in <CourseLink to="part-2" /> and politely ignored the cryptic string at the start of each
+				line. Time to decode it — those 10 characters are the entire permission system in miniature.
 			</p>
 
 			<div class="my-6">
@@ -359,10 +360,10 @@ Setting up htop ... done.`}
 				with the wrong path doesn't delete your project — it can delete your
 				<em>operating system</em>. This isn't hypothetical: 2025 and 2026 saw repeated,
 				well-documented incidents of AI coding agents running destructive commands on real systems —
-				Part 6 dissects them. The rule: when a command fails with "permission denied," don't
-				reflexively re-run it with sudo. First ask <em>why</em> it was denied — read the command, check
-				the path, ask your AI to explain each flag. Escalate only when you can narrate what the command
-				does.
+				<CourseLink to="part-6" /> dissects them. The rule: when a command fails with "permission denied,"
+				don't reflexively re-run it with sudo. First ask <em>why</em> it was denied — read the command,
+				check the path, ask your AI to explain each flag. Escalate only when you can narrate what the
+				command does.
 			</Callout>
 
 			<Callout type="note">
@@ -473,7 +474,8 @@ which python                         # Silence/nothing = not on PATH`}
 				<strong>One kind of variable needs extra care: secrets.</strong> API keys are usually handed
 				to programs as environment variables, and the tempting move — typing
 				<Code code="export API_KEY=sk-..." /> straight into your terminal — writes the key into your shell
-				history, where it stays. Part 9.4 covers the safe pattern: keep keys in a
+				history, where it stays. <CourseLink to="part-9" />.4 covers the safe pattern: keep keys in
+				a
 				<Code code=".env" /> file, lock it with <Code code="chmod 600" />, and reference
 				<Code code="$API_KEY" /> instead of the value.
 			</Callout>
@@ -521,7 +523,7 @@ which python                         # Silence/nothing = not on PATH`}
 				if your shell is bash, and
 				<Code code="~/.zshrc" />
 				for zsh — the macOS default. (A hidden dotfile, which is why
-				<Code code="ls -a" /> from Part 2 is how you spot it.)
+				<Code code="ls -a" /> from <CourseLink to="part-2" /> is how you spot it.)
 			</p>
 
 			<div class="my-6">

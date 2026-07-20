@@ -2,6 +2,7 @@
 	import { Globe, Home, Send, Braces, KeyRound, DoorOpen } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -30,15 +31,15 @@
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			In Part 8 you took a port back and started a server on it. Now let's talk to it. This part is
-			about asking questions over the network and reading the answers: what
+			In <CourseLink to="part-8" /> you took a port back and started a server on it. Now let's talk to
+			it. This part is about asking questions over the network and reading the answers: what
 			<Code code="localhost" /> actually means, how to check a server yourself instead of trusting a claim,
 			how to pull one value out of a wall of JSON — and how to handle the API keys that make all of it
 			work without leaving them lying around in your shell history.
 		</p>
 
 		<Callout type="important">
-			The habit this part builds is the same one Part 6 started, aimed at a new target:
+			The habit this part builds is the same one <CourseLink to="part-6" /> started, aimed at a new target:
 			<strong>verify with your own command</strong>. When an agent says the server is up, the deploy
 			worked, or the API returned success, there is a one-line way to check — and now you'll know
 			it.
@@ -79,8 +80,10 @@
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				You've met ports already: they're the numbered doors from Part 8, and the same rule applies
-				— one program per port. That's why the numbers recur. <Code code="3000" /> is the Node convention,
+				You've met ports already: they're the numbered doors from <CourseLink to="part-8" />, and
+				the same rule applies — one program per port. That's why the numbers recur. <Code
+					code="3000"
+				/> is the Node convention,
 				<Code code="5173" /> is Vite's, <Code code="8080" /> is the classic alternate web port. If your
 				agent starts a project and mentions a number in that neighborhood, it's telling you which door
 				to knock on.
@@ -142,10 +145,11 @@ curl -I localhost:3000/health                  # just the headers`}
 			</p>
 
 			<Callout type="caution">
-				<strong>Now you can read the red-flag pattern properly.</strong> Back in Part 6 you learned
-				to distrust <Code code="curl ... | bash" />. Here's exactly what it does: curl fetches a
-				script from the internet and the pipe feeds it straight into a shell that runs it — unread,
-				unreviewed, with your permissions. The fix is the same two-step as always:
+				<strong>Now you can read the red-flag pattern properly.</strong> Back in <CourseLink
+					to="part-6"
+				/> you learned to distrust <Code code="curl ... | bash" />. Here's exactly what it does:
+				curl fetches a script from the internet and the pipe feeds it straight into a shell that
+				runs it — unread, unreviewed, with your permissions. The fix is the same two-step as always:
 				<Code code="curl -o install.sh <url>" />, read the file, <em>then</em> run it.
 			</Callout>
 
@@ -182,7 +186,7 @@ curl -I localhost:3000/health                  # just the headers`}
 				APIs answer in <strong style="color: var(--color-text);">JSON</strong> — labelled boxes
 				inside labelled boxes. Printed raw it's a wall of braces; what you usually want is one value
 				out of the middle. <Code code="jq" /> is the tool that reaches in and takes it, and since it reads
-				from a pipe, it joins the pipelines you built in Part 4:
+				from a pipe, it joins the pipelines you built in <CourseLink to="part-4" />:
 			</p>
 
 			<div class="my-6">
@@ -227,7 +231,7 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 				<strong>If jq says "parse error", look at the raw reply.</strong> Nine times out of ten the
 				server answered with an HTML error page instead of JSON, and the real problem is a wrong URL
 				or a dead server. Drop the <Code code="| jq" /> and read what actually arrived — the same build-the-pipeline-one-stage-at-a-time
-				habit from Part 4.
+				habit from <CourseLink to="part-4" />.
 			</Callout>
 
 			<VibeBox
@@ -264,7 +268,8 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 				casually into a terminal. Here's the uncomfortable reason:
 				<strong style="color: var(--color-text);">your shell writes down everything you type</strong
 				>. A key pasted into a command lives on in <Code code="~/.bash_history" /> — the same history
-				you'll learn to search in Part 11 works just as well for anyone else at your machine.
+				you'll learn to search in <CourseLink to="part-11" /> works just as well for anyone else at your
+				machine.
 			</p>
 
 			<div class="my-6">
@@ -284,8 +289,9 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The standard answer is a <Code code=".env" /> file: keys live in a file, the file is locked down,
-				and commands reference the <em>variable</em> instead of the value. That's Part 5's environment
-				variables and Part 5's permissions doing real work together:
+				and commands reference the <em>variable</em> instead of the value. That's the environment
+				variables and permissions from
+				<CourseLink to="part-5" /> doing real work together:
 			</p>
 
 			<CodeBlock
@@ -301,11 +307,12 @@ echo ".env" >> .gitignore               # and never commit it`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code="chmod 600" /> is the Part 5 permission lesson with the stakes turned up: read and
-				write for you, nothing at all for anyone else. And <Code code=".gitignore" /> is the line that
-				keeps the key out of your repository — because a key pushed to GitHub is a key that belongs to
-				the internet, usually within minutes. If that happens, the only real fix is to revoke and reissue
-				the key; deleting the commit does not un-publish it.
+				<Code code="chmod 600" /> is the <CourseLink to="part-5" /> permission lesson with the stakes
+				turned up: read and write for you, nothing at all for anyone else. And <Code
+					code=".gitignore"
+				/> is the line that keeps the key out of your repository — because a key pushed to GitHub is a
+				key that belongs to the internet, usually within minutes. If that happens, the only real fix is
+				to revoke and reissue the key; deleting the commit does not un-publish it.
 			</p>
 
 			<Callout type="tip">
@@ -371,7 +378,7 @@ vibe@laptop:~$`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				This is where Part 0's prompt anatomy earns its keep:
+				This is where <CourseLink to="section-intro-anatomy" /> from the introduction earns its keep:
 				<strong style="color: var(--color-text);"
 					>the prompt tells you which machine you're on</strong
 				>. That is not a cosmetic detail. A <Code code="rm -rf" /> typed on the wrong side of that door

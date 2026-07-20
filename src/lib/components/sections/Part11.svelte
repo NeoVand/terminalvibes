@@ -17,6 +17,7 @@
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import OsIcon from '../ui/OsIcon.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
@@ -200,7 +201,9 @@
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The prompt itself — that <Code code="user@host:~$" />
 				from the intro — is just a variable named
-				<Code code="PS1" />, and you can set it like any other variable from Part 5:
+				<Code code="PS1" />, and you can set it like any other variable from <CourseLink
+					to="part-5"
+				/>:
 			</p>
 
 			<CodeBlock
@@ -223,7 +226,7 @@ PS1="🌲 \\W $ "
 					style="color: var(--color-primary);">Starship</a
 				>
 				— a fast, cross-shell prompt that works in bash, zsh, and every OS in this course. One install,
-				one line in your shell config (Part 5's
+				one line in your shell config (see <CourseLink to="part-5" />,
 				<Code code=".bashrc" />
 				/
 				<Code code=".zshrc" />), and your prompt shows the current directory, git branch, language
@@ -235,9 +238,10 @@ PS1="🌲 \\W $ "
 
 			<Callout type="tip">
 				<strong>Practice the 6.1 audit here.</strong> Starship's install command is a
-				<Code code="curl ... | sh" /> one-liner — exactly the red-flag pattern from Part 6. Perfect low-stakes
-				rehearsal: download the script first, skim it (or ask your AI to), then run it. Trusted source,
-				verified anyway — that's the habit.
+				<Code code="curl ... | sh" /> one-liner — exactly the red-flag pattern from <CourseLink
+					to="part-6"
+				/>. Perfect low-stakes rehearsal: download the script first, skim it (or ask your AI to),
+				then run it. Trusted source, verified anyway — that's the habit.
 			</Callout>
 
 			<VibeBox
@@ -316,7 +320,9 @@ PS1="🌲 \\W $ "
 						<span><Code code="history" /> — the full ledger</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Prints your numbered command history — and because it's just text output, all of Part 4
+						Prints your numbered command history — and because it's just text output, all of <CourseLink
+							to="part-4"
+						/>
 						applies: <Code code="history | grep ssh" /> finds every ssh command you've ever run. Your
 						history is a searchable log of how you did everything.
 					</p>
@@ -469,10 +475,12 @@ sudo !!
 			</Callout>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				That shared visibility is the practical payoff of Part 6: when the agent asks permission to
-				run a command, you audit it (6.1); when it writes a <Code code="setup.sh" />, you read it
-				(6.2); when it says "tests failed," you can see the exit code it saw (6.3). The integrated
-				terminal is the one place code, agent, and shell meet — all in a single window.
+				That shared visibility is the practical payoff of <CourseLink to="part-6" />: when the agent
+				asks permission to run a command, you audit it (6.1); when it writes a <Code
+					code="setup.sh"
+				/>, you read it (6.2); when it says "tests failed," you can see the exit code it saw (6.3).
+				The integrated terminal is the one place code, agent, and shell meet — all in a single
+				window.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -524,8 +532,8 @@ sudo !!
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Sooner or later one terminal isn't enough: a dev server occupies one (it runs until you stop
 				it, holding the prompt hostage), <Code code="tail -f" />
-				follows a log in another (Part 2), and you still need a free prompt to actually work. The answer
-				is never "quit the server" — it's
+				follows a log in another (<CourseLink to="part-2" />), and you still need a free prompt to
+				actually work. The answer is never "quit the server" — it's
 				<strong style="color: var(--color-text);">more terminals</strong>, and every modern terminal
 				app makes that cheap:
 			</p>
