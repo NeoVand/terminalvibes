@@ -658,12 +658,6 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'A “frozen” terminal is very often just a pager waiting politely. If q does nothing, try Ctrl+C first, then q.'
 			},
 			{
-				command: ':q!',
-				description: 'Escape vim without saving',
-				detail:
-					'The most famous trap in computing. Git and other tools drop you into vim for a message; press Esc first, then type :q! and Enter to leave discarding changes (:wq saves). In nano it is Ctrl+X.'
-			},
-			{
 				command: 'lsof -i :3000',
 				description: '"Address already in use" — find and stop the squatter',
 				detail:
@@ -673,7 +667,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: ':q!',
 				description: 'Trapped in vim? Press Esc, then type :q! and Enter',
 				detail:
-					'Quits without saving. Some commands open vim as an editor without warning — this is the universal exit.'
+					'Quits without saving (:wq saves instead). Git and other tools open vim as an editor without warning — this is the universal exit. The nano equivalent is Ctrl+X.'
 			},
 			{
 				command: 'Ctrl+D',
