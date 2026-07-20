@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { SUGGESTION_COUNT } from '$lib/ai/types';
 
 test.describe('Agent panel', () => {
 	test('opens from the header, answers with a citation chip, closes on ESC', async ({ page }) => {
@@ -215,7 +216,9 @@ test.describe('Agent panel', () => {
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
 		const chips = panel.locator('[data-testid="agent-chip"]');
-		await expect(chips).toHaveCount(3);
+		// Bound to the constant, not a literal: the starter list has grown before,
+		// and a hardcoded count silently broke the deploy for three merges.
+		await expect(chips).toHaveCount(SUGGESTION_COUNT);
 		await expect(panel.getByRole('button', { name: 'How do pipes work?' })).toBeVisible();
 		await expect(panel.locator('[data-testid="suggest-refresh"]')).toHaveCount(0);
 	});
