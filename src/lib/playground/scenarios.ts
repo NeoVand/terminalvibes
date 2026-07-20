@@ -1120,6 +1120,55 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 			engine.isFile('~/project/src/main.js') &&
 			engine.historyLog.findIndex((l) => l.trim().startsWith('du')) <
 				engine.historyLog.findIndex((l) => l.includes('rm'))
+	},
+	{
+		id: 'midnight-deploy',
+		title: 'The midnight deploy',
+		description:
+			"It's late, the release is due, and nothing works. A stale server squats on port 3000, config.yml still points at insecure http, and you refuse to ship without proof. Free the port, fix the config safely, start the server, and verify with your own eyes.",
+		hint: 'Four moves, in order: (1) `lsof -i :3000` finds the squatter — `kill` it. (2) `sed -i.bak` rewrites http: to https: in config.yml, keeping a backup. (3) `serve` starts your server. (4) `curl -s -o status.json localhost:3000/health` saves the proof.',
+		suggestedCommands: [
+			'cat config.yml',
+			'lsof -i :3000',
+			'kill 400',
+			"sed -i.bak 's/http:/https:/g' config.yml",
+			'cat config.yml',
+			'serve',
+			'curl localhost:3000/health',
+			'curl -s -o status.json localhost:3000/health',
+			'cat status.json'
+		],
+		seed: {
+			files: {
+				'~/README.txt':
+					"RELEASE CHECKLIST\n1. Port 3000 is taken by yesterday's server — free it.\n2. config.yml still says http: — make it https:, and keep a backup.\n3. Start the server.\n4. Prove it is alive: save the health reply as status.json.\n",
+				'~/config.yml':
+					'site:\n  url: http://vibecafe.example.com\n  cdn: http://cdn.example.com/assets\n',
+				'~/deploy-notes.md': '# notes\nShip only when the health check answers ok.\n'
+			},
+			processes: [{ command: 'node server.js', cpu: 0.3, mem: 1.7, start: '23:41', port: 3000 }]
+		},
+		goal: 'port freed, config on https with a backup, your server up, and the proof saved',
+		check: async (engine) => {
+			const config = engine.readFile('~/config.yml');
+			const backup = engine.readFile('~/config.yml.bak');
+			const status = engine.readFile('~/status.json');
+			const holder = engine.findByPort(3000);
+			return (
+				// The stale server is gone and yours holds the port.
+				!engine.processes.some((p) => p.command.includes('node server.js')) &&
+				!!holder &&
+				// Config switched to https, with the Part 7 backup habit intact.
+				!!config &&
+				config.includes('https://') &&
+				!config.includes('http://') &&
+				!!backup &&
+				backup.includes('http://') &&
+				// And the deploy was verified, not assumed.
+				!!status &&
+				status.includes('ok')
+			);
+		}
 	}
 ];
 
@@ -1174,7 +1223,9 @@ export const lessonScenarioIds = [
 	// Part 10 — The Toolshed.
 	'open-the-crate',
 	'summon-a-tool',
-	'space-hog'
+	'space-hog',
+	// Part 13 — the band's finale, beside the original capstone.
+	'midnight-deploy'
 ] as const;
 
 export type LessonScenarioId = (typeof lessonScenarioIds)[number];

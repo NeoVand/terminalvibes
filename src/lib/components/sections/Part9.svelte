@@ -267,6 +267,14 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 				you'll learn to search in Part 11 works just as well for anyone else at your machine.
 			</p>
 
+			<div class="my-6">
+				<ExpandableImage
+					src="{base}/images/keys-and-secrets.webp"
+					alt="A brass safe holding a .env card, beside a history scroll where a plainly-typed key is struck out"
+					caption="Keys live in files — never in commands"
+				/>
+			</div>
+
 			<Callout type="caution">
 				<strong>Never put a secret directly in a command.</strong> Not in <Code code="curl -H" />,
 				not in an <Code code="export" /> you type by hand, not in a script you commit. It lands in your

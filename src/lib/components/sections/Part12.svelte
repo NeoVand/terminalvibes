@@ -27,7 +27,7 @@
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			For seven parts you've driven this machine without once opening the hood. Now you've earned
+			For eleven parts you've driven this machine without once opening the hood. Now you've earned
 			the wrench. This part is the optional deep dive: first <em>how the terminal actually works</em
 			>
 			— ttys, PTYs, escape sequences, and what Ctrl+C really does — and then what that machinery is becoming
@@ -55,7 +55,7 @@
 			</div>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You've used every piece of this machine for seven parts — typed at prompts, piped bytes,
+				You've used every piece of this machine for eleven parts — typed at prompts, piped bytes,
 				interrupted stuck commands, read exit codes. Time to see inside. If you've ever wondered why
 				it's called a
 				<Code code="tty" />, why arrow keys sometimes print
@@ -265,6 +265,16 @@
 				look at the keyboard. (A few programs catch <Code code="SIGINT" /> and ask questions first — that's
 				them trapping the signal, not you failing to send it.)
 			</Callout>
+
+			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+				You've already felt this from the other side. In Part 8 you sent
+				<Code code="SIGTERM" /> with <Code code="kill" /> and watched a stubborn process shrug it off,
+				then sent <Code code="SIGKILL" /> with <Code code="kill -9" />, which it could not refuse.
+				Same machinery, three doors: <Code code="Ctrl+C" /> is SIGINT to whatever is in the foreground,
+				<Code code="kill" /> is SIGTERM to any PID you name, and
+				<Code code="kill -9" /> is the one signal no program is allowed to catch. What looked like three
+				unrelated tricks is one mechanism you now understand end to end.
+			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Put the whole chain together, and you can narrate the few milliseconds after you press Enter

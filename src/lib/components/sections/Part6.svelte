@@ -5,9 +5,11 @@
 		FileCode2,
 		Braces,
 		Trash2,
+		Ban,
 		CloudDownload,
 		Eraser,
 		LockOpen,
+		PenLine,
 		DollarSign,
 		Quote,
 		CircleCheck,
@@ -316,6 +318,37 @@ rm -rf build/*`}
 						system full control of the file — which is almost never what the situation actually
 						needs. If an agent reaches for 777, ask it what the <em>minimal</em> permission would be;
 						the answer is usually 755 or 644.
+					</p>
+				</div>
+				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<PenLine size={14} style="color: var(--color-caution);" />
+						<span><Code code="sed -i" /> — a silent mass edit with no undo</span>
+					</h4>
+					<p class="text-[13px]" style="color: var(--color-text-secondary);">
+						Coming up in Part 7: <Code code="-i" /> rewrites the real files in place, often across a whole
+						glob of them, with no preview and no backup. Unlike the flags above, the fix isn't refusal
+						— it's amendment. Ask for
+						<Code code="-i.bak" />, which keeps every original beside its edited version, and you
+						get an undo button for free.
+					</p>
+				</div>
+				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Ban size={14} style="color: var(--color-caution);" />
+						<span><Code code="kill -9" /> — reached for first, not last</span>
+					</h4>
+					<p class="text-[13px]" style="color: var(--color-text-secondary);">
+						Part 8's lesson, previewed: plain <Code code="kill" /> asks a program to stop and lets it
+						save its work; <Code code="-9" /> removes it mid-sentence, skipping every cleanup. It's a
+						legitimate last resort and a poor default — when an agent opens with it, ask whether the polite
+						version was tried.
 					</p>
 				</div>
 			</div>

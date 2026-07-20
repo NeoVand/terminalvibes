@@ -145,7 +145,7 @@ export const sidebarNav: NavSection[] = [
 	},
 	{
 		id: 'part-5',
-		label: 'Permissions & Environment',
+		label: 'Permissions & Config',
 		icon: Shield,
 		children: [
 			{ id: 'section-5-1', label: 'Reading ls -l', icon: ScrollText },

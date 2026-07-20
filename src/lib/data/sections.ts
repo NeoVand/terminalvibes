@@ -110,7 +110,8 @@ export const playgroundAnchorIds = [
 	'secret-keeper',
 	'open-the-crate',
 	'summon-a-tool',
-	'space-hog'
+	'space-hog',
+	'midnight-deploy'
 ] as const;
 
 /** Sub-anchors for notable interactive tools that aren't full sections but
