@@ -5,10 +5,9 @@
  * reactive state lives in runtime.svelte.ts, the chips in AgentPanel.svelte.
  */
 import { retrieve, sectionChunks } from './retrieval';
-import type { SuggestContext } from './types';
+import { SUGGESTION_COUNT, type SuggestContext } from './types';
 
-/** A suggestion round always aims for exactly four chips. */
-export const SUGGESTION_COUNT = 4;
+export { SUGGESTION_COUNT };
 
 /**
  * The hand-written fallbacks (also the whole row when no model is ready).

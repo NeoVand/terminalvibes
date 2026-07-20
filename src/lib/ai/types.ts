@@ -5,6 +5,13 @@
  * which one is talking.
  */
 
+/**
+ * A suggestion round always aims for exactly this many chips. Lives here, in
+ * a module with no runtime imports, so Playwright can assert against it
+ * without loading the retrieval corpus.
+ */
+export const SUGGESTION_COUNT = 4;
+
 export interface ChatMessage {
 	role: 'user' | 'assistant' | 'system' | 'tool';
 	content: string;

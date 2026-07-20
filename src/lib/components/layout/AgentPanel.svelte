@@ -61,7 +61,12 @@
 	let contextualChips = $derived(
 		agentRuntime.canSuggest && (agentRuntime.suggesting || agentRuntime.suggestions.length > 0)
 	);
-	let chips = $derived(contextualChips ? agentRuntime.suggestions : [...STATIC_STARTERS]);
+	// The starter list is deliberately longer than a row so it can cover more
+	// of the course; the row still shows SUGGESTION_COUNT, same as the
+	// model-generated chips, so the layout doesn't change when a model loads.
+	let chips = $derived(
+		contextualChips ? agentRuntime.suggestions : STATIC_STARTERS.slice(0, SUGGESTION_COUNT)
+	);
 	/** Shimmer placeholders for chips still streaming in. */
 	let ghostCount = $derived(
 		agentRuntime.suggesting ? Math.max(0, SUGGESTION_COUNT - agentRuntime.suggestions.length) : 0
