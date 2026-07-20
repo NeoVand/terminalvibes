@@ -51,7 +51,7 @@
 		"@langchain/core": "^1.2.2",
 		"@langchain/langgraph": "^1.4.7",
 		"lucide-svelte": "^0.577.0",
-		"mermaid": "^11.13.0",
+		"mermaid": "^11.15.0",
 		"zod": "^4.4.3"
 	}
 }
