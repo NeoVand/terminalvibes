@@ -360,7 +360,7 @@ Setting up htop ... done.`}
 				with the wrong path doesn't delete your project — it can delete your
 				<em>operating system</em>. This isn't hypothetical: 2025 and 2026 saw repeated,
 				well-documented incidents of AI coding agents running destructive commands on real systems —
-				<CourseLink to="part-6" /> dissects them. The rule: when a command fails with "permission denied,"
+				<CourseLink to="part-11" /> dissects them. The rule: when a command fails with "permission denied,"
 				don't reflexively re-run it with sudo. First ask <em>why</em> it was denied — read the command,
 				check the path, ask your AI to explain each flag. Escalate only when you can narrate what the
 				command does.

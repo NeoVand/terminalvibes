@@ -14,7 +14,7 @@ describe('retrieval routing', () => {
 
 	it('routes "rm -rf safe?" to deleting-carefully or read-before-you-run', () => {
 		const hits = retrieve('rm -rf safe?');
-		expect(['section-3-3', 'section-6-1']).toContain(hits[0]?.id);
+		expect(['section-3-3', 'section-11-1']).toContain(hits[0]?.id);
 	});
 
 	it('routes "pipe sort uniq" to section 4.4', () => {

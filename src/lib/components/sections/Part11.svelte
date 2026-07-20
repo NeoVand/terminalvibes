@@ -1,41 +1,32 @@
 <script lang="ts">
 	import {
-		Gauge,
-		Palette,
-		History,
-		Layout,
-		SplitSquareHorizontal,
-		Type,
-		Ghost,
 		Bot,
-		ArrowUp,
-		ScrollText,
-		Repeat,
-		Search,
-		PanelTop,
-		Columns2
+		ShieldAlert,
+		Trash2,
+		Ban,
+		CloudDownload,
+		Eraser,
+		LockOpen,
+		PenLine
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
 	import CourseLink from '../ui/CourseLink.svelte';
-	import OsIcon from '../ui/OsIcon.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
+	import LessonActivity from '../ui/LessonActivity.svelte';
+	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 	import VibeBox from '../ui/VibeBox.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
-	import LessonActivity from '../ui/LessonActivity.svelte';
-	import StarshipDesigner from '../starship/StarshipDesigner.svelte';
 </script>
 
 <section id="part-11" class="py-10">
 	<div class="mx-auto max-w-4xl px-6">
 		<SectionHeader
-			icon={Gauge}
+			icon={Bot}
 			partLabel="Part 11"
-			title="Your Cockpit: Making the Terminal a Place You Like"
+			title="Terminal for the AI Era: Read, Verify, Run"
 			color="var(--color-primary)"
 		/>
 
@@ -43,257 +34,199 @@
 			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
 			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
 		>
-			"If you're going to live in this window, you might as well like it: readable fonts, a prompt
-			that helps, history that finds last Tuesday's command."
+			"The AI writes the command. You decide whether it runs. That decision is the whole job."
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			You have the skills. This short part is about the <em>room</em> — turning the default terminal into
-			a cockpit: colors and a prompt you actually like, history tricks that recall any command in two
-			keystrokes, the integrated terminal in VS Code where vibe coders live, and running several terminals
-			at once without losing your mind.
+			Everything so far was building toward this. Your AI assistant proposes shell commands all day
+			long — install this, delete that, rewrite those files, restart the server. Ten parts ago none
+			of it was readable. Now every piece is: paths and wildcards, pipes and redirection,
+			permissions, scripts, <Code code="sed -i" />, <Code code="kill -9" />,
+			<Code code="curl" />, installers. This part puts them together into the one skill the whole
+			course exists for —
+			<strong style="color: var(--color-text);">reading a command you didn't write</strong> and deciding,
+			with confidence, whether to let it run.
 		</p>
 
-		<MermaidDiagram
-			definition={`flowchart TD
-  A(["Your Cockpit"]) --> B(["Looks & Prompt"])
-  A --> C(["History Recall"])
-  A --> D(["VS Code Terminal"])
-  A --> E(["Tabs & Splits"])`}
-			id="cockpit-overview"
-		/>
+		<Callout type="note">
+			This part comes late on purpose. Auditing a command means recognising every piece of it, so it
+			had to wait until you had met the dangerous ones. You are not learning new commands here — you
+			are learning what to do in the seconds before you press Enter.
+		</Callout>
 
-		<!-- 11.1 Make It Yours -->
 		<div id="section-11-1" class="mb-14">
 			<SectionHeader
 				level="section"
-				icon={Palette}
-				title="11.1 Make It Yours"
+				icon={ShieldAlert}
+				title="11.1 Read Before You Run"
 				color="var(--color-primary)"
 			/>
 
 			<div class="my-6">
 				<ExpandableImage
-					src="{base}/images/make-it-yours.webp"
-					alt="Make It Yours — a terminal window dressed up with a custom theme and prompt"
-					caption="Same shell underneath — but a window you chose is a window you'll open more often"
+					src="{base}/images/read-before-you-run.webp"
+					alt="Read Before You Run — inspecting an AI-proposed command before pressing Enter"
+					caption="Every AI-proposed command gets the same inspection before it earns your Enter key"
 				/>
 			</div>
 
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				The default white-on-black is fine, but "fine" is not what you want from a tool you'll live
-				in. Every terminal app ships with themes, font settings, and transparency — five minutes of
-				setup pays off every day after:
+			<Callout type="note">
+				<strong>The Problem:</strong> Your agent says "run this to fix it" and hands you a line of symbols
+				you can't read. Pressing Enter on faith works fine — right up until the day it doesn't. You need
+				a routine that turns "looks fine, I guess" into an actual verdict, in under a minute.
+			</Callout>
+
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				And "the day it doesn't" is not hypothetical — this actually happens, to teams full of
+				experts. In July 2025, a hacker slipped a destructive prompt into
+				<a
+					href="https://www.theregister.com/security/2025/07/24/destructive-ai-prompt-published-in-amazon-q-extension/615835"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">version 1.84 of Amazon's AI coding extension</a
+				>, instructing the agent to wipe users' systems and cloud resources. The same month,
+				<a
+					href="https://fortune.com/2025/07/23/ai-coding-tool-replit-wiped-database-called-it-a-catastrophic-failure/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">Replit's agent deleted a live production database</a
+				>
+				during an explicit code freeze. And in April 2026, a Cursor-driven agent
+				<a
+					href="https://www.euronews.com/next/2026/04/28/an-ai-agent-deleted-a-companys-entire-database-in-9-seconds-then-wrote-an-apology"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);"
+					>deleted a company's production database <em>and</em> its backups in about nine seconds</a
+				>. In every case the missing safeguard wasn't more expertise on the team — it was a human
+				who read the command before approving it.
 			</p>
 
-			<div class="mb-6 grid gap-3 sm:grid-cols-2">
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
+			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
+				Here's the routine. Four steps, same order, every time. It feels slow for the first week;
+				after that it takes fifteen seconds and runs in your head automatically.
+			</p>
+
+			<div class="mt-6 mb-6 space-y-3">
+				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
+					<span
+						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
+						style="background: var(--color-primary); color: var(--color-text-inverse);">1</span
 					>
-						<span class="inline-flex" style="color: var(--color-primary);"
-							><OsIcon os="macos" size={14} /></span
-						>
-						macOS: Terminal.app got good again
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						macOS 26 Tahoe gave the stock Terminal.app its first real overhaul in roughly 24 years —
-						24-bit color, Powerline font support, and a batch of fresh themes. Settings → Profiles:
-						pick one, hit "Default" to keep it — as a beginner you genuinely don't need to install
-						anything. <a
-							href="https://iterm2.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">iTerm2</a
-						> remains the solid power-user choice — hundreds of importable color schemes, better splits,
-						better search — and its AI features are an optional, separate plugin, off by default.
-					</p>
+					<div>
+						<p class="text-[13px] font-medium" style="color: var(--color-text);">
+							Name the command
+						</p>
+						<p class="text-xs" style="color: var(--color-text-muted);">
+							The first word is the program. Do you know what it does? <Code code="rm" />
+							deletes, <Code code="curl" /> downloads,
+							<Code code="chmod" /> changes permissions. If the first word is a stranger,
+							<Code code="man <command>" /> or a quick "what does this do?" to your AI comes first.
+						</p>
+					</div>
 				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
+				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
+					<span
+						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
+						style="background: var(--color-primary); color: var(--color-text-inverse);">2</span
 					>
-						<span class="inline-flex" style="color: var(--color-primary);"
-							><OsIcon os="windows" size={14} /></span
-						>
-						Windows: Windows Terminal
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Already the default on Windows 11, and the host for your WSL and Git Bash sessions.
-						Settings → Color schemes ships with One Half, Solarized, and Tango out of the box, and
-						each profile (Ubuntu, Git Bash, PowerShell) can have its own theme — a handy visual cue
-						for which shell you're in.
-					</p>
+					<div>
+						<p class="text-[13px] font-medium" style="color: var(--color-text);">Read each flag</p>
+						<p class="text-xs" style="color: var(--color-text-muted);">
+							Flags change behavior, sometimes drastically — <Code code="rm" />
+							and <Code code="rm -rf" /> are different animals. Look each one up with
+							<Code code="man" /> or
+							<Code code="--help" /> (<CourseLink to="part-1" />). Never wave through a flag you
+							can't explain.
+						</p>
+					</div>
 				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
+				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
+					<span
+						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
+						style="background: var(--color-primary); color: var(--color-text-inverse);">3</span
 					>
-						<span class="inline-flex" style="color: var(--color-primary);"
-							><OsIcon os="linux" size={14} /></span
-						>
-						Linux: GNOME Terminal &amp; friends
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						GNOME Terminal → Preferences → Profiles: colors, fonts, transparency. Konsole (KDE) and
-						others offer the same. Profiles are cheap — make a garish red one for any terminal
-						that's SSH'd into something important.
-					</p>
+					<div>
+						<p class="text-[13px] font-medium" style="color: var(--color-text);">
+							Identify what it targets
+						</p>
+						<p class="text-xs" style="color: var(--color-text-muted);">
+							The most important question: <em>what</em> does this act on? A path? A wildcard? The
+							current directory? Check where you are with
+							<Code code="pwd" />, and remember that
+							<Code code="*" /> means "everything here" — whatever "here" happens to be.
+						</p>
+					</div>
 				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
+				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
+					<span
+						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
+						style="background: var(--color-primary); color: var(--color-text-inverse);">4</span
 					>
-						<Type size={14} style="color: var(--color-primary);" />
-						Everywhere: the font matters
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						A good monospaced font with a legible <Code code="0" />-vs-<Code code="O" /> and a size you
-						don't squint at. JetBrains Mono, Fira Code, and Cascadia Code are free favorites.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Ghost size={14} style="color: var(--color-primary);" />
-						The upgrade pick: Ghostty
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						<a
-							href="https://ghostty.org"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">Ghostty</a
-						> (v1.3, 2026; macOS &amp; Linux) is the current favorite when you outgrow the stock app:
-						extremely fast, native-feeling, free and open source, and deliberately AI-free. Your shell,
-						prompt, and everything in this course carry over unchanged.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Bot size={14} style="color: var(--color-primary);" />
-						The AI-first one: Warp
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Warp builds an AI agent directly into the terminal. Know what you're choosing: it went
-						open source in 2026, but it wants an account, and its AI runs on a paid, metered credit
-						system — an AI-first terminal with a subscription posture, not a free tool. Nothing it
-						offers replaces being able to read the commands yourself.
-					</p>
+					<div>
+						<p class="text-[13px] font-medium" style="color: var(--color-text);">Rehearse it</p>
+						<p class="text-xs" style="color: var(--color-text-muted);">
+							Before the real thing, run a harmless preview: <Code code="echo" />
+							the command to see what the wildcards expand to, or
+							<Code code="ls" /> the target to see what would be hit. Many commands have a built-in rehearsal
+							flag —
+							<Code code="--dry-run" /> or
+							<Code code="-n" /> — that shows what
+							<em>would</em> happen without doing it.
+						</p>
+					</div>
 				</div>
 			</div>
 
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				A taste of prompt customization
-			</h4>
-
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The prompt itself — that <Code code="user@host:~$" />
-				from the intro — is just a variable named
-				<Code code="PS1" />, and you can set it like any other variable from <CourseLink
-					to="part-5"
-				/>:
+				Here's the routine applied to a real suggestion. The agent proposes <Code
+					code="rm -rf build/*"
+				/> — deleting is irreversible (<CourseLink to="part-3" />), so it earns the full treatment:
 			</p>
 
 			<CodeBlock
-				title="PS1 exists (try it, it only lasts until you close the window)"
-				code={`PS1="\\w > "
-# ~/projects >              <- your prompt is now the current directory
+				title="Auditing before deleting"
+				code={`# Step 1-2: rm deletes; -r recurses into folders, -f skips confirmation.
+# Step 3: the target is build/* - everything inside build/, wherever I am.
+pwd
+# /home/vibe/projects/webapp        <- good, I'm where I think I am
 
-PS1="🌲 \\W $ "
-# 🌲 projects $             <- yes, emoji work`}
+# Step 4a: rehearse the glob - what does build/* actually expand to?
+echo rm -rf build/*
+# rm -rf build/assets build/index.html build/main.js
+
+# Step 4b: or just look at the target directly
+ls build/
+
+# Verdict: only generated files. NOW it earns the Enter key.
+rm -rf build/*`}
 			/>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Hand-rolling a fancy <Code code="PS1" />
-				with colors and git status is a classic rabbit hole. The modern shortcut is
-				<a
-					href="https://starship.rs"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="underline underline-offset-2"
-					style="color: var(--color-primary);">Starship</a
-				>
-				— a fast, cross-shell prompt that works in bash, zsh, and every OS in this course. One install,
-				one line in your shell config (see <CourseLink to="part-5" />,
-				<Code code=".bashrc" />
-				/
-				<Code code=".zshrc" />), and your prompt shows the current directory, git branch, language
-				versions, and whether the last command failed — the useful stuff, with zero maintenance.
-				It's also where the current consensus landed: 2026 setup guides recommend Starship plus one
-				or two small zsh plugins over the heavyweight all-in-one frameworks (oh-my-zsh) that used to
-				be the default advice.
-			</p>
 
 			<Callout type="tip">
-				<strong>Practice the 6.1 audit here.</strong> Starship's install command is a
-				<Code code="curl ... | sh" /> one-liner — exactly the red-flag pattern from <CourseLink
-					to="part-6"
-				/>. Perfect low-stakes rehearsal: download the script first, skim it (or ask your AI to),
-				then run it. Trusted source, verified anyway — that's the habit.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'Help me install starship and add it to my shell config — explain each step before we run it',
-					'Set up a terminal color scheme and font that are easy on the eyes for long sessions on my OS'
-				]}
-			/>
-
-			<h4
-				id="prompt-designer"
-				class="mt-8 mb-2 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Design Your Prompt
-			</h4>
-			<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Enough talk — build one. Pick a design, make it yours, and take the real
-				<Code code="starship.toml" /> home. This is a genuine config for
+				<strong>explainshell is your second opinion.</strong> Paste any command into
 				<a
-					href="https://starship.rs/"
+					href="https://explainshell.com"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="underline underline-offset-2"
-					style="color: var(--color-primary);">Starship</a
-				>, the cross-shell prompt — nothing here touches your machine until you choose to install
-				it.
-			</p>
-			<StarshipDesigner />
-		</div>
+					style="color: var(--color-primary);">explainshell.com</a
+				>
+				and it dissects every piece — command, flags, arguments — with the matching lines from the actual
+				man pages. It's the fastest way to check an AI's explanation against the documentation, because
+				unlike the AI, explainshell only quotes the manual.
+			</Callout>
 
-		<!-- 11.2 History Superpowers -->
-		<div id="section-11-2" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={History}
-				title="11.2 History Superpowers"
-				color="var(--color-primary)"
-			/>
+			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+				The Red-Flag List
+			</h4>
 
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/history-superpowers.webp"
-					alt="History Superpowers — recalling past commands with up-arrow, !!, and Ctrl+R"
-					caption="You almost never type a command twice — you recall it"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Watch someone fluent in the terminal and you'll notice they barely type. The shell remembers
-				every command you've ever run, and the recall tools are the single biggest speed unlock in
-				this entire course:
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Some patterns should make you slow down <em>every</em> time, no matter how confident the agent
+				sounds. None of these are forbidden — they all have legitimate uses — but each one is a "stop
+				and run the full audit" trigger:
 			</p>
 
 			<div class="mb-6 space-y-3">
@@ -302,13 +235,19 @@ PS1="🌲 \\W $ "
 						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
 						style="color: var(--color-text);"
 					>
-						<ArrowUp size={14} style="color: var(--color-primary);" />
-						Up-arrow — the one you know
+						<Trash2 size={14} style="color: var(--color-caution);" />
+						<span><Code code="rm -rf" /> — recursive, forced deletion</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Each press steps one command back through history; Enter re-runs, or edit first. Perfect
-						for the last two or three commands — clumsy for anything older. That's what the rest of
-						this section is for.
+						No trash can, no confirmation, no undo (<CourseLink to="part-3" />). The danger scales
+						with the target:
+						<Code code="rm -rf build" />
+						is routine,
+						<Code code="rm -rf *" />
+						depends entirely on where you're standing, and anything involving
+						<Code code="~" />
+						or
+						<Code code="/" /> deserves a hard stop.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -316,15 +255,14 @@ PS1="🌲 \\W $ "
 						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
 						style="color: var(--color-text);"
 					>
-						<ScrollText size={14} style="color: var(--color-primary);" />
-						<span><Code code="history" /> — the full ledger</span>
+						<ShieldAlert size={14} style="color: var(--color-caution);" />
+						<span><Code code="sudo" /> — anything</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Prints your numbered command history — and because it's just text output, all of <CourseLink
-							to="part-4"
-						/>
-						applies: <Code code="history | grep ssh" /> finds every ssh command you've ever run. Your
-						history is a searchable log of how you did everything.
+						<Code code="sudo" />
+						removes every guardrail the system has (<CourseLink to="part-5" />). The rule from
+						section 5.3 doubles here: never sudo a command you don't understand —
+						<em>especially</em> one an AI wrote. Understand first, elevate second.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -332,15 +270,20 @@ PS1="🌲 \\W $ "
 						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
 						style="color: var(--color-text);"
 					>
-						<Repeat size={14} style="color: var(--color-primary);" />
-						<span><Code code="!!" /> — the last command, verbatim</span>
+						<CloudDownload size={14} style="color: var(--color-caution);" />
+						<span><Code code="curl ... | bash" /> — run code straight off the internet</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<Code code="!!" />
-						expands to your previous command. Its one legendary use: you run something, it fails with
-						"permission denied," and
-						<Code code="sudo !!" /> re-runs it elevated — no retyping. (All of section 5.3's sudo caution
-						still applies; the shell prints the expanded command so you see exactly what's about to run.)
+						This downloads a script and executes it in one motion, sight unseen. Honesty requires a
+						2026 update: it's now an <em>official</em> install method — Claude Code's documented
+						installer is
+						<Code code="curl -fsSL https://claude.ai/install.sh | bash" />, and Codex CLI ships the
+						same way. The real rule is about the <em>source</em>: piping a script over HTTPS from
+						the documented domain of a vendor you chose is a normal install path; piping one from a
+						random gist, README, or an agent's suggestion is not. When in doubt, the two-step
+						version is always available —
+						<Code code="curl -o install.sh <url>" />, read it, <em>then</em> run it — and package managers
+						(brew, winget, apt) remain the more auditable alternative.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -348,273 +291,137 @@ PS1="🌲 \\W $ "
 						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
 						style="color: var(--color-text);"
 					>
-						<Search size={14} style="color: var(--color-primary);" />
-						Ctrl+R — reverse search, the crown jewel
+						<Eraser size={14} style="color: var(--color-caution);" />
+						<span><Code code=">" /> — onto a file you care about</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Press <kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+R</kbd
-						>
-						and start typing any fragment — the shell live-searches backward through history for the most
-						recent match. Press
-						<kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+R</kbd
-						>
-						again for older matches, Enter to run, arrow keys to edit first,
-						<kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+C</kbd
-						> to bail. That 40-character command from last Tuesday? Three letters and it's back.
+						From <CourseLink to="part-4" />: <Code code=">" />
+						<strong>truncates first</strong> — the old contents are gone before the new ones arrive.
+						An agent "updating" your
+						<Code code=".bashrc" />
+						with
+						<Code code=">" />
+						instead of
+						<Code code=">>" /> just erased it. Check the arrow count.
+					</p>
+				</div>
+				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<LockOpen size={14} style="color: var(--color-caution);" />
+						<span><Code code="chmod 777" /> — everyone may do everything</span>
+					</h4>
+					<p class="text-[13px]" style="color: var(--color-text-secondary);">
+						The "make the error go away" hammer (<CourseLink to="part-5" />). It works by giving
+						every user on the system full control of the file — which is almost never what the
+						situation actually needs. If an agent reaches for 777, ask it what the <em>minimal</em> permission
+						would be; the answer is usually 755 or 644.
+					</p>
+				</div>
+				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<PenLine size={14} style="color: var(--color-caution);" />
+						<span><Code code="sed -i" /> — a silent mass edit with no undo</span>
+					</h4>
+					<p class="text-[13px]" style="color: var(--color-text-secondary);">
+						From <CourseLink to="part-7" />: <Code code="-i" /> rewrites the real files in place, often
+						across a whole glob of them, with no preview and no backup. Unlike the flags above, the fix
+						isn't refusal — it's amendment. Ask for
+						<Code code="-i.bak" />, which keeps every original beside its edited version, and you
+						get an undo button for free.
+					</p>
+				</div>
+				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Ban size={14} style="color: var(--color-caution);" />
+						<span><Code code="kill -9" /> — reached for first, not last</span>
+					</h4>
+					<p class="text-[13px]" style="color: var(--color-text-secondary);">
+						From <CourseLink to="part-8" />: plain <Code code="kill" /> asks a program to stop and lets
+						it save its work; <Code code="-9" /> removes it mid-sentence, skipping every cleanup. It's
+						a legitimate last resort and a poor default — when an agent opens with it, ask whether the
+						polite version was tried.
 					</p>
 				</div>
 			</div>
 
-			<CodeBlock
-				title="A history session"
-				code={`history | grep backup
-#  212  ./backup.sh notes
-#  340  ./backup.sh recipes
-
-npm run deploy
-# Error: permission denied
-sudo !!
-# sudo npm run deploy       <- the shell shows what !! became
-
-# (reverse-i-search)\`dep': npm run deploy     <- Ctrl+R, then "dep"`}
-			/>
-
-			<Callout type="tip">
-				<strong>Make Ctrl+R the habit.</strong> The rule of thumb: up-arrow for the last couple of
-				commands,
-				<kbd
-					class="rounded border px-1 py-0.5 text-[11px]"
-					style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-					>Ctrl+R</kbd
-				>
-				for everything else. If you catch yourself pressing up-arrow more than three times, stop — reverse
-				search would have had it already. And for commands you recall <em>constantly</em>, promote
-				them to an alias (section 5.5) and stop searching altogether.
-			</Callout>
-
-			<h4
-				id="history-recall"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Retrace Your Steps
+			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+				The newest red flag: commands the agent was tricked into proposing
 			</h4>
-			<PlaygroundNote>
-				Ctrl+R lives at a real prompt, but you can practice the other half here: run a couple of
-				commands, then pipe <Code code="history" /> into
-				<Code code="grep" /> to dig one back out — and save the line you found.
-			</PlaygroundNote>
-			<LessonActivity title="Retrace Your Steps" scenarioId="history-recall" id="history-recall" />
-
-			<VibeBox
-				prompts={[
-					'Search my shell history for every command I ran involving npm and summarize what they did',
-					'Teach me the Ctrl+R workflow with three practice rounds using commands from this session'
-				]}
-			/>
-		</div>
-
-		<!-- 11.3 Terminal in VS Code -->
-		<div id="section-11-3" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Layout}
-				title="11.3 Terminal in VS Code"
-				color="var(--color-primary)"
-			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/vscode-terminal.webp"
-					alt="Terminal in VS Code — the integrated terminal panel beneath the editor"
-					caption="Editor above, terminal below — one window, and it's the same bash you've been learning"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Here's where all of this lands in daily life. VS Code has a full terminal built into the
-				editor — toggle it with <kbd
-					class="rounded border px-1 py-0.5 text-[11px]"
-					style="border-color: var(--color-border); background: var(--color-bg-tertiary);">⌃`</kbd
-				>
-				(Control + backtick, same keys on every OS), and it slides up as a panel beneath your code. It's
-				not a lookalike or a simulation — it runs your real shell, with your
-				<Code code=".bashrc" />, your aliases, your PATH, your history. Everything from this course
-				works in it unchanged.
-			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				Two conveniences make it better than a separate window: it <strong
-					style="color: var(--color-text);"
-					>opens already <Code code="cd" />'d into your project folder</strong
+				One more pattern, unique to the AI era: <strong style="color: var(--color-text);"
+					>prompt injection</strong
+				>. Any text an agent reads — a README, a GitHub issue, a dependency's docs — can contain
+				instructions that steer the commands it proposes next.
+				<a
+					href="https://www.helpnetsecurity.com/2026/06/29/mozilla-warns-of-indirect-prompt-injection-risk-in-ai-coding-agents/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">Mozilla warned in June 2026</a
 				>
-				(no navigating to where your code lives — you're there), and the
-				<strong style="color: var(--color-text);">+</strong> button in the panel spawns extra terminals
-				in the same place, with a dropdown to pick which shell (bash, zsh, or on Windows: WSL, Git Bash,
-				PowerShell).
+				about exactly this kind of indirect injection through repositories, and
+				<a
+					href="https://www.microsoft.com/en-us/security/blog/2026/05/07/prompts-become-shells-rce-vulnerabilities-ai-agent-frameworks/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);"
+					>Microsoft's "prompts become shells" research (May 2026)</a
+				>
+				showed injected text escalating all the way to remote code execution in agent frameworks. The
+				consequence for you: an agent's proposed command deserves the full audit
+				<em>even when you didn't write the prompt that produced it</em> — the instruction may not have
+				come from you at all.
 			</p>
 
 			<Callout type="important">
-				<strong>This is where a lot of AI coding actually lands.</strong> When a coding agent in VS
-				Code — Copilot, Claude Code, Cursor's agent — runs a command, it usually runs in this
-				integrated terminal:
-				<em>the same panel you can read, scroll, and type into</em>. The agent proposes
-				<Code code="npm test" />, you watch it execute, you scroll back through the failures, you
-				run your own
-				<Code code="grep" /> on the log — human and AI, sharing one shell. Every skill in this course
-				is what lets you be a participant in that terminal instead of a spectator.
+				<strong>You are the approval step.</strong> Every major agent — Claude Code, Codex CLI,
+				Copilot's agent mode — asks "allow this command?" before running it, and
+				<a
+					href="https://www.anthropic.com/engineering/claude-code-sandboxing"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="underline underline-offset-2"
+					style="color: var(--color-primary);">OS-level sandboxing</a
+				>
+				(macOS Seatbelt, Linux bubblewrap) is becoming the default posture underneath. That permission
+				prompt <em>is</em> the modern read-before-you-run: the skill this course teaches is what you
+				do in the seconds it's on screen. Don't approve on autopilot — an agent can propose commands
+				faster than you can casually skim them, and it only takes one unread
+				<Code code="rm" /> to ruin an afternoon.
 			</Callout>
 
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				That shared visibility is the practical payoff of <CourseLink to="part-6" />: when the agent
-				asks permission to run a command, you audit it (6.1); when it writes a <Code
-					code="setup.sh"
-				/>, you read it (6.2); when it says "tests failed," you can see the exit code it saw (6.3).
-				The integrated terminal is the one place code, agent, and shell meet — all in a single
-				window.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				VS Code even builds the red-flag mental model from 6.1 into settings. Copilot's agent mode
-				runs terminal commands <strong style="color: var(--color-text);"
-					>with per-command approval</strong
-				>, and you can maintain an allowlist and denylist of which commands auto-approve — let
-				<Code code="git status" />
-				through without asking, always stop on
-				<Code code="rm -rf" />
+			<h4
+				id="audit-the-agent"
+				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: Audit the Agent
+			</h4>
+			<PlaygroundNote>
+				An agent left three proposed commands in <Code code="agent-plan.txt" />
+				— two are safe, one would wipe files you care about. Read the plan with
+				<Code code="cat" />, audit each command (rehearse with
+				<Code code="echo" />
 				and
-				<Code code="sudo" />. Claude Code ships a GA VS Code extension that drives the same CLI from
-				a panel in the editor — same terminal, same approval moments, same skills.
-			</p>
-
-			<Callout type="note">
-				One habit worth stealing: keep <strong>one terminal for the agent and one for you</strong>.
-				Click <strong>+</strong> to add yours. The agent's commands and output stay in its terminal
-				where you can audit the transcript; your exploring (<Code code="ls" />, <Code code="cat" />,
-				<Code code="grep" />) doesn't tangle with its work. Which is the perfect segue to the next
-				section.
-			</Callout>
+				<Code code="ls" />!), run the safe ones, and don't run the trap.
+			</PlaygroundNote>
+			<LessonActivity title="Audit the Agent" scenarioId="audit-the-agent" id="audit-the-agent" />
 
 			<VibeBox
 				prompts={[
-					'Run the test suite in the integrated terminal and walk me through the output you see',
-					'Before you run any command in this terminal, tell me what it does and wait for my okay'
-				]}
-			/>
-		</div>
-
-		<!-- 11.4 Many Terminals at Once -->
-		<div id="section-11-4" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={SplitSquareHorizontal}
-				title="11.4 Many Terminals at Once"
-				color="var(--color-primary)"
-			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/many-terminals.webp"
-					alt="Many Terminals at Once — tabs and split panes, one job per pane"
-					caption="One terminal per job: server here, logs there, you in the middle"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Sooner or later one terminal isn't enough: a dev server occupies one (it runs until you stop
-				it, holding the prompt hostage), <Code code="tail -f" />
-				follows a log in another (<CourseLink to="part-2" />), and you still need a free prompt to
-				actually work. The answer is never "quit the server" — it's
-				<strong style="color: var(--color-text);">more terminals</strong>, and every modern terminal
-				app makes that cheap:
-			</p>
-
-			<div class="mb-6 grid gap-3 sm:grid-cols-2">
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<PanelTop size={14} style="color: var(--color-primary);" />
-						Tabs
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Like browser tabs: <kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>⌘T</kbd
-						>
-						on macOS,
-						<kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+Shift+T</kbd
-						> in Windows Terminal and GNOME Terminal. Each tab is a fresh, independent shell — new history
-						position, own working directory. Best for separate contexts: one tab per project.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Columns2 size={14} style="color: var(--color-primary);" />
-						Split panes
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Two or more shells visible side by side in one window — best for things you watch <em
-							>while</em
-						> you work (server output, a followed log). iTerm2, Windows Terminal, and VS Code's terminal
-						panel all split with a keystroke or the pane's context menu.
-					</p>
-				</div>
-			</div>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				A classic three-pane cockpit for a coding session: the dev server in one pane, <Code
-					code="tail -f server.log"
-				/>
-				in a second, and a free prompt in the third — with your agent's terminal from 11.3 alongside.
-				Every shell is independent: its own working directory, its own
-				<Code code="cd" />, its own foreground command. Nothing you do in one pane disturbs another.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				And here's the 2026 twist that turned splits from a power-user nicety into standard
-				practice: <strong style="color: var(--color-text);"
-					>people now run multiple AI agents in parallel</strong
-				> — one agent per pane or tab, each pointed at its own copy of the project (its own git worktree)
-				so they never collide. The split layout stops being "server here, logs there" and becomes several
-				agents, each in its own pane: three panes, three agents on three tasks, and you sweeping your
-				eyes across all of them, approving and course-correcting. Every pane is just a shell — which is
-				why everything in this course scales from one terminal to ten.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				One name to file away for later: <strong style="color: var(--color-text);">tmux</strong>, a
-				terminal multiplexer that does tabs and splits <em>inside</em> the terminal itself — and
-				whose sessions survive the window closing, your laptop sleeping, even an SSH connection
-				dropping. You log back in, reattach, and every pane is exactly where you left it (agents
-				included — which is exactly why people running several at once tend to live in it). If
-				tmux's keybindings feel arcane,
-				<strong style="color: var(--color-text);">Zellij</strong> is the friendlier modern multiplexer
-				with the shortcuts printed on screen. Overkill for today; indispensable the day you work on remote
-				servers. It'll be waiting.
-			</p>
-
-			<VibeBox
-				prompts={[
-					'Set up my layout: dev server in one terminal, log tail in a second, and a free shell for me',
-					'The dev server is hogging my only terminal — what are my options, and which do you recommend?'
+					'Explain this command flag by flag before I run it, and tell me exactly which files it will touch',
+					'Rewrite this command with a dry-run or preview step first, so I can see what it would do'
 				]}
 			/>
 		</div>

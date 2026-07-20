@@ -52,8 +52,8 @@ export const courseGraph: CourseNode[] = [
 	},
 	{
 		id: 'part-6',
-		gives: 'audit any command an agent proposes',
-		needs: ['part-3', 'part-4', 'part-5'],
+		gives: 'save commands as scripts and chain them on success',
+		needs: ['part-4', 'part-5'],
 		track: 'core'
 	},
 	{
@@ -82,20 +82,26 @@ export const courseGraph: CourseNode[] = [
 	},
 	{
 		id: 'part-11',
+		gives: 'audit any command an agent proposes',
+		needs: ['part-6', 'part-7', 'part-8', 'part-9', 'part-10'],
+		track: 'mastery'
+	},
+	{
+		id: 'part-12',
 		gives: 'make the terminal fast and yours',
 		needs: ['part-4', 'part-5'],
 		track: 'mastery'
 	},
 	{
-		id: 'part-12',
+		id: 'part-13',
 		gives: 'understand what is really happening underneath',
 		needs: ['part-8'],
 		track: 'mastery'
 	},
 	{
-		id: 'part-13',
+		id: 'part-14',
 		gives: 'the mindset, a reference card, and two final challenges',
-		needs: ['part-6', 'part-10'],
+		needs: ['part-11'],
 		track: 'mastery'
 	}
 ];

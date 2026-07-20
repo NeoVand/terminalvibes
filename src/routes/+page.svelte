@@ -19,6 +19,7 @@
 	import Part11 from '$lib/components/sections/Part11.svelte';
 	import Part12 from '$lib/components/sections/Part12.svelte';
 	import Part13 from '$lib/components/sections/Part13.svelte';
+	import Part14 from '$lib/components/sections/Part14.svelte';
 	import { anchorIds } from '$lib/data/sections';
 	import { markSectionVisited } from '$lib/data/progress';
 	import { readingContext } from '$lib/ai/reading-context.svelte';
@@ -368,7 +369,8 @@
 	<Part10 />
 	<Part11 />
 	<Part12 />
-	<Part13 onOpenPlayground={openPlayground} />
+	<Part13 />
+	<Part14 onOpenPlayground={openPlayground} />
 
 	<footer class="py-10 text-center" style="border-top: 1px solid var(--color-border);">
 		<p class="text-xs" style="color: var(--color-text-muted);">

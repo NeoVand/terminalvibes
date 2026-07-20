@@ -39,7 +39,8 @@
 		</p>
 
 		<Callout type="important">
-			The habit this part builds is the same one <CourseLink to="part-6" /> started, aimed at a new target:
+			The habit this part builds is the one <CourseLink to="part-11" /> will formalise, aimed here at
+			a new target:
 			<strong>verify with your own command</strong>. When an agent says the server is up, the deploy
 			worked, or the API returned success, there is a one-line way to check — and now you'll know
 			it.
