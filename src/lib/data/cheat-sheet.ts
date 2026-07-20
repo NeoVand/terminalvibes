@@ -659,6 +659,18 @@ export const cheatSheet: CheatSheetCategory[] = [
 			},
 			{
 				command: ':q!',
+				description: 'Escape vim without saving',
+				detail:
+					'The most famous trap in computing. Git and other tools drop you into vim for a message; press Esc first, then type :q! and Enter to leave discarding changes (:wq saves). In nano it is Ctrl+X.'
+			},
+			{
+				command: 'lsof -i :3000',
+				description: '"Address already in use" — find and stop the squatter',
+				detail:
+					'Prints the process holding the port, with its PID. kill that PID, then start your server again. Silence from lsof means the port is actually free.'
+			},
+			{
+				command: ':q!',
 				description: 'Trapped in vim? Press Esc, then type :q! and Enter',
 				detail:
 					'Quits without saving. Some commands open vim as an editor without warning — this is the universal exit.'

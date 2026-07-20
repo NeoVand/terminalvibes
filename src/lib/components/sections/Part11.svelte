@@ -235,9 +235,9 @@ PS1="🌲 \\W $ "
 
 			<Callout type="tip">
 				<strong>Practice the 6.1 audit here.</strong> Starship's install command is a
-				<Code code="curl ... | sh" /> one-liner — exactly the red-flag pattern from last chapter. Perfect
-				low-stakes rehearsal: download the script first, skim it (or ask your AI to), then run it. Trusted
-				source, verified anyway — that's the habit.
+				<Code code="curl ... | sh" /> one-liner — exactly the red-flag pattern from Part 6. Perfect low-stakes
+				rehearsal: download the script first, skim it (or ask your AI to), then run it. Trusted source,
+				verified anyway — that's the habit.
 			</Callout>
 
 			<VibeBox

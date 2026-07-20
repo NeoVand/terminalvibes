@@ -30,7 +30,7 @@
 
 	let activeTab = $state<'mac' | 'windows' | 'linux'>('mac');
 
-	const stats = ['13 parts', '34 playgrounds', '100% free', 'No signup'];
+	const stats = ['13 parts', '35 playgrounds', '100% free', 'No signup'];
 
 	const shellTimeline = [
 		{

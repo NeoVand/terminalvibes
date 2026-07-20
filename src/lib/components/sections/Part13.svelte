@@ -72,6 +72,31 @@
 		{
 			id: 'exit-codes',
 			label: 'I know what $? holds and when && vs || vs ; runs the next command.'
+		},
+		{
+			id: 'sed-backup',
+			label:
+				'I can find-and-replace across files with sed — and I never run -i without a .bak backup.'
+		},
+		{
+			id: 'processes',
+			label:
+				'I can find what is hogging a port or a CPU, stop it politely, and escalate to -9 only when it refuses.'
+		},
+		{
+			id: 'verify-network',
+			label:
+				'I check a server myself with curl instead of trusting "it\'s running" — and I can pull one value out of JSON.'
+		},
+		{
+			id: 'secrets',
+			label:
+				'I keep API keys in a locked-down .env file, never typed into a command where history keeps them.'
+		},
+		{
+			id: 'toolshed',
+			label:
+				'I can install a missing tool, peek inside an archive before unpacking it, and measure with du before deleting.'
 		}
 	];
 </script>
@@ -491,6 +516,35 @@
 				run, even now. A ✔ appears in the terminal when every goal is met — no partial credit.
 			</PlaygroundNote>
 			<LessonActivity title="The Final Challenge" scenarioId="capstone" id="capstone" />
+
+			<h4 class="mt-10 mb-3 text-lg font-semibold" style="color: var(--color-text);">
+				And One More: The Midnight Deploy
+			</h4>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The first challenge covers Parts 1–6. This one is the power tools: a release is due, a stale
+				server is squatting on your port, the config still says <Code code="http:" />, and you
+				refuse to ship on faith. Free the port, fix the config <em>with a backup</em>, start your
+				server, and save the proof it's alive — Parts 7, 8, 9 and 10 in a single sitting.
+			</p>
+
+			<h4
+				id="midnight-deploy"
+				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
+				style="color: var(--color-text);"
+			>
+				Try It: The Midnight Deploy
+			</h4>
+			<PlaygroundNote>
+				Four moves: find and stop whoever holds port 3000, rewrite <Code code="config.yml" /> with
+				<Code code="sed -i.bak" />, start the server, then <Code code="curl" /> the health endpoint into
+				<Code code="status.json" />. Verification is part of the job, not an afterthought.
+			</PlaygroundNote>
+			<LessonActivity
+				title="The Midnight Deploy"
+				scenarioId="midnight-deploy"
+				id="midnight-deploy"
+			/>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
 				The Skill Checklist

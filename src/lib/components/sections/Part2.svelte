@@ -635,6 +635,26 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 				<Code code="man" /> pages (Part 1) open in less too — same keys, same escape hatch.
 			</Callout>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				While we're here, three escape hatches worth memorizing now — because each one has stranded
+				somebody for an embarrassingly long time:
+			</p>
+
+			<CodeBlock
+				title="How to get out of things"
+				code={`q            # a pager: less, man, git log
+:q!          # vim — press Esc FIRST, then type it. (:wq saves instead)
+Ctrl+X       # nano — it tells you at the bottom, but nobody reads it
+Ctrl+C       # a running command, or a line you typed but haven't run`}
+			/>
+
+			<p class="mt-3 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code=":q!" /> is the famous one. Git drops you into <Code code="vim" /> to write a commit
+				message, the keyboard stops behaving, and there's no visible way out — the answer is
+				<Code code="Esc" /> then <Code code=":q!" /> then Enter, which leaves without saving. You are
+				not expected to learn vim today; you're just expected to be able to leave.
+			</p>
+
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Sometimes you only care about the edges of a file — the header row of a CSV, or the most
 				recent lines of a log. That's <Code code="head" />

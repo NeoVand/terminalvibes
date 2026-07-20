@@ -29,34 +29,39 @@ TerminalVibes teaches the terminal through the lens of AI-assisted development. 
 
 It is the sister project of **[GitVibes](https://github.com/NeoVand/gitvibes)** — Git for Vibe Coders — same pedagogy, same layout, new subject.
 
-Every lesson opens with an original piece of banner art — all **38** of them, in curriculum order:
+Every lesson opens with an original piece of banner art — all **58** of them, in curriculum order:
 
-[![All 38 TerminalVibes section banners, from the hero art to Keep Learning](docs/images/banner-poster.webp)](docs/images/banner-poster.webp)
+[![All 58 TerminalVibes section banners, from the hero art to Keep Learning](docs/images/banner-poster.webp)](docs/images/banner-poster.webp)
 
 ### Curriculum
 
-| Part                             | Topics                                                                                               |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Introduction**                 | What the terminal is, a brief history, your machine's terminal (macOS / Linux / WSL), prompt anatomy |
-| **1. First Contact**             | Opening the terminal, first commands, getting help (`--help`, `man`, `q` to escape the pager)        |
-| **2. Moving Around**             | `pwd` & `ls`, paths, `cd`, making things with `mkdir` & `touch`, reading files                       |
-| **3. Copy, Move, Delete**        | `cp`, `mv`, the `rm`-has-no-trash-can safety lesson, wildcards                                       |
-| **4. Text & Pipes**              | Redirection, pipes, `grep`, `sort`/`uniq`/`wc`/`cut`, `find`                                         |
-| **5. Permissions & Environment** | Reading `ls -l`, `chmod`, `sudo`, `$PATH` & "command not found", shell config & aliases              |
-| **6. Terminal for the AI Era**   | Auditing AI-suggested commands, your first script, exit codes & `&&`/`\|\|` chaining                 |
-| **7. Your Cockpit**              | Themes & prompts, history superpowers, the VS Code integrated terminal, tabs & splits                |
-| **8. Conclusion**                | The command-line mindset, quick reference, the Final Challenge, keep learning                        |
+| Part                           | Topics                                                                                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Introduction**               | What the terminal is, a brief history, your machine's terminal (macOS / Linux / WSL), prompt anatomy |
+| **1. First Contact**           | Opening the terminal, first commands, getting help (`--help`, `man`, `q` to escape the pager)        |
+| **2. Moving Around**           | `pwd` & `ls`, paths, `cd`, making things with `mkdir` & `touch`, reading files                       |
+| **3. Copy, Move, Delete**      | `cp`, `mv`, the `rm`-has-no-trash-can safety lesson, wildcards                                       |
+| **4. Text & Pipes**            | Redirection, pipes, `grep`, `sort`/`uniq`/`wc`/`cut`, `find`                                         |
+| **5. Permissions & Config**    | Reading `ls -l`, `chmod`, `sudo`, `$PATH` & "command not found", shell config & aliases              |
+| **6. Terminal for the AI Era** | Auditing AI-suggested commands, your first script, exit codes & `&&`/`\|\|` chaining                 |
+| **7. Text Surgery**            | `sed` find & replace, line surgery with `d`/`p`, the `-i.bak` house rule, columns with `awk`         |
+| **8. Processes & Ports**       | `ps`/`pgrep`, `kill` vs `kill -9`, freeing port 3000 with `lsof`, background jobs (`&`, `fg`)        |
+| **9. Talking to the Network**  | `localhost` & URLs, `curl`, reading JSON with `jq`, API keys in `.env`, `ssh`                        |
+| **10. The Toolshed**           | Package managers, `tar`/`zip` decoded, symlinks & the `->` arrow, `du`/`df` disk detective           |
+| **11. Your Cockpit**           | Themes & prompts, history superpowers, the VS Code integrated terminal, tabs & splits                |
+| **12. Under the Hood**         | tty/PTY, line discipline, what Ctrl+C really does, and where the terminal is heading                 |
+| **13. Conclusion**             | The command-line mindset, quick reference, two final challenges, keep learning                       |
 
 ### The playground
 
-A simulated bash sandbox runs entirely in your browser — 15 scenario exercises with completion detection, a live file-tree diagram that redraws after every command, and a prompt that follows your `cwd`:
+A simulated bash sandbox runs entirely in your browser — 35 scenario exercises with completion detection, a live file-tree diagram that redraws after every command, and a prompt that follows your `cwd`:
 
 [![The TerminalVibes playground solving the log-detective scenario](docs/images/playground.webp)](docs/images/playground.webp)
 
 ### Features
 
 - **Bash Playground** — a simulated bash sandbox in the browser (a virtual filesystem plus a shell interpreter built for teaching), opened as a sidebar panel from anywhere on the site
-- **15 hands-on exercises** with live success detection — a ✔ fires the moment the filesystem reaches the goal state, from first `echo` to a grep-pipeline log hunt, a PATH repair, an agent-command audit, and a messy-home-folder capstone
+- **35 hands-on exercises** with live success detection — a ✔ fires the moment the filesystem reaches the goal state, from first `echo` to a grep-pipeline log hunt, a PATH repair, an agent-command audit, and a messy-home-folder capstone
 - **A live file-tree diagram** — the sandbox filesystem drawn as a Mermaid tree after every command: directories, files, your current location, and executables, always in sync with the terminal
 - **`share` in every terminal** — serializes your exact session into a link anyone can replay
 - **Progress that persists** — sections read, exercises completed, a self-assessed skill checklist, and spaced-repetition refresher nudges (all localStorage; no accounts, no backend)
@@ -69,7 +74,7 @@ A simulated bash sandbox runs entirely in your browser — 15 scenario exercises
 
 ## How the Bash Playground works
 
-The playground is honest about what it is: a **simulated** bash environment, not a real shell — which is exactly what makes it safe to let beginners run `rm -rf` in. A small shell engine keeps an in-memory virtual filesystem (directories, files, permission bits, your cwd, environment variables, aliases, `$?`), and an interpreter parses each command line — quoting, `$VAR` and `~` expansion, globs, pipes, redirection, and `&&`/`||`/`;` chaining — and executes the supported commands with teaching-quality error messages. Commands that make no sense in a sandbox (`sudo`, `nano`, `curl`) are friendly stubs that explain why and point you at what to do instead.
+The playground is honest about what it is: a **simulated** bash environment, not a real shell — which is exactly what makes it safe to let beginners run `rm -rf` in. A small shell engine keeps an in-memory virtual filesystem (directories, files, permission bits, your cwd, environment variables, aliases, `$?`), and an interpreter parses each command line — quoting, `$VAR` and `~` expansion, globs, pipes, redirection, and `&&`/`||`/`;` chaining — and executes the supported commands with teaching-quality error messages. It also models a **process table** (so `ps`, `kill`, `lsof` and background jobs behave, and a port can genuinely be "already in use") and a **virtual network** — `curl localhost:3000` is answered by whatever process is actually holding that port, so killing a server really does break the health check. Commands that make no sense in a sandbox (`sudo`, `nano`, `ssh`) are friendly stubs that explain why and point you at what to do instead.
 
 ```mermaid
 flowchart TD
