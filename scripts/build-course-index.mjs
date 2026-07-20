@@ -144,11 +144,23 @@ for (const file of files) {
 
 /* ── cheat sheet categories ─────────────────────────────────────────────── */
 
-// cheat-sheet.ts is data-only TypeScript: strip the interfaces and the type
-// annotation, then import the remainder as an ES module via a data: URL.
+// cheat-sheet.ts is data-only TypeScript: strip the interfaces and every
+// `export const x: SomeType` annotation, then import the remainder as an ES
+// module via a data: URL. The annotation regex is deliberately general — an
+// earlier version hardcoded `: CheatSheetCategory[]` and a later export with a
+// different annotation broke the build with an opaque SyntaxError.
 const cheatSource = readFileSync(join(ROOT, 'src/lib/data/cheat-sheet.ts'), 'utf8')
 	.replace(/export interface [\s\S]*?\n\}/g, '')
-	.replace(/: CheatSheetCategory\[\]/, '');
+	.replace(/^(export const \w+)\s*:\s*[A-Za-z_$][\w$.]*(?:\[\])*(?=\s*=)/gm, '$1');
+
+// Fail loudly rather than letting an un-stripped annotation reach the parser.
+const leftover = cheatSource.match(/^export const \w+\s*:/m);
+if (leftover) {
+	throw new Error(
+		`cheat-sheet.ts has a type annotation this script cannot strip: ${leftover[0]}\n` +
+			'Use a named interface (export const x: SomeInterface = …), not an inline object type.'
+	);
+}
 const { cheatSheet } = await import(`data:text/javascript,${encodeURIComponent(cheatSource)}`);
 
 for (const category of cheatSheet) {
