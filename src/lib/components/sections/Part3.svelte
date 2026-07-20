@@ -361,8 +361,8 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 				(absolute? relative to <em>what</em>?), <strong>any wildcard</strong> (what could it expand
 				to?), and <strong>the working directory</strong> the agent is running in. Agents make
 				location mistakes exactly the way beginners do — they just make them faster. Deletion is the
-				one category of command you always read in full; <CourseLink to="part-6" /> turns this instinct
-				into a complete auditing method.
+				one category of command you always read in full — and <CourseLink to="part-11" /> later turns
+				that instinct into a complete auditing method.
 			</Callout>
 
 			<Callout type="tip">

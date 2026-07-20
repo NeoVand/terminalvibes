@@ -20,36 +20,85 @@ export interface ProgressState {
 	sections: Record<string, string>;
 	/** skill-checklist item id -> checked */
 	checklist: Record<string, boolean>;
+	/**
+	 * Which curriculum layout these section ids belong to. Section ids are
+	 * positional, so a reordering makes saved ids mean something else — the
+	 * stamp is what lets a migration run exactly once, on exactly the data it
+	 * was written for.
+	 */
+	version?: number;
 }
 
 const STORAGE_KEY = 'terminalvibes-progress-v1';
 
-const EMPTY: ProgressState = { scenarios: {}, sections: {}, checklist: {} };
+/** Bump when section ids move, and add the matching step to MIGRATIONS. */
+const CURRENT_VERSION = 2;
 
-/**
- * The Power Tools expansion renumbered the last three parts (7/8/9 →
- * 11/12/13). Progress saved under the old section ids is carried over here so
- * returning learners keep their read history.
- */
-const SECTION_ID_RENAMES: Record<string, string> = {
-	'section-7-1': 'section-11-1',
-	'section-7-2': 'section-11-2',
-	'section-7-3': 'section-11-3',
-	'section-7-4': 'section-11-4',
-	'section-8-1': 'section-12-1',
-	'section-8-2': 'section-12-2',
-	'section-9-1': 'section-13-1',
-	'section-9-2': 'section-13-2',
-	'section-9-3': 'section-13-3',
-	'section-9-4': 'section-13-4'
+const EMPTY: ProgressState = {
+	scenarios: {},
+	sections: {},
+	checklist: {},
+	version: CURRENT_VERSION
 };
 
-function migrateSections(sections: Record<string, string>): Record<string, string> {
-	const out: Record<string, string> = {};
-	for (const [id, ts] of Object.entries(sections)) {
-		out[SECTION_ID_RENAMES[id] ?? id] = ts;
+/**
+ * One entry per reordering, applied in sequence from the stored version up to
+ * CURRENT_VERSION. Chaining matters: these maps share keys — `section-7-1`
+ * meant Your Cockpit before v1 and Text Surgery after it — so applying them in
+ * the wrong order, or twice, silently rewrites the wrong sections.
+ */
+const MIGRATIONS: Record<number, Record<string, string>> = {
+	// → v1: the Power Tools band pushed Cockpit / Under the Hood / Conclusion
+	// from 7/8/9 to 11/12/13.
+	1: {
+		'section-7-1': 'section-11-1',
+		'section-7-2': 'section-11-2',
+		'section-7-3': 'section-11-3',
+		'section-7-4': 'section-11-4',
+		'section-8-1': 'section-12-1',
+		'section-8-2': 'section-12-2',
+		'section-9-1': 'section-13-1',
+		'section-9-2': 'section-13-2',
+		'section-9-3': 'section-13-3',
+		'section-9-4': 'section-13-4'
+	},
+	// → v2: the AI audit moved late (6.1 → 11.1), scripting took Part 6, and
+	// everything from Your Cockpit onwards shifted by one.
+	2: {
+		'section-6-1': 'section-11-1',
+		'section-6-2': 'section-6-1',
+		'section-6-3': 'section-6-2',
+		'section-11-1': 'section-12-1',
+		'section-11-2': 'section-12-2',
+		'section-11-3': 'section-12-3',
+		'section-11-4': 'section-12-4',
+		'section-12-1': 'section-13-1',
+		'section-12-2': 'section-13-2',
+		'section-13-1': 'section-14-1',
+		'section-13-2': 'section-14-2',
+		'section-13-3': 'section-14-3',
+		'section-13-4': 'section-14-4'
 	}
-	return out;
+};
+
+/**
+ * Walk saved section ids forward to the current layout. Data written before
+ * the stamp existed is treated as v0, which is correct: the only ids in the
+ * wild without one predate every migration.
+ */
+export function migrateSections(
+	sections: Record<string, string>,
+	from: number
+): Record<string, string> {
+	let current = sections;
+	for (let v = from + 1; v <= CURRENT_VERSION; v++) {
+		const step = MIGRATIONS[v];
+		if (!step) continue;
+		const next: Record<string, string> = {};
+		for (const [id, ts] of Object.entries(current)) next[step[id] ?? id] = ts;
+		current = next;
+	}
+	return current;
 }
 
 function load(): ProgressState {
@@ -60,8 +109,9 @@ function load(): ProgressState {
 		const parsed = JSON.parse(raw) as Partial<ProgressState>;
 		return {
 			scenarios: parsed.scenarios ?? {},
-			sections: migrateSections(parsed.sections ?? {}),
-			checklist: parsed.checklist ?? {}
+			sections: migrateSections(parsed.sections ?? {}, parsed.version ?? 0),
+			checklist: parsed.checklist ?? {},
+			version: CURRENT_VERSION
 		};
 	} catch {
 		return EMPTY;
@@ -111,7 +161,7 @@ export function toggleChecklistItem(id: string): void {
 
 /** Wipe every recording — completions, sections read, checklist. */
 export function resetProgress(): void {
-	progress.set({ scenarios: {}, sections: {}, checklist: {} });
+	progress.set({ scenarios: {}, sections: {}, checklist: {}, version: CURRENT_VERSION });
 }
 
 export interface StaleCompletion {

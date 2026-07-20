@@ -35,22 +35,23 @@ Every lesson opens with an original piece of banner art — all **58** of them, 
 
 ### Curriculum
 
-| Part                           | Topics                                                                                               |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| **Introduction**               | What the terminal is, a brief history, your machine's terminal (macOS / Linux / WSL), prompt anatomy |
-| **1. First Contact**           | Opening the terminal, first commands, getting help (`--help`, `man`, `q` to escape the pager)        |
-| **2. Moving Around**           | `pwd` & `ls`, paths, `cd`, making things with `mkdir` & `touch`, reading files                       |
-| **3. Copy, Move, Delete**      | `cp`, `mv`, the `rm`-has-no-trash-can safety lesson, wildcards                                       |
-| **4. Text & Pipes**            | Redirection, pipes, `grep`, `sort`/`uniq`/`wc`/`cut`, `find`                                         |
-| **5. Permissions & Config**    | Reading `ls -l`, `chmod`, `sudo`, `$PATH` & "command not found", shell config & aliases              |
-| **6. Terminal for the AI Era** | Auditing AI-suggested commands, your first script, exit codes & `&&`/`\|\|` chaining                 |
-| **7. Text Surgery**            | `sed` find & replace, line surgery with `d`/`p`, the `-i.bak` house rule, columns with `awk`         |
-| **8. Processes & Ports**       | `ps`/`pgrep`, `kill` vs `kill -9`, freeing port 3000 with `lsof`, background jobs (`&`, `fg`)        |
-| **9. Talking to the Network**  | `localhost` & URLs, `curl`, reading JSON with `jq`, API keys in `.env`, `ssh`                        |
-| **10. The Toolshed**           | Package managers, `tar`/`zip` decoded, symlinks & the `->` arrow, `du`/`df` disk detective           |
-| **11. Your Cockpit**           | Themes & prompts, history superpowers, the VS Code integrated terminal, tabs & splits                |
-| **12. Under the Hood**         | tty/PTY, line discipline, what Ctrl+C really does, and where the terminal is heading                 |
-| **13. Conclusion**             | The command-line mindset, quick reference, two final challenges, keep learning                       |
+| Part                            | Topics                                                                                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Introduction**                | What the terminal is, a brief history, your machine's terminal (macOS / Linux / WSL), prompt anatomy |
+| **1. First Contact**            | Opening the terminal, first commands, getting help (`--help`, `man`, `q` to escape the pager)        |
+| **2. Moving Around**            | `pwd` & `ls`, paths, `cd`, making things with `mkdir` & `touch`, reading files                       |
+| **3. Copy, Move, Delete**       | `cp`, `mv`, the `rm`-has-no-trash-can safety lesson, wildcards                                       |
+| **4. Text & Pipes**             | Redirection, pipes, `grep`, `sort`/`uniq`/`wc`/`cut`, `find`                                         |
+| **5. Permissions & Config**     | Reading `ls -l`, `chmod`, `sudo`, `$PATH` & "command not found", shell config & aliases              |
+| **6. Scripts & Automation**     | Your first script (shebang, `chmod +x`, `$1`), exit codes & `&&`/`\|\|` chaining                     |
+| **7. Text Surgery**             | `sed` find & replace, line surgery with `d`/`p`, the `-i.bak` house rule, columns with `awk`         |
+| **8. Processes & Ports**        | `ps`/`pgrep`, `kill` vs `kill -9`, freeing port 3000 with `lsof`, background jobs (`&`, `fg`)        |
+| **9. Talking to the Network**   | `localhost` & URLs, `curl`, reading JSON with `jq`, API keys in `.env`, `ssh`                        |
+| **10. The Toolshed**            | Package managers, `tar`/`zip` decoded, symlinks & the `->` arrow, `du`/`df` disk detective           |
+| **11. Terminal for the AI Era** | The four-step audit, red flags (`rm -rf`, `sed -i`, `kill -9`, `curl \| bash`), prompt injection     |
+| **12. Your Cockpit**            | Themes & prompts, history superpowers, the VS Code integrated terminal, tabs & splits                |
+| **13. Under the Hood**          | tty/PTY, line discipline, what Ctrl+C really does, and where the terminal is heading                 |
+| **14. Conclusion**              | The command-line mindset, quick reference, two final challenges, keep learning                       |
 
 ### The playground
 

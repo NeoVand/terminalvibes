@@ -39,11 +39,11 @@ function resolveSectionId(command: string, category: string): string {
 	if (first === 'sort' || first === 'uniq' || first === 'wc' || first === 'cut')
 		return 'section-4-4';
 	if (cmd.includes('&&') || cmd.includes('||') || cmd.includes('$?') || bare.includes(';'))
-		return 'section-6-3';
+		return 'section-6-2';
 	if (bare.includes('|')) return 'section-4-2';
 	if (bare.includes('>') || / < /.test(bare)) return 'section-4-1';
 	if (cmd.startsWith('#!') || cmd.startsWith('./') || first === 'bash' || cmd.includes('$1'))
-		return 'section-6-2';
+		return 'section-6-1';
 
 	if (
 		cmd.includes('alias') ||
@@ -95,7 +95,7 @@ function resolveSectionId(command: string, category: string): string {
 		Searching: 'section-4-3',
 		Permissions: 'section-5-1',
 		Environment: 'section-5-4',
-		Scripting: 'section-6-2',
+		Scripting: 'section-6-1',
 		'Panic Button': 'section-1-3'
 	};
 
@@ -666,7 +666,7 @@ const topicEntries: SearchEntry[] = [
 	// ───── Part 6: Terminal for the AI Era ─────
 	{
 		id: 'topic-read-before-run',
-		sectionId: 'section-6-1',
+		sectionId: 'section-11-1',
 		title: 'Read Before You Run',
 		part: 'Terminal for the AI Era',
 		description: 'Audit AI-suggested commands: identify the command, flags, and targets first.',
@@ -688,7 +688,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-prompt-injection',
-		sectionId: 'section-6-1',
+		sectionId: 'section-11-1',
 		title: 'Prompt injection',
 		part: 'Terminal for the AI Era',
 		description:
@@ -707,7 +707,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-permission-prompt',
-		sectionId: 'section-6-1',
+		sectionId: 'section-11-1',
 		title: 'The agent permission prompt',
 		part: 'Terminal for the AI Era',
 		description:
@@ -728,7 +728,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-coding-agents-cli',
-		sectionId: 'section-6-1',
+		sectionId: 'section-11-1',
 		title: 'Terminal coding agents (Claude Code, Codex CLI)',
 		part: 'Terminal for the AI Era',
 		description:
@@ -749,7 +749,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-curl-bash',
-		sectionId: 'section-6-1',
+		sectionId: 'section-11-1',
 		title: 'curl | bash — run code straight off the internet',
 		part: 'Terminal for the AI Era',
 		description:
@@ -768,9 +768,9 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-first-script',
-		sectionId: 'section-6-2',
+		sectionId: 'section-6-1',
 		title: 'Your First Script',
-		part: 'Terminal for the AI Era',
+		part: 'Scripts & Automation',
 		description: 'Shebang, chmod +x, ./ — scripts are saved commands.',
 		keywords: [
 			'script',
@@ -789,9 +789,9 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-exit-codes',
-		sectionId: 'section-6-3',
+		sectionId: 'section-6-2',
 		title: 'Exit Codes & Chaining',
-		part: 'Terminal for the AI Era',
+		part: 'Scripts & Automation',
 		description: '$?, && and || — 0 means success, and chains make decisions.',
 		keywords: [
 			'exit code',
@@ -1149,7 +1149,7 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 11: Your Cockpit ─────
+	// ───── Part 12: Your Cockpit ─────
 	{
 		id: 'tool-prompt-designer',
 		sectionId: 'prompt-designer',
@@ -1176,7 +1176,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-make-it-yours',
-		sectionId: 'section-11-1',
+		sectionId: 'section-12-1',
 		title: 'Make It Yours',
 		part: 'Your Cockpit',
 		description: 'Themes, fonts, and prompt customization — PS1 and starship.',
@@ -1196,7 +1196,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-terminal-apps',
-		sectionId: 'section-11-1',
+		sectionId: 'section-12-1',
 		title: 'Terminal apps: Ghostty, iTerm2, Warp, Windows Terminal',
 		part: 'Your Cockpit',
 		description:
@@ -1218,7 +1218,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-history-superpowers',
-		sectionId: 'section-11-2',
+		sectionId: 'section-12-2',
 		title: 'History Superpowers',
 		part: 'Your Cockpit',
 		description: 'Up arrow, history, !!, sudo !!, and Ctrl+R reverse search.',
@@ -1238,7 +1238,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-vscode-terminal',
-		sectionId: 'section-11-3',
+		sectionId: 'section-12-3',
 		title: 'Terminal in VS Code',
 		part: 'Your Cockpit',
 		description: 'The integrated terminal — where vibe coders live.',
@@ -1257,7 +1257,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-agent-allowlist',
-		sectionId: 'section-11-3',
+		sectionId: 'section-12-3',
 		title: 'VS Code agent allowlist & denylist',
 		part: 'Your Cockpit',
 		description:
@@ -1278,7 +1278,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-many-terminals',
-		sectionId: 'section-11-4',
+		sectionId: 'section-12-4',
 		title: 'Many Terminals at Once',
 		part: 'Your Cockpit',
 		description: 'Tabs, splits, and a one-line introduction to tmux.',
@@ -1296,7 +1296,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-parallel-agents',
-		sectionId: 'section-11-4',
+		sectionId: 'section-12-4',
 		title: 'Parallel AI agents in split panes',
 		part: 'Your Cockpit',
 		description:
@@ -1315,10 +1315,10 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 12: Under the Hood ─────
+	// ───── Part 13: Under the Hood ─────
 	{
 		id: 'topic-under-the-hood',
-		sectionId: 'section-12-1',
+		sectionId: 'section-13-1',
 		title: 'How the Terminal Works',
 		part: 'Under the Hood',
 		description: 'TTYs, the PTY pair, and the line discipline — how the terminal actually works.',
@@ -1343,7 +1343,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-escape-sequences',
-		sectionId: 'section-12-1',
+		sectionId: 'section-13-1',
 		title: 'Escape sequences & ANSI colors',
 		part: 'Under the Hood',
 		description: 'Colors and cursor movement are in-band bytes — \\e[32m turns the text green.',
@@ -1367,7 +1367,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-ctrl-c-sigint',
-		sectionId: 'section-12-1',
+		sectionId: 'section-13-1',
 		title: 'What Ctrl+C really does',
 		part: 'Under the Hood',
 		description: 'The tty driver turns Ctrl+C into SIGINT — a kernel signal, not input.',
@@ -1387,7 +1387,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-shell-integration',
-		sectionId: 'section-12-2',
+		sectionId: 'section-13-2',
 		title: 'Shell integration: OSC 133 & OSC 633',
 		part: 'Under the Hood',
 		description:
@@ -1409,7 +1409,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-agent-terminals',
-		sectionId: 'section-12-2',
+		sectionId: 'section-13-2',
 		title: 'Agent-aware terminals: Warp, cmux, libghostty',
 		part: 'Under the Hood',
 		description:
@@ -1431,7 +1431,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-agent-pipelines',
-		sectionId: 'section-12-2',
+		sectionId: 'section-13-2',
 		title: 'The agent as a shell command (claude -p)',
 		part: 'Under the Hood',
 		description:
@@ -1452,7 +1452,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-robust-scripts',
-		sectionId: 'section-12-2',
+		sectionId: 'section-13-2',
 		title: 'Robust bash scripts: set -euo pipefail & trap',
 		part: 'Under the Hood',
 		description:
@@ -1473,10 +1473,10 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 13: Conclusion ─────
+	// ───── Part 14: Conclusion ─────
 	{
 		id: 'topic-mindset',
-		sectionId: 'section-13-1',
+		sectionId: 'section-14-1',
 		title: 'The Command-Line Mindset',
 		part: 'Conclusion',
 		description: 'Compose small tools, read before running — the AI-native interface.',
@@ -1494,7 +1494,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-quick-reference',
-		sectionId: 'section-13-2',
+		sectionId: 'section-14-2',
 		title: 'Quick Reference',
 		part: 'Conclusion',
 		description: 'The dense every-command table — the whole course at a glance.',
@@ -1511,7 +1511,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-final-challenge',
-		sectionId: 'section-13-3',
+		sectionId: 'section-14-3',
 		title: 'The Final Challenge',
 		part: 'Conclusion',
 		description: 'One messy home folder — the capstone that proves you can do it.',
@@ -1528,7 +1528,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-keep-learning',
-		sectionId: 'section-13-4',
+		sectionId: 'section-14-4',
 		title: 'Keep Learning',
 		part: 'Conclusion',
 		description: 'The Linux Command Line, OverTheWire Bandit, explainshell, tldr.',
@@ -1708,7 +1708,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-pg-audit-the-agent',
 		sectionId: 'audit-the-agent',
 		title: 'Playground: Audit the Agent',
-		part: 'Terminal for the AI Era',
+		part: 'Scripts & Automation',
 		description: 'Three AI-proposed commands — defuse the dangerous one, run the rest.',
 		keywords: ['playground', 'practice', 'audit', 'agent commands', 'ai safety exercise', 'defuse'],
 		kind: 'topic'
@@ -1717,7 +1717,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-pg-first-script',
 		sectionId: 'first-script',
 		title: 'Playground: Automate the Backup',
-		part: 'Terminal for the AI Era',
+		part: 'Scripts & Automation',
 		description: 'Build a backup script with echo >>, chmod +x, and run it.',
 		keywords: ['playground', 'practice', 'first script', 'backup script', 'automation exercise'],
 		kind: 'topic'
@@ -1726,7 +1726,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-pg-exit-codes',
 		sectionId: 'exit-codes',
 		title: 'Playground: Deploy Only on Green',
-		part: 'Terminal for the AI Era',
+		part: 'Scripts & Automation',
 		description: 'Wire up && and || so deploys only happen when tests pass.',
 		keywords: [
 			'playground',
@@ -1810,7 +1810,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-pg-script-args',
 		sectionId: 'script-args',
 		title: 'Playground: One Script, Any Folder',
-		part: 'Terminal for the AI Era',
+		part: 'Scripts & Automation',
 		description: 'Make a script reusable by swapping a hard-coded path for $1.',
 		keywords: ['playground', 'practice', 'script arguments', '$1', 'reusable script', 'parameters'],
 		kind: 'topic'
@@ -1894,7 +1894,7 @@ const topicEntries: SearchEntry[] = [
 	},
 	{
 		id: 'topic-panic-scary-command',
-		sectionId: 'section-6-1',
+		sectionId: 'section-11-1',
 		title: 'Is this command safe to run?',
 		part: 'Panic',
 		description: 'Read before you run: decode any AI-suggested command before Enter.',

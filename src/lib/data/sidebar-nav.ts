@@ -160,15 +160,13 @@ export const sidebarNav: NavSection[] = [
 	},
 	{
 		id: 'part-6',
-		label: 'Terminal for the AI Era',
-		icon: Bot,
+		label: 'Scripts & Automation',
+		icon: FileCode2,
 		children: [
-			{ id: 'section-6-1', label: 'Read Before You Run', icon: ShieldAlert },
-			{ id: 'audit-the-agent', label: 'Audit the Agent', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-6-2', label: 'Your First Script', icon: FileCode2 },
+			{ id: 'section-6-1', label: 'Your First Script', icon: FileCode2 },
 			{ id: 'first-script', label: 'Automate the Backup', icon: Gamepad2, isPlayground: true },
 			{ id: 'script-args', label: 'One Script, Any Folder', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-6-3', label: 'Exit Codes & Chaining', icon: Braces },
+			{ id: 'section-6-2', label: 'Exit Codes & Chaining', icon: Braces },
 			{ id: 'exit-codes', label: 'Deploy Only on Green', icon: Gamepad2, isPlayground: true }
 		]
 	},
@@ -232,36 +230,45 @@ export const sidebarNav: NavSection[] = [
 	},
 	{
 		id: 'part-11',
-		label: 'Your Cockpit',
-		icon: Gauge,
+		label: 'Terminal for the AI Era',
+		icon: Bot,
 		children: [
-			{ id: 'section-11-1', label: 'Make It Yours', icon: Palette },
-			{ id: 'prompt-designer', label: 'Design Your Prompt', icon: Wand2 },
-			{ id: 'section-11-2', label: 'History Superpowers', icon: History },
-			{ id: 'history-recall', label: 'Retrace Your Steps', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-11-3', label: 'Terminal in VS Code', icon: Layout },
-			{ id: 'section-11-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal }
+			{ id: 'section-11-1', label: 'Read Before You Run', icon: ShieldAlert },
+			{ id: 'audit-the-agent', label: 'Audit the Agent', icon: Gamepad2, isPlayground: true }
 		]
 	},
 	{
 		id: 'part-12',
-		label: 'Under the Hood',
-		icon: Cog,
+		label: 'Your Cockpit',
+		icon: Gauge,
 		children: [
-			{ id: 'section-12-1', label: 'How the Terminal Works', icon: Wrench },
-			{ id: 'section-12-2', label: 'The Terminal, Evolving', icon: Sprout }
+			{ id: 'section-12-1', label: 'Make It Yours', icon: Palette },
+			{ id: 'prompt-designer', label: 'Design Your Prompt', icon: Wand2 },
+			{ id: 'section-12-2', label: 'History Superpowers', icon: History },
+			{ id: 'history-recall', label: 'Retrace Your Steps', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-12-3', label: 'Terminal in VS Code', icon: Layout },
+			{ id: 'section-12-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal }
 		]
 	},
 	{
 		id: 'part-13',
+		label: 'Under the Hood',
+		icon: Cog,
+		children: [
+			{ id: 'section-13-1', label: 'How the Terminal Works', icon: Wrench },
+			{ id: 'section-13-2', label: 'The Terminal, Evolving', icon: Sprout }
+		]
+	},
+	{
+		id: 'part-14',
 		label: 'Conclusion',
 		icon: BookOpen,
 		children: [
-			{ id: 'section-13-1', label: 'The Command-Line Mindset', icon: Wand2 },
-			{ id: 'section-13-2', label: 'Quick Reference', icon: Table },
-			{ id: 'section-13-3', label: 'Final Challenge', icon: Trophy },
+			{ id: 'section-14-1', label: 'The Command-Line Mindset', icon: Wand2 },
+			{ id: 'section-14-2', label: 'Quick Reference', icon: Table },
+			{ id: 'section-14-3', label: 'Final Challenge', icon: Trophy },
 			{ id: 'capstone', label: 'One Messy Home Folder', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-13-4', label: 'Keep Learning', icon: Library }
+			{ id: 'section-14-4', label: 'Keep Learning', icon: Library }
 		]
 	}
 ];

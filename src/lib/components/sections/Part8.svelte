@@ -150,8 +150,10 @@ kill -9 437              # SIGKILL — the floor opens, no cleanup
 				<strong><Code code="kill -9" /> is a last resort, not a default.</strong> Plenty of guides
 				(and plenty of AI answers) reach for it first because it always works. It always works the
 				way an axe always opens a door. Ask nicely, give it a second, and escalate only if it
-				refuses — and add <Code code="kill -9" /> to your <CourseLink to="part-6" /> red-flag list when
-				an agent proposes it without trying the polite version first.
+				refuses — and treat <Code code="kill -9" /> as a red flag when an agent reaches for it without
+				trying the polite version first — one more entry for the audit routine in <CourseLink
+					to="part-11"
+				/>.
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">

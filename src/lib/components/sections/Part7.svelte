@@ -224,7 +224,8 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 				propose is usually <Code code="sed -i" /> —
 				<strong style="color: var(--color-text);">edit the file in place</strong>. Same
 				substitution, except now it rewrites the real file, silently, with no preview and no undo.
-				This is the one sed flag that deserves the <CourseLink to="part-6" /> treatment.
+				This is the one sed flag worth carrying into <CourseLink to="part-11" />, where auditing
+				becomes a routine.
 			</p>
 
 			<div class="my-6">
@@ -236,11 +237,12 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 			</div>
 
 			<Callout type="caution">
-				<strong><Code code="sed -i" /> with no backup is a red-flag pattern.</strong> Add it to your
-				<CourseLink to="part-6" /> audit list next to <Code code="rm -rf" /> and <Code
-					code="curl | bash"
-				/>. But unlike those, the fix isn't refusing — it's <em>amending</em>: one suffix turns the
-				risky command into a safe one.
+				<strong><Code code="sed -i" /> with no backup is a red-flag pattern.</strong> File it with <Code
+					code="rm -rf"
+				/> and <Code code="curl | bash" /> on the list of commands to read twice — <CourseLink
+					to="part-11"
+				/> makes that list a method. But unlike those, the fix isn't refusing — it's
+				<em>amending</em>: one suffix turns the risky command into a safe one.
 			</Callout>
 
 			<CodeBlock
