@@ -26,6 +26,32 @@ const STORAGE_KEY = 'terminalvibes-progress-v1';
 
 const EMPTY: ProgressState = { scenarios: {}, sections: {}, checklist: {} };
 
+/**
+ * The Power Tools expansion renumbered the last three parts (7/8/9 →
+ * 11/12/13). Progress saved under the old section ids is carried over here so
+ * returning learners keep their read history.
+ */
+const SECTION_ID_RENAMES: Record<string, string> = {
+	'section-7-1': 'section-11-1',
+	'section-7-2': 'section-11-2',
+	'section-7-3': 'section-11-3',
+	'section-7-4': 'section-11-4',
+	'section-8-1': 'section-12-1',
+	'section-8-2': 'section-12-2',
+	'section-9-1': 'section-13-1',
+	'section-9-2': 'section-13-2',
+	'section-9-3': 'section-13-3',
+	'section-9-4': 'section-13-4'
+};
+
+function migrateSections(sections: Record<string, string>): Record<string, string> {
+	const out: Record<string, string> = {};
+	for (const [id, ts] of Object.entries(sections)) {
+		out[SECTION_ID_RENAMES[id] ?? id] = ts;
+	}
+	return out;
+}
+
 function load(): ProgressState {
 	if (!browser) return EMPTY;
 	try {
@@ -34,7 +60,7 @@ function load(): ProgressState {
 		const parsed = JSON.parse(raw) as Partial<ProgressState>;
 		return {
 			scenarios: parsed.scenarios ?? {},
-			sections: parsed.sections ?? {},
+			sections: migrateSections(parsed.sections ?? {}),
 			checklist: parsed.checklist ?? {}
 		};
 	} catch {

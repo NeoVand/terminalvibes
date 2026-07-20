@@ -65,6 +65,7 @@ const DEFAULT_ENV: Record<string, string> = {
 export const BIN_COMMANDS = [
 	'agent',
 	'alias',
+	'awk',
 	'basename',
 	'bash',
 	'cal',

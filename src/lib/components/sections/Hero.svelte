@@ -623,7 +623,7 @@
 
 		<Callout type="tip">
 			Prompts vary from machine to machine — yours might show a different name, extra colors, or
-			even a git branch. The parts are always the same: <em>who@where:directory$</em>. In Part 7
+			even a git branch. The parts are always the same: <em>who@where:directory$</em>. In Part 11
 			you'll learn to customize it yourself.
 		</Callout>
 	</div>

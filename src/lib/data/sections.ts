@@ -35,19 +35,19 @@ export const sectionIds = [
 	'section-6-1',
 	'section-6-2',
 	'section-6-3',
-	'part-7',
-	'section-7-1',
-	'section-7-2',
-	'section-7-3',
-	'section-7-4',
-	'part-8',
-	'section-8-1',
-	'section-8-2',
-	'part-9',
-	'section-9-1',
-	'section-9-2',
-	'section-9-3',
-	'section-9-4'
+	'part-11',
+	'section-11-1',
+	'section-11-2',
+	'section-11-3',
+	'section-11-4',
+	'part-12',
+	'section-12-1',
+	'section-12-2',
+	'part-13',
+	'section-13-1',
+	'section-13-2',
+	'section-13-3',
+	'section-13-4'
 ] as const;
 
 /**

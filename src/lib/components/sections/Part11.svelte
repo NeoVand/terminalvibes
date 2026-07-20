@@ -29,11 +29,11 @@
 	import StarshipDesigner from '../starship/StarshipDesigner.svelte';
 </script>
 
-<section id="part-7" class="py-10">
+<section id="part-11" class="py-10">
 	<div class="mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={Gauge}
-			partLabel="Part 7"
+			partLabel="Part 11"
 			title="Your Cockpit: Making the Terminal a Place You Like"
 			color="var(--color-primary)"
 		/>
@@ -62,12 +62,12 @@
 			id="cockpit-overview"
 		/>
 
-		<!-- 7.1 Make It Yours -->
-		<div id="section-7-1" class="mb-14">
+		<!-- 11.1 Make It Yours -->
+		<div id="section-11-1" class="mb-14">
 			<SectionHeader
 				level="section"
 				icon={Palette}
-				title="7.1 Make It Yours"
+				title="11.1 Make It Yours"
 				color="var(--color-primary)"
 			/>
 
@@ -269,12 +269,12 @@ PS1="🌲 \\W $ "
 			<StarshipDesigner />
 		</div>
 
-		<!-- 7.2 History Superpowers -->
-		<div id="section-7-2" class="mb-14">
+		<!-- 11.2 History Superpowers -->
+		<div id="section-11-2" class="mb-14">
 			<SectionHeader
 				level="section"
 				icon={History}
-				title="7.2 History Superpowers"
+				title="11.2 History Superpowers"
 				color="var(--color-primary)"
 			/>
 
@@ -417,12 +417,12 @@ sudo !!
 			/>
 		</div>
 
-		<!-- 7.3 Terminal in VS Code -->
-		<div id="section-7-3" class="mb-14">
+		<!-- 11.3 Terminal in VS Code -->
+		<div id="section-11-3" class="mb-14">
 			<SectionHeader
 				level="section"
 				icon={Layout}
-				title="7.3 Terminal in VS Code"
+				title="11.3 Terminal in VS Code"
 				color="var(--color-primary)"
 			/>
 
@@ -504,12 +504,12 @@ sudo !!
 			/>
 		</div>
 
-		<!-- 7.4 Many Terminals at Once -->
-		<div id="section-7-4" class="mb-8">
+		<!-- 11.4 Many Terminals at Once -->
+		<div id="section-11-4" class="mb-8">
 			<SectionHeader
 				level="section"
 				icon={SplitSquareHorizontal}
-				title="7.4 Many Terminals at Once"
+				title="11.4 Many Terminals at Once"
 				color="var(--color-primary)"
 			/>
 
@@ -575,8 +575,8 @@ sudo !!
 				A classic three-pane cockpit for a coding session: the dev server in one pane, <Code
 					code="tail -f server.log"
 				/>
-				in a second, and a free prompt in the third — with your agent's terminal from 7.3 alongside. Every
-				shell is independent: its own working directory, its own
+				in a second, and a free prompt in the third — with your agent's terminal from 11.3 alongside.
+				Every shell is independent: its own working directory, its own
 				<Code code="cd" />, its own foreground command. Nothing you do in one pane disturbs another.
 			</p>
 
