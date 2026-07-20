@@ -631,6 +631,81 @@ describe('processes, ports and jobs', () => {
 	});
 });
 
+describe('curl and jq', () => {
+	beforeEach(async () => {
+		await engine.reset({
+			files: { '~/config.json': '{"server":{"port":3000},"debug":false}\n' },
+			processes: [{ command: 'node server.js', port: 3000 }],
+			network: {
+				'api.vibecloud.dev/releases': '{"latest":"2.1.0","items":[{"tag":"2.1.0"},{"tag":"2.0.4"}]}'
+			}
+		});
+	});
+
+	it('localhost is answered by the process holding the port', async () => {
+		expect((await run('curl localhost:3000/health')).output).toContain('"status":"ok"');
+		expect((await run('curl http://localhost:3000/')).output).toContain('It works');
+	});
+
+	it('killing the server makes curl fail with connection refused', async () => {
+		const pid = engine.findByPort(3000)!.pid;
+		await run(`kill ${pid}`);
+		const res = await run('curl localhost:3000/health');
+		expect(res.error).toBe(true);
+		expect(res.output).toContain('Connection refused');
+	});
+
+	it('an unused port refuses too, and names the way to check', async () => {
+		const res = await run('curl localhost:9999/');
+		expect(res.error).toBe(true);
+		expect(res.output).toContain('lsof -i :9999');
+	});
+
+	it('-o saves the body, -s silences the meter, -I shows headers', async () => {
+		await run('curl -s -o status.json localhost:3000/health');
+		expect(engine.readFile('~/status.json')).toContain('"status":"ok"');
+		const head = await run('curl -I localhost:3000/health');
+		expect(head.output).toContain('HTTP/1.1 200 OK');
+		expect(head.output).toContain('application/json');
+	});
+
+	it('remote hosts answer from the scenario network, unknown ones do not resolve', async () => {
+		expect((await run('curl -s api.vibecloud.dev/releases')).output).toContain('2.1.0');
+		const bad = await run('curl -s nowhere.example.com/x');
+		expect(bad.error).toBe(true);
+		expect(bad.output).toContain('Could not resolve host');
+	});
+
+	it('jq walks keys, indexes and prints raw strings with -r', async () => {
+		expect((await run('curl -s api.vibecloud.dev/releases | jq .latest')).output).toBe('"2.1.0"');
+		expect((await run('curl -s api.vibecloud.dev/releases | jq -r .latest')).output).toBe('2.1.0');
+		expect((await run('curl -s api.vibecloud.dev/releases | jq -r .items[0].tag')).output).toBe(
+			'2.1.0'
+		);
+		expect((await run('jq .server.port config.json')).output).toBe('3000');
+	});
+
+	it('jq explains bad JSON and bad filters', async () => {
+		const parse = await run('curl -s localhost:3000/ | jq .');
+		expect(parse.error).toBe(true);
+		expect(parse.output).toContain('not valid JSON');
+		const filter = await run('jq latest config.json');
+		expect(filter.error).toBe(true);
+		expect(filter.output).toContain("'.latest'");
+	});
+
+	it('the whole pipeline: ask the API, extract, save', async () => {
+		await run('curl -s api.vibecloud.dev/releases | jq -r .latest > version.txt');
+		expect(engine.readFile('~/version.txt')).toBe('2.1.0\n');
+	});
+
+	it('has man pages and lives on PATH', async () => {
+		expect(strip((await run('man curl')).output)).toContain('-o FILE');
+		expect(strip((await run('man jq')).output)).toContain('nested');
+		expect((await run('which jq')).output).toBe('/usr/bin/jq');
+	});
+});
+
 describe('text shaping: sort, uniq, cut, tr, echo, printf', () => {
 	it('sorts alphabetically, numerically, reversed and unique', async () => {
 		expect((await run('printf "b\\na\\nc\\n" | sort')).output).toBe('a\nb\nc');
@@ -871,8 +946,10 @@ describe('info commands and stubs', () => {
 		expect(sudo.error).toBe(true);
 		expect(sudo.output).toContain('root');
 		expect(engine.exists('/home/vibe/notes.txt')).toBe(true);
+		// With no scenario network configured, curl still answers from the
+		// generic teaching body rather than erroring.
 		const curl = await run('curl https://api.example.com/data.json');
-		expect(curl.output).toContain('simulated');
+		expect(curl.output).toContain('"status"');
 		await run('wget https://example.com/data.json');
 		expect(engine.exists('/home/vibe/data.json')).toBe(true);
 		expect((await run('ps')).output).toContain('PID');

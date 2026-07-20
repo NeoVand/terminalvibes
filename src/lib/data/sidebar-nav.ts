@@ -9,6 +9,7 @@ import {
 	Columns3,
 	Compass,
 	Cpu,
+	DoorOpen,
 	Copy,
 	Eye,
 	FileCode2,
@@ -18,9 +19,11 @@ import {
 	FolderTree,
 	Gamepad2,
 	Gauge,
+	Globe,
 	Hash,
 	HelpCircle,
 	History,
+	Home,
 	KeyRound,
 	Laptop,
 	Layers,
@@ -40,6 +43,7 @@ import {
 	Scissors,
 	ScrollText,
 	Search,
+	Send,
 	Shield,
 	ShieldAlert,
 	Sparkles,
@@ -191,6 +195,21 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'free-the-port', label: 'Free Port 3000', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-8-4', label: 'Background & Foreground', icon: Layers },
 			{ id: 'backstage-jobs', label: 'Two Things at Once', icon: Gamepad2, isPlayground: true }
+		]
+	},
+	{
+		id: 'part-9',
+		label: 'Talking to the Network',
+		icon: Globe,
+		children: [
+			{ id: 'section-9-1', label: 'What Is localhost?', icon: Home },
+			{ id: 'section-9-2', label: 'curl — Ask the Network', icon: Send },
+			{ id: 'health-check', label: 'Is It Alive?', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-9-3', label: 'Reading JSON', icon: Braces },
+			{ id: 'api-detective', label: 'Question the API', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-9-4', label: 'Keys & Secrets', icon: KeyRound },
+			{ id: 'secret-keeper', label: 'Keep the Key Secret', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-9-5', label: 'A Door to Another Machine', icon: DoorOpen }
 		]
 	},
 	{

@@ -971,6 +971,105 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
+	// ───── Part 9: Talking to the Network ─────
+	{
+		id: 'topic-localhost',
+		sectionId: 'section-9-1',
+		title: 'localhost & URLs',
+		part: 'Talking to the Network',
+		description: 'localhost is this machine; the port is which door, the path is which room.',
+		keywords: [
+			'localhost',
+			'127.0.0.1',
+			'url',
+			'what is a port',
+			'localhost:3000',
+			'5173',
+			'8080',
+			'dev server url'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-curl',
+		sectionId: 'section-9-2',
+		title: 'curl',
+		part: 'Talking to the Network',
+		description:
+			'Send a request, read the reply — check a server yourself instead of trusting a claim.',
+		keywords: [
+			'curl',
+			'http request',
+			'check if server is running',
+			'connection refused',
+			'curl -o',
+			'curl -I',
+			'curl -H',
+			'api request',
+			'curl | bash',
+			'health check'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-jq',
+		sectionId: 'section-9-3',
+		title: 'Reading JSON with jq',
+		part: 'Talking to the Network',
+		description: 'jq .key walks into a JSON reply; -r prints the bare value for the next command.',
+		keywords: [
+			'jq',
+			'json',
+			'parse json',
+			'extract value',
+			'jq -r',
+			'api response',
+			'nested json',
+			'pretty print json'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-secrets',
+		sectionId: 'section-9-4',
+		title: 'API Keys & .env',
+		part: 'Talking to the Network',
+		description:
+			'Keys live in a locked-down .env file — never in a command, where history keeps them.',
+		keywords: [
+			'api key',
+			'secret',
+			'.env',
+			'env file',
+			'chmod 600',
+			'gitignore',
+			'committed a key',
+			'leaked key',
+			'token',
+			'credentials',
+			'bash_history'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-ssh',
+		sectionId: 'section-9-5',
+		title: 'ssh',
+		part: 'Talking to the Network',
+		description: 'The same terminal, driving another machine — the prompt tells you which one.',
+		keywords: [
+			'ssh',
+			'remote server',
+			'log into server',
+			'ssh key',
+			'ssh-keygen',
+			'public key',
+			'private key',
+			'another machine',
+			'vps'
+		],
+		kind: 'topic'
+	},
 	// ───── Part 11: Your Cockpit ─────
 	{
 		id: 'tool-prompt-designer',

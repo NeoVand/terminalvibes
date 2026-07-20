@@ -14,6 +14,7 @@
 		Eye,
 		FileCode,
 		FolderPlus,
+		Globe,
 		LifeBuoy,
 		Lock,
 		Route,
@@ -56,6 +57,7 @@
 	const iconMap: Record<string, typeof Compass> = {
 		compass: Compass,
 		cpu: Cpu,
+		globe: Globe,
 		route: Route,
 		'folder-plus': FolderPlus,
 		eye: Eye,
