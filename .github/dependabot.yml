@@ -1,9 +1,11 @@
 version: 2
 
 updates:
-  # npm dependencies. The deploy workflow gates every merge on lint, types,
-  # unit tests and Playwright, so an update that breaks the site can't reach
-  # Pages — which is what makes weekly, mostly-unattended bumps safe here.
+  # npm dependencies. ci.yml runs lint, types, unit tests and Playwright on
+  # every pull request, so an update that breaks the site fails a check before
+  # it can merge — which is what makes weekly, mostly-unattended bumps safe
+  # here. Without that PR gate the tests would only run post-merge, in
+  # deploy.yml, where a bad bump blocks the deploy instead of the merge.
   - package-ecosystem: npm
     directory: /
     schedule:
