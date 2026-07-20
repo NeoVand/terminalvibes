@@ -29,6 +29,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import {
 		cheatSheet,
+		cheatSheetLegend,
 		type CheatSheetCategory,
 		type CheatSheetCommand
 	} from '$lib/data/cheat-sheet';
@@ -118,6 +119,31 @@
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
+
+{#snippet legend()}
+	<!-- Placeholder key. Sits above the list rather than inside a category:
+	     it explains how to read every row, so it must be seen before them. -->
+	<div
+		class="mb-2 rounded-md border px-2.5 py-2"
+		style="border-color: var(--color-border); background: color-mix(in srgb, var(--color-bg-tertiary) 45%, transparent);"
+	>
+		<p class="text-[11px] leading-snug" style="color: var(--color-text-secondary);">
+			{cheatSheetLegend.lead}
+		</p>
+		<ul class="mt-1.5 space-y-1">
+			{#each cheatSheetLegend.entries as entry (entry.notation)}
+				<li class="text-[11px] leading-snug" style="color: var(--color-text-muted);">
+					<code
+						class="rounded px-1 py-0.5 text-[10px]"
+						style="background: var(--color-code-bg); color: var(--color-code-text); font-family: var(--font-mono);"
+						>{entry.notation}</code
+					>
+					{entry.meaning}
+				</li>
+			{/each}
+		</ul>
+	</div>
+{/snippet}
 
 {#snippet commandRow(cmd: CheatSheetCommand, showDetail: boolean = false)}
 	{@const isCopied = copiedCommand === cmd.command}
@@ -241,6 +267,9 @@
 
 	<!-- Scrollable command list -->
 	<div class="flex-1 overflow-y-auto px-2 py-2.5" use:autohideScroll>
+		{#if filteredCategories.length > 0}
+			{@render legend()}
+		{/if}
 		{#each filteredCategories as category (category.label)}
 			{@const IconComponent = iconMap[category.icon]}
 			{@const isExpanded = expandedCategories.has(category.label)}
@@ -350,6 +379,9 @@
 			</div>
 
 			<div class="min-h-0 flex-1 overflow-y-auto px-5 py-4" use:autohideScroll>
+				{#if filteredCategories.length > 0}
+					{@render legend()}
+				{/if}
 				<div class="cheat-modal-columns">
 					{#each filteredCategories as category (category.label)}
 						{@const IconComponent = iconMap[category.icon]}

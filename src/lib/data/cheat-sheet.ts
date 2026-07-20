@@ -15,6 +15,39 @@ export interface CheatSheetCategory {
 	commands: CheatSheetCommand[];
 }
 
+export interface CheatSheetLegendEntry {
+	/** The notation as it appears in the command column */
+	notation: string;
+	meaning: string;
+}
+
+export interface CheatSheetLegend {
+	lead: string;
+	entries: CheatSheetLegendEntry[];
+}
+
+/**
+ * Placeholder notation used throughout the commands below. Rendered above the
+ * list everywhere the cheat sheet appears — panel, expanded modal, and the
+ * printed PDF — because a beginner who types the angle brackets gets an error
+ * that points nowhere near the mistake.
+ */
+export const cheatSheetLegend: CheatSheetLegend = {
+	lead: 'Some of these commands have a blank to fill in. Two notations mark one:',
+	entries: [
+		{
+			notation: '<file>',
+			meaning:
+				'Your own word goes here — cat <file> means cat notes.txt. Never type the brackets; < is a real operator in the shell.'
+		},
+		{
+			notation: 'PID · NAME · URL',
+			meaning:
+				'The same blank in the capitals man pages use. Swap in the actual number, name, or address.'
+		}
+	]
+};
+
 export const cheatSheet: CheatSheetCategory[] = [
 	{
 		label: 'Orientation',
@@ -40,9 +73,9 @@ export const cheatSheet: CheatSheetCategory[] = [
 			},
 			{
 				command: 'ls -l',
-				description: 'Long listing: permissions, owner, size, date',
+				description: 'Long listing: permissions, link count, owner, group, size, date',
 				detail:
-					'One file per line with the full story. Combine flags freely: ls -la shows the long view including hidden files.'
+					'One file per line with the full story. The two names in the middle are the owner and its group — vibe staff means owner vibe, group staff. Single-letter flags cluster: ls -la is ls -l -a.'
 			},
 			{
 				command: 'whoami',
@@ -60,13 +93,13 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'man <command>',
 				description: 'Open the full manual page for a command',
 				detail:
-					'Scroll with arrows or space, press q to quit the pager. Git Bash on Windows ships without man — use <command> --help there instead.'
+					'Angle brackets mean "put your own word here" — you type man ls, never the brackets. Scroll with arrows or space, / searches (press Enter to run the search), q quits. A command can have pages in several numbered sections: man 5 crontab asks for the file-format one. Git Bash on Windows ships without man — use <command> --help there.'
 			},
 			{
 				command: '<command> --help',
 				description: 'Quick usage summary and flag list',
 				detail:
-					'Faster than man when you just need a flag reminder. Great habit: run it on any command an AI suggests before running the real thing.'
+					'In a usage line, [square brackets] mean optional, ALL-CAPS words are placeholders, and ... means "as many as you like". A comma joins two spellings of one flag: -a, --all. A flag letter belongs to its command, not to the terminal — -r is recursive to cp and reverse to sort — so look it up rather than guessing. Great habit: run it on any command an AI suggests.'
 			}
 		]
 	},
@@ -124,7 +157,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'mkdir -p src/app/utils',
 				description: 'Create nested directories in one go',
 				detail:
-					'-p makes every missing parent along the path and never complains if some already exist — the standard way to build a project skeleton.'
+					'-p is for parents: it makes every missing folder along the path and never complains if some already exist — the standard way to build a project skeleton.'
 			},
 			{
 				command: 'touch <file>',
@@ -201,7 +234,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'tail <file>',
 				description: 'Show the last 10 lines',
 				detail:
-					'The end of a log file is usually where the newest — and most interesting — entries are.'
+					'The end of a log file is usually where the newest — and most interesting — entries are. tail -5 is shorthand for tail -n 5: a bare number here is a count, unlike the 9 in kill -9, which is a signal number.'
 			},
 			{
 				command: 'tail -f server.log',
@@ -249,7 +282,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: '<command> 2> errors.txt',
 				description: 'Capture error output separately',
 				detail:
-					'Programs write normal output and errors to two different streams. 2> catches just the errors; 2>&1 merges them into one.'
+					'Every command has three channels: stdin (0), stdout (1) and stderr (2). 2> catches just the errors; 2>&1 sends stream 2 wherever stream 1 currently points — the &1 makes it a reference to a stream rather than a file named 1.'
 			},
 			{
 				command: 'sort <file>',
@@ -261,13 +294,13 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'uniq -c',
 				description: 'Collapse repeated adjacent lines and count them',
 				detail:
-					'Only removes duplicates that sit next to each other — which is why the recipe is always sort first, then uniq.'
+					'-c prefixes each surviving line with how many it stood for — not grep’s -c, which prints one total. Only removes duplicates that sit next to each other, which is why the recipe is always sort first, then uniq.'
 			},
 			{
 				command: 'cut -d, -f1',
 				description: 'Take one column from delimited text',
 				detail:
-					'-d sets the delimiter (a comma here), -f picks the field. cut -d: -f1 /etc/passwd lists every username.'
+					'-d sets the delimiter (a comma here), -f picks the field. Both are flags that take a value, and cut lets you jam it on: -f2 is -f 2. cut -d: -f1 /etc/passwd lists every username.'
 			},
 			{
 				command: 'sort | uniq -c | sort -rn',
@@ -285,7 +318,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'grep "<text>" <file>',
 				description: 'Print the lines that contain the text',
 				detail:
-					'The single most useful text tool. Quote the pattern so spaces and special characters survive the trip to grep.'
+					'Quote the pattern so spaces and special characters survive the trip to grep. Its patterns are regular expressions, not globs: here * means "zero or more of the thing before it", . matches any single character, and ^ and $ anchor to the start and end of a line. So ERR* matches ER followed by any number of Rs — not "starts with ERR".'
 			},
 			{
 				command: 'grep -i "<text>" <file>',
@@ -313,7 +346,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'find . -name "*.md"',
 				description: 'Find files by name pattern, anywhere below here',
 				detail:
-					'find searches file NAMES; grep searches file CONTENTS. Quote the pattern so the shell hands the wildcard to find instead of expanding it early.'
+					'find searches file NAMES; grep searches file CONTENTS. Quote the pattern so the shell hands the wildcard to find instead of expanding it early. This is also the answer when a glob is not enough: a glob never crosses a /, so *.tmp only matches this folder — find . -name "*.tmp" reaches the whole tree.'
 			},
 			{
 				command: 'find . -type d -name "node_modules"',
@@ -349,17 +382,17 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: "sed -i.bak 's/old/new/g' FILE",
 				description: 'Edit the file in place — keeping a .bak backup',
 				detail:
-					'The house rule: never bare -i. The suffix saves each original as file.bak first — instant diff, instant undo (mv file.bak file). When an agent proposes bare -i, amend it.'
+					'The house rule: never bare -i. The suffix saves each original as file.bak first — instant diff, instant undo (mv file.bak file). It is also the portable spelling: on macOS bare -i swallows the next argument as the backup suffix and fails with an error pointing nowhere near the real problem. When an agent proposes bare -i, amend it.'
 			},
 			{
 				command: "awk '{print $2}' FILE",
 				description: 'Print the second column of every line',
 				detail:
-					"Fields split on runs of spaces — perfect for ragged, column-aligned output. $0 is the whole line; commas join fields with a space: awk '{print $1, $3}'."
+					"Fields split on runs of spaces — perfect for ragged, column-aligned output. $0 is the whole line; commas join fields with a space: awk '{print $1, $3}'. The single quotes are load-bearing: $2 here is awk's own language, not a shell variable, and unquoted the shell would swallow it and the braces first."
 			},
 			{
 				command: "awk -F, '{print $2}' FILE",
-				description: 'Same, but split on commas (CSV)',
+				description: 'Same, but split on commas (CSV — comma-separated values)',
 				detail:
 					'-F sets the field separator. For clean single-character delimiters cut -d, -f2 does the same job; awk wins when spacing is messy.'
 			},
@@ -379,7 +412,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'ps aux',
 				description: 'List every running process',
 				detail:
-					'PID is the number you pass to kill, %CPU shows what is working hard, COMMAND says what it is. It is plain text: pipe it through grep and awk to find what you need.'
+					'Bare ps shows only this terminal’s handful; aux widens it to the whole machine — a all users, u the readable columns, x including processes with no terminal, which is where servers hide. They take no dash: ps uses an older option style. PID is the number you pass to kill, %CPU is measured against one core (so 340% is three cores, not an error), COMMAND is the interpreter’s name — a JavaScript server shows as node. Your real output has more columns than the course shows.'
 			},
 			{
 				command: 'pgrep NAME',
@@ -391,31 +424,31 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'kill PID',
 				description: 'Ask a process to stop (SIGTERM)',
 				detail:
-					'A polite request: the program can save, clean up and exit. It may also catch the signal and ignore it — then you escalate.'
+					'A signal is a short fixed message the kernel delivers to a running process. They all start with SIG: SIGTERM is "terminate", and bare kill is kill -15, its number. A polite request — the program can save, clean up and exit, or catch the signal and ignore it, and then you escalate.'
 			},
 			{
 				command: 'kill -9 PID',
 				description: 'Force a process to stop (SIGKILL)',
 				detail:
-					'Cannot be caught or refused, and skips all cleanup — unsaved work is lost and lock files stay behind. Last resort, not first.'
+					'The 9 is a signal number, not a count — signal 9 is SIGKILL. Cannot be caught or refused, and skips all cleanup: unsaved work is lost and the lock file it was holding stays behind, so the next copy finds it and refuses to start. Last resort, not first.'
 			},
 			{
 				command: 'lsof -i :3000',
 				description: 'Find what is holding a port',
 				detail:
-					'The fix for "EADDRINUSE: address already in use": this prints the squatter and its PID, then kill it and start yours. Silence means the port is free.'
+					'lsof is "list open files"; -i narrows it to network connections. A port is a numbered door and only one program can hold one at a time — which is the whole of "address already in use". The only column you need is PID; (LISTEN) confirms that process is sitting at the door. Silence means the port is free.'
 			},
 			{
 				command: 'command &',
 				description: 'Run it in the background, keep your prompt',
 				detail:
-					'The shell answers with [1] and a PID. jobs lists what is backstage, fg %1 brings job 1 forward, kill %1 stops it.'
+					'The shell answers with [1] and a PID. jobs lists what is backstage, fg %1 brings job 1 forward, kill %1 stops it. The job is tied to this shell: close the window and it goes too, so do not background a long build and walk away. Not to be confused with && (run on success) or 2>&1 (a stream reference).'
 			},
 			{
 				command: 'Ctrl+Z  then  bg',
-				description: 'Pause the foreground job, resume it in the background',
+				description: 'Suspend the foreground job, resume it in the background',
 				detail:
-					'The rescue for when you started something long and forgot the &. Ctrl+Z hands your prompt back; bg keeps the job running backstage.'
+					'The rescue for when you started something long and forgot the &. Ctrl+Z hands your prompt back but stops the job dead — jobs shows it as Stopped, and no work happens until bg restarts it backstage (or fg brings it back).'
 			}
 		]
 	},
@@ -445,7 +478,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: "echo 'KEY=value' > .env  &&  chmod 600 .env",
 				description: 'Put a secret in a file only you can read',
 				detail:
-					'Never type a key directly into a command — your shell history keeps it. Load it with source .env and use $KEY, and add .env to .gitignore.'
+					'A .env file is plain text: NAME=value lines, one per key ("env" is short for environment). Never type a key directly into a command — your shell history keeps it. Load it with source .env and use "$KEY", and add .env to .gitignore. Note .gitignore only stops git starting to track a file: if the key is already committed, revoke and reissue it in the provider’s website.'
 			},
 			{
 				command: 'ssh user@host',
@@ -463,7 +496,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'brew install NAME',
 				description: 'Install a tool (macOS)',
 				detail:
-					'Linux: sudo apt install NAME. JavaScript tools: npm i -g NAME. All three fetch the tool and drop it somewhere on your $PATH — which is all "installed" means. Check with which NAME.'
+					'A package manager installs other programs: it fetches the right build and drops it where $PATH already looks — which is all "installed" means. Check with which NAME. Linux: sudo apt install NAME (apt writes to folders that belong to the machine, so it needs sudo; brew does not). Windows: winget install NAME. npm i -g NAME is a different kind of thing — a per-language manager that can only install JavaScript tools. Homebrew is not on a stock Mac: install it once from the instructions at brew.sh.'
 			},
 			{
 				command: 'tar -tzf archive.tar.gz',
@@ -481,13 +514,13 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'ln -s target linkname',
 				description: 'Create a symlink — a signpost, not a copy',
 				detail:
-					'That -> arrow in ls -l is a symlink. Deleting the link leaves the original; deleting the original leaves a broken link. Homebrew and node_modules/.bin are full of them.'
+					'-s is symbolic: a tiny file whose whole content is a path to somewhere else. That -> arrow (and the leading l) in ls -l is a symlink. A relative target is worked out from the link’s own folder, so moving the link breaks it. Deleting the link leaves the original; deleting the original leaves a broken link.'
 			},
 			{
 				command: 'du -sh *',
 				description: 'Size of every folder here, biggest hog obvious',
 				detail:
-					'-h for human numbers, -s for one line per item. Measure before you delete — the same discipline as ls before rm. df -h shows how full the whole disk is.'
+					'-s summarises: one total per item instead of a line per file. -h makes the numbers human — K, M, G, each rung about a thousand of the one below. Measure before you delete, the same discipline as ls before rm. df -h shows how full the whole disk is.'
 			}
 		]
 	},
@@ -499,19 +532,19 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'ls -l',
 				description: 'Read the permission string on every file',
 				detail:
-					'The 10-character prefix decodes as type + rwx for user, group, other: -rwxr-xr-- means you can do anything, your group can read/run, others read only.'
+					'The 10-character prefix decodes as type + rwx for user, group, other: -rwxr-xr-- means you can do anything, your group can read/run, others read only. The type character is - for a file, d for a directory, l for a symlink.'
 			},
 			{
 				command: 'chmod +x <script>',
 				description: 'Make a file executable',
 				detail:
-					'The fix for “Permission denied” when running your own script. After chmod +x, run it with ./script.sh.'
+					'chmod takes a small grammar: + adds a permission, - removes it, and u/g/o/a pick the audience. A bare +x means a+x — all three audiences at once. The fix for “Permission denied” on your own script; after it, run the script with ./script.sh.'
 			},
 			{
 				command: 'chmod 755 <file>',
 				description: 'Recipe: you rwx, everyone else read/run',
 				detail:
-					'The standard mode for scripts and directories. Each digit is one audience: user, group, other.'
+					'The standard mode for scripts and directories. Each digit is one audience: user, group, other. On a directory x does not mean "run" — it means you may go inside and reach what is in there.'
 			},
 			{
 				command: 'chmod 644 <file>',
@@ -577,7 +610,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'source ~/.bashrc',
 				description: 'Reload your shell config without reopening the terminal',
 				detail:
-					'Run it after editing your config so changes take effect now. zsh users (macOS default): source ~/.zshrc.'
+					'Running a file the ordinary way starts a child shell that exits and takes its changes with it; source runs the lines in the shell you are sitting in, so they stick. That is why you source a config instead of running it — and why a script full of cd never seems to move you. zsh users (macOS default): source ~/.zshrc.'
 			}
 		]
 	},
@@ -589,7 +622,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: '#!/usr/bin/env bash',
 				description: 'Shebang: the required first line of a bash script',
 				detail:
-					'Tells the system which interpreter runs the file. A script is just saved commands — everything you type interactively works inside one.'
+					'Tells the system which program runs the file. env is itself a program: handed a name, it looks that name up on PATH, which is how the line finds bash wherever this machine keeps it. A script is just saved commands — everything you type interactively works inside one.'
 			},
 			{
 				command: 'chmod +x script.sh',
@@ -619,7 +652,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: 'echo $?',
 				description: 'Exit code of the last command — 0 means success',
 				detail:
-					'Every command reports success (0) or failure (anything else) as it finishes. Scripts, && and || all make decisions from this number.'
+					'Every command reports success (0) or failure (anything else) as it finishes. Which non-zero number it picks is that command’s own business and means nothing outside it — only "zero or not zero" is portable. Scripts, && and || all decide from this number.'
 			},
 			{
 				command: '<command> && <command>',
@@ -631,7 +664,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 				command: '<command> || <command>',
 				description: 'Run the second only if the first FAILS',
 				detail:
-					'The fallback operator: npm test || echo "tests failed" — the right-hand side is the plan B.'
+					'The fallback operator: npm test || echo "tests failed" — the right-hand side is the plan B. Careful chaining all three: a && b || c runs left to right with neither operator outranking the other, so if b fails the || branch fires even though a succeeded. It is not the one-branch-or-the-other shape it looks like.'
 			},
 			{
 				command: '<command> ; <command>',
