@@ -3,7 +3,7 @@
 		"id": "hero",
 		"part": 0,
 		"title": "Introduction",
-		"text": "TerminalVibes — The Terminal for Vibe Coders Welcome! Your AI assistant keeps proposing shell commands — this guide teaches you to read, verify, and run them with confidence. From your very first echo to auditing an agent's script, every concept is explained visually, then practiced hands-on. Two companions will follow you through all nine parts: Try it now: Open the Terminal Playground — a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can touch your real files. No install required. Quick reference: Need a command fast? Hit ⌘K / Ctrl+K to search, or open the Terminal Cheat Sheet from the header for a complete command reference."
+		"text": "TerminalVibes — The Terminal for Vibe Coders Welcome! Your AI assistant keeps proposing shell commands — this guide teaches you to read, verify, and run them with confidence. From your very first echo to auditing an agent's script, every concept is explained visually, then practiced hands-on. Two companions will follow you through every part: Try it now: Open the Terminal Playground — a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can touch your real files. No install required. Quick reference: Need a command fast? Hit ⌘K / Ctrl+K to search, or open the Terminal Cheat Sheet from the header for a complete command reference."
 	},
 	{
 		"id": "section-intro-what",
@@ -456,6 +456,60 @@
 		"text": "A ; says \"I don't care\" — which is almost never true when the next command is destructive. If you see cd ; rm , send it back and ask for && . And here's why this little number matters beyond one-liners: the entire automated world runs on exit codes . CI pipelines decide pass-or-fail by the exit code of your test command — a green checkmark on GitHub literally means \"everything exited 0.\" And coding agents watch exit codes the same way: run a command, read $? , and decide whether to continue, retry, or fix. When your agent says \"the tests failed, let me look\" — it didn't read your mind. It read an exit code. Scripts join the same game: a script's own exit code is that of its last command, so scripts can chain scripts, and the whole tower stands on one convention. Zero means go. Try It: Deploy Only on Green The tests here fail on the first run. Use $? , && , and || to build a one-liner that deploys only when the tests pass — then fix the failing check and watch the same line take the other branch."
 	},
 	{
+		"id": "part-7",
+		"part": 7,
+		"title": "Part 7 · Text Surgery",
+		"text": "\"grep asks: which lines? sed answers: make them different.\" Part 4 taught you to find text — grep it, count it, sort it. This part teaches you to change it. sed is the single most common file-mutating command AI agents propose — \"let me just update that config\" is almost always a sed one-liner — and awk is how you pull one column out of anything shaped like a table. Learn to read these two and a huge class of agent-suggested commands stops being line noise. The idea that makes sed safe to learn: it edits the stream, not the file . Like every Part 4 tool, sed reads text, transforms it, and prints the result — the input file is untouched unless you explicitly say otherwise (that's 7.3, and it has a safety rule). You can experiment freely: the original survives every mistake."
+	},
+	{
+		"id": "section-7-1",
+		"part": 7,
+		"title": "7.1 Find & Replace",
+		"text": "Every editor has find-and-replace. sed is find-and-replace unplugged from the editor — it works on anything that flows: files, pipes, command output. One tiny script does it all, and it reads like a sentence once you know the grammar: cat menu.txt mango smoothie — mango, ice, lime sed 's/mango/kiwi/' menu.txt # replace the FIRST match on each line kiwi smoothie — mango, ice, lime sed 's/mango/kiwi/g' menu.txt # g = every match on the line kiwi smoothie — kiwi, ice, lime Read s/mango/kiwi/g in four beats: s means substitute ; mango is find this ; kiwi is replace with this ; g means every match on the line , not just the first. Two more pieces complete the grammar: I ignores case, and the slashes are just delimiters — any character works, which saves you from escaping paths: sed 's|/usr/local|/opt|' paths.txt # | instead of / — no escaping sed 's/error/[&]/I' app.log # & = whatever matched; I = any case [ERROR] payment timeout # \"error\", \"Error\", \"ERROR\" all wrapped Preview to the screen, then redirect. The same habit as echo-the-glob from Part 3: run the sed command bare and read its output. Happy? Add > new-file.txt and run it again."
+	},
+	{
+		"id": "section-7-1",
+		"part": 7,
+		"title": "7.1 Find & Replace",
+		"text": "Because sed doesn't touch the input file, the preview is always free. Try It: Rebrand the Menu Marketing renamed the mango everything. Rewrite menu.txt with s/mango/kiwi/g into kiwi-menu.txt — and notice the original survives untouched. Line 1 has two mangos: you'll need g ."
+	},
+	{
+		"id": "section-7-2",
+		"part": 7,
+		"title": "7.2 Line Surgery",
+		"text": "Substitution is only one of sed's commands. Picture your file as a film strip: every line passes through sed, one frame at a time, and a command decides its fate — keep, drop, or print. An address in front of the command selects which frames it applies to: sed '/DEBUG/d' app.log # drop every line matching DEBUG sed '3d' notes.txt # drop line 3 sed '2,5d' notes.txt # drop lines 2 through 5 sed '$d' notes.txt # drop the last line The mirror image of dropping is printing only what you ask for . That's the p command paired with -n , which silences sed's default echo. It's the precision tool for \"show me lines 40 through 55 of that huge log\" — no pager, no scrolling: sed -n '40,55p' server.log # just lines 40–55 sed -n '/ERROR/p' server.log # only ERROR lines (like grep!) sed -n '/start/,/stop/p' run.log # from a /start/ match to a /stop/ match Addresses compose with any command — '2s/beta/B/' substitutes on line 2 only, '/alpha/s/a/A/' substitutes only on lines matching alpha. One grammar, every combination. That's the Unix philosophy again, folded inside a single tool. Try It: Silence the Debug Noise app.log is drowning in DEBUG chatter."
+	},
+	{
+		"id": "section-7-2",
+		"part": 7,
+		"title": "7.2 Line Surgery",
+		"text": "Drop those lines with '/DEBUG/d' and save the readable story as clean.log — the original stays intact for the postmortem."
+	},
+	{
+		"id": "section-7-3",
+		"part": 7,
+		"title": "7.3 Editing in Place",
+		"text": "Everything so far printed to the screen or a new file. But the command agents actually propose is usually sed -i — edit the file in place . Same substitution, except now it rewrites the real file, silently, with no preview and no undo. This is the one sed flag that deserves the Part 6 treatment. sed -i with no backup is a red-flag pattern. Add it to your Part 6 audit list next to rm -rf and curl | bash . But unlike those, the fix isn't refusing — it's amending : one suffix turns the risky command into a safe one. sed -i.bak 's/http:/https:/g' config.yml # config.yml — rewritten # config.yml.bak — the original, untouched cat config.yml.bak # your diff, your undo button mv config.yml.bak config.yml # instant rollback if it went wrong The suffix goes directly after the flag — -i.bak , no space — and sed saves each original as file.bak before rewriting. It costs nothing, it works on many files at once ( sed -i.bak 's/…/…/' *.yml backs up every one), and it converts \"I hope that was right\" into \"let me check the diff.\" When an agent proposes a bare -i , don't approve or reject — edit the command and add the .bak . Supervising means improving, not just gatekeeping."
+	},
+	{
+		"id": "section-7-3",
+		"part": 7,
+		"title": "7.3 Editing in Place",
+		"text": "Try It: The Agent's Mass Edit The agent's plan switches the site to https — good idea, but its sed -i keeps no backup. Read agent-plan.txt , amend the command to -i.bak , run it on both config files, then open a .bak to admire your safety net."
+	},
+	{
+		"id": "section-7-4",
+		"part": 7,
+		"title": "7.4 Columns & awk",
+		"text": "A lot of terminal output is secretly a table: log lines, CSV exports, process listings. awk splits every line into numbered fields and prints the ones you name — $1 is the first column, $2 the second, $0 the whole line: awk '{print $2}' table.txt # second column (splits on spaces) awk -F, '{print $1, $3}' data.csv # -F, = split on commas; comma joins with a space awk '/error/ {print $1}' app.log # /pattern/ runs the action on matching lines only You already know cut from Part 4 — so which one? Honest answer: cut for clean single-character delimiters (CSV, colon-separated), awk when the spacing is ragged . awk's default split treats any run of spaces as one separator, which is exactly what column-aligned output needs — cut would see every space as its own empty field and hand you garbage. Later in the course, when you meet process listings, awk is the tool that reads them. Real awk is an entire programming language — BEGIN blocks, variables, printf. What you've just learned is the field-printing dialect , and it covers the vast majority of awk you'll ever see an agent propose."
+	},
+	{
+		"id": "section-7-4",
+		"part": 7,
+		"title": "7.4 Columns & awk",
+		"text": "When one shows up wearing more syntax than this, that's not a reading failure — that's your cue to ask the agent to explain it line by line. Try It: Pull the Column signups.csv has three columns; the launch email needs one. Pull the email column with awk -F, or cut -d, — your choice — and save it as emails.txt . Your text toolbox is complete: grep finds, sed changes, awk extracts — and pipes chain them into anything. Every one of them previews to the screen before it touches a file, which means every one of them rewards the habit this course keeps drilling: read first, run second ."
+	},
+	{
 		"id": "part-11",
 		"part": 11,
 		"title": "Part 11 · Your Cockpit",
@@ -718,6 +772,18 @@
 		"part": 0,
 		"title": "Cheat Sheet · Searching",
 		"text": "grep \"<text>\" <file> — Print the lines that contain the text. The single most useful text tool. Quote the pattern so spaces and special characters survive the trip to grep. grep -i \"<text>\" <file> — Search ignoring upper/lower case. ERROR, Error and error all match. Add -n to show line numbers with each hit. grep -rn \"<text>\" . — Search every file under this folder, recursively. -r descends into subdirectories, -n prints file and line numbers — the terminal’s project-wide find-in-files. grep -v \"<text>\" — Keep the lines that do NOT match. The filter-out flag: cat server.log | grep -v DEBUG hides the noise so the signal stands out. grep -c \"<text>\" <file> — Count matching lines instead of printing them. How many errors today? grep -c ERROR server.log answers with one number. find . -name \"*.md\" — Find files by name pattern, anywhere below here. find searches file NAMES; grep searches file CONTENTS. Quote the pattern so the shell hands the wildcard to find instead of expanding it early. find . -type d -name \"node_modules\" — Find directories by name. -type d matches directories only, -type f files only. Combine with -name for precise hunts."
+	},
+	{
+		"id": "cheat-text-surgery",
+		"part": 0,
+		"title": "Cheat Sheet · Text Surgery",
+		"text": "sed 's/old/new/g' FILE — Replace old with new on every line. Read it as: s(ubstitute) / find this / replace with this / g = every match on the line. Prints the result — the file itself is untouched. Any delimiter works: s|/usr|/opt| saves escaping slashes. sed '/DEBUG/d' FILE — Drop every line matching a pattern. Addresses pick lines, d deletes them. Also by position: sed 3d (line 3), sed 2,5d (a range), sed $d (the last line). sed -n '40,55p' FILE — Print only lines 40–55. -n silences the default output, p prints the selected lines — the precision way to peek at the middle of a huge log. Regex addresses work too: sed -n /ERROR/p. sed -i.bak 's/old/new/g' FILE — Edit the file in place — keeping a .bak backup. The house rule: never bare -i. The suffix saves each original as file.bak first — instant diff, instant undo (mv file.bak file). When an agent proposes bare -i, amend it. awk '{print $2}' FILE — Print the second column of every line. Fields split on runs of spaces — perfect for ragged, column-aligned output. $0 is the whole line; commas join fields with a space: awk '{print $1, $3}'. awk -F, '{print $2}' FILE — Same, but split on commas (CSV). -F sets the field separator."
+	},
+	{
+		"id": "cheat-text-surgery",
+		"part": 0,
+		"title": "Cheat Sheet · Text Surgery",
+		"text": "For clean single-character delimiters cut -d, -f2 does the same job; awk wins when spacing is messy. awk '/error/ {print $1}' FILE — Pull a field from matching lines only. A /pattern/ guard filters which lines the action runs on — grep and column-pull in one step."
 	},
 	{
 		"id": "cheat-permissions",

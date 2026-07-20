@@ -30,7 +30,7 @@
 
 	let activeTab = $state<'mac' | 'windows' | 'linux'>('mac');
 
-	const stats = ['9 parts', '21 playgrounds', '100% free', 'No signup'];
+	const stats = ['10 parts', '25 playgrounds', '100% free', 'No signup'];
 
 	const shellTimeline = [
 		{
@@ -80,7 +80,7 @@
 			shell commands — this guide teaches you to read, verify, and run them with confidence. From
 			your very first
 			<Code code="echo" /> to auditing an agent's script, every concept is explained visually, then practiced
-			hands-on. Two companions will follow you through all nine parts:
+			hands-on. Two companions will follow you through every part:
 		</p>
 
 		<div class="mb-5 flex flex-wrap gap-2">
