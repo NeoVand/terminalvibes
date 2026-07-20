@@ -13,6 +13,7 @@
 	import Part5 from '$lib/components/sections/Part5.svelte';
 	import Part6 from '$lib/components/sections/Part6.svelte';
 	import Part7 from '$lib/components/sections/Part7.svelte';
+	import Part8 from '$lib/components/sections/Part8.svelte';
 	import Part11 from '$lib/components/sections/Part11.svelte';
 	import Part12 from '$lib/components/sections/Part12.svelte';
 	import Part13 from '$lib/components/sections/Part13.svelte';
@@ -360,6 +361,7 @@
 	<Part5 />
 	<Part6 />
 	<Part7 />
+	<Part8 />
 	<Part11 />
 	<Part12 />
 	<Part13 onOpenPlayground={openPlayground} />

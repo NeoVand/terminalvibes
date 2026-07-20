@@ -122,7 +122,7 @@ type Token = { kind: 'word'; parts: WordPart[] } | { kind: 'op'; op: string };
 const SUBST_MSG =
 	'bash: command substitution ($(...) and backticks) is not supported in this playground.\nRun the inner command on its own first, then use its output by hand.';
 const BG_MSG =
-	'bash: background jobs (&) are not supported in this playground — every command runs in the foreground.\nDid you mean && (run the next command only if this one succeeds)?';
+	'bash: & sends a command to the background, and this playground only supports it at the very end of a line.\nDid you mean && (run the next command only if this one succeeds)?';
 const HEREDOC_MSG =
 	"bash: here-documents (<<) are not supported here.\nTo put text in a file, try: echo 'some text' > file.txt";
 
@@ -205,7 +205,10 @@ function tokenize(line: string): Token[] {
 				i += 2;
 				continue;
 			}
-			throw new ParseError(BG_MSG);
+			flush();
+			tokens.push({ kind: 'op', op: '&' });
+			i += 1;
+			continue;
 		}
 		if (ch === '|') {
 			flush();
@@ -548,6 +551,32 @@ async function runLine(ctx: Ctx, line: string): Promise<LineResult> {
 	}
 	if (!tokens.length) return { out: '', err: '', code: ctx.exit, display: [] };
 
+	// A trailing & sends the line backstage. The sandbox has no real
+	// concurrency, so a background job is a process-table row holding the
+	// command line; `fg` is what finally runs it.
+	const bgAt = tokens.findIndex((t) => t.kind === 'op' && t.op === '&');
+	if (bgAt !== -1) {
+		if (bgAt !== tokens.length - 1) {
+			return { out: '', err: BG_MSG + '\n', code: 2, display: [{ text: BG_MSG, isErr: true }] };
+		}
+		tokens = tokens.slice(0, -1);
+		if (!tokens.length) {
+			const msg = "bash: syntax error near unexpected token '&'";
+			return { out: '', err: msg + '\n', code: 2, display: [{ text: msg, isErr: true }] };
+		}
+		const command = line.replace(/\s*&\s*$/, '').trim();
+		const job = ctx.engine.allocateJob();
+		const proc = ctx.engine.spawnProcess({
+			command,
+			cpu: 0.5,
+			mem: 0.8,
+			job,
+			pending: command
+		});
+		const text = `[${job}] ${proc.pid}`;
+		return { out: text + '\n', err: '', code: 0, display: [{ text, isErr: false }] };
+	}
+
 	let chain: ChainSegment[];
 	try {
 		chain = splitChain(tokens);
@@ -610,9 +639,7 @@ const STUBS = new Set([
 	'ssh',
 	'open',
 	'xdg-open',
-	'ps',
-	'top',
-	'kill'
+	'top'
 ]);
 
 const ASSIGN_RE = /^[A-Za-z_][A-Za-z0-9_]*=/;
@@ -702,6 +729,22 @@ async function dispatch(
 			return cmdSed(engine, args, stdin);
 		case 'awk':
 			return cmdAwk(engine, args, stdin);
+		case 'ps':
+			return cmdPs(engine, args);
+		case 'pgrep':
+			return cmdPgrep(engine, args);
+		case 'kill':
+			return cmdKill(engine, args);
+		case 'lsof':
+			return cmdLsof(engine, args);
+		case 'jobs':
+			return cmdJobs(engine);
+		case 'fg':
+			return await cmdFg(ctx, args);
+		case 'bg':
+			return cmdBg(engine, args);
+		case 'serve':
+			return cmdServe(engine, args);
 		case 'echo':
 			return cmdEcho(args);
 		case 'printf':
@@ -807,21 +850,9 @@ async function dispatch(
 			return ok(
 				`${cmd}: (simulated) on a real machine this would open ${args[0] ? `'${args[0]}'` : 'the current folder'} in its default app —\nFinder/Explorer for folders, your browser for URLs. The sandbox has no GUI to open.\n`
 			);
-		case 'ps':
-			return ok(
-				'  PID TTY          TIME CMD\n    1 pts/0    00:00:00 bash\n   42 pts/0    00:00:00 ps\n(simulated — the sandbox has no real processes)\n'
-			);
 		case 'top':
 			return ok(
-				'top - snapshot (simulated)\nTasks: 2 total, 1 running\n  PID USER  %CPU %MEM COMMAND\n    1 vibe   0.3  0.1 bash\n   42 vibe   0.1  0.1 top\n(real top updates live and quits with q — the sandbox shows one frozen frame)\n'
-			);
-		case 'kill':
-			if (!args.length)
-				return fail(
-					'kill: usage: kill PID (but see below)\n(simulated — the sandbox has no real processes to signal)'
-				);
-			return ok(
-				`kill: (simulated) process ${args[args.length - 1]} politely ignored you — there are no real processes in the sandbox.\n`
+				`top - snapshot (simulated)\nTasks: ${engine.processes.length + 1} total\n${psTable(engine, true)}(real top redraws live and quits with q — the sandbox shows one frozen frame; ps is the snapshot you can pipe)\n`
 			);
 	}
 
@@ -2136,6 +2167,221 @@ function cmdAwk(engine: ShellEngine, args: string[], stdin: string | null): Exec
 		out.push(prog.fields.map((n) => (n === 0 ? line : (parts[n - 1] ?? ''))).join(' '));
 	}
 	return ok(out.length ? out.join('\n') + '\n' : '');
+}
+
+/* ── processes, ports and jobs ────────────────────────────────────── */
+
+/** Right-align a column value the way ps does. */
+function padStart(value: string | number, width: number): string {
+	return String(value).padStart(width);
+}
+
+/**
+ * The ps/top table. `ps` prints the shell itself too — learners should see
+ * that bash is just another row.
+ */
+function psTable(engine: ShellEngine, wide: boolean): string {
+	const rows = [
+		{ pid: 1024, cpu: 0.0, mem: 0.1, start: '09:10', command: 'bash' },
+		...engine.processes
+	].sort((a, b) => a.pid - b.pid);
+	const header = wide
+		? 'USER       PID %CPU %MEM START   COMMAND\n'
+		: 'USER       PID %CPU %MEM START   COMMAND\n';
+	const body = rows
+		.map(
+			(p) =>
+				`${USER.padEnd(8)} ${padStart(p.pid, 5)} ${padStart(p.cpu.toFixed(1), 4)} ` +
+				`${padStart(p.mem.toFixed(1), 4)} ${p.start.padEnd(7)} ${p.command}`
+		)
+		.join('\n');
+	return header + body + '\n';
+}
+
+function cmdPs(engine: ShellEngine, args: string[]): ExecResult {
+	for (const a of args) {
+		// ps is famously flag-soup: aux (BSD) and -ef (System V) are the two
+		// spellings everyone actually types, and both mean "show everything".
+		if (!/^(aux|-ef|-e|-f|a|u|x|-A)$/.test(a)) {
+			throw new CmdError(
+				`ps: unsupported option '${a}'\n(this playground understands plain ps, ps aux and ps -ef — all of which list every process here)`
+			);
+		}
+	}
+	return ok(psTable(engine, false));
+}
+
+function cmdPgrep(engine: ShellEngine, args: string[]): ExecResult {
+	const pattern = args.find((a) => !a.startsWith('-'));
+	if (!pattern) {
+		throw new CmdError('pgrep: usage: pgrep NAME — example: pgrep node');
+	}
+	const matches = engine.processes.filter((p) => p.command.includes(pattern));
+	// pgrep is a filter: no matches is exit 1, not an error message.
+	if (!matches.length) return { out: '', err: '', code: 1 };
+	return ok(matches.map((p) => String(p.pid)).join('\n') + '\n');
+}
+
+/** Signal names learners will meet, mapped to what the sandbox does. */
+const SIGNALS: Record<string, number> = {
+	'9': 9,
+	KILL: 9,
+	SIGKILL: 9,
+	'15': 15,
+	TERM: 15,
+	SIGTERM: 15,
+	'2': 2,
+	INT: 2,
+	SIGINT: 2
+};
+
+function cmdKill(engine: ShellEngine, args: string[]): ExecResult {
+	let signal = 15;
+	const targets: string[] = [];
+	for (const a of args) {
+		if (a.startsWith('-') && a.length > 1) {
+			const name = a.slice(1).toUpperCase();
+			const resolved = SIGNALS[name];
+			if (resolved === undefined) {
+				throw new CmdError(
+					`kill: unknown signal '${a}'\n(this playground knows -15/-TERM — ask politely — and -9/-KILL — the last resort)`
+				);
+			}
+			signal = resolved;
+		} else targets.push(a);
+	}
+	if (!targets.length) {
+		throw new CmdError(
+			'kill: usage: kill PID (ask politely) or kill -9 PID (last resort)\n(find the PID first with ps or lsof -i :PORT)'
+		);
+	}
+	const out: string[] = [];
+	const errs: string[] = [];
+	for (const target of targets) {
+		// kill %1 addresses a background job by its [n] number.
+		const job = target.startsWith('%') ? Number(target.slice(1)) : NaN;
+		const proc = Number.isFinite(job) ? engine.findJob(job) : engine.findProcess(Number(target));
+		if (!proc) {
+			errs.push(
+				`kill: (${target}) - No such process\n(nothing with that ${target.startsWith('%') ? 'job number' : 'PID'} is running — check ps)`
+			);
+			continue;
+		}
+		if (signal !== 9 && proc.ignoresTerm) {
+			// The lesson: a polite request can be declined.
+			out.push(
+				`(no response — ${proc.command} is still running; a program can catch SIGTERM and ignore it. Escalate: kill -9 ${proc.pid})`
+			);
+			continue;
+		}
+		engine.removeProcess(proc.pid);
+		out.push(
+			signal === 9
+				? `[killed] ${proc.command} (PID ${proc.pid}) — SIGKILL, no cleanup`
+				: `[terminated] ${proc.command} (PID ${proc.pid}) — SIGTERM, it shut down cleanly`
+		);
+	}
+	if (errs.length) {
+		return { out: out.length ? out.join('\n') + '\n' : '', err: errs.join('\n') + '\n', code: 1 };
+	}
+	return ok(out.join('\n') + '\n');
+}
+
+function cmdLsof(engine: ShellEngine, args: string[]): ExecResult {
+	const net = args.find((a) => a === '-i' || a.startsWith('-i'));
+	if (!net) {
+		throw new CmdError(
+			"lsof: this playground speaks the port question: lsof -i :3000 (who holds that port?)\n(real lsof lists every open file — 'ls of open files' — which is a much bigger tool)"
+		);
+	}
+	// Accept `lsof -i :3000` and `lsof -i:3000`.
+	const inline = args.find((a) => a.startsWith('-i') && a.length > 2)?.slice(2);
+	const separate = args[args.indexOf('-i') + 1];
+	const spec = inline ?? (separate && !separate.startsWith('-') ? separate : '');
+	const listening = engine.processes.filter((p) => p.port !== undefined);
+	const wanted = spec.replace(/^:/, '');
+	const rows = wanted ? listening.filter((p) => String(p.port) === wanted) : listening;
+	// lsof prints nothing and exits 1 when nothing matches — silence means free.
+	if (!rows.length) return { out: '', err: '', code: 1 };
+	const header = 'COMMAND    PID  USER   TYPE NODE NAME\n';
+	const body = rows
+		.map((p) => {
+			const name = p.command.split(/\s+/)[0].slice(0, 9);
+			return `${name.padEnd(9)} ${padStart(p.pid, 5)} ${USER.padEnd(5)} IPv4 TCP  *:${p.port} (LISTEN)`;
+		})
+		.join('\n');
+	return ok(header + body + '\n');
+}
+
+function cmdJobs(engine: ShellEngine): ExecResult {
+	const jobs = engine.processes
+		.filter((p) => p.job !== undefined)
+		.sort((a, b) => (a.job ?? 0) - (b.job ?? 0));
+	if (!jobs.length) return ok('');
+	return ok(
+		jobs.map((p) => `[${p.job}]  ${p.stopped ? 'Stopped' : 'Running'}    ${p.command}`).join('\n') +
+			'\n'
+	);
+}
+
+async function cmdFg(ctx: Ctx, args: string[]): Promise<ExecResult> {
+	const { engine } = ctx;
+	const jobs = engine.processes.filter((p) => p.job !== undefined);
+	if (!jobs.length) {
+		throw new CmdError('fg: no current jobs\n(send something backstage first: ./slowbuild.sh &)');
+	}
+	const spec = args[0]?.replace(/^%/, '');
+	const proc = spec
+		? engine.findJob(Number(spec))
+		: jobs.sort((a, b) => (b.job ?? 0) - (a.job ?? 0))[0];
+	if (!proc) {
+		throw new CmdError(`fg: %${spec}: no such job\n(run jobs to see what's backstage)`);
+	}
+	engine.removeProcess(proc.pid);
+	// Bringing a job forward finally runs it — the sandbox has no real
+	// concurrency, so "backstage" means queued and fg means "play it now".
+	const pending = proc.pending;
+	const banner = `${proc.command}\n`;
+	if (!pending) return ok(banner);
+	const result = await runLine(ctx, pending);
+	return { out: banner + result.out, err: result.err, code: result.code };
+}
+
+function cmdBg(engine: ShellEngine, args: string[]): ExecResult {
+	const spec = args[0]?.replace(/^%/, '');
+	const stopped = engine.processes.filter((p) => p.job !== undefined && p.stopped);
+	const proc = spec ? engine.findJob(Number(spec)) : stopped[stopped.length - 1];
+	if (!proc) {
+		throw new CmdError(
+			'bg: no stopped jobs\n(Ctrl+Z pauses a foreground job; bg resumes it backstage)'
+		);
+	}
+	proc.stopped = false;
+	return ok(`[${proc.job}]  ${proc.command} &\n`);
+}
+
+function cmdServe(engine: ShellEngine, args: string[]): ExecResult {
+	const portArg = args.find((a) => /^\d+$/.test(a)) ?? args.find((a) => /^--port=\d+$/.test(a));
+	const port = portArg ? Number(portArg.replace('--port=', '')) : 3000;
+	const holder = engine.findByPort(port);
+	if (holder) {
+		// The error every web developer meets, with its real name.
+		return fail(
+			`Error: listen EADDRINUSE: address already in use :::${port}\n` +
+				`(something is already listening on port ${port} — find it with: lsof -i :${port})`,
+			1
+		);
+	}
+	const proc = engine.spawnProcess({
+		command: `serve --port ${port}`,
+		cpu: 0.6,
+		mem: 1.2,
+		port
+	});
+	return ok(
+		`serve: listening on http://localhost:${port} (PID ${proc.pid})\n` +
+			`(it keeps running in the background here — stop it with: kill ${proc.pid})\n`
+	);
 }
 
 function cmdEcho(args: string[]): ExecResult {
@@ -3524,12 +3770,67 @@ const MAN_PAGES: Record<string, ManPage> = {
 	},
 	ps: {
 		name: 'list running processes',
-		synopsis: 'ps',
+		synopsis: 'ps [aux]',
 		description:
-			'Shows the programs currently running. The sandbox prints a tiny fake table — there are no real processes behind it.',
-		examples: ['ps'],
-		vibe: "Who's running around in here?",
-		simulated: true
+			"Every running program is a row with a number. PID is that number — the handle you pass to kill. %CPU is how hard it is working (a runaway sits near 100). COMMAND is what it actually is. Plain ps, ps aux (BSD spelling) and ps -ef (System V spelling) all list everything here; on a real machine plain ps shows only your shell's processes and aux shows the whole machine. Pipe it: ps aux | grep node finds a process by name, and awk '{print $2}' pulls the PID column out.",
+		examples: ['ps', 'ps aux', 'ps aux | grep node'],
+		vibe: 'The census of everything running.'
+	},
+	pgrep: {
+		name: 'find process ids by name',
+		synopsis: 'pgrep NAME',
+		description:
+			'Prints the PID of every process whose command contains NAME — the short way to do ps aux | grep NAME. Prints nothing and exits 1 when there is no match, which makes it easy to test with && and ||.',
+		examples: ['pgrep node', 'pgrep serve'],
+		vibe: 'Straight to the number.'
+	},
+	kill: {
+		name: 'signal a process to stop',
+		synopsis: 'kill [-9] PID',
+		description:
+			'Sends a signal to a process. Plain kill sends SIGTERM (15): a polite letter that says "please finish up and stop" — the program can save its work, close files, and bow out cleanly. It can also catch that signal and ignore it. kill -9 sends SIGKILL: the floor simply opens, with no cleanup and no goodbye, and no program can refuse it. Ask politely first; -9 is the last resort, not the default. Find the PID with ps, pgrep, or lsof -i :PORT. kill %1 addresses a background job by its number.',
+		examples: ['kill 412', 'kill -9 412', 'kill %1'],
+		vibe: 'Ask nicely. Then insist.'
+	},
+	lsof: {
+		name: 'who is holding this port?',
+		synopsis: 'lsof -i :PORT',
+		description:
+			'Real lsof lists open files (the name is "ls of open files"); the question worth memorizing is the port one. lsof -i :3000 prints the process listening on port 3000 — its COMMAND and, crucially, its PID, which you then hand to kill. Silence means the port is free. This is the fix for "address already in use": find the squatter, stop it, start yours.',
+		examples: ['lsof -i :3000', 'lsof -i'],
+		vibe: "The harbormaster's ledger."
+	},
+	jobs: {
+		name: 'list background jobs from this shell',
+		synopsis: 'jobs',
+		description:
+			'Shows what this shell sent backstage with &, each with its job number in [brackets]. Use that number with fg %1 to bring it forward or kill %1 to stop it. Job numbers are per-shell and small; PIDs are machine-wide and large.',
+		examples: ['jobs', 'fg %1', 'kill %1'],
+		vibe: "Who's waiting in the wings?"
+	},
+	fg: {
+		name: 'bring a background job to the foreground',
+		synopsis: 'fg [%N]',
+		description:
+			'Pulls a backgrounded job back into the spotlight, so its output comes to your terminal and Ctrl+C would interrupt it. With no argument it takes the most recent job. In this playground a backgrounded command waits until you fg it — real background jobs run the whole time, but the concepts (& sends it away, jobs lists it, fg brings it back) are the same ones.',
+		examples: ['fg', 'fg %1'],
+		vibe: 'Back into the spotlight.'
+	},
+	bg: {
+		name: 'resume a stopped job in the background',
+		synopsis: 'bg [%N]',
+		description:
+			'Restarts a job you paused (Ctrl+Z stops the foreground job) and leaves it running backstage — the same state it would be in had you started it with &. The classic rescue: you ran a long command, forgot the &, pressed Ctrl+Z, and now want your prompt back.',
+		examples: ['bg', 'bg %1'],
+		vibe: 'Carry on — quietly.'
+	},
+	serve: {
+		name: 'start a small web server on a port',
+		synopsis: 'serve [PORT]',
+		description:
+			'Starts a development server listening on PORT (3000 by default) and keeps it running. If something already holds that port you get the error every web developer meets — EADDRINUSE, "address already in use" — and the fix is the Part 8 ritual: lsof -i :PORT to find the PID, kill it, start again. Stop your own with kill PID.',
+		examples: ['serve', 'serve 8080', 'lsof -i :3000'],
+		vibe: 'One ship per pier.'
 	},
 	top: {
 		name: 'live view of processes and resources',
@@ -3538,15 +3839,6 @@ const MAN_PAGES: Record<string, ManPage> = {
 			'A continuously updating dashboard of processes, CPU and memory; q quits. The sandbox shows one frozen, simulated frame.',
 		examples: ['top   (q to quit, on a real machine)'],
 		vibe: 'Mission control for your machine.',
-		simulated: true
-	},
-	kill: {
-		name: 'send a signal to a process',
-		synopsis: 'kill PID',
-		description:
-			'Politely asks a process (by PID, from ps) to terminate; kill -9 stops asking politely. No real processes exist in the sandbox, so this is simulated.',
-		examples: ['kill 4242   (on a real machine)'],
-		vibe: 'The off switch, with etiquette levels.',
 		simulated: true
 	}
 };

@@ -75,13 +75,16 @@ describe('parser: quoting and expansion', () => {
 		expect((await run("echo '*.txt'")).output).toBe('*.txt');
 	});
 
-	it('rejects command substitution and background jobs with friendly messages', async () => {
+	it('rejects command substitution with a friendly message', async () => {
 		const subst = await run('echo $(pwd)');
 		expect(subst.error).toBe(true);
 		expect(subst.output).toContain('substitution');
-		const bg = await run('sleep 5 &');
-		expect(bg.error).toBe(true);
-		expect(bg.output).toContain('background');
+	});
+
+	it('only accepts & at the end of a line', async () => {
+		const mid = await run('sleep 5 & echo hi');
+		expect(mid.error).toBe(true);
+		expect(mid.output).toContain('&&');
 	});
 
 	it('rejects interactive loops with a pointer to && and scripts', async () => {
@@ -499,6 +502,132 @@ describe('awk', () => {
 		expect(man.output).toContain('SYNOPSIS');
 		expect(strip(man.output)).toContain('-F');
 		expect((await run('which awk')).output).toBe('/usr/bin/awk');
+	});
+});
+
+describe('processes, ports and jobs', () => {
+	beforeEach(async () => {
+		await engine.reset({
+			files: { '~/notes.txt': 'alpha\nbeta\ngamma\n' },
+			processes: [
+				{ command: 'node server.js', cpu: 0.4, port: 3000 },
+				{ command: 'spinner.sh', cpu: 97.3, ignoresTerm: true }
+			]
+		});
+	});
+
+	it('ps lists seeded processes plus the shell itself', async () => {
+		const res = await run('ps');
+		expect(res.output).toContain('PID');
+		expect(res.output).toContain('node server.js');
+		expect(res.output).toContain('spinner.sh');
+		expect(res.output).toContain('bash');
+		expect((await run('ps aux')).output).toContain('node server.js');
+		expect((await run('ps -ef')).output).toContain('node server.js');
+	});
+
+	it('ps output pipes into grep and awk like any other text', async () => {
+		expect(strip((await run('ps aux | grep node')).output)).toContain('node server.js');
+		const pids = await run("ps aux | grep spinner | awk '{print $2}'");
+		const pid = engine.processes.find((p) => p.command.includes('spinner'))!.pid;
+		expect(pids.output.trim()).toBe(String(pid));
+	});
+
+	it('pgrep prints matching pids and exits 1 when nothing matches', async () => {
+		const pid = engine.processes.find((p) => p.command.includes('node'))!.pid;
+		expect((await run('pgrep node')).output.trim()).toBe(String(pid));
+		await run('pgrep nothing-here');
+		expect(engine.lastExitCode).toBe(1);
+	});
+
+	it('kill sends SIGTERM and the process shuts down cleanly', async () => {
+		const pid = engine.processes.find((p) => p.command.includes('node'))!.pid;
+		const res = await run(`kill ${pid}`);
+		expect(res.output).toContain('terminated');
+		expect(engine.findProcess(pid)).toBeUndefined();
+	});
+
+	it('a SIGTERM-ignoring process survives kill and needs kill -9', async () => {
+		const pid = engine.processes.find((p) => p.command.includes('spinner'))!.pid;
+		const polite = await run(`kill ${pid}`);
+		expect(polite.output).toContain('still running');
+		expect(engine.findProcess(pid)).toBeDefined();
+
+		const forced = await run(`kill -9 ${pid}`);
+		expect(forced.output).toContain('SIGKILL');
+		expect(engine.findProcess(pid)).toBeUndefined();
+	});
+
+	it('kill reports an unknown pid and an unknown signal', async () => {
+		const gone = await run('kill 99999');
+		expect(gone.error).toBe(true);
+		expect(gone.output).toContain('No such process');
+		const sig = await run('kill -FOO 1');
+		expect(sig.error).toBe(true);
+		expect(sig.output).toContain('-9');
+	});
+
+	it('lsof -i finds the port holder and stays silent when free', async () => {
+		const pid = engine.processes.find((p) => p.port === 3000)!.pid;
+		const held = await run('lsof -i :3000');
+		expect(held.output).toContain(String(pid));
+		expect(held.output).toContain('LISTEN');
+		expect((await run('lsof -i:3000')).output).toContain('LISTEN');
+
+		await run('lsof -i :9999');
+		expect(engine.lastExitCode).toBe(1);
+	});
+
+	it('serve refuses a taken port with EADDRINUSE and takes a free one', async () => {
+		const busy = await run('serve 3000');
+		expect(busy.error).toBe(true);
+		expect(busy.output).toContain('EADDRINUSE');
+
+		const okRes = await run('serve 8080');
+		expect(okRes.output).toContain('listening');
+		expect(engine.findByPort(8080)).toBeDefined();
+	});
+
+	it('the free-the-port ritual: find it, kill it, start yours', async () => {
+		const pid = engine.findByPort(3000)!.pid;
+		await run(`kill ${pid}`);
+		const res = await run('serve 3000');
+		expect(res.output).toContain('listening');
+		expect(engine.findByPort(3000)!.pid).not.toBe(pid);
+	});
+
+	it('& backgrounds a job, jobs lists it, fg runs it', async () => {
+		const bg = await run('echo built > out.txt &');
+		expect(bg.output).toMatch(/^\[1\] \d+/);
+		expect(engine.readFile('~/out.txt')).toBeNull();
+
+		expect((await run('jobs')).output).toContain('[1]');
+		expect((await run('jobs')).output).toContain('Running');
+
+		await run('fg %1');
+		expect(engine.readFile('~/out.txt')).toBe('built\n');
+		expect((await run('jobs')).output).toBe('');
+	});
+
+	it('kill %1 stops a background job by its job number', async () => {
+		await run('sleep 30 &');
+		expect((await run('jobs')).output).toContain('[1]');
+		const res = await run('kill %1');
+		expect(res.output).toContain('terminated');
+		expect((await run('jobs')).output).toBe('');
+	});
+
+	it('fg with no jobs explains what to do instead', async () => {
+		const res = await run('fg');
+		expect(res.error).toBe(true);
+		expect(res.output).toContain('no current jobs');
+	});
+
+	it('has man pages and shows up on PATH', async () => {
+		expect(strip((await run('man kill')).output)).toContain('SIGKILL');
+		expect(strip((await run('man lsof')).output)).toContain(':3000');
+		expect(strip((await run('man ps')).output)).toContain('PID');
+		expect((await run('which lsof')).output).toBe('/usr/bin/lsof');
 	});
 });
 

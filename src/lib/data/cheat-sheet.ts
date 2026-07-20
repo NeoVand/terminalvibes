@@ -372,6 +372,54 @@ export const cheatSheet: CheatSheetCategory[] = [
 		]
 	},
 	{
+		label: 'Processes & Ports',
+		icon: 'cpu',
+		commands: [
+			{
+				command: 'ps aux',
+				description: 'List every running process',
+				detail:
+					'PID is the number you pass to kill, %CPU shows what is working hard, COMMAND says what it is. It is plain text: pipe it through grep and awk to find what you need.'
+			},
+			{
+				command: 'pgrep NAME',
+				description: 'Print the PIDs of processes matching a name',
+				detail:
+					'The short way to do ps aux | grep NAME. Exits 1 with no output when nothing matches.'
+			},
+			{
+				command: 'kill PID',
+				description: 'Ask a process to stop (SIGTERM)',
+				detail:
+					'A polite request: the program can save, clean up and exit. It may also catch the signal and ignore it — then you escalate.'
+			},
+			{
+				command: 'kill -9 PID',
+				description: 'Force a process to stop (SIGKILL)',
+				detail:
+					'Cannot be caught or refused, and skips all cleanup — unsaved work is lost and lock files stay behind. Last resort, not first.'
+			},
+			{
+				command: 'lsof -i :3000',
+				description: 'Find what is holding a port',
+				detail:
+					'The fix for "EADDRINUSE: address already in use": this prints the squatter and its PID, then kill it and start yours. Silence means the port is free.'
+			},
+			{
+				command: 'command &',
+				description: 'Run it in the background, keep your prompt',
+				detail:
+					'The shell answers with [1] and a PID. jobs lists what is backstage, fg %1 brings job 1 forward, kill %1 stops it.'
+			},
+			{
+				command: 'Ctrl+Z  then  bg',
+				description: 'Pause the foreground job, resume it in the background',
+				detail:
+					'The rescue for when you started something long and forgot the &. Ctrl+Z hands your prompt back; bg keeps the job running backstage.'
+			}
+		]
+	},
+	{
 		label: 'Permissions',
 		icon: 'lock',
 		commands: [

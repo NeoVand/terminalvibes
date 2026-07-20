@@ -29,6 +29,47 @@ export interface VfsDir {
 export type VfsNode = VfsFile | VfsDir;
 
 /**
+ * A running program in the sandbox. There is no scheduler here: processes are
+ * rows in a table that commands read and mutate, which is exactly the mental
+ * model `ps`, `kill` and `lsof` teach — every running program is a row with a
+ * number, and a port is a door only one of them can hold.
+ */
+export interface SandboxProcess {
+	pid: number;
+	/** The command line, as ps prints it under COMMAND. */
+	command: string;
+	/** %CPU, for reading ps output (a runaway sits near 100). */
+	cpu: number;
+	/** %MEM, cosmetic. */
+	mem: number;
+	/** Wall-clock start label ps shows under START. */
+	start: string;
+	/** TCP port this process is listening on, if any. */
+	port?: number;
+	/**
+	 * Ignores SIGTERM — a polite `kill` bounces off and the learner has to
+	 * escalate to `kill -9`. This is the whole lesson of 8.2.
+	 */
+	ignoresTerm?: boolean;
+	/** Background job number from this shell (`[1]`), if started with `&`. */
+	job?: number;
+	/** Backgrounded jobs can be paused; `fg` resumes and runs them. */
+	stopped?: boolean;
+	/** The command line to actually execute when this job is brought to fg. */
+	pending?: string;
+}
+
+/** A process as a scenario seeds it — the pid is assigned by the engine. */
+export interface ProcessSeed {
+	command: string;
+	cpu?: number;
+	mem?: number;
+	start?: string;
+	port?: number;
+	ignoresTerm?: boolean;
+}
+
+/**
  * Scenario seed: file paths (absolute or ~-relative) mapped to contents.
  * Directories are created implicitly; list empty dirs in `dirs`.
  */
@@ -44,6 +85,8 @@ export interface FsSeed {
 	env?: Record<string, string>;
 	/** Pre-defined aliases (e.g. from a seeded ~/.bashrc). */
 	aliases?: Record<string, string>;
+	/** Programs already running when the scenario opens. */
+	processes?: ProcessSeed[];
 }
 
 export const HOME = '/home/vibe';
@@ -68,6 +111,7 @@ export const BIN_COMMANDS = [
 	'awk',
 	'basename',
 	'bash',
+	'bg',
 	'cal',
 	'cat',
 	'cd',
@@ -84,24 +128,31 @@ export const BIN_COMMANDS = [
 	'exit',
 	'export',
 	'false',
+	'fg',
 	'file',
 	'find',
 	'grep',
 	'head',
 	'help',
 	'history',
+	'jobs',
+	'kill',
 	'less',
 	'ls',
+	'lsof',
 	'man',
 	'mkdir',
 	'more',
 	'mv',
+	'pgrep',
 	'printf',
+	'ps',
 	'pwd',
 	'rm',
 	'rmdir',
 	'sed',
 	'seq',
+	'serve',
 	'sh',
 	'sleep',
 	'sort',
@@ -113,12 +164,12 @@ export const BIN_COMMANDS = [
 	'tr',
 	'true',
 	'type',
-	'uniq',
 	'unalias',
+	'uniq',
 	'unset',
 	'wc',
-	'whoami',
 	'which',
+	'whoami',
 	'xargs'
 ];
 
@@ -130,6 +181,11 @@ export class ShellEngine {
 	lastExitCode = 0;
 	/** Every command line the learner has run this session (for `history`). */
 	historyLog: string[] = [];
+	/** Programs currently "running" — see SandboxProcess. */
+	processes: SandboxProcess[] = [];
+	/** The shell itself is always pid 1's child; learner processes start here. */
+	private nextPid = 400;
+	private nextJob = 1;
 
 	async reset(seed?: FsSeed): Promise<void> {
 		this.root = mkdirNode('');
@@ -138,6 +194,9 @@ export class ShellEngine {
 		this.aliases = new Map();
 		this.lastExitCode = 0;
 		this.historyLog = [];
+		this.processes = [];
+		this.nextPid = 400;
+		this.nextJob = 1;
 
 		// Home always exists, even with an empty seed.
 		this.mkdirp(HOME);
@@ -164,6 +223,57 @@ export class ShellEngine {
 		for (const [name, value] of Object.entries(seed.aliases ?? {})) {
 			this.aliases.set(name, value);
 		}
+		for (const proc of seed.processes ?? []) {
+			this.spawnProcess(proc);
+		}
+	}
+
+	/* ── processes ────────────────────────────────────────────────── */
+
+	/** Register a new process and return it (pid assigned here). */
+	spawnProcess(proc: ProcessSeed & { job?: number; pending?: string }): SandboxProcess {
+		const created: SandboxProcess = {
+			pid: this.nextPid,
+			command: proc.command,
+			cpu: proc.cpu ?? 0.2,
+			mem: proc.mem ?? 0.4,
+			start: proc.start ?? '09:12',
+			...(proc.port !== undefined ? { port: proc.port } : {}),
+			...(proc.ignoresTerm ? { ignoresTerm: true } : {}),
+			...(proc.job !== undefined ? { job: proc.job } : {}),
+			...(proc.pending !== undefined ? { pending: proc.pending } : {})
+		};
+		// Real pids don't march by one; a small jitter keeps learners reading
+		// the PID column instead of predicting it.
+		this.nextPid += 37;
+		this.processes.push(created);
+		return created;
+	}
+
+	/** Claim the next `[n]` background job number. */
+	allocateJob(): number {
+		return this.nextJob++;
+	}
+
+	findProcess(pid: number): SandboxProcess | undefined {
+		return this.processes.find((p) => p.pid === pid);
+	}
+
+	/** The process listening on a port, if any. */
+	findByPort(port: number): SandboxProcess | undefined {
+		return this.processes.find((p) => p.port === port);
+	}
+
+	findJob(job: number): SandboxProcess | undefined {
+		return this.processes.find((p) => p.job === job);
+	}
+
+	/** Remove a process from the table. Returns false if it was already gone. */
+	removeProcess(pid: number): boolean {
+		const i = this.processes.findIndex((p) => p.pid === pid);
+		if (i === -1) return false;
+		this.processes.splice(i, 1);
+		return true;
 	}
 
 	/* ── path helpers ─────────────────────────────────────────────── */

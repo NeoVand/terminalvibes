@@ -40,6 +40,11 @@ export const sectionIds = [
 	'section-7-2',
 	'section-7-3',
 	'section-7-4',
+	'part-8',
+	'section-8-1',
+	'section-8-2',
+	'section-8-3',
+	'section-8-4',
 	'part-11',
 	'section-11-1',
 	'section-11-2',
@@ -85,7 +90,10 @@ export const playgroundAnchorIds = [
 	'sed-rename',
 	'log-surgery',
 	'in-place-audit',
-	'column-pull'
+	'column-pull',
+	'free-the-port',
+	'runaway-process',
+	'backstage-jobs'
 ] as const;
 
 /** Sub-anchors for notable interactive tools that aren't full sections but

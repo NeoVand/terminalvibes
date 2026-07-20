@@ -888,6 +888,89 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
+	// ───── Part 8: Processes & Ports ─────
+	{
+		id: 'topic-processes',
+		sectionId: 'section-8-1',
+		title: 'Processes & ps',
+		part: 'Processes & Ports',
+		description: 'Every running program is a row with a number — read PID, %CPU and COMMAND.',
+		keywords: [
+			'ps',
+			'ps aux',
+			'process',
+			'pid',
+			'pgrep',
+			'what is running',
+			'cpu usage',
+			'high cpu',
+			'fans loud',
+			'list processes'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-kill',
+		sectionId: 'section-8-2',
+		title: 'kill & Signals',
+		part: 'Processes & Ports',
+		description: 'SIGTERM asks politely; kill -9 (SIGKILL) cannot be refused — and skips cleanup.',
+		keywords: [
+			'kill',
+			'kill -9',
+			'sigterm',
+			'sigkill',
+			'stop a process',
+			'force quit',
+			'not responding',
+			'wont stop',
+			'terminate',
+			'ctrl+c signal'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-ports',
+		sectionId: 'section-8-3',
+		title: 'Ports & EADDRINUSE',
+		part: 'Processes & Ports',
+		description: 'One program per port — lsof -i :3000 names the squatter so you can kill it.',
+		keywords: [
+			'port',
+			'port 3000',
+			'eaddrinue',
+			'EADDRINUSE',
+			'address already in use',
+			'lsof',
+			'lsof -i',
+			'port already in use',
+			'dev server wont start',
+			'localhost 3000',
+			'free the port'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-jobs',
+		sectionId: 'section-8-4',
+		title: 'Background Jobs',
+		part: 'Processes & Ports',
+		description:
+			'& sends a command backstage; jobs lists them, fg brings one forward, Ctrl+Z pauses.',
+		keywords: [
+			'background',
+			'&',
+			'jobs',
+			'fg',
+			'bg',
+			'ctrl+z',
+			'job control',
+			'run in background',
+			'get my prompt back',
+			'suspend'
+		],
+		kind: 'topic'
+	},
 	// ───── Part 11: Your Cockpit ─────
 	{
 		id: 'tool-prompt-designer',
