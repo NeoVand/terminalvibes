@@ -102,6 +102,8 @@ export interface FsSeed {
 
 export const HOME = '/home/vibe';
 export const USER = 'vibe';
+/** The owner's group, the second name in an `ls -l` line (Part 5.1). */
+export const GROUP = 'staff';
 export const HOSTNAME = 'sandbox';
 
 const DEFAULT_ENV: Record<string, string> = {
@@ -136,6 +138,7 @@ export const BIN_COMMANDS = [
 	'cut',
 	'date',
 	'df',
+	'diff',
 	'dirname',
 	'du',
 	'echo',
@@ -150,6 +153,7 @@ export const BIN_COMMANDS = [
 	'head',
 	'help',
 	'history',
+	'id',
 	'jobs',
 	'jq',
 	'kill',
@@ -198,7 +202,13 @@ export const BIN_COMMANDS = [
 export class ShellEngine {
 	root: VfsDir = mkdirNode('');
 	cwd: string = HOME;
+	/** Exported variables — the ones `env` lists and child processes inherit. */
 	env: Record<string, string> = { ...DEFAULT_ENV };
+	/**
+	 * Shell variables that were assigned without `export`. They expand with $NAME
+	 * here, but never reach a child process — the distinction Part 5.4 draws.
+	 */
+	shellVars: Record<string, string> = {};
 	aliases: Map<string, string> = new Map();
 	lastExitCode = 0;
 	/** Every command line the learner has run this session (for `history`). */
@@ -215,6 +225,7 @@ export class ShellEngine {
 		this.root = mkdirNode('');
 		this.cwd = HOME;
 		this.env = { ...DEFAULT_ENV };
+		this.shellVars = {};
 		this.aliases = new Map();
 		this.lastExitCode = 0;
 		this.historyLog = [];

@@ -516,14 +516,25 @@ describe('processes, ports and jobs', () => {
 		});
 	});
 
-	it('ps lists seeded processes plus the shell itself', async () => {
+	it('plain ps shows only this terminal; aux shows the whole machine', async () => {
+		// 8.1's lesson: the server you are hunting is never in a bare `ps`.
 		const res = await run('ps');
 		expect(res.output).toContain('PID');
-		expect(res.output).toContain('node server.js');
-		expect(res.output).toContain('spinner.sh');
 		expect(res.output).toContain('bash');
-		expect((await run('ps aux')).output).toContain('node server.js');
-		expect((await run('ps -ef')).output).toContain('node server.js');
+		expect(res.output).not.toContain('node server.js');
+		expect(res.output).toContain('try ps aux');
+
+		for (const spelling of ['ps aux', 'ps -ef']) {
+			const all = (await run(spelling)).output;
+			expect(all).toContain('node server.js');
+			expect(all).toContain('spinner.sh');
+			expect(all).toContain('bash');
+		}
+	});
+
+	it('a job started from this shell does show up in plain ps', async () => {
+		await run('./slow.sh &');
+		expect((await run('ps')).output).toContain('slow.sh');
 	});
 
 	it('ps output pipes into grep and awk like any other text', async () => {
@@ -804,13 +815,16 @@ describe('archives and package managers', () => {
 		expect(res.output).toContain('cowsay');
 	});
 
-	it('du measures real sizes so the space hog is obvious', async () => {
+	it('du reports blocks, not bytes, so the space hog is obvious', async () => {
 		await run('mkdir big');
-		await run('echo ' + 'x'.repeat(400) + ' > big/blob.txt');
+		// Well past a single 4K block, so the hog wins on allocated size and
+		// not just on a byte count real du would never print.
+		await run('echo ' + 'x'.repeat(40000) + ' > big/blob.txt');
 		const res = await run('du -sh big site');
 		const big = res.output.split('\n').find((l) => l.includes('big'))!;
 		const site = res.output.split('\n').find((l) => l.includes('site'))!;
-		expect(parseInt(big)).toBeGreaterThan(parseInt(site));
+		expect(big).toContain('K');
+		expect(parseFloat(big)).toBeGreaterThan(parseFloat(site) * 2);
 	});
 
 	it('has man pages for the toolshed', async () => {
@@ -1068,5 +1082,148 @@ describe('info commands and stubs', () => {
 		expect(engine.exists('/home/vibe/data.json')).toBe(true);
 		expect((await run('ps')).output).toContain('PID');
 		expect((await run('sleep 1')).output).toContain('pretend');
+	});
+});
+
+/**
+ * The course makes specific promises about what these commands print. When the
+ * prose and the sandbox disagree, the learner is told the chapter is wrong —
+ * so each claim gets a test naming the section it comes from.
+ */
+describe('claims the course makes about output', () => {
+	it('2.3: `total` counts disk blocks, not files', async () => {
+		await engine.reset({
+			files: { '~/notes.txt': 'x'.repeat(118) },
+			dirs: ['~/documents', '~/projects']
+		});
+		const out = strip((await run('ls -l')).output);
+		// Two directories and one small file: 4 blocks each, exactly like the
+		// `total 12` the chapter prints.
+		expect(out).toContain('total 12');
+		expect(out).not.toContain('total 3');
+	});
+
+	it('2.3 / 5.1: the two names are owner and group, not owner twice', async () => {
+		const line = strip((await run('ls -l notes.txt')).output);
+		expect(line).toContain('vibe staff');
+	});
+
+	it('5.1: `id -gn` names the group in the second ls -l column', async () => {
+		// The chapter tells the learner to run this to find their own group,
+		// so it has to exist and has to agree with what ls -l prints.
+		expect((await run('id -gn')).output).toBe('staff');
+		expect((await run('id -un')).output).toBe('vibe');
+		expect(strip((await run('ls -l notes.txt')).output)).toContain('vibe staff');
+		// Bare `id` reports the same uid/gid that stat does.
+		expect((await run('id')).output).toContain('gid=20(staff)');
+		expect(strip((await run('stat notes.txt')).output)).toContain('20/staff');
+	});
+
+	it('2.3: the number after the permissions is a link count', async () => {
+		await engine.reset({ files: { '~/tree/a/x': '', '~/tree/b/y': '', '~/tree/f': '' } });
+		const out = strip((await run('ls -l')).output);
+		// tree holds two subdirectories: itself, its parent's entry, plus two.
+		expect(out).toMatch(/drwxr-xr-x\s+4\s+vibe staff.*tree/);
+	});
+
+	it('1.3: --help answers for any command, and clustered flags work', async () => {
+		const help = strip((await run('ls --help')).output);
+		expect(help).toContain('Usage:');
+		expect((await run('ls -lat')).error).toBeFalsy();
+		expect((await run('ls -la')).error).toBeFalsy();
+	});
+
+	it('1.3: man -k searches descriptions, and a section number is allowed', async () => {
+		const k = strip((await run('man -k download')).output);
+		expect(k).toContain('wget(1)');
+		// curl's real NAME is "transfer a URL" — no "download" in it — so -k
+		// must NOT find it. 1.3 teaches exactly this limit of keyword search,
+		// so the sandbox has to reproduce the miss, not paper over it.
+		expect(k).not.toContain('curl(1)');
+		expect(strip((await run('man curl')).output)).toContain('transfer a URL');
+		expect(strip((await run('man 1 ls')).output)).toContain('list directory contents');
+	});
+
+	it('3.1: cp -i refuses to clobber instead of rejecting the flag', async () => {
+		await run('cp notes.txt copy.txt');
+		const res = await run('cp -i notes.txt copy.txt');
+		expect(res.error).toBe(true);
+		expect(res.output).toContain('not overwriting');
+		expect(res.output).not.toContain('invalid option');
+	});
+
+	it('3.2: neither cp nor mv creates the destination folder', async () => {
+		const moved = await run('mv notes.txt docs/chapter-1.md');
+		expect(moved.error).toBe(true);
+		expect(moved.output).toContain('No such file or directory');
+		expect(engine.exists('/home/vibe/docs')).toBe(false);
+		expect(engine.exists('/home/vibe/notes.txt')).toBe(true);
+
+		const copied = await run('cp notes.txt docs/copy.md');
+		expect(copied.error).toBe(true);
+		expect(engine.exists('/home/vibe/docs')).toBe(false);
+
+		// And the fix the chapter gives actually works.
+		await run('mkdir docs');
+		expect((await run('mv notes.txt docs/chapter-1.md')).error).toBeFalsy();
+		expect(engine.isFile('/home/vibe/docs/chapter-1.md')).toBe(true);
+	});
+
+	it('5.2: a bare +x means a+x, and u+x grants it only to you', async () => {
+		await run('chmod +x notes.txt');
+		expect(strip((await run('ls -l notes.txt')).output)).toContain('-rwxr-xr-x');
+		await run('chmod 644 notes.txt');
+		await run('chmod u+x notes.txt');
+		expect(strip((await run('ls -l notes.txt')).output)).toContain('-rwxr--r--');
+	});
+
+	it('5.4: export decides what a child process can see', async () => {
+		await run('LOCAL=here');
+		expect((await run('echo $LOCAL')).output).toBe('here');
+		expect((await run('env')).output).not.toContain('LOCAL=here');
+		await run('export LOCAL');
+		expect((await run('env')).output).toContain('LOCAL=here');
+	});
+
+	it('5.5 / 10.4: -h turns byte counts into K, M and G', async () => {
+		await engine.reset({ files: { '~/big.txt': 'x'.repeat(3000) } });
+		expect(strip((await run('ls -lh big.txt')).output)).toContain('2.9K');
+		// du works in blocks, so even a small file reports 4.0K — never a
+		// bare byte count.
+		expect((await run('du -sh big.txt')).output).toContain('4.0K');
+	});
+
+	it('7.3: diff prints only the lines that differ', async () => {
+		await engine.reset({ files: { '~/config.yml': 'url: http://x\nport: 3000\n' } });
+		await run("sed -i.bak 's/http:/https:/' config.yml");
+		const res = await run('diff config.yml.bak config.yml');
+		expect(res.output).toContain('< url: http://x');
+		expect(res.output).toContain('> url: https://x');
+		expect(res.output).not.toContain('port: 3000');
+		expect((await run('diff config.yml config.yml')).output).toBe('');
+	});
+
+	it('8.2: kill reports back the signal it was actually sent', async () => {
+		await engine.reset({ processes: [{ command: 'node server.js', port: 3000 }] });
+		expect((await run('kill -2 400')).output).toContain('SIGINT');
+		await engine.reset({ processes: [{ command: 'node server.js', port: 3000 }] });
+		expect((await run('kill -HUP 400')).output).toContain('SIGHUP');
+		await engine.reset({ processes: [{ command: 'node server.js', port: 3000 }] });
+		expect((await run('kill 400')).output).toContain('SIGTERM');
+	});
+
+	it('13.2: \\e is a real escape byte, so the terminal obeys the color', async () => {
+		// The chapter prints "green (printed in actual green)" — so the
+		// sequence has to be interpreted, not echoed literally, and it has to
+		// survive a round trip through a file the same way real bytes do.
+		const direct = (await run("printf '\\e[32mgreen\\e[0m\\n'")).output;
+		expect(direct).toContain('<span');
+		expect(direct).not.toContain('[32m');
+		expect(strip(direct)).toBe('green');
+
+		await run("printf '\\e[32mgreen\\e[0m\\n' > c.txt");
+		const viaFile = (await run('cat c.txt')).output;
+		expect(viaFile).toContain('<span');
+		expect(strip(viaFile)).toBe('green');
 	});
 });
