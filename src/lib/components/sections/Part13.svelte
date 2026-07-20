@@ -14,6 +14,7 @@
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
@@ -163,9 +164,8 @@
 							Compose small tools
 						</p>
 						<p class="text-xs" style="color: var(--color-text-muted);">
-							The Unix philosophy from Part 4: each command does one thing well, and <Code
-								code="|"
-							/>
+							The Unix philosophy from <CourseLink to="part-4" />: each command does one thing well,
+							and <Code code="|" />
 							snaps them together.
 							<Code code="grep" /> doesn't sort and
 							<Code code="sort" /> doesn't count — yet

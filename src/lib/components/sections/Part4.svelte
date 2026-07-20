@@ -14,6 +14,7 @@
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -581,8 +582,8 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				<strong>Quote the pattern.</strong> Write
 				<Code code="'*.md'" />
 				with quotes, not bare
-				<Code code="*.md" />. Remember Part 3: the <em>shell</em> expands wildcards before the
-				command ever runs. Unquoted,
+				<Code code="*.md" />. Remember <CourseLink to="part-3" />: the <em>shell</em> expands
+				wildcards before the command ever runs. Unquoted,
 				<Code code="*.md" />
 				becomes a list of the Markdown files in your <em>current</em> folder — and find receives that
 				list instead of the pattern, searching for the wrong thing entirely. The quotes deliver the pattern
@@ -664,7 +665,9 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				them changes a single character. That's deliberate, and it's why they're safe to experiment
 				with. When you're ready to make text
 				<em>different</em> — swap a word across a file, drop every DEBUG line, pull one column out
-				of a table — that's <Code code="sed" /> and <Code code="awk" />, waiting in Part 7.
+				of a table — that's <Code code="sed" /> and <Code code="awk" />, waiting in <CourseLink
+					to="part-7"
+				/>.
 			</p>
 		</div>
 	</div>

@@ -2,6 +2,7 @@
 	import { Scissors, Replace, PenLine, Columns3 } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -30,7 +31,8 @@
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Part 4 taught you to <em>find</em> text — grep it, count it, sort it. This part teaches you to
+			<CourseLink to="part-4" /> taught you to <em>find</em> text — grep it, count it, sort it. This
+			part teaches you to
 			<em>change</em> it. <Code code="sed" /> is the single most common file-mutating command AI agents
 			propose — "let me just update that config" is almost always a sed one-liner — and
 			<Code code="awk" /> is how you pull one column out of anything shaped like a table. Learn to read
@@ -39,9 +41,9 @@
 
 		<Callout type="important">
 			The idea that makes sed safe to learn: <strong>it edits the stream, not the file</strong>.
-			Like every Part 4 tool, sed reads text, transforms it, and prints the result — the input file
-			is untouched unless you explicitly say otherwise (that's 7.3, and it has a safety rule). You
-			can experiment freely: the original survives every mistake.
+			Like every <CourseLink to="part-4" /> tool, sed reads text, transforms it, and prints the result
+			— the input file is untouched unless you explicitly say otherwise (that's 7.3, and it has a safety
+			rule). You can experiment freely: the original survives every mistake.
 		</Callout>
 
 		<!-- 7.1 Find & Replace -->
@@ -99,7 +101,7 @@ sed 's/error/[&]/I' app.log            # & = whatever matched; I = any case
 
 			<Callout type="tip">
 				<strong>Preview to the screen, then redirect.</strong> The same habit as echo-the-glob from
-				Part 3: run the sed command bare and read its output. Happy? Add
+				<CourseLink to="part-3" />: run the sed command bare and read its output. Happy? Add
 				<Code code="> new-file.txt" /> and run it again. Because sed doesn't touch the input file, the
 				preview is always free.
 			</Callout>
@@ -222,7 +224,7 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 				propose is usually <Code code="sed -i" /> —
 				<strong style="color: var(--color-text);">edit the file in place</strong>. Same
 				substitution, except now it rewrites the real file, silently, with no preview and no undo.
-				This is the one sed flag that deserves the Part 6 treatment.
+				This is the one sed flag that deserves the <CourseLink to="part-6" /> treatment.
 			</p>
 
 			<div class="my-6">
@@ -235,9 +237,10 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 
 			<Callout type="caution">
 				<strong><Code code="sed -i" /> with no backup is a red-flag pattern.</strong> Add it to your
-				Part 6 audit list next to <Code code="rm -rf" /> and <Code code="curl | bash" />. But unlike
-				those, the fix isn't refusing — it's <em>amending</em>: one suffix turns the risky command
-				into a safe one.
+				<CourseLink to="part-6" /> audit list next to <Code code="rm -rf" /> and <Code
+					code="curl | bash"
+				/>. But unlike those, the fix isn't refusing — it's <em>amending</em>: one suffix turns the
+				risky command into a safe one.
 			</Callout>
 
 			<CodeBlock
@@ -320,7 +323,7 @@ awk '/error/ {print $1}' app.log     # /pattern/ runs the action on matching lin
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				You already know <Code code="cut" /> from Part 4 — so which one? Honest answer:
+				You already know <Code code="cut" /> from <CourseLink to="part-4" /> — so which one? Honest answer:
 				<Code code="cut" /> for clean single-character delimiters (CSV, colon-separated), <Code
 					code="awk"
 				/> when the spacing is <em>ragged</em>. awk's default split treats any run of spaces as one

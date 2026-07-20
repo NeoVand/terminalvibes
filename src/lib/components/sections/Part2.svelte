@@ -15,6 +15,7 @@
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -206,7 +207,9 @@
 				The long listing packs a lot into each line. For now, read just three things: the leading
 				<Code code="d" />
 				means "directory," the number before the date is the size in bytes, and the name is at the end.
-				The rest of that cryptic string is a permissions code — we decode it fully in Part 5.
+				The rest of that cryptic string is a permissions code — we decode it fully in <CourseLink
+					to="part-5"
+				/>.
 			</p>
 
 			<CodeBlock
@@ -632,7 +635,8 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 				rite of passage: the prompt vanishes, typing does strange things, panic sets in. Press
 				<Code code="q" />
 				and you're free. This matters double because
-				<Code code="man" /> pages (Part 1) open in less too — same keys, same escape hatch.
+				<Code code="man" /> pages (<CourseLink to="part-1" />) open in less too — same keys, same
+				escape hatch.
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">

@@ -265,3 +265,28 @@ export const sidebarNav: NavSection[] = [
 		]
 	}
 ];
+
+/* ── anchor lookup ────────────────────────────────────────────────── */
+
+export interface NavEntry {
+	label: string;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	icon: any;
+}
+
+const byId = new Map<string, NavEntry>();
+for (const section of sidebarNav) {
+	byId.set(section.id, { label: section.label, icon: section.icon });
+	for (const child of section.children ?? []) {
+		byId.set(child.id, { label: child.label, icon: child.icon });
+	}
+}
+
+/**
+ * Label + icon for any part or section anchor. Cross-references in the prose
+ * resolve through this, so renaming a part in the sidebar renames it
+ * everywhere it is mentioned.
+ */
+export function courseEntry(id: string): NavEntry | null {
+	return byId.get(id) ?? null;
+}

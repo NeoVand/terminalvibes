@@ -22,6 +22,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import OsIcon from '../ui/OsIcon.svelte';
+	import CourseMap from '../ui/CourseMap.svelte';
 
 	let {
 		onOpenPlayground,
@@ -167,6 +168,8 @@
 					from the header for a complete command reference.
 				</p>
 			</div>
+
+			<CourseMap />
 		</div>
 	</div>
 

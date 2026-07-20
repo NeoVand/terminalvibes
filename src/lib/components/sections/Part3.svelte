@@ -11,6 +11,7 @@
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -40,10 +41,11 @@
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			In Part 2 you learned to look and to create. Now come the tools that <em>change</em> things:
-			copy, move, rename, delete. They're wonderfully fast — one line does what fifty drag-and-drops
-			would — and they come with a responsibility the graphical world hid from you: there is no
-			confirmation dialog, and for
+			In <CourseLink to="part-2" /> you learned to look and to create. Now come the tools that
+			<em>change</em>
+			things: copy, move, rename, delete. They're wonderfully fast — one line does what fifty drag-and-drops
+			would — and they come with a responsibility the graphical world hid from you: there is no confirmation
+			dialog, and for
 			<Code code="rm" />, no trash can. This part teaches the commands and, just as deliberately,
 			the habits that make them safe.
 		</p>
@@ -100,8 +102,8 @@ cp config.yaml backups/`}
 				That first line is the <strong>backup-before-experiment</strong> pattern, and it's worth
 				making a reflex: before any risky edit — yours or an agent's —
 				<Code code="cp file file.bak" />. Restoring later is just the reverse:
-				<Code code="cp config.yaml.bak config.yaml" />. (Part 6's Git-free time machine, until you
-				have Git.)
+				<Code code="cp config.yaml.bak config.yaml" />. (a Git-free time machine, until you have
+				Git.)
 			</Callout>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -312,7 +314,7 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						You <em>thought</em> you were in
 						<Code code="~/tmp" />. You were in
-						<Code code="~/projects" />. Part 2's
+						<Code code="~/projects" />. The
 						<Code code="pwd" /> habit exists for this moment.
 					</p>
 				</div>
@@ -357,9 +359,10 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 				<Code code="rm -rf" />, do not rubber-stamp it. Read three things before approving:
 				<strong>the exact path</strong>
 				(absolute? relative to <em>what</em>?), <strong>any wildcard</strong> (what could it expand
-				to?), and <strong>the working directory</strong> the agent is running in. Agents make location
-				mistakes exactly the way beginners do — they just make them faster. Deletion is the one category
-				of command you always read in full; Part 6 turns this instinct into a complete auditing method.
+				to?), and <strong>the working directory</strong> the agent is running in. Agents make
+				location mistakes exactly the way beginners do — they just make them faster. Deletion is the
+				one category of command you always read in full; <CourseLink to="part-6" /> turns this instinct
+				into a complete auditing method.
 			</Callout>
 
 			<Callout type="tip">
