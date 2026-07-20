@@ -1,0 +1,61 @@
+version: 2
+
+updates:
+  # npm dependencies. The deploy workflow gates every merge on lint, types,
+  # unit tests and Playwright, so an update that breaks the site can't reach
+  # Pages — which is what makes weekly, mostly-unattended bumps safe here.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/London
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(dev-deps)'
+    groups:
+      # One PR for the toolchain rather than a dozen: these move together and
+      # are only interesting when something actually fails.
+      dev-tooling:
+        dependency-type: development
+        patterns:
+          - '@sveltejs/*'
+          - 'vite'
+          - 'vitest'
+          - '@vitest/*'
+          - 'eslint*'
+          - '@eslint/*'
+          - 'typescript*'
+          - 'prettier*'
+          - '@playwright/*'
+          - 'svelte-check'
+      runtime-minor-patch:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Svelte 5 and Tailwind 4 are load-bearing for this codebase: a major
+      # bump is a migration, not a dependency update. Surface those manually.
+      - dependency-name: svelte
+        update-types: [version-update:semver-major]
+      - dependency-name: tailwindcss
+        update-types: [version-update:semver-major]
+
+  # The workflows pin actions by major version; this keeps those current.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/London
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: 'chore(ci)'
