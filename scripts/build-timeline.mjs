@@ -79,10 +79,18 @@ function decode(s) {
 /**
  * Inner HTML of a heading → plain text (the headings carry <strong>, <Code>…).
  *
- * Both strips run to a FIXED POINT rather than once. A single pass can reassemble
- * the very thing it removed: `<scr<b>ipt>` loses `<b>` and becomes `<script>`,
- * and `{a{b}c}` loses `{b}` and becomes `{ac}`. Repeating until the string stops
- * changing is what makes the removal actually total.
+ * Two stages, and the second is the one that actually guarantees anything.
+ *
+ * The loop drops whole tags so `<strong>Ports</strong>` reads "Ports" rather
+ * than "strongPortsstrong" — that is a QUALITY pass, and it runs to a fixed
+ * point because a single sweep can reassemble what it removed (`<scr<b>ipt>`
+ * loses `<b>` and becomes `<script>`; `{a{b}c}` becomes `{ac}`).
+ *
+ * But a regex that consumes a multi-character sequence can never be the
+ * guarantee — that is CWE-116, and it is why matching whole tags is flagged
+ * however many times you repeat it. So the guarantee is a separate, final pass
+ * over SINGLE characters: whatever survives the loop, no angle bracket leaves
+ * this function. One character cannot be reassembled from its own removal.
  */
 function headingText(inner) {
 	let out = inner;
@@ -90,6 +98,8 @@ function headingText(inner) {
 		prev = out;
 		out = out.replace(/<[^>]*>/g, '').replace(/\{[^{}]*\}/g, '');
 	}
+	// The actual invariant. Single characters, so there is nothing to reassemble.
+	out = out.replace(/[<>]/g, '');
 	return decode(out);
 }
 
