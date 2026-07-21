@@ -28,23 +28,25 @@
 			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
 			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
 		>
-			"grep asks: which lines? sed answers: make them different."
+			"<Code code="grep" /> asks: which lines? <Code code="sed" /> answers: make them different."
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			<CourseLink to="part-4" /> taught you to <em>find</em> text — grep it, count it, sort it. This
-			part teaches you to
+			<CourseLink to="part-4" /> taught you to <em>find</em> text — <Code code="grep" /> it, count it,
+			<Code code="sort" /> it. This part teaches you to
 			<em>change</em> it. <Code code="sed" /> is the single most common file-mutating command AI agents
-			propose — "let me just update that config" is almost always a sed one-liner — and
+			propose — "let me just update that config" is almost always a <Code code="sed" /> one-liner — and
 			<Code code="awk" /> is how you pull one column out of anything shaped like a table. Learn to read
 			these two and a huge class of agent-suggested commands stops being line noise.
 		</p>
 
 		<Callout type="important">
-			The idea that makes sed safe to learn: <strong>it edits the stream, not the file</strong>.
-			Like every <CourseLink to="part-4" /> tool, sed reads text, transforms it, and prints the result
-			— the input file is untouched unless you explicitly say otherwise (that's 7.3, and it has a safety
-			rule). You can experiment freely: the original survives every mistake.
+			The idea that makes <Code code="sed" /> safe to learn:
+			<strong>it edits the stream, not the file</strong>. Like every <CourseLink to="part-4" /> tool,
+			<Code code="sed" /> reads text, transforms it, and prints the result — the input file is untouched
+			unless you explicitly say otherwise (that's
+			<CourseLink to="section-7-3" />, and it has a safety rule). You can experiment freely: the
+			original survives every mistake.
 		</Callout>
 
 		<!-- 7.1 Find & Replace -->
@@ -52,13 +54,13 @@
 			<SectionHeader
 				level="section"
 				icon={Replace}
-				title="7.1 Find &amp; Replace — the s Command"
+				title="7.1 Find &amp; Replace — the `s` Command"
 				color="var(--color-primary)"
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Every editor has find-and-replace. sed is find-and-replace <em>unplugged from the editor</em
-				>
+				Every editor has find-and-replace. <Code code="sed" /> is find-and-replace
+				<em>unplugged from the editor</em>
 				— it works on anything that flows: files, pipes, command output. One tiny script does it all,
 				and it reads like a sentence once you know the grammar:
 			</p>
@@ -104,18 +106,19 @@ sed 's/error/[&]/I' app.log            # & = whatever matched; I = any case
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That <Code code="|" /> is doing sed's job, not the shell's — inside the quotes it's a delimiter,
-				and the same character outside them is the pipe from <CourseLink to="part-4" />. The single
-				quotes are the whole difference: they hand sed its script as one untouched word (<CourseLink
-					to="section-2-2"
-				/>), which is why every sed script in this part wears them.
+				That <Code code="|" /> is doing <Code code="sed" />'s job, not the shell's — inside the
+				quotes it's a delimiter, and the same character outside them is the pipe from
+				<CourseLink to="part-4" />. The single quotes are the whole difference: they hand
+				<Code code="sed" /> its script as one untouched word (<CourseLink to="section-2-2" />),
+				which is why every sed script in this part wears them.
 			</p>
 
 			<Callout type="tip">
 				<strong>Preview to the screen, then redirect.</strong> The same habit as echo-the-glob from
-				<CourseLink to="part-3" />: run the sed command bare and read its output. Happy? Add
-				<Code code="> new-file.txt" /> and run it again. Because sed doesn't touch the input file, the
-				preview is always free.
+				<CourseLink to="part-3" />: run the <Code code="sed" /> command bare and read its output. Happy?
+				Add
+				<Code code="> new-file.txt" /> and run it again. Because <Code code="sed" /> doesn't touch the
+				input file, the preview is always free.
 			</Callout>
 
 			<VibeBox
@@ -144,13 +147,13 @@ sed 's/error/[&]/I' app.log            # & = whatever matched; I = any case
 			<SectionHeader
 				level="section"
 				icon={Scissors}
-				title="7.2 Line Surgery — Addresses, d and p"
+				title="7.2 Line Surgery — Addresses, `d` and `p`"
 				color="var(--color-primary)"
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Substitution is only one of sed's commands. Picture your file as a film strip: every line
-				passes through sed, one frame at a time, and a
+				Substitution is only one of <Code code="sed" />'s commands. Picture your file as a film
+				strip: every line passes through <Code code="sed" />, one frame at a time, and a
 				<strong style="color: var(--color-text);">command decides its fate</strong> — keep, drop, or
 				print. An <strong style="color: var(--color-text);">address</strong> in front of the command selects
 				which frames it applies to:
@@ -165,7 +168,7 @@ sed 's/error/[&]/I' app.log            # & = whatever matched; I = any case
 			</div>
 
 			<CodeBlock
-				title="d drops lines; addresses choose them"
+				title="`d` drops lines; addresses choose them"
 				code={`sed '/DEBUG/d' app.log        # drop every line matching DEBUG
 sed '3d' notes.txt            # drop line 3
 sed '2,5d' notes.txt          # drop lines 2 through 5
@@ -175,23 +178,22 @@ sed '$d' notes.txt            # drop the last line`}
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Those four are most of the address vocabulary, and two of them are worth a second look.
 				<Code code="/DEBUG/" /> is a regular expression tried against every line, not a plain word — the
-				same rules as the find half of <Code code="s///" />. And <Code code="$" /> here is sed's name
-				for the last line: an address, not a variable, with nothing to do with the <Code
-					code="$NAME"
-				/> expansion from <CourseLink to="section-5-4" />. awk hands the same character a third job
-				in 7.4.
+				same rules as the find half of <Code code="s///" />. And <Code code="$" /> here is
+				<Code code="sed" />'s name for the last line: an address, not a variable, with nothing to do
+				with the <Code code="$NAME" /> expansion from <CourseLink to="section-5-4" />.
+				<Code code="awk" /> hands the same character a third job in <CourseLink to="section-7-4" />.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The mirror image of dropping is <strong style="color: var(--color-text);"
 					>printing only what you ask for</strong
 				>. That's the <Code code="p" /> command paired with
-				<Code code="-n" />, which silences sed's default echo. It's the precision tool for "show me
-				lines 40 through 55 of that huge log" — no pager, no scrolling:
+				<Code code="-n" />, which silences <Code code="sed" />'s default echo. It's the precision
+				tool for "show me lines 40 through 55 of that huge log" — no pager, no scrolling:
 			</p>
 
 			<CodeBlock
-				title="-n + p — print only the selection"
+				title="`-n` + `p` — print only the selection"
 				code={`sed -n '40,55p' server.log     # just lines 40–55
 sed -n '/ERROR/p' server.log   # only ERROR lines (like grep!)
 sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
@@ -207,8 +209,10 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Addresses compose with <em>any</em> command — <Code code="'2s/beta/B/'" /> substitutes on line
-				2 only, <Code code="'/alpha/s/a/A/'" /> substitutes only on lines matching alpha. One grammar,
-				every combination. That's the Unix philosophy again, folded inside a single tool.
+				2 only, <Code code="'/alpha/s/a/A/'" /> substitutes only on lines matching <Code
+					code="alpha"
+				/>. One grammar, every combination. That's the Unix philosophy again, folded inside a single
+				tool.
 			</p>
 
 			<VibeBox
@@ -225,7 +229,7 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 				Try It: Silence the Debug Noise
 			</h4>
 			<PlaygroundNote>
-				<Code code="app.log" /> is drowning in DEBUG chatter. Drop those lines with
+				<Code code="app.log" /> is drowning in <Code code="DEBUG" /> chatter. Drop those lines with
 				<Code code="'/DEBUG/d'" /> and save the readable story as <Code code="clean.log" /> — the original
 				stays intact for the postmortem.
 			</PlaygroundNote>
@@ -237,7 +241,7 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 			<SectionHeader
 				level="section"
 				icon={PenLine}
-				title="7.3 Editing in Place — the -i Footgun and the .bak Rule"
+				title="7.3 Editing in Place — the `-i` Footgun and the `.bak` Rule"
 				color="var(--color-primary)"
 			/>
 
@@ -283,21 +287,23 @@ mv config.yml.bak config.yml     # instant rollback if it went wrong`}
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The suffix goes <em>directly</em> after the flag — <Code code="-i.bak" />, no space — and
-				sed saves each original as <Code code="file.bak" /> before rewriting. It costs nothing, it works
-				on many files at once (<Code code="sed -i.bak 's/<old>/<new>/' *.yml" /> backs up every one),
-				and it turns "I hope that was right" into something you can check. That's the
+				<Code code="sed" /> saves each original as <Code code="file.bak" /> before rewriting. It costs
+				nothing, it works on many files at once (<Code code="sed -i.bak 's/<old>/<new>/' *.yml" /> backs
+				up every one), and it turns "I hope that was right" into something you can check. That's the
 				<Code code="diff" /> in the block above: hand it two files and it prints only the lines where
 				they disagree. When an agent proposes a bare <Code code="-i" />, don't approve or reject —
-				<strong style="color: var(--color-text);">edit the command and add the .bak</strong>.
+				<strong style="color: var(--color-text);"
+					>edit the command and add the <Code code=".bak" /></strong
+				>.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				macOS enforces the house rule anyway. Mac and Linux carry different lineages of the same
-				veteran tools — BSD's on the Mac, GNU's on Linux — and BSD sed <em>insists</em> on that
-				suffix: leave it off and the command fails with an error pointing nowhere near the real
-				problem, while GNU sed takes the bare <Code code="-i" /> and keeps no copy at all. <Code
-					code="ps"
-				/>,
+				veteran tools — BSD's on the Mac, GNU's on Linux — and BSD <Code code="sed" />
+				<em>insists</em>
+				on that suffix: leave it off and the command fails with an error pointing nowhere near the real
+				problem, while GNU <Code code="sed" /> takes the bare <Code code="-i" /> and keeps no copy at
+				all. <Code code="ps" />,
 				<Code code="ls" /> and <Code code="du" /> split the same two ways, which is why a command that
 				worked on a colleague's machine sometimes doesn't on yours.
 			</p>
@@ -334,7 +340,7 @@ mv config.yml.bak config.yml     # instant rollback if it went wrong`}
 			<SectionHeader
 				level="section"
 				icon={Columns3}
-				title="7.4 Columns &amp; awk — Pull the Field You Need"
+				title="7.4 Columns &amp; `awk` — Pull the Field You Need"
 				color="var(--color-primary)"
 			/>
 
@@ -362,33 +368,39 @@ awk '/error/ {print $1}' app.log     # /pattern/ runs the action on matching lin
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The braces are awk's <strong style="color: var(--color-text);">action block</strong> — the
-				work it does on every line that reaches it, with the <Code code="/pattern/" /> guard outside and
-				in front. The <Code code="$1" /> inside belongs to awk, not the shell: it has nothing to do with
-				the numbered script arguments in <CourseLink to="section-6-1" />, and that collision is why
-				every awk program here sits in single quotes. Swap them for double quotes and the shell
-				empties
-				<Code code="$1" /> before awk ever sees it: <Code code={`{print $1}`} /> arrives as
-				<Code code={`{print }`} />, which awk reads as "print the whole line" and obeys without
-				complaint — the wrong answer, delivered confidently. Ask for two columns and it's a syntax
+				The braces are <Code code="awk" />'s
+				<strong style="color: var(--color-text);">action block</strong>
+				— the work it does on every line that reaches it, with the <Code code="/pattern/" /> guard outside
+				and in front. The <Code code="$1" /> inside belongs to <Code code="awk" />, not the shell:
+				it has nothing to do with the numbered script arguments in <CourseLink to="section-6-1" />,
+				and that collision is why every <Code code="awk" /> program here sits in single quotes. Swap them
+				for double quotes and the shell empties
+				<Code code="$1" /> before <Code code="awk" /> ever sees it: <Code code={`{print $1}`} /> arrives
+				as
+				<Code code={`{print }`} />, which <Code code="awk" /> reads as "print the whole line" and obeys
+				without complaint — the wrong answer, delivered confidently. Ask for two columns and it's a syntax
 				error instead. Neither one mentions quotes.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				You already know <Code code="cut" /> from <CourseLink to="part-4" /> — so which one? Honest answer:
 				<Code code="cut" /> when a single character separates every field — a comma in a CSV, a colon
-				or a tab elsewhere — and <Code code="awk" /> when the spacing is <em>ragged</em>. awk's
-				default split treats any run of spaces as one separator, which is exactly what
-				column-aligned output needs — cut would see every space as its own empty field and hand you
-				garbage. When you meet process listings in <CourseLink to="section-8-1" />, awk is the tool
-				that reads them.
+				or a tab elsewhere — and <Code code="awk" /> when the spacing is <em>ragged</em>.
+				<Code code="awk" />'s default split treats any run of spaces as one separator, which is
+				exactly what column-aligned output needs — <Code code="cut" /> would see every space as its own
+				empty field and hand you garbage. When you meet process listings in <CourseLink
+					to="section-8-1"
+				/>,
+				<Code code="awk" /> is the tool that reads them.
 			</p>
 
 			<Callout type="tip">
-				Real awk is an entire programming language — BEGIN blocks, variables, printf. What you've
-				just learned is the <strong>field-printing dialect</strong>, and it covers the vast majority
-				of awk you'll ever see an agent propose. When one shows up wearing more syntax than this,
-				that's not a reading failure — that's your cue to ask the agent to explain it line by line.
+				Real <Code code="awk" /> is an entire programming language — <Code code="BEGIN" /> blocks, variables,
+				<Code code="printf" />. What you've just learned is the
+				<strong>field-printing dialect</strong>, and it covers the vast majority of <Code
+					code="awk"
+				/> you'll ever see an agent propose. When one shows up wearing more syntax than this, that's not
+				a reading failure — that's your cue to ask the agent to explain it line by line.
 			</Callout>
 
 			<VibeBox

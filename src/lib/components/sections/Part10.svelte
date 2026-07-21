@@ -59,9 +59,10 @@
 				<Code code="command not found" /> — which, as <CourseLink to="section-5-4" /> taught you, means
 				"nothing on your
 				<Code code="$PATH" /> has that name." A
-				<strong style="color: var(--color-text);">package manager</strong> is a program whose entire job
-				is installing other programs. You name a tool; it finds the right build for your system, puts
-				it somewhere your PATH already looks, and remembers enough to update or remove it later.
+				<strong style="color: var(--color-text);">package manager</strong> is a program whose entire
+				job is installing other programs. You name a tool; it finds the right build for your system,
+				puts it somewhere your <Code code="PATH" /> already looks, and remembers enough to update or remove
+				it later.
 			</p>
 
 			<div class="my-6">
@@ -100,26 +101,36 @@ which cowsay                   # where did it land?
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				One thing no setup guide mentions: Homebrew isn't on a stock Mac. <Code code="brew" /> is itself
-				third-party software, installed once by following the instructions at brew.sh — and until you
-				do, the first line of that block answers <Code code="command not found" />, which is a
-				confusing way to be told you're missing the thing that installs things.
+				third-party software, installed once by following the instructions at
+				<a
+					href="https://brew.sh"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="font-medium underline underline-offset-2"
+					style="color: var(--color-primary);">brew.sh</a
+				>
+				— and until you do, the first line of that block answers <Code code="command not found" />,
+				which is a confusing way to be told you're missing the thing that installs things.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				<Code code="npm i -g serve" /> is the odd one out. <Code code="i" /> is install;
-				<Code code="-g" /> is global, meaning put it where PATH can see it rather than inside this project's
-				<Code code="node_modules" /> folder, where <Code code="which serve" /> would never look. And npm
-				installs JavaScript tools and nothing else, so if what you want isn't JavaScript, npm can't help
-				you. It also <em>runs</em> things: <Code code="npm run <name>" /> executes a script the project
-				defined for itself in its <Code code="package.json" /> file, which is all
+				<Code code="-g" /> is global, meaning put it where <Code code="PATH" /> can see it rather than
+				inside this project's
+				<Code code="node_modules" /> folder, where <Code code="which serve" /> would never look. And
+				<Code code="npm" /> installs JavaScript tools and nothing else, so if what you want isn't JavaScript,
+				<Code code="npm" /> can't help you. It also <em>runs</em> things: <Code
+					code="npm run <name>"
+				/> executes a script the project defined for itself in its <Code code="package.json" /> file,
+				which is all
 				<Code code="npm test &amp;&amp; npm run deploy" /> in <CourseLink to="section-6-2" /> was ever
 				doing.
 			</p>
 
 			<Callout type="caution">
 				<strong>Read what an install pulls in</strong> — especially from an agent. Three things
-				deserve a second look: <Code code="sudo npm install" /> (a global npm install should rarely need
-				root, and needing it usually means something is misconfigured);
+				deserve a second look: <Code code="sudo npm install" /> (a global <Code code="npm" /> install
+				should rarely need root, and needing it usually means something is misconfigured);
 				<Code code="curl … | bash" /> installers (<CourseLink to="section-9-2" /> decoded exactly why
 				— download, read, then run); and any package whose name is one typo away from a popular one. That
 				last one has a name — <em>typosquatting</em> — and a fix: copy the install command from the project's
@@ -151,7 +162,7 @@ which cowsay                   # where did it land?
 			<SectionHeader
 				level="section"
 				icon={Boxes}
-				title="10.2 Archives — tar &amp; zip"
+				title="10.2 Archives — `tar` &amp; `zip`"
 				color="var(--color-primary)"
 			/>
 
@@ -344,7 +355,7 @@ current -> releases/v2.1`}
 204M    dist
 3.1M    docs
 1.9G    node_modules
- 12M    src
+12M     src
 
 df -h                 # how full is the whole disk?
 Filesystem  Size  Used Avail Capacity

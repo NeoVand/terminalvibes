@@ -115,8 +115,9 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 						over hard-coding a path like
 						<Code code="/bin/bash" />. There's no magic in it:
 						<Code code="env" /> is itself a program — the one that printed your variables in
-						<CourseLink to="section-5-4" /> — and handed a name, it looks that name up on PATH and runs
-						it. Everything after that first line is what you'd type at the prompt, and the
+						<CourseLink to="section-5-4" /> — and handed a name, it looks that name up on
+						<Code code="PATH" /> and runs it. Everything after that first line is what you'd type at the
+						prompt, and the
 						<Code code="#" /> lines are notes to yourself, using the comment character from
 						<CourseLink to="hero" />.
 					</p>
@@ -174,8 +175,9 @@ echo "Backed up notes to backups/$BACKUP_NAME"`}
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The <Code code="./" /> is there for the reason that section gave: a bare
-				<Code code="backup.sh" /> sends the shell hunting through PATH, and this folder deliberately isn't
-				on it. Running it this way also starts a child shell, so the script's variables and any
+				<Code code="backup.sh" /> sends the shell hunting through <Code code="PATH" />, and this
+				folder deliberately isn't on it. Running it this way also starts a child shell, so the
+				script's variables and any
 				<Code code="cd" /> inside it are gone the moment it exits — exactly the distinction
 				<CourseLink to="section-5-5" /> drew.
 			</p>

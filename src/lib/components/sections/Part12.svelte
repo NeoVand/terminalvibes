@@ -249,8 +249,8 @@ PS1="🌲 \\W $ "
 				there yourself, only someone else wrote the file. Two earn their place:
 				<Code code="zsh-autosuggestions" /> greys in the rest of a command as you start typing it, and
 				<Code code="zsh-syntax-highlighting" /> turns a command red before you press Enter if the shell
-				can't find it. A framework like oh-my-zsh bundles hundreds instead, and charges you startup time
-				for the ones you'll never use.
+				can't find it. A framework like <Code code="oh-my-zsh" /> bundles hundreds instead, and charges
+				you startup time for the ones you'll never use.
 			</p>
 
 			<Callout type="tip">
@@ -347,8 +347,8 @@ PS1="🌲 \\W $ "
 						Prints your numbered command history — and because it's just text output, all of <CourseLink
 							to="part-4"
 						/>
-						applies: <Code code="history | grep ssh" /> finds every ssh command you've ever run. Your
-						history is a searchable log of how you did everything.
+						applies: <Code code="history | grep ssh" /> finds every <Code code="ssh" /> command you've
+						ever run. Your history is a searchable log of how you did everything.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -363,8 +363,8 @@ PS1="🌲 \\W $ "
 						<Code code="!!" />
 						expands to your previous command. Its one legendary use: you run something, it fails with
 						"permission denied," and
-						<Code code="sudo !!" /> re-runs it elevated — no retyping. (Every bit of the sudo caution
-						in
+						<Code code="sudo !!" /> re-runs it elevated — no retyping. (Every bit of the
+						<Code code="sudo" /> caution in
 						<CourseLink to="section-5-3" /> still applies; the shell prints the expanded command, so you
 						see what's about to run.)
 					</p>
@@ -375,7 +375,7 @@ PS1="🌲 \\W $ "
 						style="color: var(--color-text);"
 					>
 						<Search size={14} style="color: var(--color-primary);" />
-						Ctrl+R — reverse search, the crown jewel
+						<span><Code code="Ctrl+R" /> — reverse search, the crown jewel</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						Press <kbd
@@ -415,8 +415,8 @@ sudo !!
 			/>
 
 			<Callout type="tip">
-				<strong>Make Ctrl+R the habit.</strong> The rule of thumb: up-arrow for the last couple of
-				commands,
+				<strong>Make <Code code="Ctrl+R" /> the habit.</strong> The rule of thumb: up-arrow for the
+				last couple of commands,
 				<kbd
 					class="rounded border px-1 py-0.5 text-[11px]"
 					style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
@@ -435,8 +435,8 @@ sudo !!
 				Try It: Retrace Your Steps
 			</h4>
 			<PlaygroundNote>
-				Ctrl+R lives at a real prompt, but you can practice the other half here: run a couple of
-				commands, then pipe <Code code="history" /> into
+				<Code code="Ctrl+R" /> lives at a real prompt, but you can practice the other half here: run a
+				couple of commands, then pipe <Code code="history" /> into
 				<Code code="grep" /> to dig one back out — and save the line you found.
 			</PlaygroundNote>
 			<LessonActivity title="Retrace Your Steps" scenarioId="history-recall" id="history-recall" />
@@ -474,8 +474,8 @@ sudo !!
 				>
 				(Control + backtick, same keys on every OS), and it slides up as a panel beneath your code. It's
 				not a lookalike or a simulation — it runs your real shell, with your
-				<Code code=".bashrc" />, your aliases, your PATH, your history. Everything from this course
-				works in it unchanged.
+				<Code code=".bashrc" />, your aliases, your <Code code="PATH" />, your history. Everything
+				from this course works in it unchanged.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -609,8 +609,9 @@ sudo !!
 				A classic three-pane cockpit for a coding session: the dev server in one pane, <Code
 					code="tail -f server.log"
 				/>
-				in a second, and a free prompt in the third — with your agent's terminal from 12.3 alongside.
-				Every shell is independent: its own working directory, its own
+				in a second, and a free prompt in the third — with your agent's terminal from
+				<CourseLink to="section-12-3" /> alongside. Every shell is independent: its own working directory,
+				its own
 				<Code code="cd" />, its own foreground command. Nothing you do in one pane disturbs another.
 			</p>
 
@@ -618,11 +619,13 @@ sudo !!
 				And here's the 2026 twist that turned splits from a power-user nicety into standard
 				practice: <strong style="color: var(--color-text);"
 					>people now run multiple AI agents in parallel</strong
-				> — one agent per pane or tab, each pointed at its own copy of the project (git calls that a worktree)
-				so they never collide. The split layout stops being "server here, logs there" and becomes several
-				agents, each in its own pane: three panes, three agents on three tasks, and you sweeping your
-				eyes across all of them, approving and course-correcting. Every pane is just a shell — which is
-				why everything in this course scales from one terminal to ten.
+				>
+				— one agent per pane or tab, each pointed at its own copy of the project (<Code
+					code="git"
+				/> calls that a worktree) so they never collide. The split layout stops being "server here, logs
+				there" and becomes several agents, each in its own pane: three panes, three agents on three tasks,
+				and you sweeping your eyes across all of them, approving and course-correcting. Every pane is
+				just a shell — which is why everything in this course scales from one terminal to ten.
 			</p>
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
@@ -635,11 +638,12 @@ sudo !!
 
 			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
 				Careful with that word, though — everywhere else in this course a session is one shell's
-				lifetime, and it dies with its window. A tmux session is a named collection of panes living
-				in a process of its own, which is how it survives yours closing. Its keybindings feel arcane
-				for one reason: every one of them starts with the same two keys, Ctrl+B, pressed and
-				released
-				<em>before</em> the key that does the work — so splitting a pane is Ctrl+B, then
+				lifetime, and it dies with its window. A <Code code="tmux" /> session is a named collection of
+				panes living in a process of its own, which is how it survives yours closing. Its keybindings
+				feel arcane for one reason: every one of them starts with the same two keys,
+				<Code code="Ctrl+B" />, pressed and released
+				<em>before</em> the key that does the work — so splitting a pane is <Code code="Ctrl+B" />,
+				then
 				<Code code="%" />.
 			</p>
 

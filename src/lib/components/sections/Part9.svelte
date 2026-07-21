@@ -58,10 +58,10 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				<Code code="localhost" /> is the name your machine uses for
-				<em>itself</em>. Ask for localhost and the request never touches the network — it leaves one
-				program on your computer and goes straight into another. That's why a dev server announcing
-				"listening on http://localhost:3000" is visible to you and to nobody else. A URL packs
-				several answers into one line:
+				<em>itself</em>. Ask for <Code code="localhost" /> and the request never touches the network —
+				it leaves one program on your computer and goes straight into another. That's why a dev server
+				announcing "listening on <Code code="http://localhost:3000" />" is visible to you and to
+				nobody else. A URL packs several answers into one line:
 			</p>
 
 			<div class="my-6">
@@ -124,7 +124,7 @@
 			<SectionHeader
 				level="section"
 				icon={Send}
-				title="9.2 curl — Ask the Network"
+				title="9.2 `curl` — Ask the Network"
 				color="var(--color-primary)"
 			/>
 
@@ -166,16 +166,19 @@ curl -I localhost:3000/health                  # just the headers`}
 				alongside the request, carrying everything that isn't the content — what format you want
 				back, who you are, what software is asking. (Nothing to do with the header row of a
 				spreadsheet; the word just gets reused.) An
-				<strong style="color: var(--color-text);">API</strong> — an application programming interface,
-				a door a service opens for other programs rather than for people — knows which requests are yours
-				because your key rides in one. That's 9.4's whole subject.
+				<strong style="color: var(--color-text);">API</strong> — an application programming
+				interface, a door a service opens for other programs rather than for people — knows which
+				requests are yours because your key rides in one. That's the whole subject of <CourseLink
+					to="section-9-4"
+				/>.
 			</p>
 
 			<Callout type="caution">
 				<strong>Now you can read the red-flag pattern.</strong> You will meet
-				<Code code="curl ... | bash" /> everywhere, and it decodes with what you already have: curl fetches
-				a script off the internet, and the pipe feeds it straight into a shell that runs it — unread,
-				unreviewed, with your permissions. The two-step version is always available:
+				<Code code="curl ... | bash" /> everywhere, and it decodes with what you already have:
+				<Code code="curl" /> fetches a script off the internet, and the pipe feeds it straight into a
+				shell that runs it — unread, unreviewed, with your permissions. The two-step version is always
+				available:
 				<Code code="curl -o install.sh <url>" />, read the file, <em>then</em> run it. When it's the
 				right call to skip that step — and it sometimes is — is the subject of
 				<CourseLink to="section-11-1" />.
@@ -206,7 +209,7 @@ curl -I localhost:3000/health                  # just the headers`}
 			<SectionHeader
 				level="section"
 				icon={Braces}
-				title="9.3 Reading JSON with jq"
+				title="9.3 Reading JSON with `jq`"
 				color="var(--color-primary)"
 			/>
 
@@ -265,12 +268,15 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 			</p>
 
 			<Callout type="tip">
-				<strong>If jq says "parse error", look at the raw reply.</strong> It means one thing only:
-				jq tried to read what arrived as JSON, and the bytes weren't JSON. Nine times out of ten
-				what arrived is an HTML error page — the tag-based format web pages are written in, so
-				you'll see angle brackets, a leading <Code code="<!doctype html>" /> and no braces anywhere. The
-				real problem is upstream: a wrong URL, or a dead server. Drop the <Code code="| jq" /> and read
-				what actually arrived, the same build-the-pipeline-one-stage-at-a-time habit from
+				<strong
+					>If <Code code="jq" /> says <Code code="parse error" />, look at the raw reply.</strong
+				>
+				It means one thing only:
+				<Code code="jq" /> tried to read what arrived as JSON, and the bytes weren't JSON. Nine times
+				out of ten what arrived is an HTML error page — the tag-based format web pages are written in,
+				so you'll see angle brackets, a leading <Code code="<!doctype html>" /> and no braces anywhere.
+				The real problem is upstream: a wrong URL, or a dead server. Drop the <Code code="| jq" /> and
+				read what actually arrived, the same build-the-pipeline-one-stage-at-a-time habit from
 				<CourseLink to="part-4" />.
 			</Callout>
 
@@ -359,12 +365,11 @@ echo ".env" >> .gitignore               # and never commit it`}
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The quotes change style mid-block on purpose. Single quotes are fully literal, which is what
 				you want when writing the key into a file; double quotes still expand
-				<Code code="$API_KEY" />, which is what you want when handing its value to curl. That's the
-				rule from <CourseLink to="section-2-2" />, and getting it backwards sends the server the
-				eight characters <Code code="$API_KEY" /> instead of the key. <Code code="source" /> is what makes
-				the variable available to that curl at all, for the reason in <CourseLink
-					to="section-5-5"
-				/>.
+				<Code code="$API_KEY" />, which is what you want when handing its value to
+				<Code code="curl" />. That's the rule from <CourseLink to="section-2-2" />, and getting it
+				backwards sends the server the eight characters <Code code="$API_KEY" /> instead of the key.
+				<Code code="source" /> is what makes the variable available to that <Code code="curl" /> at all,
+				for the reason in <CourseLink to="section-5-5" />.
 			</p>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -376,7 +381,8 @@ echo ".env" >> .gitignore               # and never commit it`}
 			</p>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				One catch before you lean on that last line: a <Code code=".gitignore" /> entry stops git
+				One catch before you lean on that last line: a <Code code=".gitignore" /> entry stops
+				<Code code="git" />
 				<em>starting</em> to track a file and does nothing at all for one it already tracks — which is
 				exactly where you are if the key is already committed. Then the only fix is to revoke and reissue
 				the key, which you do on the provider's website rather than in the terminal. It works because
@@ -386,7 +392,8 @@ echo ".env" >> .gitignore               # and never commit it`}
 			<Callout type="tip">
 				<strong>Agents leak keys by accident.</strong> An assistant that can read your files can
 				read your <Code code=".env" />, and one that writes code may inline a key it found "to make
-				the example runnable." When you review agent-written code, grep for the shape of a key —
+				the example runnable." When you review agent-written code, <Code code="grep" /> for the shape
+				of a key —
 				<Code code="grep -rn 'sk-' ." /> — before you commit anything.
 			</Callout>
 
@@ -461,8 +468,8 @@ vibe@laptop:~$`}
 				onto the server, where it acts as a lock anyone may see; the <em>private</em> half,
 				<Code code="id_ed25519" />, never leaves your machine. "Goes onto the server" is a concrete
 				act: that public half gets appended to <Code code="~/.ssh/authorized_keys" /> on the far side.
-				Same rule as 9.4, in a different costume: the secret stays in a file, on your computer, with tight
-				permissions.
+				Same rule as <CourseLink to="section-9-4" />, in a different costume: the secret stays in a
+				file, on your computer, with tight permissions.
 			</p>
 
 			<Callout type="tip">

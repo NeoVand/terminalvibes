@@ -105,7 +105,9 @@ function stripBracketed(s, open, close) {
 }
 
 function headingText(inner) {
-	return decode(stripBracketed(stripBracketed(inner, '<', '>'), '{', '}'));
+	// Backticks are display markup (SectionHeader renders `…` segments as
+	// highlighted code); the manifest carries plain text, so drop them.
+	return decode(stripBracketed(stripBracketed(inner, '<', '>'), '{', '}')).replaceAll('`', '');
 }
 
 const items = [];
@@ -151,7 +153,9 @@ for (const file of files) {
 	// take whichever comes first inside the anchor's span.
 	const titles = [
 		...[...scan.matchAll(/<SectionHeader\b[^>]*?\btitle="([^"]*)"/g)].map((m) => ({
-			text: decode(m[1]),
+			// Backticks are display markup (SectionHeader renders `…` segments
+			// as highlighted code); the manifest carries plain text.
+			text: decode(m[1]).replaceAll('`', ''),
 			at: m.index
 		})),
 		...[...scan.matchAll(/<(h[2-4])\b[^>]*>([\s\S]*?)<\/\1>/g)]

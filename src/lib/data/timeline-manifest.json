@@ -389,7 +389,7 @@
 	{
 		"id": "section-5-1",
 		"kind": "section",
-		"title": "5.1 Reading `ls -l` — The 10-Character Rulebook",
+		"title": "5.1 Reading ls -l — The 10-Character Rulebook",
 		"image": "reading-ls-l.webp",
 		"thumb": "section-5-1",
 		"inherited": false,

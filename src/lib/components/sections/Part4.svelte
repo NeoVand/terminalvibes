@@ -200,12 +200,12 @@ ls: missing/: No such file or directory`}
 			<CodeBlock
 				title="Your first pipes"
 				code={`ls ~/Downloads | wc -l        # How many things are in Downloads?
-        47
+47
 
 history | tail -5             # The last 5 commands you ran
 
 cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
-        12`}
+12`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -273,7 +273,7 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 			<SectionHeader
 				level="section"
 				icon={Search}
-				title="4.3 Searching Text — grep"
+				title="4.3 Searching Text — `grep`"
 				color="var(--color-primary)"
 			/>
 
@@ -309,7 +309,7 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 			</p>
 
 			<CodeBlock
-				title="grep basics"
+				title="`grep` basics"
 				code={`grep "ERROR" server.log          # Lines containing ERROR
 2026-07-11 14:02:11 ERROR db connection refused
 2026-07-11 14:02:15 ERROR retry limit reached
@@ -387,7 +387,7 @@ src/utils.js:3: // TODO: remove this hack`}
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Five flags cover 95% of real-world grep:
+				Five flags cover 95% of real-world <Code code="grep" />:
 			</p>
 
 			<div class="mb-4 grid gap-3 sm:grid-cols-2">
@@ -466,7 +466,7 @@ src/utils.js:3: // TODO: remove this hack`}
 			</p>
 
 			<CodeBlock
-				title="grep as a pipeline filter"
+				title="`grep` as a pipeline filter"
 				code={`history | grep "cd"              # Every cd you've ever run
 tail -50 server.log | grep -i "error"   # Only recent errors
 grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
@@ -505,7 +505,7 @@ grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
 			<SectionHeader
 				level="section"
 				icon={ListOrdered}
-				title="4.4 Counting &amp; Shaping — wc, sort, uniq, cut"
+				title="4.4 Counting &amp; Shaping — `wc`, `sort`, `uniq`, `cut`"
 				color="var(--color-primary)"
 			/>
 
@@ -527,7 +527,7 @@ grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
 			<CodeBlock
 				title="The cast, one line each"
 				code={`wc -l server.log        # Count lines (-w words, -c bytes)
-     843 server.log
+843 server.log
 
 sort names.txt          # Alphabetical order (-n numeric, -r reversed)
 
@@ -556,12 +556,13 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			</p>
 
 			<Callout type="warning">
-				<strong>The uniq gotcha:</strong>
+				<strong>The <Code code="uniq" /> gotcha:</strong>
 				<Code code="uniq" />
 				only collapses duplicates that are <em>next to each other</em>. Given
 				<Code code="a b a" />, it removes nothing. That's why it practically always appears as
 				<Code code="sort | uniq" />
-				— sort herds the duplicates together first, then uniq collapses them.
+				— <Code code="sort" /> herds the duplicates together first, then <Code code="uniq" /> collapses
+				them.
 			</Callout>
 
 			<h4
@@ -693,7 +694,7 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			<SectionHeader
 				level="section"
 				icon={FileSearch}
-				title="4.5 Finding Files — find"
+				title="4.5 Finding Files — `find`"
 				color="var(--color-primary)"
 			/>
 
@@ -714,7 +715,7 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			</div>
 
 			<CodeBlock
-				title="find essentials"
+				title="`find` essentials"
 				code={`find . -name '*.md'            # Every Markdown file below here
 ./README.md
 ./docs/setup.md
@@ -732,10 +733,14 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				<Code code="*.md" />. Remember <CourseLink to="part-3" />: the <em>shell</em> expands
 				wildcards before the command ever runs. Unquoted,
 				<Code code="*.md" />
-				becomes a list of the Markdown files in your <em>current</em> folder — and find receives
-				that list instead of the pattern, searching for the wrong thing entirely. Single quotes are
-				the fully literal kind, so the pattern reaches find intact and gets applied at every level
-				of the tree — the rule for both kinds of quote is in <CourseLink to="section-2-2" />.
+				becomes a list of the Markdown files in your <em>current</em> folder — and <Code
+					code="find"
+				/>
+				receives that list instead of the pattern, searching for the wrong thing entirely. Single quotes
+				are the fully literal kind, so the pattern reaches <Code code="find" /> intact and gets applied
+				at every level of the tree — the rule for both kinds of quote is in <CourseLink
+					to="section-2-2"
+				/>.
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -749,7 +754,7 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 						style="color: var(--color-note);"
 					>
 						<FileSearch size={14} />
-						<span>find — searches <em>filenames</em></span>
+						<span><Code code="find" /> — searches <em>filenames</em></span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						"Where are the files called <Code code="*.md" />?" It never opens a file; it only looks
@@ -762,7 +767,7 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 						style="color: var(--color-important);"
 					>
 						<TextSearch size={14} />
-						<span>grep — searches <em>contents</em></span>
+						<span><Code code="grep" /> — searches <em>contents</em></span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						"Which lines contain <Code code="TODO" />?" It reads inside files but doesn't care what
@@ -772,11 +777,12 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 			</div>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				And naturally, they compose. Find the files by name, then grep inside exactly those:
+				And naturally, they compose. Find the files by name, then <Code code="grep" /> inside exactly
+				those:
 			</p>
 
 			<CodeBlock
-				title="find + grep, together"
+				title="`find` + `grep`, together"
 				code={`find . -name '*.js' | xargs grep -n "TODO"
 ./src/app.js:14:  // TODO: handle empty cart
 ./src/utils.js:3: // TODO: remove this hack
@@ -826,8 +832,8 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				Notice what all of these have in common: they <em>find</em> and <em>count</em> — none of
 				them changes a single character. That's deliberate, and it's why they're safe to experiment
 				with. When you're ready to make text
-				<em>different</em> — swap a word across a file, drop every DEBUG line, pull one column out
-				of a table — that's <Code code="sed" /> and <Code code="awk" />, waiting in <CourseLink
+				<em>different</em> — swap a word across a file, drop every <Code code="DEBUG" /> line, pull one
+				column out of a table — that's <Code code="sed" /> and <Code code="awk" />, waiting in <CourseLink
 					to="part-7"
 				/>.
 			</p>

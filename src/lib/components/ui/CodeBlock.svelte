@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Copy, Check, Terminal } from 'lucide-svelte';
-	import { tokenizeCodeBlock } from '$lib/data/bash-syntax';
+	import { tokenizeCodeBlock, tokenizeShellCommand } from '$lib/data/bash-syntax';
 
 	let {
 		code,
@@ -24,6 +24,10 @@
 
 	// A raw newline in the <pre> template would render its indentation too
 	const NEWLINE = '\n';
+
+	// A title may name a command in `backticks`; those segments render as
+	// highlighted code, the same way SectionHeader titles do.
+	let titleParts = $derived((title || lang).split('`'));
 
 	let copied = $state(false);
 
@@ -49,7 +53,13 @@
 			style="color: var(--color-text-muted);"
 		>
 			<Terminal size={13} strokeWidth={2} />
-			{title || lang}
+			<span
+				>{#each titleParts as part, i (i)}{#if i % 2 === 1}<code class="cb-code"
+							>{#each tokenizeShellCommand(part) as t, j (j)}<span class="tok tok-{t.type}"
+									>{t.text}</span
+								>{/each}</code
+						>{:else}{part}{/if}{/each}</span
+			>
 		</span>
 		<button
 			onclick={copyCode}
@@ -76,3 +86,13 @@
 					>{/each}{/each}</code
 		></pre>
 </div>
+
+<style>
+	.cb-code {
+		font-family: var(--font-mono);
+		font-size: 0.95em;
+		background: var(--color-code-bg);
+		border-radius: 0.25rem;
+		padding: 0.05em 0.32em;
+	}
+</style>

@@ -103,7 +103,7 @@
 			<Callout type="note">
 				<strong>The scenario:</strong> Your AI assistant says "run
 				<Code code="npm install" /> in the project folder." Node is the program that runs JavaScript outside
-				a browser, and npm is how a Node project fetches its
+				a browser, and <Code code="npm" /> is how a Node project fetches its
 				<strong>dependencies</strong> — the code other people wrote that it leans on rather than
 				rewriting. All of it lands in a <Code code="node_modules" /> folder, routinely hundreds of megabytes
 				of it. Which folder is your terminal actually in right now?
@@ -144,7 +144,7 @@
 						style="color: var(--color-tip);"
 					>
 						<MapPin size={14} />
-						pwd
+						<Code code="pwd" />
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						"Where am I?" — prints the full path of your working directory. Instant, harmless, run
@@ -157,7 +157,7 @@
 						style="color: var(--color-tip);"
 					>
 						<List size={14} />
-						ls
+						<Code code="ls" />
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						"What's here?" — lists the files and folders in the current directory (or any path you
@@ -170,7 +170,7 @@
 						style="color: var(--color-tip);"
 					>
 						<Rows3 size={14} />
-						ls -l
+						<Code code="ls -l" />
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						"Tell me more" — one file per line with sizes, dates, and permissions: who's allowed to
@@ -212,7 +212,7 @@
 			</Callout>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				A First Peek at ls -l
+				A First Peek at <Code code="ls -l" />
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -380,26 +380,22 @@ cat projects/app/README.md`}
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-4 py-2"><Code code="/" /></td>
 							<td class="px-4 py-2">The root — the very top of the tree</td>
-							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);">/etc/hosts</td>
+							<td class="px-4 py-2 text-xs"><Code code="/etc/hosts" /></td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-4 py-2"><Code code="~" /></td>
 							<td class="px-4 py-2">Your home directory (here, /home/vibe)</td>
-							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
-								>~/projects/app</td
-							>
+							<td class="px-4 py-2 text-xs"><Code code="~/projects/app" /></td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-4 py-2"><Code code="." /></td>
 							<td class="px-4 py-2">The current directory — "right here"</td>
-							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);">./script.sh</td>
+							<td class="px-4 py-2 text-xs"><Code code="./script.sh" /></td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-4 py-2"><Code code=".." /></td>
 							<td class="px-4 py-2">The parent directory — one level up</td>
-							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
-								>../other-project</td
-							>
+							<td class="px-4 py-2 text-xs"><Code code="../other-project" /></td>
 						</tr>
 					</tbody>
 				</table>
@@ -593,8 +589,9 @@ cd -              # Bounce back to wherever you just were`}
 			</div>
 
 			<Callout type="note">
-				<strong>The scenario:</strong> The AI proposes a project layout — "create a src folder with a
-				components subfolder, plus a README." You could click through a file manager… or type one line.
+				<strong>The scenario:</strong> The AI proposes a project layout — "create a
+				<Code code="src" /> folder with a <Code code="components" /> subfolder, plus a README." You could
+				click through a file manager… or type one line.
 			</Callout>
 
 			<CodeBlock
@@ -687,7 +684,7 @@ ls -R my-app   # -R walks into every folder inside, and those folders' folders t
 			</Callout>
 
 			<CodeBlock
-				title="cat — dump the whole file to the screen"
+				title="`cat` — dump the whole file to the screen"
 				code={`cat config.yaml
 # port: 8080
 # debug: false
@@ -723,7 +720,7 @@ ls -R my-app   # -R walks into every folder inside, and those folders' folders t
 			</p>
 
 			<CodeBlock
-				title="less — read at your own pace"
+				title="`less` — read at your own pace"
 				code={`less server.log
 # Opens a full-screen reader:
 #   space / b     page down / up
@@ -772,7 +769,7 @@ Ctrl+C       # chord — a running command, or a line you typed but haven't run`
 			</p>
 
 			<CodeBlock
-				title="head and tail — just the edges"
+				title="`head` and `tail` — just the edges"
 				code={`head server.log        # First 10 lines
 head -n 3 server.log   # First 3 lines
 tail server.log        # Last 10 lines — where the newest log entries live
@@ -790,10 +787,10 @@ tail -n 20 server.log  # Last 20`}
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
 						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text); font-family: var(--font-mono);"
+						style="color: var(--color-text);"
 					>
 						<FileText size={14} style="color: var(--color-primary);" />
-						cat
+						<Code code="cat" />
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Short files. Whole thing, instantly.
@@ -802,10 +799,10 @@ tail -n 20 server.log  # Last 20`}
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
 						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text); font-family: var(--font-mono);"
+						style="color: var(--color-text);"
 					>
 						<BookOpen size={14} style="color: var(--color-primary);" />
-						less
+						<Code code="less" />
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Long files. Scroll, search, q to quit.
@@ -814,10 +811,10 @@ tail -n 20 server.log  # Last 20`}
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
 						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text); font-family: var(--font-mono);"
+						style="color: var(--color-text);"
 					>
 						<ArrowUpToLine size={14} style="color: var(--color-primary);" />
-						head
+						<Code code="head" />
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						The beginning. Headers, first impressions.
@@ -826,10 +823,10 @@ tail -n 20 server.log  # Last 20`}
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 					<p
 						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text); font-family: var(--font-mono);"
+						style="color: var(--color-text);"
 					>
 						<ArrowDownToLine size={14} style="color: var(--color-primary);" />
-						tail
+						<Code code="tail" />
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						The end. Fresh log lines, latest entries.

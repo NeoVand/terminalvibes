@@ -91,7 +91,7 @@
 			</p>
 
 			<CodeBlock
-				title="The two shapes of cp"
+				title="The two shapes of `cp`"
 				code={`# Destination is a new name: copy + rename in one step
 cp config.yaml config.yaml.bak
 
@@ -108,12 +108,12 @@ cp config.yaml backups/`}
 			</Callout>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				Copying Folders Needs -r
+				Copying Folders Needs <Code code="-r" />
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Ask <Code code="cp" /> to copy a directory and it declines — a folder can contain thousands of
-				files, and cp wants you to say you mean it:
+				files, and <Code code="cp" /> wants you to say you mean it:
 			</p>
 
 			<CodeBlock
@@ -125,15 +125,17 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 			/>
 
 			<Callout type="warning">
-				<strong>cp overwrites silently.</strong> If the destination file already exists, cp replaces
-				it — no question asked, old contents gone. While you're learning, add
+				<strong><Code code="cp" /> overwrites silently.</strong> If the destination file already
+				exists, <Code code="cp" /> replaces it — no question asked, old contents gone. While you're learning,
+				add
 				<Code code="-i" />
 				("interactive"):
 				<Code code="cp -i config.yaml backups/" />
 				stops and asks
 				<Code code="overwrite?" />
 				before clobbering anything — type <Code code="y" /> or <Code code="n" /> and press Enter, and
-				a bare Enter counts as no. That <Code code="-i" /> belongs to cp, though, not to the terminal:
+				a bare Enter counts as no. That <Code code="-i" /> belongs to <Code code="cp" />, though,
+				not to the terminal:
 				<Code code="sed" /> takes the same letter and means something far sharper by it (<CourseLink
 					to="section-7-3"
 				/>). This same silent-overwrite rule returns with
@@ -185,7 +187,7 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 			</p>
 
 			<CodeBlock
-				title="mv — rename or relocate"
+				title="`mv` — rename or relocate"
 				code={`# Destination is a new name: RENAME
 mv untitled.py main.py
 
@@ -212,15 +214,16 @@ mv draft.md docs/chapter-1.md`}
 				<Code code="-r" />
 				(on the same disk it just relabels the folder's address — instant, even for gigabytes), and since
 				nothing is duplicated, there's no copy lying around to get stale. Move to a
-				<em>different</em> disk, though — an external drive, a USB stick — and mv quietly becomes a full
-				copy followed by a delete: slow, and interruptible halfway through.
+				<em>different</em> disk, though — an external drive, a USB stick — and <Code code="mv" /> quietly
+				becomes a full copy followed by a delete: slow, and interruptible halfway through.
 			</p>
 
 			<Callout type="warning">
 				<strong>The overwrite danger, part two.</strong> If the destination name already exists,
 				<Code code="mv" />
-				replaces it silently — and unlike cp, you lose <em>both</em> versions of the story: the
-				destination's old contents are gone, and the source no longer exists under its old name.
+				replaces it silently — and unlike <Code code="cp" />, you lose <em>both</em> versions of the
+				story: the destination's old contents are gone, and the source no longer exists under its
+				old name.
 				<Code code="mv notes.txt ideas.txt" />
 				when
 				<Code code="ideas.txt" />
@@ -276,7 +279,7 @@ mv draft.md docs/chapter-1.md`}
 			</Callout>
 
 			<CodeBlock
-				title="The rm family"
+				title="The `rm` family"
 				code={`rm old-notes.txt        # Delete one file. Permanently.
 rm draft1.md draft2.md  # Delete several
 rmdir empty-folder      # Delete a folder — only works if it's EMPTY
@@ -302,7 +305,7 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 						style="color: var(--color-caution);"
 					>
 						<ShieldOff size={14} />
-						rm -rf — no questions
+						<Code code="rm -rf" /> — no questions
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
 						Recursive and forced: nothing slows it down, nothing asks "are you sure?"
@@ -348,7 +351,7 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 			</p>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The Ritual: ls First, Then rm
+				The Ritual: <Code code="ls" /> First, Then <Code code="rm" />
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -404,7 +407,8 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 				and
 				<Code code="cat" />, make folders, sort keepers into them with
 				<Code code="mv" />, and
-				<Code code="rm" /> the junk — practicing the ls-first ritual where deletion can't hurt you.
+				<Code code="rm" /> the junk — practicing the <Code code="ls" />-first ritual where deletion
+				can't hurt you.
 			</PlaygroundNote>
 			<LessonActivity title="Clean the Downloads Mess" scenarioId="tidy-up" id="tidy-up" />
 
@@ -427,8 +431,9 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Everything so far has operated on files one name at a time. Wildcards — also called
-				<strong>globs</strong> — let one pattern stand for many names: "every .log file," "all the photos
-				from January." This is where selecting files by hand in a file manager starts to feel slow.
+				<strong>globs</strong> — let one pattern stand for many names: "every <Code code=".log" /> file,"
+				"all the photos from January." This is where selecting files by hand in a file manager starts
+				to feel slow.
 			</p>
 
 			<div class="my-6">
@@ -464,22 +469,26 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-4 py-2"><Code code="*" /></td>
 							<td class="px-4 py-2">Any run of characters (including none)</td>
-							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
-								>*.log → app.log, errors.log</td
+							<td class="px-4 py-2 text-xs"
+								><Code code="*.log" /> → <Code code="app.log" />, <Code code="errors.log" /></td
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-4 py-2"><Code code="?" /></td>
 							<td class="px-4 py-2">Exactly one character</td>
-							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
-								>page?.html → page1.html, not page12.html</td
+							<td class="px-4 py-2 text-xs"
+								><Code code="page?.html" /> → <Code code="page1.html" />, not <Code
+									code="page12.html"
+								/></td
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-4 py-2"><Code code="[abc]" /></td>
 							<td class="px-4 py-2">One character from the set (ranges like [0-9] work too)</td>
-							<td class="px-4 py-2 text-xs" style="font-family: var(--font-mono);"
-								>report-[12].txt → report-1.txt, report-2.txt</td
+							<td class="px-4 py-2 text-xs"
+								><Code code="report-[12].txt" /> → <Code code="report-1.txt" />, <Code
+									code="report-2.txt"
+								/></td
 							>
 						</tr>
 					</tbody>
@@ -509,13 +518,14 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 				Two consequences follow directly. First, what a glob matches depends entirely on
 				<strong>where you are</strong> — the same
 				<Code code="*.tmp" />
-				is three files in one folder and three hundred in another (this is the wildcard half of the rm
-				-rf disaster from 3.3). Second, since expansion happens before <em>any</em> command runs, you
-				can ask a harmless command to show you the expansion:
+				is three files in one folder and three hundred in another (this is the wildcard half of the
+				<Code code="rm -rf" /> disaster from <CourseLink to="section-3-3" />). Second, since
+				expansion happens before <em>any</em> command runs, you can ask a harmless command to show you
+				the expansion:
 			</p>
 
 			<CodeBlock
-				title="The habit: echo the glob first"
+				title="The habit: `echo` the glob first"
 				code={`echo *.tmp
 # cache1.tmp cache2.tmp scratch.tmp    <- exactly what rm would receive
 
@@ -539,7 +549,7 @@ rm *.tmp                               # Now you KNOW what this deletes`}
 			</p>
 
 			<CodeBlock
-				title="Wildcards with cp, mv, ls"
+				title="Wildcards with `cp`, `mv`, `ls`"
 				code={`cp *.md drafts/           # Copy every Markdown file into drafts/
 mv photo-0?.jpg january/  # Move photo-01.jpg through photo-09.jpg
 ls report-[12].txt        # List just report-1.txt and report-2.txt
@@ -559,8 +569,9 @@ ls src/*.js               # Globs work inside a path too — but only one folder
 				Two classic surprises: <Code code="*" />
 				does <strong>not</strong> match hidden dotfiles (a small mercy —
 				<Code code="rm *" />
-				spares your .env), and a pattern that matches <em>nothing</em> is passed to the command
-				literally, star and all — which is why a typo'd glob often produces the baffling error
+				spares your <Code code=".env" />), and a pattern that matches <em>nothing</em> is passed to
+				the command literally, star and all — which is why a typo'd glob often produces the baffling
+				error
 				<Code code="cannot access '*.tpm'" />. Both surprises are caught instantly by the echo
 				habit.
 			</Callout>
