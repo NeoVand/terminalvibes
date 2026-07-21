@@ -122,7 +122,7 @@ test.describe('Thread rail', () => {
 		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
 	});
 
-	test('a click dismisses the card and takes the lens with it', async ({ page }) => {
+	test('a click navigates but leaves the card to the hover', async ({ page }) => {
 		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
@@ -131,19 +131,20 @@ test.describe('Thread rail', () => {
 		await page.mouse.move(rect.x + rect.width * 0.62, rect.y + 24);
 		await expect(page.locator('.tt-card.is-on')).toBeVisible();
 
-		// Click WITHOUT moving the pointer afterwards. `onBlur` early-returns while
-		// `hovering` is true, so if the click handler does not dismiss explicitly
-		// the card hangs there until some unrelated pointerleave fires — which is
-		// exactly the bug this pins: "it gets stuck until I click outside".
+		// Click without moving the pointer. The click ONLY navigates — the card
+		// belongs to the hover, so it must still be there afterwards. Dismissing
+		// it on click was the reported "the moment I click, the banner disappears,
+		// which is weird".
 		await page.mouse.down();
 		await page.mouse.up();
-
-		await expect(page.locator('.tt-card.is-on')).toHaveCount(0);
-
-		// …and the reading head follows the page to where the click sent it,
-		// rather than staying where the hand happened to be.
 		await expect(page).toHaveURL(/#(section|part)-/, { timeout: 5000 });
 		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+		await expect(page.locator('.tt-card.is-on')).toBeVisible();
+
+		// It is the HOVER ending that dismisses it — "the moment the hover is
+		// done, that's the right time for the banner to disappear".
+		await page.mouse.move(rect.x + rect.width / 2, rect.y + 300);
+		await expect(page.locator('.tt-card.is-on')).toHaveCount(0);
 	});
 
 	test('is fully operable from the keyboard', async ({ page }) => {
@@ -178,7 +179,7 @@ test.describe('Thread rail', () => {
 		const railBefore = (await rail.boundingBox())!.width;
 		const boxBefore = (await box.boundingBox())!.width;
 
-		const search = page.getByPlaceholder('Search commands...');
+		const search = page.getByPlaceholder('Search');
 		await search.focus();
 		await search.fill('grep');
 
@@ -236,7 +237,7 @@ test.describe('Thread rail', () => {
 		// eye is tracking.
 		const searchBox = page.locator('.search-box');
 		const boxWas = await settledWidth(searchBox);
-		await page.getByPlaceholder('Search commands...').focus();
+		await page.getByPlaceholder('Search').focus();
 		// Same conservation rule as above, derived rather than pinned: the rail
 		// loses exactly what the box gains.
 		const boxNow = await settledWidth(searchBox);

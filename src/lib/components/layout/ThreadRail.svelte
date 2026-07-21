@@ -1018,29 +1018,22 @@
 	}
 
 	function jump(id: string) {
-		/* Dismiss FIRST, and hand the lens back to rest.
+		/* Navigate, and NOTHING ELSE. The card and the lens belong to the hover,
+		   not to the click.
 
-		   `jump` used to do nothing but call `onNavigate`. The card stayed open,
-		   `mode` stayed 'pointer' with the lens pinned wherever the cursor had
-		   been, and neither followed the page to the section just navigated to —
-		   so after a click the preview hung there, stuck, until some later
-		   pointerleave or blur happened to fire. That is the reported "it gets
-		   stuck until I click outside".
+		   An earlier version dismissed the card and forced the lens back to rest
+		   here. It was meant to fix a "stuck card" report, but it fixed the wrong
+		   thing and created a worse feel: the banner vanished the instant you
+		   clicked, and the forced rest-tween raced the reading head as the page
+		   scrolled — the head appeared to sweep forward and flood the bars behind
+		   it green, as if you had read a chapter you had only jumped to.
 
-		   Blurring is not enough on its own: `onBlur` early-returns while
-		   `hovering` is true, and after a click the pointer is of course still
-		   over the rail. So the dismissal has to be explicit here.
-
-		   Returning to 'rest' does more than tidy up. The resting lens tracks
-		   `position`, which the page's scroll-spy is ALREADY updating as the jump
-		   scrolls — so the lens glides to the section the reader just chose
-		   instead of staying where their hand happened to be. The rail follows
-		   the click, which is what "the timeline switches to that part" means. */
-		open = false;
-		applyCursor(null, false);
-		mode = 'rest';
-		startTween(TUNE.leaveMs);
-
+		   The lifecycle is simpler than that. A click is a click: it scrolls the
+		   page (below). The card stays because the pointer is still on the mark —
+		   and the moment the hand leaves the rail, `onPointerLeave` dismisses it
+		   and glides the lens home, which is the one place that cleanup belongs.
+		   The reading head just follows `position` as the page scrolls, one
+		   motion instead of two. */
 		const ci = chIndex(id);
 		// The rail's cursor id for a challenge is the synthetic `ch:<n>`, which
 		// is not an anchor. `chJump` holds the real destination — the card's own
@@ -1113,7 +1106,15 @@
 
 	function onPointerLeave() {
 		hovering = false;
-		if (document.activeElement === host) {
+		// `:focus-visible`, NOT `document.activeElement === host`. A CLICK on the
+		// rail focuses it too — so with the old test, moving the pointer off after
+		// a click took this keyboard branch, which early-returns before `open =
+		// false` (the card lingered) and threw the lens into key mode at the wrong
+		// place (the "focus jumps to the beginning" report). focus-visible is the
+		// browser's own keyboard-vs-pointer signal: false after a mouse click,
+		// true only when the rail is genuinely being driven by the keyboard, which
+		// is exactly when the lens should stay put.
+		if (host.matches(':focus-visible')) {
 			// Keyboard still owns the rail: hand the lens back to the keyboard
 			// cursor, or home if no item has been selected yet.
 			mode = 'key';

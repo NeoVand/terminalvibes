@@ -35,15 +35,23 @@
 			content="The Terminal for Vibe Coders — read, verify, and run shell commands with confidence"
 		/>
 		<script>
-			// Apply the stored theme before first paint to avoid a flash of the
-			// wrong theme. Mirrors $lib/theme.ts applyTheme.
+			// Apply the theme before first paint to avoid a flash of the wrong one.
+			// Mirrors $lib/theme.ts (loadThemePreference + applyTheme), and MUST stay
+			// in step with it: dark is the default. Absent a stored value we stamp
+			// `dark` explicitly rather than leaving it to the prefers-color-scheme
+			// media query — which would otherwise show light on a light-mode OS for
+			// the moment before hydration corrects it. `light` and `system` still
+			// come only from an explicit choice; `system` adds no class and lets the
+			// media query decide, which is what the reader asked for by picking it.
 			try {
 				const theme = localStorage.getItem('terminalvibes-theme');
 				if (theme === 'light' || theme === 'dark') {
 					document.documentElement.classList.add(theme);
+				} else if (theme !== 'system') {
+					document.documentElement.classList.add('dark');
 				}
 			} catch {
-				/* storage unavailable — system theme applies */
+				document.documentElement.classList.add('dark');
 			}
 		</script>
 		%sveltekit.head%

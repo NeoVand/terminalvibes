@@ -587,6 +587,25 @@ export function layoutMarks(
 		m.stemH = g.stemH;
 	}
 
+	// De-clutter the playground lane. Two anchors sit close enough in the
+	// document to overlap on the rail — `first-script`/`script-args` in 6.1 and
+	// `capstone`/`midnight-deploy` in 14.3 — so their diamonds collide into one
+	// smudge at rest. Push overlapping neighbours apart in SCREEN space with a
+	// single left-to-right pass: it is O(n), continuous in the lens (the shift
+	// is `max(0, minGap − naturalGap)`, so nothing snaps as you sweep), and the
+	// nudge is a couple of px — far inside `pgGrabPx`, and `pick()` reads the
+	// true document position, so the hit test still lands on the right one. Draw
+	// only; the manifest offset that navigation and heat use is untouched.
+	for (let i = 1; i < out.pgs.length; i++) {
+		const prev = out.pgs[i - 1];
+		const cur = out.pgs[i];
+		const minGap = (prev.size + cur.size) / 2 + 1.5;
+		if (cur.cx - prev.cx < minGap) {
+			cur.cx = prev.cx + minGap;
+			cur.x = cur.cx - cur.size / 2;
+		}
+	}
+
 	return out;
 }
 
