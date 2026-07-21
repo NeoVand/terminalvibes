@@ -2,16 +2,29 @@
 	import { onMount } from 'svelte';
 	import { RotateCcw } from 'lucide-svelte';
 	import type { LessonScenarioId } from '$lib/playground/scenarios';
+	import { activityKindOf, type ActivityKind } from '$lib/data/sidebar-nav';
 
 	let {
 		title,
 		scenarioId,
-		id
+		id,
+		kind
 	}: {
 		title: string;
 		scenarioId: LessonScenarioId;
 		id: string;
+		/** Omit and the anchor id decides — `ch-N-…` is a challenge. */
+		kind?: ActivityKind;
 	} = $props();
+
+	/* The card's chrome follows its type, so a challenge is earth-red from the
+	   header rule down to the icon in the brief rather than wearing the
+	   playground's accent around a challenge-coloured interior. One custom
+	   property carries it; the rules below never name a token directly. */
+	const activityKind = $derived<ActivityKind>(kind ?? activityKindOf(id));
+	const accent = $derived(
+		activityKind === 'challenge' ? 'var(--color-challenge)' : 'var(--color-important)'
+	);
 
 	let retryKey = $state(0);
 	let resetFn = $state<(() => void) | null>(null);
@@ -41,9 +54,15 @@
 	});
 </script>
 
-<div class="my-6" data-lesson-activity={id} bind:this={rootEl}>
+<div
+	class="my-6"
+	data-lesson-activity={id}
+	data-activity-kind={activityKind}
+	style="--activity-accent: {accent};"
+	bind:this={rootEl}
+>
 	<div class="activity-header">
-		<span class="text-sm font-semibold" style="color: var(--color-important);">{title}</span>
+		<span class="text-sm font-semibold" style="color: var(--activity-accent);">{title}</span>
 		<button
 			type="button"
 			onclick={() => resetFn?.()}
@@ -81,6 +100,7 @@
 							embedded
 							hideHeader
 							{id}
+							kind={activityKind}
 							showScenarioPicker={false}
 							onResetReady={(fn) => (resetFn = fn)}
 						/>
@@ -111,7 +131,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.625rem 1.25rem;
-		border: 1px solid color-mix(in srgb, var(--color-important) 55%, var(--color-border));
+		border: 1px solid color-mix(in srgb, var(--activity-accent) 55%, var(--color-border));
 		border-bottom: none;
 		border-radius: 0.75rem 0.75rem 0 0;
 		background: transparent;
@@ -120,7 +140,7 @@
 	.activity-panel {
 		overflow: hidden;
 		border-radius: 0 0 0.75rem 0.75rem;
-		border: 1px solid color-mix(in srgb, var(--color-important) 55%, var(--color-border));
+		border: 1px solid color-mix(in srgb, var(--activity-accent) 55%, var(--color-border));
 		border-top: none;
 	}
 

@@ -54,6 +54,7 @@ import {
 	SplitSquareHorizontal,
 	Sprout,
 	Table,
+	Target,
 	Terminal,
 	Trash2,
 	Trophy,
@@ -68,11 +69,61 @@ export interface NavItem {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	icon: any;
 	isPlayground?: boolean;
+	/**
+	 * The graded counterpart of a playground — one per Part, always the last
+	 * child. Rendered in the challenge earth-red with `Target`, and, like
+	 * `isPlayground`, in the smaller activity type size.
+	 */
+	isChallenge?: boolean;
+}
+
+/** Both flags mean "an activity, not prose", which is what the row styling keys on. */
+export function isActivity(item: NavItem): boolean {
+	return Boolean(item.isPlayground || item.isChallenge);
+}
+
+/**
+ * The two kinds of hands-on activity. It lives here, next to the flags it
+ * mirrors, so the sidebar row and the activity card name the same two things
+ * from one definition rather than each declaring its own string union.
+ */
+export type ActivityKind = 'playground' | 'challenge';
+
+/**
+ * Challenge anchors are `ch-<part>-<slug>` (see challenges.ts). This is the
+ * fallback for callers that render a card without saying which kind it is —
+ * the explicit `kind` prop always wins, and importing challenges.ts here just
+ * to test membership would pull all fourteen sandbox seeds into the nav
+ * bundle.
+ */
+export function activityKindOf(id: string): ActivityKind {
+	return /^ch-\d+-/.test(id) ? 'challenge' : 'playground';
 }
 
 export interface NavSection extends NavItem {
 	children?: NavItem[];
 }
+
+/* ── the fourteen challenge rows ──────────────────────────────────────────
+   One challenge closes each Part (src/lib/playground/challenges.ts owns the
+   ids and the order), so each is the LAST child of its part-N below, flagged
+   `isChallenge: true` with lucide's `Target`. Row rendering already handles
+   them — see activityColor() in Sidebar.svelte.
+
+   Both ends are wired: every id here is in `challengeAnchorIds`
+   (src/lib/data/sections.ts) and is rendered on the page by a
+   <ChallengeActivity>, which puts the anchor in the DOM. That pairing is what
+   keys.test.ts > "every sidebar target is a real anchor id" exists to protect:
+   `scrollTo` looks the id up with getElementById and silently does nothing
+   when it is absent, so a row without an anchor looks live and goes nowhere —
+   exactly how `section-11-2` outlived a reorder.
+
+   Labels are display copy, not `Challenge.title` verbatim: they must fit the
+   expanded row's text cell (~175px at 12px) and stay unique in this index.
+   Four are deliberately reworded — ch-1 would have collided with the
+   section-11-1 row, ch-8 with ch-3's, and ch-2 and ch-13 were too long to
+   fit. The card headings in the Part components use the same strings, so the
+   TOC and the page agree on what each challenge is called. */
 
 export const sidebarNav: NavSection[] = [
 	{
@@ -95,7 +146,8 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-1-2', label: 'Your First Commands', icon: Sparkles },
 			{ id: 'first-steps', label: 'Say Hello to the Machine', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-1-3', label: 'Getting Help', icon: HelpCircle },
-			{ id: 'help-lookup', label: 'Read the Manual First', icon: Gamepad2, isPlayground: true }
+			{ id: 'help-lookup', label: 'Read the Manual First', icon: Gamepad2, isPlayground: true },
+			{ id: 'ch-1-read-the-flags', label: 'Look It Up First', icon: Target, isChallenge: true }
 		]
 	},
 	{
@@ -105,12 +157,13 @@ export const sidebarNav: NavSection[] = [
 		children: [
 			{ id: 'section-2-1', label: 'Where Am I?', icon: MapPin },
 			{ id: 'section-2-2', label: 'Paths', icon: Route },
+			{ id: 'quoting', label: 'Mind the Gap', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-2-3', label: 'Changing Directories', icon: MoveRight },
 			{ id: 'navigation', label: 'Find the Lost API Key', icon: Gamepad2, isPlayground: true },
-			{ id: 'quoting', label: 'Mind the Gap', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-2-4', label: 'Making Things', icon: FolderPlus },
 			{ id: 'section-2-5', label: 'Looking Inside Files', icon: Eye },
-			{ id: 'workspace-setup', label: 'Build Your Workspace', icon: Gamepad2, isPlayground: true }
+			{ id: 'workspace-setup', label: 'Build Your Workspace', icon: Gamepad2, isPlayground: true },
+			{ id: 'ch-2-scaffold', label: 'Scaffold It From Here', icon: Target, isChallenge: true }
 		]
 	},
 	{
@@ -123,7 +176,13 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-3-3', label: 'Deleting (Carefully)', icon: Trash2 },
 			{ id: 'tidy-up', label: 'Clean the Downloads Mess', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-3-4', label: 'Wildcards', icon: Hash },
-			{ id: 'glob-practice', label: 'Select the Right Files', icon: Gamepad2, isPlayground: true }
+			{ id: 'glob-practice', label: 'Select the Right Files', icon: Gamepad2, isPlayground: true },
+			{
+				id: 'ch-3-after-the-agent',
+				label: 'Clean Up After the Agent',
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	},
 	{
@@ -140,7 +199,13 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'count-lines', label: 'Count Before You Fix', icon: Gamepad2, isPlayground: true },
 			{ id: 'pipeline-practice', label: 'Build a Pipeline', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-4-5', label: 'Finding Files', icon: FileSearch },
-			{ id: 'find-files', label: 'Hunt Down Every TODO', icon: Gamepad2, isPlayground: true }
+			{ id: 'find-files', label: 'Hunt Down Every TODO', icon: Gamepad2, isPlayground: true },
+			{
+				id: 'ch-4-top-visitors',
+				label: 'Who Is Actually Visiting?',
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	},
 	{
@@ -155,7 +220,13 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-5-4', label: 'Environment Variables', icon: AtSign },
 			{ id: 'path-repair', label: 'command not found', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-5-5', label: 'Your Shell Config', icon: FileText },
-			{ id: 'alias-workshop', label: 'Make Your Shortcuts', icon: Gamepad2, isPlayground: true }
+			{ id: 'alias-workshop', label: 'Make Your Shortcuts', icon: Gamepad2, isPlayground: true },
+			{
+				id: 'ch-5-deploy-kit',
+				label: 'Nothing in the Kit Will Run',
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	},
 	{
@@ -167,7 +238,8 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'first-script', label: 'Automate the Backup', icon: Gamepad2, isPlayground: true },
 			{ id: 'script-args', label: 'One Script, Any Folder', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-6-2', label: 'Exit Codes & Chaining', icon: Braces },
-			{ id: 'exit-codes', label: 'Deploy Only on Green', icon: Gamepad2, isPlayground: true }
+			{ id: 'exit-codes', label: 'Deploy Only on Green', icon: Gamepad2, isPlayground: true },
+			{ id: 'ch-6-ship-all-three', label: 'Ship All Three', icon: Target, isChallenge: true }
 		]
 	},
 	{
@@ -182,7 +254,8 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-7-3', label: 'Editing in Place', icon: PenLine },
 			{ id: 'in-place-audit', label: "The Agent's Mass Edit", icon: Gamepad2, isPlayground: true },
 			{ id: 'section-7-4', label: 'Columns & awk', icon: Columns3 },
-			{ id: 'column-pull', label: 'Pull the Column', icon: Gamepad2, isPlayground: true }
+			{ id: 'column-pull', label: 'Pull the Column', icon: Gamepad2, isPlayground: true },
+			{ id: 'ch-7-promote-the-stack', label: 'Promote the Stack', icon: Target, isChallenge: true }
 		]
 	},
 	{
@@ -196,7 +269,13 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-8-3', label: "Who's on Port 3000?", icon: Anchor },
 			{ id: 'free-the-port', label: 'Free Port 3000', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-8-4', label: 'Background & Foreground', icon: Layers },
-			{ id: 'backstage-jobs', label: 'Two Things at Once', icon: Gamepad2, isPlayground: true }
+			{ id: 'backstage-jobs', label: 'Two Things at Once', icon: Gamepad2, isPlayground: true },
+			{
+				id: 'ch-8-agent-cleanup',
+				label: "Clear the Agent's Processes",
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	},
 	{
@@ -211,7 +290,8 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'api-detective', label: 'Question the API', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-9-4', label: 'Keys & Secrets', icon: KeyRound },
 			{ id: 'secret-keeper', label: 'Keep the Key Secret', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-9-5', label: 'A Door to Another Machine', icon: DoorOpen }
+			{ id: 'section-9-5', label: 'A Door to Another Machine', icon: DoorOpen },
+			{ id: 'ch-9-prove-the-release', label: 'Prove the Release', icon: Target, isChallenge: true }
 		]
 	},
 	{
@@ -225,7 +305,13 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'open-the-crate', label: 'Peek, Then Unpack', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-10-3', label: 'Links & Where Things Live', icon: Link2 },
 			{ id: 'section-10-4', label: 'Disk Detective', icon: HardDrive },
-			{ id: 'space-hog', label: 'Find the Space Hog', icon: Gamepad2, isPlayground: true }
+			{ id: 'space-hog', label: 'Find the Space Hog', icon: Gamepad2, isPlayground: true },
+			{
+				id: 'ch-10-handover',
+				label: 'Hand It Over, Not the Bloat',
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	},
 	{
@@ -234,7 +320,13 @@ export const sidebarNav: NavSection[] = [
 		icon: Bot,
 		children: [
 			{ id: 'section-11-1', label: 'Read Before You Run', icon: ShieldAlert },
-			{ id: 'audit-the-agent', label: 'Audit the Agent', icon: Gamepad2, isPlayground: true }
+			{ id: 'audit-the-agent', label: 'Audit the Agent', icon: Gamepad2, isPlayground: true },
+			{
+				id: 'ch-11-approve-the-plan',
+				label: 'Approve the Release Plan',
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	},
 	{
@@ -247,7 +339,8 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-12-2', label: 'History Superpowers', icon: History },
 			{ id: 'history-recall', label: 'Retrace Your Steps', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-12-3', label: 'Terminal in VS Code', icon: Layout },
-			{ id: 'section-12-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal }
+			{ id: 'section-12-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal },
+			{ id: 'ch-12-handover', label: 'Hand Over the Cockpit', icon: Target, isChallenge: true }
 		]
 	},
 	{
@@ -256,7 +349,13 @@ export const sidebarNav: NavSection[] = [
 		icon: Cog,
 		children: [
 			{ id: 'section-13-1', label: 'How the Terminal Works', icon: Wrench },
-			{ id: 'section-13-2', label: 'The Terminal, Evolving', icon: Sprout }
+			{ id: 'section-13-2', label: 'The Terminal, Evolving', icon: Sprout },
+			{
+				id: 'ch-13-exit-codes',
+				label: 'What the Transcript Knows',
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	},
 	{
@@ -268,7 +367,17 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-14-2', label: 'Quick Reference', icon: Table },
 			{ id: 'section-14-3', label: 'Final Challenge', icon: Trophy },
 			{ id: 'capstone', label: 'One Messy Home Folder', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-14-4', label: 'Keep Learning', icon: Library }
+			// Sits between the two capstones on the page, and must be listed here:
+			// the sidebar row is the only route to it, so without one the
+			// "n/35 exercises" counter could never reach 35.
+			{ id: 'midnight-deploy', label: 'The Midnight Deploy', icon: Gamepad2, isPlayground: true },
+			{ id: 'section-14-4', label: 'Keep Learning', icon: Library },
+			{
+				id: 'ch-14-desk-clear',
+				label: 'Clear the Desk for the Demo',
+				icon: Target,
+				isChallenge: true
+			}
 		]
 	}
 ];

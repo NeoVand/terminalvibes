@@ -19,6 +19,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
@@ -831,5 +832,7 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				/>.
 			</p>
 		</div>
+
+		<ChallengeActivity title="Who Is Actually Visiting?" part={4} id="ch-4-top-visitors" />
 	</div>
 </section>

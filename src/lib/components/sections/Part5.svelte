@@ -7,6 +7,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 
@@ -719,5 +720,7 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				]}
 			/>
 		</div>
+
+		<ChallengeActivity title="Nothing in the Kit Will Run" part={5} id="ch-5-deploy-kit" />
 	</div>
 </section>

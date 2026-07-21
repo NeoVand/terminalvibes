@@ -16,6 +16,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 	import VibeBox from '../ui/VibeBox.svelte';
@@ -436,5 +437,7 @@ rm -rf build/*`}
 				]}
 			/>
 		</div>
+
+		<ChallengeActivity title="Approve the Release Plan" part={11} id="ch-11-approve-the-plan" />
 	</div>
 </section>

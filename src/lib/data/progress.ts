@@ -16,6 +16,25 @@ export interface ScenarioProgress {
 
 export interface ProgressState {
 	scenarios: Record<string, ScenarioProgress>;
+	/**
+	 * scenarioId -> ISO timestamp of the FIRST engagement: a command the learner
+	 * submitted, or a suggestion chip they clicked, inside that scenario.
+	 *
+	 * This exists because `sections` cannot answer the question for an activity.
+	 * `sections` records SCROLLING PAST an anchor, which is a fair definition of
+	 * "read" for prose and a meaningless one for a playground — you do not do a
+	 * playground by scrolling over it. So an activity has three states, and they
+	 * come from three different records: untouched (in neither), attempted (here
+	 * but not in `scenarios`), completed (in `scenarios`).
+	 *
+	 * Deliberately NOT part of the version/migration chain. Section ids are
+	 * positional, which is the whole reason MIGRATIONS exists; scenario ids
+	 * ('first-steps', 'fix-permissions', …) are stable names that survive every
+	 * curriculum reorder untouched. Payloads written before this field existed
+	 * load as `{}` — correct by construction, since nothing recorded then was an
+	 * attempt.
+	 */
+	attempts: Record<string, string>;
 	/** sectionId -> ISO timestamp of first visit */
 	sections: Record<string, string>;
 	/** skill-checklist item id -> checked */
@@ -36,6 +55,7 @@ const CURRENT_VERSION = 2;
 
 const EMPTY: ProgressState = {
 	scenarios: {},
+	attempts: {},
 	sections: {},
 	checklist: {},
 	version: CURRENT_VERSION
@@ -109,6 +129,8 @@ function load(): ProgressState {
 		const parsed = JSON.parse(raw) as Partial<ProgressState>;
 		return {
 			scenarios: parsed.scenarios ?? {},
+			// Not migrated: scenario ids are stable names, not positional ids.
+			attempts: parsed.attempts ?? {},
 			sections: migrateSections(parsed.sections ?? {}, parsed.version ?? 0),
 			checklist: parsed.checklist ?? {},
 			version: CURRENT_VERSION
@@ -135,12 +157,45 @@ export function markScenarioComplete(id: string): void {
 		const prev = state.scenarios[id];
 		return {
 			...state,
+			// Completing implies engaging. Recording it here too keeps the invariant
+			// `completed ⊆ attempted` true even for a scenario finished entirely by
+			// approved agent commands, so no reader has to special-case that path.
+			attempts: state.attempts[id]
+				? state.attempts
+				: { ...state.attempts, [id]: new Date().toISOString() },
 			scenarios: {
 				...state.scenarios,
 				[id]: { completedAt: new Date().toISOString(), count: (prev?.count ?? 0) + 1 }
 			}
 		};
 	});
+}
+
+/**
+ * The learner did something inside this scenario: submitted a command, or
+ * clicked a suggestion chip. First touch only — later commands are no-ops, so
+ * this is cheap to call on every keystroke-submit.
+ *
+ * Never call this from the scroll-spy. Arriving at an activity is not doing it,
+ * and that conflation is exactly what this record was added to end.
+ */
+export function markScenarioAttempted(id: string): void {
+	const state = get(progress);
+	if (state.attempts[id]) return;
+	progress.update((s) => ({
+		...s,
+		attempts: { ...s.attempts, [id]: new Date().toISOString() }
+	}));
+}
+
+/** The three states an activity mark can be in. Nothing else is a state. */
+export type ActivityState = 'untouched' | 'attempted' | 'completed';
+
+/** Resolve one activity's state. Pure; safe inside a `$derived`. */
+export function activityStateOf(state: ProgressState, id: string): ActivityState {
+	if (state.scenarios[id]) return 'completed';
+	if (state.attempts[id]) return 'attempted';
+	return 'untouched';
 }
 
 export function markSectionVisited(id: string): void {
@@ -159,9 +214,51 @@ export function toggleChecklistItem(id: string): void {
 	}));
 }
 
-/** Wipe every recording — completions, sections read, checklist. */
+/** Wipe every recording — completions, attempts, sections read, checklist. */
 export function resetProgress(): void {
-	progress.set({ scenarios: {}, sections: {}, checklist: {}, version: CURRENT_VERSION });
+	progress.set({
+		scenarios: {},
+		attempts: {},
+		sections: {},
+		checklist: {},
+		version: CURRENT_VERSION
+	});
+}
+
+/**
+ * MIRRORS `STORAGE_KEY` in $lib/timeline/dwell.ts — same mirroring contract
+ * that file already keeps in the other direction for `CURRENT_VERSION`, and
+ * for the same reason: the two maps are keyed by identical section ids and are
+ * two halves of one record.
+ *
+ * TODO(timeline): replace with a `resetDwell()` exported from dwell.ts. That
+ * module owns the key and owns the in-memory buffer; clearing it from out here
+ * can only reach the persisted half.
+ */
+const DWELL_STORAGE_KEY = 'terminalvibes-dwell-v1';
+
+/**
+ * Everything the reader has accumulated, in one call: what `resetProgress`
+ * covers PLUS the dwell heat map.
+ *
+ * They are separate keys but a single idea — "how far have I got" — so a reset
+ * that clears one and leaves the other is not a reset. It is worse than no
+ * reset at all: the bar goes to zero while the rail stays lit end to end, and
+ * the reader is left believing the button is broken.
+ *
+ * Note this clears the PERSISTED dwell only. A tracker already running holds
+ * its own buffer and will flush it back on teardown, so the caller must also
+ * drop the live tracker — Header.svelte does that by unmounting the rail
+ * across this call. See `handleReset` there.
+ */
+export function resetAllLearningState(): void {
+	resetProgress();
+	if (!browser) return;
+	try {
+		localStorage.removeItem(DWELL_STORAGE_KEY);
+	} catch {
+		// blocked storage — the in-memory reset above still stands
+	}
 }
 
 export interface StaleCompletion {

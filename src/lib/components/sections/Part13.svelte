@@ -9,6 +9,7 @@
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 	import VibeBox from '../ui/VibeBox.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 </script>
 
 <section id="part-13" class="py-10">
@@ -625,5 +626,7 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 				requires — and the tour is nearly over. One part to go: the send-off.
 			</Callout>
 		</div>
+
+		<ChallengeActivity title="What the Transcript Knows" part={13} id="ch-13-exit-codes" />
 	</div>
 </section>

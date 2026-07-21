@@ -7,6 +7,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
@@ -483,5 +484,7 @@ vibe@laptop:~$`}
 				unpack what arrives, and find out what's eating your disk.
 			</p>
 		</div>
+
+		<ChallengeActivity title="Prove the Release" part={9} id="ch-9-prove-the-release" />
 	</div>
 </section>

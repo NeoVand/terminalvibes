@@ -18,6 +18,7 @@
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 	import VibeBox from '../ui/VibeBox.svelte';
@@ -928,5 +929,7 @@
 				read what you're about to run — especially when you didn't write it.
 			</Callout>
 		</div>
+
+		<ChallengeActivity title="Clear the Desk for the Demo" part={14} id="ch-14-desk-clear" />
 	</div>
 </section>

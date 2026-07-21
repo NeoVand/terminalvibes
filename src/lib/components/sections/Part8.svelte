@@ -7,6 +7,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
@@ -449,5 +450,7 @@ fg %1                    # bring job 1 into the spotlight`}
 				waiting on port 3000. Time to talk to it.
 			</p>
 		</div>
+
+		<ChallengeActivity title="Clear the Agent&#39;s Processes" part={8} id="ch-8-agent-cleanup" />
 	</div>
 </section>
