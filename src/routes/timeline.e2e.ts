@@ -17,6 +17,30 @@ test.use({ viewport: { width: 1440, height: 900 } });
 const RAIL = '[role="listbox"][aria-label^="Course progress"]';
 
 test.describe('Thread rail', () => {
+	/**
+	 * Both the search box and the rail animate for 200ms, and the two do not finish
+	 * on the same frame. Reading either one the instant a poll first goes true lands
+	 * mid-transition — which is how a conservation assertion ends up 19px out. Wait
+	 * for a width to be the same twice in a row before believing it.
+	 */
+	async function settledWidth(loc: import('@playwright/test').Locator): Promise<number> {
+		// The leading wait is not padding. `focus()` returns before the transition
+		// has advanced a single frame, so polling immediately reads the SAME width
+		// twice and reports the PRE-focus value as settled — which reads as "the
+		// box never grew" and turns the conservation check into a false failure.
+		// It failed 2 runs in 3 that way. Clear the 200ms transition first, then
+		// confirm it has actually stopped.
+		await loc.page().waitForTimeout(260);
+		let last = -1;
+		for (let i = 0; i < 40; i++) {
+			const w = Math.round((await loc.boundingBox())!.width);
+			if (w === last) return w;
+			last = w;
+			await loc.page().waitForTimeout(60);
+		}
+		return last;
+	}
+
 	test('mounts in the header with a mark for every anchor', async ({ page }) => {
 		await page.goto('/');
 		const rail = page.locator(RAIL);
@@ -134,16 +158,19 @@ test.describe('Thread rail', () => {
 		await search.focus();
 		await search.fill('grep');
 
-		// The search box animates 260 -> 320 and the rail's flex cell gives up
-		// exactly that 60px. This MUST be polled rather than read once: the
-		// transition is 200ms, and a single read taken the instant after fill()
-		// lands mid-animation and would pass against almost any behaviour,
-		// including no resize at all. Poll until both have settled.
-		await expect
-			.poll(async () => Math.round((await box.boundingBox())!.width))
-			.toBe(Math.round(boxBefore) + 60);
-		const railAfter = (await rail.boundingBox())!.width;
-		expect(Math.round(railBefore - railAfter)).toBe(60);
+		// The invariant is CONSERVATION: whatever the search box gains on focus,
+		// the rail's flex cell gives up, to the pixel. The exact figure is a
+		// tuning decision that has already moved once (260->320 became 176->320),
+		// so it is derived here rather than pinned — a hardcoded delta tests the
+		// current numbers, this tests the behaviour.
+		//
+		// It MUST be polled rather than read once: the transition is 200ms, and a
+		// single read taken the instant after fill() lands mid-animation and would
+		// pass against almost any behaviour, including no resize at all.
+		const boxAfter = await settledWidth(box);
+		const railAfter = await settledWidth(rail);
+		expect(boxAfter).toBeGreaterThan(Math.round(boxBefore));
+		expect(Math.round(railBefore) - railAfter).toBe(boxAfter - Math.round(boxBefore));
 
 		// ...and it must come back, or the rail is permanently narrower after the
 		// reader's first search.
@@ -172,7 +199,7 @@ test.describe('Thread rail', () => {
 		};
 		await expect.poll(async () => Math.abs((await centre()) - px) < 8).toBe(true);
 
-		// Take 60px off the right-hand end WITHOUT moving the hand. Only the
+		// Narrow the rail from its right-hand end WITHOUT moving the hand. Only the
 		// rail's right edge moves, so the pointer keeps its pixel and the lens
 		// must stay on it. This is the "fling" the rail is judged on: the lens
 		// is anchored in FRACTIONS, so if the fraction is not re-derived from
@@ -183,10 +210,14 @@ test.describe('Thread rail', () => {
 		// lens centre is a function of the fraction alone, so keeping the pixel
 		// and keeping the item are mutually exclusive. The pixel is the one the
 		// eye is tracking.
+		const searchBox = page.locator('.search-box');
+		const boxWas = await settledWidth(searchBox);
 		await page.getByPlaceholder('Search commands...').focus();
-		await expect
-			.poll(async () => Math.round((await rail.boundingBox())!.width))
-			.toBe(Math.round(rect.width) - 60);
+		// Same conservation rule as above, derived rather than pinned: the rail
+		// loses exactly what the box gains.
+		const boxNow = await settledWidth(searchBox);
+		const railNow = await settledWidth(rail);
+		expect(railNow).toBe(Math.round(rect.width) - (boxNow - boxWas));
 		expect(Math.abs((await centre()) - px)).toBeLessThan(8);
 		// And it must not merely arrive there eventually via a corrective
 		// pointermove — hold still and confirm it stays put.

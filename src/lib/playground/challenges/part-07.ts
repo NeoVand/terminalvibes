@@ -111,10 +111,24 @@ export const challengePart7: Challenge = {
 	},
 
 	/**
-	 * 21 entries (9 of them salted) for a two-line job. Both halves of every good route are here,
-	 * un-chained: a learner who only clicks lands on ACCEPTABLE (five lines,
-	 * one scratch file), and GREAT means noticing that *.yml collapses three
-	 * chips into one and that awk can filter without help.
+	 * 20 entries (9 of them salted) for a two-line job. A learner who only clicks
+	 * lands on ACCEPTABLE — five lines and one scratch file — and every one of
+	 * those five is here.
+	 *
+	 * NEITHER GREAT LINE IS. Both used to be, which meant GREAT was two clicks:
+	 * `sed -i.bak 's/staging/production/g' *.yml` and
+	 * `awk '/prod/ {print $2}' fleet.txt > hosts.txt` are this Part's two
+	 * economy levers and, together, its entire answer. Their ingredients are all
+	 * still on display and each is guarded by a mistake the course names:
+	 *
+	 *   -i.bak on the three per-file chips, `*.yml` on the distractors that get
+	 *   the flag spacing, the `g`, the greedy `.*` or the glob width wrong;
+	 *   awk's action on the un-guarded chip, and the /prod/ guard on the chip
+	 *   that wraps it in the wrong quotes.
+	 *
+	 * So the glob and the guard both have to be assembled out of parts, and
+	 * assembling them means having read why each neighbouring chip is wrong.
+	 * That is where the beginner/expert split belongs.
 	 */
 	pool: [
 		{ command: 'cat notes.md', role: 'solution' },
@@ -158,7 +172,6 @@ export const challengePart7: Challenge = {
 			teaches: 'section-3-4',
 			trap: '* is not *.yml. That swept in fleet.txt and notes.md as well, and the canary machine — the one box still genuinely on staging — is now recorded as production. Your inventory is lying to you. (fleet.txt.bak is your way back.)'
 		},
-		{ command: "sed -i.bak 's/staging/production/g' *.yml", role: 'solution' },
 		{
 			command: "sed -i.bak 's/staging/production/g' fleet.txt",
 			role: 'distractor',
@@ -191,7 +204,7 @@ export const challengePart7: Challenge = {
 			teaches: 'section-7-4',
 			trap: 'Double quotes let the shell in first: it expanded $2 to nothing, so awk received {print } — which it reads as "print the whole line" and obeys without a word of complaint. Every awk program wears single quotes for exactly this reason.'
 		},
-		{ command: "awk '/prod/ {print $2}' fleet.txt > hosts.txt", role: 'solution' }
+		{ command: 'cat hosts.txt', role: 'solution' }
 	],
 
 	/**

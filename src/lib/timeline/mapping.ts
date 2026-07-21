@@ -115,8 +115,8 @@ export const TUNE: Tune = {
 	keyMs: 170,
 	barMinH: 3,
 	barMaxH: 15,
-	pgMin: 4.5,
-	pgMax: 11,
+	pgMin: 4,
+	pgMax: 9.5,
 	pgGrabPx: 24
 };
 
@@ -451,7 +451,7 @@ export function laneMark(k: number, tune: Tune = TUNE): LaneMark {
  * See `challengeMark`.
  */
 export const CH_RATIO = 0.8;
-export const CH_MIN = 5.2;
+export const CH_MIN = 4.6;
 
 /** The drawn geometry of one challenge rhomboid. */
 export interface ChMark {

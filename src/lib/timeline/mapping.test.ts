@@ -466,7 +466,11 @@ describe('mark layout', () => {
 		// 8.6px this same measurement reports at A = 1.6, which is the failure
 		// this floor was written to catch.
 		expect(minW).toBeGreaterThanOrEqual(16.05);
-		expect(minDiamond).toBeGreaterThanOrEqual(10.7);
+		// 10.7 before the marks were deliberately shrunk (pgMax 11 -> 9.5 at the
+		// owner's request); 9.35 after. The floor's job is unchanged — it catches
+		// an A retune, which drives this far lower than a size change does — so it
+		// is rebased rather than removed.
+		expect(minDiamond).toBeGreaterThanOrEqual(9.3);
 	});
 
 	it('marks exactly one bar as holding the reading head, and fills it', () => {
@@ -531,7 +535,10 @@ describe('the two activity lanes are one geometry, mirrored', () => {
 			expect(ch.top).toBeGreaterThanOrEqual(ch.vertex);
 		}
 		// the tightest case, stated as a number so a retune has to face it
-		expect(challengeMark(1, TUNE).vertex + 2 * challengeMark(1, TUNE).half).toBeCloseTo(46.44, 1);
+		// 46.44 before the shrink, 44.75 after. The properties above are the real
+		// guarantee; this pin exists so a retune has to face the number, and this
+		// retune did. Still comfortably inside RAIL_H.
+		expect(challengeMark(1, TUNE).vertex + 2 * challengeMark(1, TUNE).half).toBeCloseTo(44.75, 1);
 	});
 
 	it('scales the diamond with the square rather than pinning it to a max', () => {

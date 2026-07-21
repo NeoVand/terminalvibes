@@ -32,8 +32,42 @@ export type DistractorKind =
 	| 'overreach' //  a glob or -r that catches more than intended
 	| 'forward-reference'; //  a tool from a later Part: it may even work, but it is not yours yet
 
+/**
+ * THE CHIP BUDGET — the pool is a box of parts, not a rack of finished answers.
+ *
+ * A chip click fills the prompt; it does not run anything. So a chip that holds
+ * a whole pipeline is not a hint, it is the answer with a button on it: one
+ * click and Enter, nothing assembled, nothing learned. Three rules keep the
+ * pool at the granularity of a PART, and challenges.test.ts enforces all three
+ * against every entry of all fourteen challenges.
+ *
+ *   1. MAX_POOL_ENTRY_LENGTH characters, hard. At the card's 12px monospace a
+ *      60-character chip is about 460px, which still sits on one line inside
+ *      the card at every width the article uses. Past that they wrap, and a
+ *      pool of two-line chips is the thing that made this rule necessary.
+ *   2. At most MAX_POOL_ENTRY_ELEMENTS command elements — one pipe, and never
+ *      an `&&` or a `;`. Joining stages is the learner's work; every course
+ *      lever that saves an Enter (the pipe, the chain, the multi-operand call)
+ *      has to be typed, not clicked.
+ *   3. No entry may equal a multi-element line of `great` or of any
+ *      `greatAlternate`. A single-command great line may appear — `man ls` and
+ *      `chmod 600 .env` are atoms, not answers — but the assembled pipelines
+ *      never do.
+ *
+ * None of this licenses softening the distractors. A shorter distractor must
+ * still be a mistake a learner would actually make, still carry its `kind`,
+ * `trap` and `teaches`, and still spring: break a long wrong pipeline into the
+ * stage where the mistake actually lives rather than into something harmless.
+ */
+export const MAX_POOL_ENTRY_LENGTH = 60;
+export const MAX_POOL_ENTRY_ELEMENTS = 2;
+
 export interface PoolEntry {
-	/** Exactly as it appears on the chip, and exactly as it runs. */
+	/**
+	 * Exactly as it appears on the chip, and exactly as it runs. Subject to the
+	 * chip budget above: <= MAX_POOL_ENTRY_LENGTH characters, at most
+	 * MAX_POOL_ENTRY_ELEMENTS elements, never a whole assembled great line.
+	 */
 	command: string;
 	role: 'solution' | 'distractor';
 	/** Required when role === 'distractor'. */
@@ -264,6 +298,12 @@ export function gradeAttempt(
  * it: the chips come from the pool, and `hint` — which the UI renders above
  * the terminal — carries the challenge description instead of a hint. That
  * substitution is the whole "no lightbulb" rule, enforced in one place.
+ *
+ * `description` is deliberately the SAME string, and TerminalPlayground knows
+ * it: for a challenge it does not also echo `description` into the terminal
+ * scrollback, because that printed the brief twice a few pixels apart. The
+ * brief has exactly one home on the card — the slot above the terminal, with
+ * the card's one Puzzle icon beside it.
  */
 export function toScenario(challenge: Challenge): PlaygroundScenario {
 	return {

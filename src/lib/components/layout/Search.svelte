@@ -310,9 +310,15 @@
 
 	/* ── the full resting box, where the rail can spare it ────────────────── */
 	@media (min-width: 1120px) {
+		/* 176px at rest, not 260. The resting field only ever has to look like
+		   somewhere to type — the placeholder is short and the shortcut hint is
+		   hidden until focus — so the extra 84px was doing nothing but taking
+		   room from the rail, which is the thing worth looking at. Focus still
+		   opens to 320px and takes those pixels from the rail leftward, so the
+		   full field is one click away whenever it is actually being used. */
 		.search-box {
-			width: 260px;
-			max-width: 260px;
+			width: 176px;
+			max-width: 176px;
 		}
 
 		.search-box:focus-within {

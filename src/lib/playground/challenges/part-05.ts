@@ -141,11 +141,18 @@ export const challengePart5: Challenge = {
 	},
 
 	/**
-	 * 18 entries for a three-line job. A beginner who only clicks chips can
+	 * 17 entries for a three-line job. A beginner who only clicks chips can
 	 * finish — four per-file chmods, one export, one append — and lands on
-	 * ACCEPTABLE. The glob, the append and `source` are all here too; seeing
-	 * which of the three `*` lines is the right one is the expert's work, and
-	 * two of the three are wrong in ways the course names out loud.
+	 * ACCEPTABLE.
+	 *
+	 * `chmod +x *.sh` is deliberately NOT among them, though it used to be. It
+	 * is this Part's signature economy lever and the first line of the great
+	 * path, so offering it on a chip sold the lesson for one click. Every
+	 * ingredient is still on display: `+x` on the four per-file chips, and `*`
+	 * and `*.sh` on five glob chips that are each wrong in a way the course
+	 * names out loud (+w for +x, 644, the bare `*` that catches secrets.env,
+	 * 777, and sudo). Reading those five and composing the sixth — the one
+	 * spelling nobody handed you — is the expert's work.
 	 */
 	pool: [
 		{ command: 'ls -l', role: 'solution' },
@@ -188,7 +195,6 @@ export const challengePart5: Challenge = {
 			teaches: 'section-5-3',
 			trap: "Nothing was chmod'd — sudo refused, printed a short lecture, and handed your own command back with the sudo stripped off. Everything under ~ is already yours; a failure inside your own home folder is never a missing superpower, it's a missing +x or a wrong path."
 		},
-		{ command: 'chmod +x *.sh', role: 'solution' },
 		{
 			command: 'chmod +x ~/deploy-kit',
 			role: 'distractor',

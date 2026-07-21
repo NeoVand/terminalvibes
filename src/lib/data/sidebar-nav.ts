@@ -41,6 +41,7 @@ import {
 	Package,
 	Palette,
 	PenLine,
+	Puzzle,
 	Replace,
 	Rocket,
 	Route,
@@ -54,7 +55,6 @@ import {
 	SplitSquareHorizontal,
 	Sprout,
 	Table,
-	Target,
 	Terminal,
 	Trash2,
 	Trophy,
@@ -71,7 +71,7 @@ export interface NavItem {
 	isPlayground?: boolean;
 	/**
 	 * The graded counterpart of a playground — one per Part, always the last
-	 * child. Rendered in the challenge earth-red with `Target`, and, like
+	 * child. Rendered in the challenge earth-red with `Puzzle`, and, like
 	 * `isPlayground`, in the smaller activity type size.
 	 */
 	isChallenge?: boolean;
@@ -107,7 +107,7 @@ export interface NavSection extends NavItem {
 /* ── the fourteen challenge rows ──────────────────────────────────────────
    One challenge closes each Part (src/lib/playground/challenges.ts owns the
    ids and the order), so each is the LAST child of its part-N below, flagged
-   `isChallenge: true` with lucide's `Target`. Row rendering already handles
+   `isChallenge: true` with lucide's `Puzzle`. Row rendering already handles
    them — see activityColor() in Sidebar.svelte.
 
    Both ends are wired: every id here is in `challengeAnchorIds`
@@ -147,7 +147,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'first-steps', label: 'Say Hello to the Machine', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-1-3', label: 'Getting Help', icon: HelpCircle },
 			{ id: 'help-lookup', label: 'Read the Manual First', icon: Gamepad2, isPlayground: true },
-			{ id: 'ch-1-read-the-flags', label: 'Look It Up First', icon: Target, isChallenge: true }
+			{ id: 'ch-1-read-the-flags', label: 'Look It Up First', icon: Puzzle, isChallenge: true }
 		]
 	},
 	{
@@ -163,7 +163,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-2-4', label: 'Making Things', icon: FolderPlus },
 			{ id: 'section-2-5', label: 'Looking Inside Files', icon: Eye },
 			{ id: 'workspace-setup', label: 'Build Your Workspace', icon: Gamepad2, isPlayground: true },
-			{ id: 'ch-2-scaffold', label: 'Scaffold It From Here', icon: Target, isChallenge: true }
+			{ id: 'ch-2-scaffold', label: 'Scaffold It From Here', icon: Puzzle, isChallenge: true }
 		]
 	},
 	{
@@ -180,7 +180,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-3-after-the-agent',
 				label: 'Clean Up After the Agent',
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]
@@ -203,7 +203,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-4-top-visitors',
 				label: 'Who Is Actually Visiting?',
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]
@@ -224,7 +224,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-5-deploy-kit',
 				label: 'Nothing in the Kit Will Run',
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]
@@ -239,7 +239,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'script-args', label: 'One Script, Any Folder', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-6-2', label: 'Exit Codes & Chaining', icon: Braces },
 			{ id: 'exit-codes', label: 'Deploy Only on Green', icon: Gamepad2, isPlayground: true },
-			{ id: 'ch-6-ship-all-three', label: 'Ship All Three', icon: Target, isChallenge: true }
+			{ id: 'ch-6-ship-all-three', label: 'Ship All Three', icon: Puzzle, isChallenge: true }
 		]
 	},
 	{
@@ -255,7 +255,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'in-place-audit', label: "The Agent's Mass Edit", icon: Gamepad2, isPlayground: true },
 			{ id: 'section-7-4', label: 'Columns & awk', icon: Columns3 },
 			{ id: 'column-pull', label: 'Pull the Column', icon: Gamepad2, isPlayground: true },
-			{ id: 'ch-7-promote-the-stack', label: 'Promote the Stack', icon: Target, isChallenge: true }
+			{ id: 'ch-7-promote-the-stack', label: 'Promote the Stack', icon: Puzzle, isChallenge: true }
 		]
 	},
 	{
@@ -273,7 +273,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-8-agent-cleanup',
 				label: "Clear the Agent's Processes",
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]
@@ -291,7 +291,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-9-4', label: 'Keys & Secrets', icon: KeyRound },
 			{ id: 'secret-keeper', label: 'Keep the Key Secret', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-9-5', label: 'A Door to Another Machine', icon: DoorOpen },
-			{ id: 'ch-9-prove-the-release', label: 'Prove the Release', icon: Target, isChallenge: true }
+			{ id: 'ch-9-prove-the-release', label: 'Prove the Release', icon: Puzzle, isChallenge: true }
 		]
 	},
 	{
@@ -309,7 +309,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-10-handover',
 				label: 'Hand It Over, Not the Bloat',
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]
@@ -324,7 +324,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-11-approve-the-plan',
 				label: 'Approve the Release Plan',
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]
@@ -340,7 +340,7 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'history-recall', label: 'Retrace Your Steps', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-12-3', label: 'Terminal in VS Code', icon: Layout },
 			{ id: 'section-12-4', label: 'Many Terminals at Once', icon: SplitSquareHorizontal },
-			{ id: 'ch-12-handover', label: 'Hand Over the Cockpit', icon: Target, isChallenge: true }
+			{ id: 'ch-12-handover', label: 'Hand Over the Cockpit', icon: Puzzle, isChallenge: true }
 		]
 	},
 	{
@@ -353,7 +353,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-13-exit-codes',
 				label: 'What the Transcript Knows',
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]
@@ -375,7 +375,7 @@ export const sidebarNav: NavSection[] = [
 			{
 				id: 'ch-14-desk-clear',
 				label: 'Clear the Desk for the Demo',
-				icon: Target,
+				icon: Puzzle,
 				isChallenge: true
 			}
 		]

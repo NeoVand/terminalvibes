@@ -121,8 +121,6 @@
 	   without re-measuring that residual first. */
 	let tracker: DwellTracker | null = null;
 	let heatLut: string[] = [];
-	/** per bar: is it cold enough to still be wearing the hatch? */
-	let barCold: boolean[] = [];
 	/** Is the rail wide enough per bar for a gradient at all? See paintHeat. */
 	let heatUsesGradient = false;
 
@@ -512,21 +510,29 @@
 			n.style.width = m.w + 'px';
 			n.style.height = m.h + 'px';
 			n.style.top = m.top + 'px';
-			// One continuous hatch across the whole thread, not 57 independent
-			// ones. The stripes live on each bar (a single masked overlay would
-			// mean rebuilding a 57-layer CSS mask every frame), but the pattern
-			// ORIGIN is pinned to the rail rather than to the element: offsetting
-			// background-position by the bar's own left/top cancels the element's
-			// origin, so a stripe that leaves one bar re-enters the next exactly
-			// in phase. Without this the hatch visibly reset at every boundary,
-			// which is most of what read as "rugged".
+			// NOTHING here writes `background-position`, and that is load-bearing.
 			//
-			// ONLY for cold bars. A warm bar's background-image is the heat
-			// gradient, and shifting a 90deg gradient by the bar's own left would
-			// slide the reader's own history sideways out of the bar it belongs
-			// to. The gradient is positioned by percentage and needs no origin
-			// correction, so it is simply left alone.
-			if (barCold[i]) n.style.backgroundPosition = `${-m.x}px ${-m.top}px`;
+			// This used to pin the hatch's pattern origin to the RAIL — writing
+			// `background-position: -x, -top` per bar — so a stripe leaving one bar
+			// re-entered the next in phase. It bought a continuous hatch across the
+			// thread and paid for it with motion: the fisheye rewrites `x` and `w`
+			// on every pointer move, so a rail-anchored pattern makes each bar a
+			// moving window onto it and the stripes CRAWL inside their own box.
+			// Measured, a cold bar's stripe phase swept 95% of a full 4.53px period
+			// as the cursor crossed the rail.
+			//
+			// Worse, the write was guarded on `barCold` but never cleared when a bar
+			// went cold -> warm, so a warm bar kept a frozen `-127px` offset applied
+			// to its heat gradient. `background-size` computes to `auto` (the bar's
+			// own width) with `repeat`, so the gradient was displaced AND tiled, and
+			// the visible offset `mod(-127, w)` changed every frame with `w`. That is
+			// the "heat distribution dances around inside the boxes" report: the
+			// gradient string was stable all along, a stale offset on it was not.
+			//
+			// With no `background-position` at all the pattern anchors to the element
+			// and its phase relative to the bar is identically zero at every width.
+			// The cost is a phase break at bar boundaries, across a gap, while
+			// static — and a static misalignment beats motion every time.
 			n.classList.toggle('is-tiny', m.tiny);
 			n.classList.toggle('is-active', m.active);
 			const head = headNodes[i];
@@ -621,7 +627,14 @@
 		// The choice between a gradient and a flat mean is made against the
 		// UNMAGNIFIED bar width. Keying it to the live width would flip bars
 		// between the two every frame as the lens passed over them.
-		heatUsesGradient = W / Math.max(1, model.bars.length) >= DWELL.gradientMinPx;
+		//
+		// It ALSO requires more than one bin. With bucketsPerBar = 1 there is no
+		// gradient to draw, and `heatGradient` correctly returns a bare colour —
+		// but a bare colour assigned to `background-image` is invalid CSS, so the
+		// bar silently painted nothing and every visited section went invisible.
+		// A flat fill belongs in `background-color`, which is the branch below.
+		heatUsesGradient =
+			DWELL.bucketsPerBar > 1 && W / Math.max(1, model.bars.length) >= DWELL.gradientMinPx;
 		for (const id of ids) {
 			const i = model.bars.findIndex((b) => b.item.id === id);
 			if (i < 0 || !barNodes[i]) continue;
@@ -636,7 +649,6 @@
 			// better, and dropping the hatch from most of the rail is most of the
 			// "rugged" complaint answered.
 			const cold = mean < DWELL.coldBelow;
-			barCold[i] = cold;
 			const n = barNodes[i];
 			n.classList.toggle('is-cold', cold);
 			if (cold) {
@@ -1277,7 +1289,6 @@
 	function buildNodes(m: TimelineModel) {
 		barNodes = [];
 		headNodes = [];
-		barCold = [];
 		pgNodes = [];
 		stemNodes = [];
 		starNodes = [];
@@ -1312,9 +1323,6 @@
 			host.appendChild(n);
 			barNodes.push(n);
 			headNodes.push(head);
-			// Every bar starts cold, so paint() owns the hatch origin until the
-			// dwell tracker's first publish says otherwise.
-			barCold.push(true);
 		}
 
 		for (const f of m.pgs) {
@@ -1882,6 +1890,16 @@
 	}
 	:global(:root.dark) .thread-wrap {
 		--tv-caramel: var(--color-btn-agent);
+		/* The unread bar has to read as a RAIL before it reads as unread. At 9%
+		   brown on this ground it was barely there, while the hatch sat at 72% —
+		   so the stripes were eight times brighter than the thing they were
+		   meant to be texturing, and an untouched rail looked like scratches on
+		   an empty strip rather than a timeline waiting to be filled. Lift the
+		   bed and pull the ink down toward it: same order, far less contrast
+		   between them, so the hatch becomes a surface rather than the subject. */
+		--hatch-bed: color-mix(in srgb, var(--tv-brown) 30%, transparent);
+		--hatch-ink: color-mix(in srgb, var(--tv-brown) 52%, transparent);
+		--thread-dim: color-mix(in srgb, var(--tv-brown) 42%, transparent);
 		--tv-hot: color-mix(in srgb, var(--tv-green) 14%, #fff);
 		--tv-core: color-mix(in srgb, var(--tv-green) 6%, #fff);
 		--tv-halo: color-mix(in srgb, var(--tv-green) 60%, transparent);
@@ -1956,16 +1974,44 @@
 	   left on the handful of bars where "you have not been here" IS the whole
 	   message.
 
-	   45°, and the phase is pinned to the RAIL not to this element — paint()
-	   writes background-position: -x, -top per bar, but only while the bar is
-	   cold. See the note there. */
+	   45°, anchored to THIS ELEMENT. Nothing writes background-position,
+	   so the stripe phase relative to the bar's own left edge is identically zero
+	   at every width the fisheye hands it. See the long note in paint(). */
 	.thread-wrap :global(.tt-seg.is-cold) {
 		background-color: var(--hatch-bed);
 		background-image: repeating-linear-gradient(
 			45deg,
-			var(--hatch-ink) 0 0.55px,
-			transparent 1px 3.2px
+			var(--hatch-ink) 0 0.3px,
+			transparent 0.75px 3.9px
 		);
+		/* A FIXED tile, and this is the SECOND HALF of the anti-crawl fix — dropping
+		   the rail-space `background-position` is not on its own enough.
+
+		   `background-size: auto` makes the gradient box the element box, and CSS
+		   centres a gradient's line on its own box. So with `auto` the pattern's
+		   origin is a function of the element's WIDTH AND HEIGHT, both of which the
+		   fisheye rewrites every frame — the hatch crawls just as badly as it did
+		   under rail-space pinning, and for a completely different reason.
+
+		   Measured with an opaque 50%-duty stand-in for this hatch (the shipped one
+		   is too faint to phase-fit reliably), sweeping the cursor across one bar so
+		   the lens varied it 2.45x in width:
+
+		       background-size: auto              1.53px of phase drift
+		       background-position: -x,-top       1.58px   (the reverted code)
+		       background-size: 31.68px           0.41px
+		       ruler's own noise floor            0.33px
+
+		   The floor is from the same measurement run against an element that was
+		   only slid to different subpixel offsets at a constant size, so it cannot
+		   crawl by construction. The fixed tile sits on that floor; the other two
+		   are 4-5x above it.
+
+		   31.68px is 7 periods of the 45° hatch along each axis (3.2px along the
+		   gradient line is 3.2 x √2 = 4.5255px along x), so the tiles abut in phase
+		   and the repeat is invisible. Changing the 3.2px above without changing
+		   this reintroduces a visible seam every 31.68px. */
+		background-size: 31.68px 31.68px;
 	}
 
 	/* Under ~3px a diagonal hatch is just noise, so compressed bars fall back to

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+	MAX_POOL_ENTRY_ELEMENTS,
+	MAX_POOL_ENTRY_LENGTH,
 	allChallenges,
 	challengeForPart,
 	challengeIds,
@@ -7,9 +9,13 @@ import {
 	gradeAttempt,
 	greatCostOf,
 	scoreHistory,
+	splitSegments,
 	toScenario
 } from './challenges';
 import { challengeAnchorIds } from '../data/sections';
+import { ShellEngine } from './shell-engine';
+import { runShellCommand } from './shell-commands';
+import { loadScenarioSeed } from './scenarios';
 
 /**
  * The challenges reach the page through three hand-maintained lists that have
@@ -115,4 +121,113 @@ describe('the adapter', () => {
 			expect(lastSolution, `${c.id} groups its distractors`).toBeGreaterThan(0);
 		}
 	});
+
+	/**
+	 * THE CHIP BUDGET. See the note on PoolEntry in challenges.ts for why each
+	 * of these exists. Together they are what stops the pool drifting back into
+	 * a rack of finished answers: a chip fills the prompt, so a chip holding a
+	 * whole pipeline is the solution with a button on it.
+	 */
+	it('keeps every pool entry inside the chip budget', () => {
+		for (const c of allChallenges) {
+			for (const entry of c.pool) {
+				expect(
+					entry.command.length,
+					`${c.id}: chip is ${entry.command.length} chars, over the ${MAX_POOL_ENTRY_LENGTH} limit — ${entry.command}`
+				).toBeLessThanOrEqual(MAX_POOL_ENTRY_LENGTH);
+
+				expect(
+					splitSegments(entry.command).length,
+					`${c.id}: chip assembles too many stages — ${entry.command}`
+				).toBeLessThanOrEqual(MAX_POOL_ENTRY_ELEMENTS);
+
+				// A chip may hold one pipe. It may never hold an `&&`: chaining is
+				// the Enter-saving lever of Part 6, and every later Part's great
+				// path leans on it, so it has to be typed rather than clicked.
+				// A `;` is exempt — it saves nothing and Part 6 teaches it as the
+				// hazard it is (`cd ~/releases ; rm -rf *` is a distractor whose
+				// whole lesson is that the second half runs regardless).
+				expect(entry.command, `${c.id}: chip pre-chains commands with &&`).not.toContain('&&');
+			}
+		}
+	});
+
+	it('never puts an assembled great line on a chip', () => {
+		// A single-command great line may appear — `man ls` and `chmod 600 .env`
+		// are atoms, not answers. An assembled one may not: that is the economy
+		// the challenge exists to teach, and clicking it skips the lesson.
+		for (const c of allChallenges) {
+			const chips = new Set(c.pool.map((e) => e.command));
+			const paths = [c.scoring.great, ...(c.scoring.greatAlternates ?? [])];
+			for (const path of paths) {
+				for (const line of path.lines) {
+					if (splitSegments(line).length < 2) continue;
+					expect(chips.has(line), `${c.id}: the great line "${line}" is clickable`).toBe(false);
+				}
+			}
+		}
+	});
+
+	it('never lets GREAT be bought by clicking', () => {
+		// The rule the two above exist to serve, stated directly. ACCEPTABLE must
+		// be reachable by chip alone — that is the beginner's floor, and every
+		// challenge's pool note promises it. GREAT must not be: at least one line
+		// of every economical route has to be composed, or the economy is a
+		// purchase rather than a lesson and the whole grade means nothing.
+		for (const c of allChallenges) {
+			const chips = new Set(c.pool.map((e) => e.command));
+			const paths = [c.scoring.great, ...(c.scoring.greatAlternates ?? [])];
+			for (const path of paths) {
+				expect(
+					path.lines.some((line) => !chips.has(line)),
+					`${c.id}: every line of this great route is a chip — GREAT is clickable:\n${path.lines.join('\n')}`
+				).toBe(true);
+			}
+		}
+	});
+});
+
+/**
+ * The scoring tests above are pure arithmetic over the authored `lines`. This
+ * one runs those same lines through the REAL interpreter against the REAL seed
+ * and asks the challenge's own `check()` what it thinks — which is the only
+ * thing that proves a revised pool still leaves its solutions reachable, and
+ * the only thing that would have caught a check tightened past its own great
+ * path. Every path of every challenge, both tiers.
+ */
+describe('the solutions actually work', () => {
+	for (const c of allChallenges) {
+		const paths: [string, string[]][] = [
+			['great', c.scoring.great.lines],
+			...(c.scoring.greatAlternates ?? []).map((alt, i): [string, string[]] => [
+				`greatAlternate ${i + 1}`,
+				alt.lines
+			]),
+			['acceptable', c.scoring.acceptable.lines]
+		];
+
+		for (const [name, lines] of paths) {
+			it(`${c.id}: the ${name} path reaches the goal and grades as claimed`, async () => {
+				const engine = new ShellEngine();
+				const scenario = toScenario(c);
+				await loadScenarioSeed(engine, scenario);
+
+				// The seed must not already satisfy the goal, or the check proves
+				// nothing about the path that follows.
+				expect(await c.check(engine), `${c.id}: the seed already passes`).toBe(false);
+
+				for (const line of lines) {
+					await runShellCommand(engine, line);
+				}
+
+				expect(
+					await c.check(engine),
+					`${c.id} ${name}: check() still fails after\n${lines.join('\n')}`
+				).toBe(true);
+				expect(gradeAttempt(c, engine.historyLog, true), `${c.id} ${name}`).toBe(
+					name === 'acceptable' ? 'acceptable' : 'great'
+				);
+			});
+		}
+	}
 });

@@ -14,6 +14,9 @@
 		summarizeParts
 	} from '$lib/timeline/summary';
 	import { watchRailBreakpoint } from '$lib/timeline/breakpoint';
+	import { buildHeatLut, lutColour } from '$lib/timeline/heat';
+	import { DWELL } from '$lib/timeline/dwell';
+	import { allChallenges } from '$lib/playground/challenges';
 
 	let {
 		open = false,
@@ -136,51 +139,123 @@
 		return st === 'attempted' ? '0.8' : '0.55';
 	}
 
-	/* ── the mini timeline ──────────────────────────────────────────────────
-	   Granularity is PARTS (15), not sections (57), and that is a measurement
-	   rather than a preference. The expanded bar gets ~216px (280px sidebar,
-	   less 32px of padding and 32px for the reset button). At 57 segments with
-	   1.5px gaps each segment is (216 - 84) / 57 = 2.3px — below the 5.5px
-	   height at which the rail itself gives up on the hatch (`is-tiny`) and
-	   well under any width that can show a partial fill. At 15 segments each
-	   gets ~13px, which holds the hatch, a fill boundary and a ring.
+	/* ── which theme, so the heat ramp can be resolved ──────────────────────
+	   Same three-way read as the rail's own `isDarkTheme()`: an explicit
+	   `.dark`/`.light` on the root wins, and `system` falls through to the media
+	   query. Both inputs are watched, because the header's theme toggle writes
+	   the class and the OS can change the query underneath a `system` reader.
 
-	   Section-level resolution is not lost, it moves: each part segment is
-	   FILLED by the fraction of its own sections read, so 3-of-4 still reads as
-	   three quarters. That is the honest trade at this size — resolution in the
-	   fill, not in the segment count.
+	   Assigning state inside an `$effect` is the right shape here and not the
+	   usual smell: both inputs are DOM events outside Svelte's graph, so there
+	   is nothing for a `$derived` to depend on. It is the same arrangement
+	   `wide` uses above, one subscription per external source. */
+	let dark = $state(true);
+	$effect(() => {
+		const mq = window.matchMedia('(prefers-color-scheme: dark)');
+		const read = () => {
+			const c = document.documentElement.classList;
+			dark = c.contains('dark') ? true : c.contains('light') ? false : mq.matches;
+		};
+		read();
+		mq.addEventListener('change', read);
+		const mo = new MutationObserver(read);
+		mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+		return () => {
+			mq.removeEventListener('change', read);
+			mo.disconnect();
+		};
+	});
+
+	/* THE ramp — imported, not re-derived. `buildHeatLut` is the same function
+	   the header rail paints its section bars with, at the same `chromaGamma`,
+	   so a part at 60% here is literally the colour a section at 60% heat is up
+	   there. The INPUT differs and honestly must: the rail measures dwell
+	   seconds and the sidebar has no tracker (the rail owns it and is not
+	   mounted at this width), so the scalar here is the fraction of the part's
+	   sections read. Same ramp, coarser signal — which is the whole trade this
+	   surface makes. */
+	const heatLut = $derived(buildHeatLut(dark ? 'dark' : 'light', DWELL.chromaGamma));
+
+	/** Which part each challenge belongs to, and 14 of the 15 parts have one. */
+	const challengeOfPart = $derived(
+		new Map(allChallenges.map((c) => [c.partId as string, stateOf(c.id)]))
+	);
+
+	/* ── the mini timeline ──────────────────────────────────────────────────
+	   GRANULARITY IS PARTS (15), and that survives the rebuild unchanged,
+	   because it was always a measurement rather than a preference. The
+	   expanded bar gets ~216px (280px sidebar, less 32px of padding and 32px
+	   for the reset button). At 57 segments with 1.5px gaps each segment is
+	   (216 - 84) / 57 = 2.3px — under the 5.5px at which the rail itself gives
+	   up on the hatch (`is-tiny`). At 15 segments each gets ~13px, which is
+	   room for a mark, a ring and a real stretch of texture.
+
+	   WHAT CHANGED is where the sub-part resolution goes. It used to be a
+	   partial-WIDTH fill: a part 3-of-4 read drew as a brown box three quarters
+	   full, with a visible edge inside it. That is a progress bar, and the rail
+	   is not a progress bar — it is a map of places, each one flat. So the
+	   fraction now drives COLOUR instead of geometry, through the rail's own
+	   heat LUT. This is exactly the move `DWELL.bucketsPerBar: 1` made on the
+	   rail when 57 little gradients read as "too busy": resolution into the
+	   fill, never into a second edge.
+
+	   The activity lanes stop being strips with fractions in them and become
+	   MARKS, because that is what they are on the rail: one square per part
+	   that has playgrounds, one rhomboid per part that has a challenge, in
+	   their own lanes either side of the thread. Three states each, stepping
+	   monotonically in weight, on the rail's own tokens.
 
 	   Widths are proportional to each part's anchor count, so the bar keeps the
 	   rail's sense of course shape; `min-width` stops the two-anchor parts
 	   (Part 11, Part 13) from disappearing. */
 	const partBars = $derived(
-		partStats.map((p, i) => ({
-			...p,
-			weight: p.sections + p.playgrounds,
-			readFrac: p.sections ? p.sectionsRead / p.sections : 0,
-			doneFrac: p.playgrounds ? p.playgroundsDone / p.playgrounds : 0,
-			// Drawn UNDER doneFrac in a dimmer caramel, so a part you have started
-			// but not finished is visibly different from one you have not opened —
-			// the bar's version of the same three states the rows show.
-			engagedFrac: p.playgrounds ? engagedStats[i].playgroundsDone / p.playgrounds : 0
-		}))
+		partStats.map((p, i) => {
+			const readFrac = p.sections ? p.sectionsRead / p.sections : 0;
+			const engaged = engagedStats[i].playgroundsDone;
+			return {
+				...p,
+				weight: p.sections + p.playgrounds,
+				readFrac,
+				/* Never been here. The one thing the hatch is allowed to mean, on
+				   this surface as on the rail. */
+				cold: p.sectionsRead === 0,
+				tone: lutColour(heatLut, readFrac),
+				/** none | some | all — absent when the part holds no playgrounds. */
+				pg: !p.playgrounds
+					? null
+					: p.playgroundsDone === p.playgrounds
+						? 'all'
+						: engaged > 0
+							? 'some'
+							: 'none',
+				/** The rail's three challenge states, straight from the same record. */
+				ch: challengeOfPart.get(p.id) ?? null
+			};
+		})
 	);
 
 	/** Which part the reader is inside — the rail's GREEN, "where you are now". */
 	const activePartId = $derived(sections.find((s) => isActive(s.id))?.id ?? null);
 
+	/** Challenges are DRAWN on the mini timeline now, so they are spoken too. */
+	const challengesDone = $derived(
+		allChallenges.filter((c) => stateOf(c.id) === 'completed').length
+	);
+
 	const progressLabel = $derived(
 		`Course progress: ${sectionsRead} of ${TOTAL_SECTIONS} sections read, ` +
 			`${doneCount} of ${TOTAL_PLAYGROUNDS} exercises completed` +
-			(attemptedCount ? `, ${attemptedCount} started.` : '.')
+			(attemptedCount ? `, ${attemptedCount} started` : '') +
+			`, ${challengesDone} of ${allChallenges.length} challenges solved.`
 	);
 
+	const CH_WORD = { untouched: 'not attempted', attempted: 'started', completed: 'solved' };
+
 	function partTitle(p: (typeof partBars)[number]): string {
-		const read = `${p.sectionsRead}/${p.sections} read`;
-		if (!p.playgrounds) return `${p.label} — ${read}`;
-		const started = Math.round(p.engagedFrac * p.playgrounds) - p.playgroundsDone;
-		const solved = `${p.playgroundsDone}/${p.playgrounds} solved`;
-		return `${p.label} — ${read} · ${solved}${started > 0 ? ` · ${started} started` : ''}`;
+		const bits = [`${p.sectionsRead}/${p.sections} read`];
+		if (p.playgrounds) bits.push(`${p.playgroundsDone}/${p.playgrounds} solved`);
+		if (p.ch) bits.push(`challenge ${CH_WORD[p.ch]}`);
+		return `${p.label} — ${bits.join(' · ')}`;
 	}
 
 	const expandedSections = new SvelteSet<string>();
@@ -353,15 +428,32 @@
 {/snippet}
 
 <!--
-  The mini timeline, in the header rail's own semantic system: BROWN sections
-  on the thread, CARAMEL playgrounds in their own lane, GREEN for where you are
-  now. Solid = read/solved, hatched = not. Geometry — two lanes — is what keeps
-  brown and caramel apart in dark mode, exactly as on the rail; no new hues.
+  The mini timeline, in the header rail's own system rather than a second one.
+
+  What it borrows, and the borrow is of the SYSTEM, not the geometry — at 216px
+  there is no room for 57 segments and shrinking the rail would turn it to mud:
+
+    ONE FLAT COLOUR PER UNIT. No gradient, no partial-width fill, no edge
+    inside a segment. The unit here is a PART rather than a section, and its
+    read fraction picks a colour off the rail's own heat LUT.
+
+    THE HATCH MEANS ONE THING — never been here — at the rail's own weight and
+    angle, with the rail's ink/bed relationship in both themes.
+
+    THE MARK SHAPES. Squares are playgrounds, rhomboids are challenges, in
+    their own lanes either side of the thread, at the rail's rest sizes and on
+    the rail's tokens. Lane AND silhouette, because in dark mode caramel and
+    clay collapse toward each other under deuteranopia and the shape is the
+    channel that survives — the same reason the rail's own comment gives for
+    never merging them.
+
+    GREEN IS ONLY "where you are now", and it is a ring, never a fill.
 
   One snippet serves both orientations. The horizontal form sits in the
-  expanded drawer; the vertical form is rotated by CSS alone (flex direction
-  swaps, and the fill reads `--f` into height instead of width) so the two can
-  never drift apart.
+  expanded drawer with the rail's exact arrangement — playgrounds above the
+  thread, challenges below. The vertical form is that picture rotated a quarter
+  turn by CSS alone, so the two cannot drift apart; see `.mini-v`, which also
+  documents why it drops to a single lane at 3px.
 -->
 {#snippet miniTimeline(vertical: boolean)}
 	<div
@@ -371,27 +463,37 @@
 		role="img"
 		aria-label={progressLabel}
 	>
+		<!-- Playgrounds: above the thread, as on the rail. -->
+		<div class="mini-lane mini-pg" aria-hidden="true">
+			{#each partBars as p (p.id)}
+				<div class="mini-cell" style="flex-grow: {p.weight};">
+					{#if p.pg}
+						<span class="stem"></span><span class="mark sq is-{p.pg}"></span>
+					{/if}
+				</div>
+			{/each}
+		</div>
+
+		<!-- The thread. -->
 		<div class="mini-lane mini-sec">
 			{#each partBars as p (p.id)}
 				<div
 					class="mini-seg"
+					class:is-cold={p.cold}
 					class:is-here={p.id === activePartId}
-					style="flex-grow: {p.weight}; --f: {p.readFrac};"
+					style="flex-grow: {p.weight}; --tone: {p.tone};"
 					title={partTitle(p)}
-				>
-					<div class="fill"></div>
-				</div>
+				></div>
 			{/each}
 		</div>
-		<div class="mini-lane mini-pg">
+
+		<!-- Challenges: below the thread, as on the rail. -->
+		<div class="mini-lane mini-ch" aria-hidden="true">
 			{#each partBars as p (p.id)}
-				<div
-					class="mini-pgseg"
-					class:has-pg={p.playgrounds > 0}
-					style="flex-grow: {p.weight}; --f: {p.doneFrac}; --a: {p.engagedFrac};"
-				>
-					{#if p.playgrounds}<div class="tryfill"></div>
-						<div class="fill"></div>{/if}
+				<div class="mini-cell" style="flex-grow: {p.weight};">
+					{#if p.ch}
+						<span class="stem"></span><span class="mark rh is-{p.ch}"></span>
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -440,7 +542,10 @@
 	<!-- `sectionsRead`, not `readPct`: one section out of 57 rounds to 2%, but a
 	     future denominator could round the first read section to 0 and hide the
 	     bar just as the learner earns it. -->
-	{#if sectionsRead > 0 || doneCount > 0}
+	<!-- Mobile only. On desktop the header rail says all of this and says it
+	     better, so a percentage line under CONTENTS was a second, coarser
+	     answer to a question already answered above it. -->
+	{#if !wide && (sectionsRead > 0 || doneCount > 0)}
 		<div class="px-4 pb-2" title={progressLabel}>
 			<!-- mr-1 puts the reset button on the same vertical axis (30px from
 			     the right edge) as the section carets and the collapse button.
@@ -458,40 +563,41 @@
 			     the pair exclusive by construction rather than by two independent
 			     numbers agreeing. The two-click arm/confirm flow and its text in
 			     the subtitle are unchanged. -->
+			<!-- Everything in here is already inside the `!wide` gate above, so the
+			     three nested `wide` checks this used to carry were dead: the
+			     desktop-only counts branch could never render, and the two `!wide`
+			     guards could never be false. Flattened to what actually runs. The
+			     counts line stays UNCONDITIONALLY on mobile — below 744px the rail
+			     is not mounted and this is the only place the numbers appear. -->
 			<div class="flex items-center">
 				<div class="min-w-0 flex-1">
-					{#if wide}
-						<p class="truncate text-[10.5px]" style="color: var(--color-text-muted);">
-							{@render progressCounts()}
-						</p>
-					{:else}
-						{@render miniTimeline(false)}
-					{/if}
+					{@render miniTimeline(false)}
 				</div>
-				{#if !wide}
-					<button
-						onclick={handleResetProgress}
-						class="mr-1 ml-2 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded transition-all hover:opacity-100"
-						style="color: {resetArmed
-							? 'var(--color-warning)'
-							: 'var(--color-text-muted)'}; opacity: {resetArmed ? '1' : '0.6'};"
-						aria-label={resetArmed ? 'Click again to reset all progress' : 'Reset progress'}
-						title={resetArmed ? 'Click again to reset all progress' : 'Reset progress'}
-					>
-						<RotateCcw size={11} />
-					</button>
-				{/if}
+				<button
+					onclick={handleResetProgress}
+					class="mr-1 ml-2 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded transition-all hover:opacity-100"
+					style="color: {resetArmed
+						? 'var(--color-warning)'
+						: 'var(--color-text-muted)'}; opacity: {resetArmed ? '1' : '0.6'};"
+					aria-label={resetArmed ? 'Click again to reset all progress' : 'Reset progress'}
+					title={resetArmed ? 'Click again to reset all progress' : 'Reset progress'}
+				>
+					<RotateCcw size={11} />
+				</button>
 			</div>
-			{#if !wide}
-				<p class="mt-1 text-[10.5px]" style="color: var(--color-text-muted);">
-					{@render progressCounts()}
-				</p>
-			{/if}
+			<p class="mt-1 text-[10.5px]" style="color: var(--color-text-muted);">
+				{@render progressCounts()}
+			</p>
 		</div>
 	{/if}
 
+	<!-- pl-[5.5px], not px-3: the icon column must land on the SAME x whether the
+	     sidebar is collapsed or open, so the marks never slide sideways under the
+	     cursor when it toggles. 5.5 (nav) + 12 (the row's own px-3) + 8.5 (half of
+	     a 17px icon) = 26px, which is the app logo's centre. Vertical movement on
+	     expand is expected and fine; horizontal is not. -->
 	<nav
-		class="flex-1 overflow-y-auto px-3 py-2"
+		class="flex-1 overflow-y-auto py-2 pr-3 pl-[5.5px]"
 		style="--nav-open-ms: {OPEN_MS}ms"
 		use:autohideScroll
 	>
@@ -514,12 +620,6 @@
 					     the only thing that can fade the brightening up in step
 					     with the slide instead of switching it on at frame one. -->
 					<span class="nav-spine-lit" class:is-lit={expanded} aria-hidden="true"></span>
-					{#if active}
-						<span
-							class="absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-r-full"
-							style="background: var(--color-primary);"
-						></span>
-					{/if}
 					<button
 						onclick={() => {
 							// The label both navigates and toggles: clicking a part opens
@@ -640,11 +740,11 @@
 		     the same duplicate of the header rail and falls under the same rule;
 		     leaving it on desktop is exactly the "two timelines" the change is
 		     removing, just turned sideways. -->
-		{#if !wide && (sectionsRead > 0 || doneCount > 0)}
-			<div class="mini-vwrap" title={progressLabel}>
-				{@render miniTimeline(true)}
-			</div>
-		{/if}
+		<!-- No timeline on the COLLAPSED rail. A 3px vertical strip beside a
+		     column of icons is not a smaller version of the header rail, it is a
+		     different and worse object — and on a phone the collapsed rail is the
+		     default state, so it was the first thing a reader saw. The marks wait
+		     for the drawer, which is one tap away. -->
 
 		<div class="mb-1.5"></div>
 
@@ -736,37 +836,160 @@
 
 <style>
 	/* ───── mini timeline ─────────────────────────────────────────────────
-	   The header rail's three semantic colours, on the rail's own tokens.
-	   Caramel switches source per theme for the same reason it does there:
+	   The header rail's semantic colours, on the rail's own tokens. Caramel and
+	   clay switch source per theme for the same reason they do there:
 	   --color-playground-border is a dark brown in dark mode, so the agent
 	   button's gold takes over — same role, no new hue invented. */
 	.mini {
 		--tv-green: var(--color-primary);
 		--tv-brown: var(--color-vibe);
 		--tv-caramel: var(--color-playground-border);
-		--hatch-ink: color-mix(in srgb, var(--tv-brown) 82%, transparent);
-		--hatch-bed: color-mix(in srgb, var(--tv-brown) 11%, transparent);
-		--pg-bed: color-mix(in srgb, var(--tv-caramel) 16%, transparent);
-		--pg-edge: color-mix(in srgb, var(--tv-caramel) 60%, transparent);
+		--tv-clay: var(--color-challenge);
+		--tv-earned-bright: var(--color-earned-bright);
+		--tv-clay-bright: var(--color-challenge-bright);
+
+		/* THE HATCH, and this is the correction the whole rebuild turns on.
+		   It was ink 82% over bed 11% — a 7.5:1 relationship, with no dark-mode
+		   branch at all, so dark got the light values and the stripes were seven
+		   times brighter than the bar they were meant to be texturing. That is
+		   the identical defect the rail was just fixed for ("eight times
+		   brighter"), and it is what "the hashing of the boxes" names.
+
+		   These are the rail's own numbers, copied rather than re-judged: light
+		   keeps 72/9, dark lifts the bed to 30 and pulls the ink down to 52 so
+		   the two sit close together and the hatch becomes a SURFACE rather than
+		   the subject. */
+		--hatch-ink: color-mix(in srgb, var(--tv-brown) 72%, transparent);
+		--hatch-bed: color-mix(in srgb, var(--tv-brown) 9%, transparent);
+		--thread-dim: color-mix(in srgb, var(--tv-brown) 26%, transparent);
+
+		/* Unattempted marks, at the rail's exact weights. Playgrounds whisper
+		   (a hairline over a barely-there fill); challenges do not, because
+		   there is one per chapter and it is the reward at the end of it. */
+		--pg-line: color-mix(in srgb, var(--tv-caramel) 38%, transparent);
+		--pg-fill: color-mix(in srgb, var(--tv-caramel) 7%, transparent);
+		--ch-line: var(--tv-clay);
+		--ch-fill: color-mix(in srgb, var(--tv-clay) 26%, transparent);
+
 		display: flex;
 	}
 
 	@media (prefers-color-scheme: dark) {
 		:global(:root:not(.light)) .mini {
 			--tv-caramel: var(--color-btn-agent);
+			--hatch-bed: color-mix(in srgb, var(--tv-brown) 30%, transparent);
+			--hatch-ink: color-mix(in srgb, var(--tv-brown) 52%, transparent);
+			--thread-dim: color-mix(in srgb, var(--tv-brown) 42%, transparent);
 		}
 	}
 	:global(:root.dark) .mini {
 		--tv-caramel: var(--color-btn-agent);
+		--hatch-bed: color-mix(in srgb, var(--tv-brown) 30%, transparent);
+		--hatch-ink: color-mix(in srgb, var(--tv-brown) 52%, transparent);
+		--thread-dim: color-mix(in srgb, var(--tv-brown) 42%, transparent);
 	}
 	:global(:root.light) .mini {
 		--tv-caramel: var(--color-playground-border);
+		--hatch-bed: color-mix(in srgb, var(--tv-brown) 9%, transparent);
+		--hatch-ink: color-mix(in srgb, var(--tv-brown) 72%, transparent);
+		--thread-dim: color-mix(in srgb, var(--tv-brown) 26%, transparent);
 	}
 
 	.mini-lane {
 		display: flex;
 		min-width: 0;
 		min-height: 0;
+	}
+	/* The activity lanes are a row of cells on the SAME flex weights as the
+	   thread, so a part's mark is centred over that part's segment however the
+	   widths fall out. Nothing in them is a strip any more. */
+	.mini-cell {
+		position: relative;
+		flex-basis: 0;
+		flex-shrink: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* ---- the marks ------------------------------------------------------
+	   The rail's rest sizes: `pgMin` is 4 and `CH_MIN` is 4.6, and the diamond's
+	   EDGE is CH_RATIO (0.8) of the square's so that a shape rotated 45° does
+	   not end up 41% wider than its neighbour. 4.5 / 3.6 keeps that ratio while
+	   sitting a touch above the rail's floor, because these marks never magnify
+	   — the rail's smallest state is this surface's only state. */
+	.mini .mark {
+		--pg-edge-size: 4.2px;
+		--ch-edge-size: 3.4px;
+		display: block;
+		box-sizing: border-box;
+		/* `flex: 0 0 auto` is load-bearing, not tidiness. These sit in a flex row,
+		   and a flex item's declared width is only a BASIS — the default
+		   `flex-shrink: 1` lets the row squash it along the main axis whenever the
+		   track is tight, which is most of the time at sidebar width. The square
+		   stopped being square, and a rotated rectangle reads as neither a square
+		   nor a rhomboid. Opting out of shrink is what makes the declared size the
+		   real size. */
+		flex: 0 0 auto;
+	}
+	.mini .sq {
+		width: var(--pg-edge-size);
+		height: var(--pg-edge-size);
+		/* NOT the rail's 1.5px. That radius is tuned for a mark that spans 4 to
+		   9.5px under the lens and spends most of its life at the top of that
+		   range; these never magnify, so 1.5px on a 5.2px box rounds 3px off
+		   each corner and the square becomes a circle — which is both the wrong
+		   shape and the one marker the owner has asked not to see. 0.16 of the
+		   edge is the rail's own radius-to-size ratio at full magnification, so
+		   these are that ratio held rather than the absolute number copied. */
+		border-radius: 0.85px;
+		border: 1px solid var(--pg-line);
+		background: var(--pg-fill);
+	}
+	.mini .rh {
+		width: var(--ch-edge-size);
+		height: var(--ch-edge-size);
+		border-radius: 0.7px;
+		transform: rotate(45deg);
+		border: 1px solid var(--ch-line);
+		background: var(--ch-fill);
+	}
+	/* Three states, stepping monotonically in weight exactly as on the rail:
+	   outline -> solid on-colour -> the family's BRIGHT lift. The rail spends a
+	   star on that last step because within one lane at 5px the solved/unsolved
+	   step would otherwise be colour alone, and dark-mode clay against bright
+	   clay is close under deuteranopia. A star is not drawable at 4.5px without
+	   an SVG per mark, so the brightness step is carried by a ring instead: a
+	   halo the unsolved states do not have is a change in EXTENT, which is the
+	   same kind of channel a shape change is. */
+	.mini .sq.is-some {
+		background: var(--tv-caramel);
+		border-color: var(--tv-caramel);
+	}
+	.mini .sq.is-all {
+		background: var(--tv-earned-bright);
+		border-color: var(--tv-earned-bright);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--tv-earned-bright) 30%, transparent);
+	}
+	.mini .rh.is-attempted {
+		background: var(--tv-clay);
+		border-color: var(--tv-clay);
+	}
+	.mini .rh.is-completed {
+		background: var(--tv-clay-bright);
+		border-color: var(--tv-clay-bright);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--tv-clay-bright) 30%, transparent);
+	}
+
+	/* The hairline that ties a mark back to the thread, at the rail's own
+	   opacities. It is what makes the three lanes read as one object rather
+	   than three rows that happen to share an axis. */
+	.mini .stem {
+		position: absolute;
+		background: color-mix(in srgb, var(--tv-caramel) 38%, transparent);
+	}
+	.mini-ch .stem {
+		background: color-mix(in srgb, var(--tv-clay) 42%, transparent);
 	}
 
 	/* ---- horizontal: the expanded drawer ---- */
@@ -778,25 +1001,49 @@
 		gap: 1.5px;
 	}
 	.mini-h .mini-sec {
-		/* 6px, deliberately: the rail drops its hatch below 5.5px (`is-tiny`)
-		   because a 118deg stripe stops resolving there. Sitting just above that
-		   line is what lets the sidebar keep the hatch honestly. */
+		/* 6px: just above the 5.5px at which the rail gives up on the hatch
+		   (`is-tiny`), which is what lets this bar keep it honestly. */
 		height: 6px;
 	}
-	.mini-h .mini-pg {
-		height: 2.5px;
-		margin-top: 2px;
+	.mini-h .mini-pg,
+	.mini-h .mini-ch {
+		height: 7px;
 	}
 	.mini-h .mini-seg,
-	.mini-h .mini-pgseg {
+	.mini-h .mini-cell {
 		min-width: 7px;
 	}
-	.mini-h .fill {
-		width: calc(var(--f) * 100%);
-		height: 100%;
+	/* Stems run vertically, from the thread out to the mark. */
+	.mini-h .stem {
+		left: 50%;
+		width: 1px;
+		margin-left: -0.5px;
+	}
+	.mini-h .mini-pg .stem {
+		top: 50%;
+		bottom: -1px;
+	}
+	.mini-h .mini-ch .stem {
+		top: -1px;
+		bottom: 50%;
 	}
 
-	/* ---- vertical: the collapsed rail ---- */
+	/* ---- vertical: the collapsed rail ----------------------------------
+	   ONE LANE, and that is a judgement rather than an omission.
+
+	   This strip is 3px wide with the icon column 4px to its left; three lanes
+	   plus stems would need ~15px and would put a 4.5px mark within a pixel of
+	   the nav icons. The rail has the precedent for degrading rather than
+	   shrinking: `.tt-seg.is-tiny` drops the hatch and falls back to a flat
+	   `--thread-dim` the moment a bar is too narrow to carry a 45° stripe, on
+	   the grounds that under ~3px a diagonal is just noise. A 3px column is
+	   exactly that case, so it takes the same fallback — flat tones, no hatch —
+	   and the marks wait for the drawer, which is one tap away.
+
+	   The strip stays full-height for the reason it always did: the icons are a
+	   fixed 42px pitch while the rail is viewport-height, so a track aligned to
+	   them clips on a short viewport where a stretched one never does. What
+	   made it read as a barcode was the hashing, not the length. */
 	.mini-vwrap {
 		position: absolute;
 		top: calc(var(--header-height) + 58px);
@@ -809,108 +1056,75 @@
 	}
 	.mini-v .mini-lane {
 		flex-direction: column;
-		gap: 2px;
+		gap: 1.5px;
 	}
 	.mini-v .mini-sec {
 		width: 3px;
 	}
-	.mini-v .mini-pg {
-		width: 2.5px;
-		margin-left: 2px;
+	.mini-v .mini-pg,
+	.mini-v .mini-ch {
+		display: none;
 	}
-	.mini-v .mini-seg,
-	.mini-v .mini-pgseg {
+	.mini-v .mini-seg {
 		min-height: 9px;
 	}
-	.mini-v .fill {
-		height: calc(var(--f) * 100%);
-		width: 100%;
+	.mini-v .mini-seg.is-cold {
+		background-image: none;
+		background-color: var(--thread-dim);
 	}
 
-	/* ---- section segments: brown, hatched until read ---- */
+	/* ---- the thread: ONE FLAT COLOUR PER PART --------------------------
+	   `--tone` is resolved in script off the rail's own heat LUT, so a part's
+	   read fraction lands on the same ramp a section's dwell heat does up there.
+	   No gradient and no fill edge: the rail collapsed to one bucket per bar
+	   precisely because 57 little ramps read as too busy, and 15 of them at a
+	   third of the size would read worse. */
 	.mini-seg {
 		position: relative;
 		flex-shrink: 1;
 		flex-basis: 0;
-		overflow: hidden;
 		border-radius: 1.5px;
+		background-color: var(--tone);
+		transition: background-color 400ms ease-out;
+	}
+	/* The hatch means exactly one thing, here as on the rail: you have never
+	   been here. 45° and the rail's own stop pattern — a 0.3px solid core
+	   ramping to nothing by 0.75px over a 3.9px period, which is roughly an
+	   eighth of the ink the old 118°/1.7px-hard stripe carried, and it is
+	   ANTIALIASED rather than a sub-pixel hard edge.
+
+	   background-size is PINNED, and that is the other half of "the hashing of
+	   the boxes". With `auto` the gradient box is the element box, so CSS
+	   centres the pattern's line on each segment individually — and these
+	   segments are flex-grown to fifteen different widths, so every box hashed
+	   at a different phase and the row read as fifteen unrelated scratch
+	   patches. 31.68px is the rail's tile: 7 periods along each axis
+	   (3.9px along the gradient line is 3.9 x √2 along x), so the tiles abut in
+	   phase and the texture is continuous across the whole bar. */
+	.mini-seg.is-cold {
 		background-color: var(--hatch-bed);
 		background-image: repeating-linear-gradient(
-			118deg,
-			var(--hatch-ink) 0 1.7px,
-			transparent 2.1px 5px
+			45deg,
+			var(--hatch-ink) 0 0.3px,
+			transparent 0.75px 3.9px
 		);
+		background-size: 31.68px 31.68px;
 	}
-	.mini-seg .fill {
-		background: var(--tv-brown);
-		border-radius: 1.5px;
-		transition:
-			width 400ms ease-out,
-			height 400ms ease-out;
-	}
-	/* GREEN = where you are now. A ring, not a fill — recolouring the fill would
-	   conflate "here" with "read", which is the one thing the rail is careful
-	   never to do. */
+	/* GREEN = where you are now, and only that. A ring, never a fill —
+	   recolouring the segment would conflate "here" with "read", which is the
+	   one thing the rail is careful never to do. This is the rail's own
+	   `.tt-seg.is-active` value; the vertical strip takes a thinner, stronger
+	   one because a 1.5px ring on a 3px column is wider than the column. */
 	.mini-seg.is-here {
-		overflow: visible;
-		box-shadow: 0 0 0 1px var(--tv-green);
+		box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--tv-green) 55%, transparent);
 		z-index: 1;
 	}
-
-	/* ---- playground lane: caramel, its own geometry ---- */
-	.mini-pgseg {
-		position: relative;
-		flex-shrink: 1;
-		flex-basis: 0;
-		overflow: hidden;
-		border-radius: 1.5px;
-	}
-	/* At 2.5px a hatch is a single stray stripe, so unsolved playgrounds degrade
-	   to a dim caramel bed — the same fallback the rail makes at `is-small`,
-	   which is still unmistakably "not filled in" against solid caramel. */
-	.mini-pgseg.has-pg {
-		background: var(--pg-bed);
-		box-shadow: inset 0 0 0 0.5px var(--pg-edge);
-	}
-	.mini-pgseg .fill {
-		/* Positioned, so the SOLID (completed) fill paints above the absolutely
-		   positioned half-tone beneath it rather than under it. */
-		position: relative;
-		z-index: 1;
-		background: var(--tv-caramel);
-		border-radius: 1.5px;
-		transition:
-			width 400ms ease-out,
-			height 400ms ease-out;
-	}
-
-	/* STARTED-but-unsolved, drawn under the solid fill in a half-strength
-	   caramel. Three tones in one lane — bed, half, solid — is what stops a part
-	   you have opened and worked in from looking identical to one you have only
-	   scrolled past. Same track and same axis as .fill, so it needs no geometry
-	   of its own beyond reading --a where .fill reads --f. */
-	.mini-pgseg .tryfill {
-		position: absolute;
-		inset: 0;
-		background: color-mix(in srgb, var(--tv-caramel) 45%, transparent);
-		border-radius: 1.5px;
-		transition:
-			width 400ms ease-out,
-			height 400ms ease-out;
-	}
-	.mini-h .tryfill {
-		width: calc(var(--a) * 100%);
-		height: 100%;
-	}
-	.mini-v .tryfill {
-		height: calc(var(--a) * 100%);
-		width: 100%;
+	.mini-v .mini-seg.is-here {
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--tv-green) 75%, transparent);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.mini-seg .fill,
-		.mini-pgseg .fill,
-		.mini-pgseg .tryfill {
+		.mini-seg {
 			transition-duration: 1ms;
 		}
 	}

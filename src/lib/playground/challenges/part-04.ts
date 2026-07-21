@@ -112,10 +112,27 @@ export const challengePart4: Challenge = {
 	},
 
 	/**
-	 * Sixteen entries for a job that needs one line. Every stage of the honest
-	 * five-line path is clickable, so a beginner can finish without composing
-	 * anything; the one-line route has to be assembled by hand. That gap is the
-	 * beginner/expert split.
+	 * Seventeen entries for a job that needs one line, and every one of them is
+	 * a SINGLE STAGE.
+	 *
+	 * This pool used to carry five ready-made five-stage pipelines — the famous
+	 * one, the same thing with `head -n 4` bolted on, the same thing pointed at
+	 * the rotated log, and so on. They were 70 to 91 characters, they wrapped
+	 * over several lines on the chip rack, and three of them were the great line
+	 * with one token changed: click, delete a `*`, Enter. The economy this Part
+	 * exists to teach was a one-click purchase.
+	 *
+	 * So every entry is now one of the five stages, and the mistakes are stated
+	 * at the stage where each one actually lives: aiming the FILTER at the glob
+	 * or at the rotated log, cutting the UNFILTERED source, fumbling the `uniq`
+	 * spelling, and trimming the ranking by position instead of by rows. Nothing
+	 * is softened — each is still a mistake that exits 0 or eats a file, and each
+	 * still ruins the artifact. What is gone is the ability to buy the answer.
+	 *
+	 * Every stage of the honest five-line path is clickable, so a beginner can
+	 * still finish without composing anything; the one-line route now genuinely
+	 * has to be assembled out of these parts. That gap is the beginner/expert
+	 * split.
 	 */
 	pool: [
 		{ command: 'head -n 4 visits.log', role: 'solution' },
@@ -137,53 +154,51 @@ export const challengePart4: Challenge = {
 		},
 		{ command: "cut -d' ' -f1 real.txt > ips.txt", role: 'solution' },
 		{
-			command: "cut -d' ' -f1 visits.log | sort | uniq -c | sort -n > top-visitors.txt",
+			command: "cut -d' ' -f1 visits.log > ips.txt",
 			role: 'distractor',
 			kind: 'works-but-wrong',
 			teaches: 'section-4-3',
-			trap: 'The famous pipeline, run without reading the raw material first. It exits 0 and the file looks perfect — five tidy rows — and the fourth of them is 10.0.0.7, your own monitor, counted as one of your top visitors. Nothing is broken; the answer is just wrong.'
-		},
-		{
-			command: "cut -d' ' -f1 visits.log | sort | uniq -c | sort -n | head -n 4 > top-visitors.txt",
-			role: 'distractor',
-			kind: 'misconception',
-			teaches: 'section-4-3',
-			trap: 'Ranking everything and then slicing four rows off the end is not the same as removing the robot. The monitor is mid-pack, not top or bottom, so head kept it and threw away your busiest real visitor instead. Trimming a position is a guess about where the row landed; grep -v is a statement about which rows belong.'
+			trap: 'One filename out. This is the right stage aimed at the raw log instead of the filtered copy, so ips.txt is a perfectly good column of addresses with your own monitor still in it — and every stage after this one will tidy, tally and rank the robot right alongside the humans. Nothing errors; the answer is simply about a different question.'
 		},
 		{ command: 'sort ips.txt > sorted.txt', role: 'solution' },
 		{
-			command:
-				"cut -d' ' -f1 visits.log* | grep -v 10.0.0.7 | sort | uniq -c | sort -n > top-visitors.txt",
+			command: 'grep -v 10.0.0.7 visits.log* > real.txt',
 			role: 'distractor',
 			kind: 'overreach',
 			teaches: 'section-3-4',
-			trap: "visits.log* matches visits.log AND visits.log.1, so cut read both and glued them together. The addresses are right and every count is inflated by last week's traffic — the hardest kind of wrong to spot."
+			trap: "visits.log* matches visits.log AND visits.log.1, so grep read both and glued them together — and once grep has two files it stamps the filename on the front of every line, which the next stage will faithfully cut as though it were an address. Even if you strip that off, every count is inflated by last week's traffic: the hardest kind of wrong to spot."
 		},
 		{ command: 'uniq -c sorted.txt > counts.txt', role: 'solution' },
 		{
-			command:
-				"cut -d' ' -f1 visits.log.1 | grep -v 10.0.0.7 | sort | uniq -c | sort -n > top-visitors.txt",
-			role: 'distractor',
-			kind: 'wrong-target',
-			teaches: 'section-4-3',
-			trap: "Right pipeline, wrong file: visits.log.1 is last week's rotated log. You just ranked two visitors who are not the ones you were asked about."
-		},
-		{ command: 'sort -n counts.txt > top-visitors.txt', role: 'solution' },
-		{
-			command:
-				"cut -d' ' -f1 visits.log | grep -v 10.0.0.7 | sort | unqi -c | sort -n > top-visitors.txt",
+			command: 'unqi -c sorted.txt > counts.txt',
 			role: 'distractor',
 			kind: 'typo',
 			teaches: 'section-1-2',
-			trap: 'unqi is not a command, so the pipeline dies in the middle — but > had already emptied top-visitors.txt before any of it ran, because redirection is set up first and the command runs second. A typo cost you the file you were building.'
+			trap: 'unqi is not a command — but > had already emptied counts.txt before the shell went looking for it, because redirection is set up first and the command runs second. The typo cost you nothing; the arrow that ran ahead of it cost you the file you were building.'
 		},
 		{
-			command: "awk '{print $1}' visits.log | sort | uniq -c | sort -n > top-visitors.txt",
+			command: "awk '{print $1}' visits.log > ips.txt",
 			role: 'distractor',
 			kind: 'forward-reference',
 			teaches: 'section-7-4',
-			trap: "It runs — awk really does pull column one, and it is a fine tool. But awk is Part 7, and reaching past what you know did not save you from the actual mistake: no filter, so the monitor is still sitting in your results. A fancier way to do the step you already had right does not fix the step you got wrong, and cut -d' ' -f1 is the right size for this job today."
+			trap: "It runs — awk really does pull column one, and it is a fine tool. But awk is Part 7, and reaching past what you know did not save you from the actual mistake: this is the raw log, so the monitor is still sitting in your column. A fancier way to do the step you already had right does not fix the step you got wrong, and cut -d' ' -f1 is the right size for this job today."
 		},
+		{ command: 'sort -n counts.txt > top-visitors.txt', role: 'solution' },
+		{
+			command: 'head -n 4 counts.txt > top-visitors.txt',
+			role: 'distractor',
+			kind: 'misconception',
+			teaches: 'section-4-3',
+			trap: 'Taking the first four lines is not ranking them, and it is not filtering them either. counts.txt comes out of uniq in ADDRESS order, so head hands you rows in the wrong sequence — and if the robot was never filtered out, head keeps it (it is mid-pack, not last) and drops your busiest real visitor off the end. Trimming a position is a guess about where a row landed; sort -n and grep -v are statements about order and about which rows belong.'
+		},
+		{
+			command: 'grep -v 10.0.0.7 visits.log.1 > real.txt',
+			role: 'distractor',
+			kind: 'wrong-target',
+			teaches: 'section-4-3',
+			trap: "Right filter, wrong file: visits.log.1 is last week's rotated log. Everything downstream of this is correct and you will end up ranking two visitors who are not the ones you were asked about."
+		},
+		{ command: 'cat top-visitors.txt', role: 'solution' },
 		{
 			command: 'rm visits.log.1',
 			role: 'distractor',

@@ -70,8 +70,21 @@ import type { TimelineModel } from './mapping';
  * adjustment is a single edit here rather than a hunt through the file.
  */
 export const DWELL = {
-	/** Gradient stops per bar. 16 saturates the widest bar the fisheye draws. */
-	bucketsPerBar: 16,
+	/**
+	 * Bins per bar. ONE — a section is a single flat colour, not a gradient.
+	 *
+	 * It was 16, and the gradient inside each bar is what made the rail read as
+	 * "too busy": 57 bars each carrying their own little ramp is 57 pictures
+	 * competing at 6px tall, and the eye cannot rank them anyway. A section is
+	 * the unit the reader thinks in, so it is the unit the colour describes.
+	 *
+	 * The code is generic over this, so 1 is not a special case — it is the
+	 * same machinery with the finest granularity the design actually wants.
+	 * Collapsing it also removes a whole bug class for free: with no gradient
+	 * there is no per-bar background-position, and so nothing that can slide
+	 * out of register when the lens changes a bar's width.
+	 */
+	bucketsPerBar: 1,
 
 	/**
 	 * Fraction of modelled reading time at which a bucket reads as fully hot.
@@ -81,11 +94,23 @@ export const DWELL = {
 	saturateAt: 0.7,
 
 	/**
-	 * The SECOND concavity, off by default. 1 = linear. Below 1 lifts the low
-	 * end further; this compounds with `saturateAt`, so move one or the other,
-	 * not both.
+	 * The SECOND concavity on the time->heat axis. 1 = linear; below 1 lifts the
+	 * low end. It DOES compound with `saturateAt` — the header argues at length
+	 * for spending only one of them, and 0.65 is that budget being deliberately
+	 * spent anyway, on instruction: the owner asked for colour that visibly moves
+	 * within a single sitting and said they would tune by feel afterwards.
+	 *
+	 * What it buys, on the median section (153.5s modelled, so 107.5s to full):
+	 *
+	 *     dwell    heat (gamma 1)    heat (gamma 0.65)
+	 *      10s          0.09              0.21
+	 *      37s          0.34              0.50
+	 *     107s          1.00              1.00
+	 *
+	 * The top of the ramp is compressed, not unreachable — a full-attention read
+	 * of a section still lands at 1.0, which is the invariant that matters.
 	 */
-	heatGamma: 1,
+	heatGamma: 0.65,
 
 	/** Chroma front-loading in the colour ramp. Display budget, not measurement. */
 	chromaGamma: 0.75,
@@ -97,14 +122,45 @@ export const DWELL = {
 	maxVelocityPxPerSec: 900,
 
 	/**
-	 * Velocity must have been under the cap continuously for this long before a
-	 * bucket accrues. Reconciled to the more conservative of the two proposals
-	 * (1500ms over 400ms): the cheap failure is an attentive reader losing 1.5s
-	 * per stop, which is immaterial against a ~130s section; the expensive one
-	 * is an inertial fling's deceleration tail smearing heat behind every flick,
-	 * which is the exact artifact this feature exists to remove.
+	 * The window the velocity above is measured over, as NET DISPLACEMENT from
+	 * where the reader was `velocityWindowMs` ago to where they are now.
+	 *
+	 * This is the load-bearing knob, and getting it wrong killed the feature.
+	 * Velocity used to be sampled across one `sampleMs` tick, which made the real
+	 * gate "never advance more than 900 x 0.25 = 225px between two samples".
+	 * Discrete scrolling is inherently bursty — a wheel notch and a PageDown are
+	 * teleports, not motion — so every notch over 225px tripped the cap, reset
+	 * the settle timer, and the reader accrued nothing at all. Measured on the
+	 * production build, 60s of steady reading at a 1200ms cadence:
+	 *
+	 *     100px burst ( 70 px/s avg) -> 53.3s accrued (87%)
+	 *     200px burst (155 px/s avg) -> 41.8s accrued (69%)
+	 *     300px burst (239 px/s avg) ->  2.3s accrued ( 4%)   <- cliff at 225px
+	 *     PageDown    (618 px/s avg) ->  2.3s accrued ( 4%)
+	 *
+	 * Note what the cliff is NOT about: the 300px reader is slower on average
+	 * than plenty of readers who accrued fine. It is burst size, not speed. A
+	 * keyboard reader therefore accrued nothing, ever.
+	 *
+	 * Over a 1s window a wheel notch is what it actually is — a small net move —
+	 * while a genuine fling still reads as thousands of px/s and is still
+	 * rejected, for as long as it takes the window to slide past it.
 	 */
-	settleMs: 1500,
+	velocityWindowMs: 1000,
+
+	/**
+	 * Velocity must have been under the cap continuously for this long before a
+	 * bucket accrues.
+	 *
+	 * 400ms, down from 1500ms. The 1500ms choice was justified against "an
+	 * inertial fling's deceleration tail", but the tail is already killed by the
+	 * velocity cap, which stays over the cap for the whole window it is smeared
+	 * across. What 1500ms actually taxed was the ordinary wheel notch: its stated
+	 * cost — "an attentive reader losing 1.5s per stop" — is immaterial only if
+	 * stops are rare, and a reader stops roughly every 1.2s, so the cost was not
+	 * a fraction of accrual, it was all of it.
+	 */
+	settleMs: 400,
 
 	/** No scroll, pointer or key in this long and accrual stops until one lands. */
 	idleMs: 120_000,
@@ -155,7 +211,9 @@ const STORAGE_KEY = 'terminalvibes-dwell-v1';
  * same `migrateSections` rename chain, so a version skew here silently points
  * one map's data at the other map's ids.
  */
-const DWELL_VERSION = 2;
+// 3: bucketsPerBar 16 -> 1. Stored arrays are per-bar and length-checked on
+// load, so a v2 payload's 16-wide rows must not be read as v3 rows.
+const DWELL_VERSION = 3;
 
 /** 50ms quantum, 12 bits, two base64 chars per bucket. */
 const QUANTUM = 0.05;
@@ -439,15 +497,46 @@ export function createDwellTracker(): DwellTracker {
 		hasFocus = true;
 	};
 
+	/**
+	 * Net scroll speed over the trailing `velocityWindowMs`, in px/s.
+	 *
+	 * NET, and over a WINDOW, and both words are the fix. The question the gate
+	 * needs answered is "is this reader still roughly where they were a second
+	 * ago", not "did the document move between two consecutive 250ms samples".
+	 * A wheel notch is a teleport followed by stillness; sampling per-tick sees
+	 * only the teleport and concludes the reader is travelling at 1200px/s when
+	 * they have moved 300px in a second and are sitting reading it.
+	 *
+	 * Using net displacement rather than summed |dy| also means a reader who
+	 * scrolls down and back up to re-read a line is correctly treated as having
+	 * stayed put, which is exactly the behaviour the dwell measure wants.
+	 */
+	const velT: number[] = [];
+	const velY: number[] = [];
+
+	function windowVelocity(now: number, y: number): number {
+		velT.push(now);
+		velY.push(y);
+		// Keep the oldest entry that is still at or beyond the window edge, so the
+		// span measured is always >= velocityWindowMs once the history has filled.
+		const cutoff = now - DWELL.velocityWindowMs;
+		while (velT.length > 2 && velT[1] <= cutoff) {
+			velT.shift();
+			velY.shift();
+		}
+		const span = now - velT[0];
+		if (span <= 0) return 0;
+		return (Math.abs(y - velY[0]) / span) * 1000;
+	}
+
 	function sample() {
 		const now = performance.now();
 		const dt = Math.min(now - lastSample, DWELL.maxTickMs);
 		const y = window.scrollY;
 		const dy = Math.abs(y - lastY);
-		const elapsed = Math.max(1, now - lastSample);
 		lastSample = now;
 		if (dy > 0) noteInteraction();
-		const velocity = (dy / elapsed) * 1000;
+		const velocity = windowVelocity(now, y);
 		lastY = y;
 
 		const awake =

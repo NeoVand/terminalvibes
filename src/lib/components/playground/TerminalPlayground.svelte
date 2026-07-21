@@ -5,7 +5,7 @@
 		Terminal,
 		RotateCcw,
 		Gamepad2,
-		Target,
+		Puzzle,
 		ChevronRight,
 		ChevronDown,
 		X,
@@ -137,7 +137,7 @@
 	   card and TOC agree on what a thing is. */
 	const activityKind = $derived<ActivityKind>(kind ?? activityKindOf(activeScenarioId));
 	const isChallenge = $derived(activityKind === 'challenge');
-	const TypeIcon = $derived(isChallenge ? Target : Gamepad2);
+	const TypeIcon = $derived(isChallenge ? Puzzle : Gamepad2);
 	/** Earth-red for challenges; playgrounds keep the card's existing accent. */
 	const typeAccent = $derived(isChallenge ? 'var(--color-challenge)' : 'var(--color-important)');
 	const typeLabel = $derived(isChallenge ? 'Challenge brief:' : 'Playground hint:');
@@ -188,9 +188,15 @@
 			// half-typed command lingering from before.
 			input = '';
 			historyIndex = -1;
+			// A CHALLENGE'S BRIEF IS PRINTED ONCE, and the slot above the terminal
+			// is where it is printed (see the `TypeIcon` note). Echoing
+			// `description` into the scrollback as well put the same paragraph on
+			// screen twice, a few pixels apart — so a challenge opens on the
+			// how-to-drive line alone. A playground's `description` is a different
+			// string from its hint, so it still earns its line.
 			history = embedded
 				? [
-						{ type: 'system', text: next.description },
+						...(isChallenge ? [] : [{ type: 'system' as const, text: next.description }]),
 						{
 							type: 'system',
 							text: 'Type shell commands below. Enter "help" for supported commands.'

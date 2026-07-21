@@ -93,7 +93,17 @@ export const challengePart12: Challenge = {
 	 * 17 entries for a job that needs 2 or 3 lines. Both halves of the beginner's
 	 * staged route are here (scratch file to the config, history to a file then
 	 * grepped), and so is every ingredient of the economical one — but nothing is
-	 * pre-assembled with &&. Composing that is the expert's work.
+	 * pre-assembled. Composing that is the expert's work.
+	 *
+	 * `history | grep deploy.log > runbook.txt` used to be a chip. It is the
+	 * whole of this Part's signature lever and the whole of the great path's
+	 * second line, so clicking it bought the lesson outright. What is offered
+	 * now is `history | grep deploy.log` — the SEARCH, which is the idea — and
+	 * the learner supplies the arrow and the filename. Same for the typo
+	 * distractor beside it: `histroy > session.txt` teaches exactly what the
+	 * pipelined version taught (the redirection is set up before the shell goes
+	 * looking for the command) without handing over the composed line with one
+	 * letter out of place.
 	 *
 	 * The two chips that differ by a single character —
 	 *   echo "alias failcheck=..." >  ~/.bashrc
@@ -126,15 +136,15 @@ export const challengePart12: Challenge = {
 			trap: 'Exits 0, writes a full-looking file — and dumps every command you have typed instead of the ones about the deploy. Note what it wrote about itself: a line mentioning runbook.txt and nothing else. History is a searchable log, and 12.2 is about the search half.'
 		},
 		{ command: 'history > session.txt', role: 'solution' },
+		{ command: 'grep deploy.log session.txt > runbook.txt', role: 'solution' },
 		{
-			command: 'histroy | grep deploy.log > runbook.txt',
+			command: 'histroy > session.txt',
 			role: 'distractor',
 			kind: 'typo',
 			teaches: 'section-1-2',
-			trap: 'histroy is not a command — but the shell set up the redirection before it went looking, so runbook.txt already exists and is empty. The typo cost you nothing; the > that ran first did.'
+			trap: 'histroy is not a command — but the shell set up the redirection before it went looking, so session.txt already exists and is empty, and the grep you run against it next will find nothing and tell you nothing about why. The typo cost you nothing; the > that ran ahead of it did.'
 		},
-		{ command: 'grep deploy.log session.txt > runbook.txt', role: 'solution' },
-		{ command: 'history | grep deploy.log > runbook.txt', role: 'solution' },
+		{ command: 'history | grep deploy.log', role: 'solution' },
 		{
 			command: "alias failcheck='grep FAILED deploy.log'",
 			role: 'distractor',
@@ -151,10 +161,10 @@ export const challengePart12: Challenge = {
 			trap: '> replaces, >> appends. The alias line is perfect and it is now the ONLY line in ~/.bashrc — your editor setting and your ll alias were overwritten by it. One extra character was the difference between adding to your config and replacing it.'
 		},
 		{
-			command: 'echo "alias failcheck=\'grep FAILED deploy.log\'" > alias-line.txt',
+			command: 'echo "alias failcheck=\'grep FAILED deploy.log\'" > line.txt',
 			role: 'solution'
 		},
-		{ command: 'cat alias-line.txt >> ~/.bashrc', role: 'solution' },
+		{ command: 'cat line.txt >> ~/.bashrc', role: 'solution' },
 		{
 			command: 'echo "alias failcheck=\'grep FAILED deploy.log\'" >> ~/.bashrc',
 			role: 'solution'
@@ -256,8 +266,8 @@ export const challengePart12: Challenge = {
 				'grep FAILED deploy.log > failures.txt',
 				'history > session.txt',
 				'grep deploy.log session.txt > runbook.txt',
-				'echo "alias failcheck=\'grep FAILED deploy.log\'" > alias-line.txt',
-				'cat alias-line.txt >> ~/.bashrc'
+				'echo "alias failcheck=\'grep FAILED deploy.log\'" > line.txt',
+				'cat line.txt >> ~/.bashrc'
 			],
 			note: 'One thought per line: park the history in a file and grep the file, write the config line to a scratch file and pour that into ~/.bashrc. Every step is correct and nothing here is a bad habit — it is just five Enters and two scratch files for something that needed two Enters and none.',
 			expect: { enters: 5, elements: 5, cost: 10 }

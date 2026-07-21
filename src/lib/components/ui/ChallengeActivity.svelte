@@ -9,15 +9,20 @@
 	 *
 	 * Three rules the code enforces rather than merely intends:
 	 *
-	 *   1. NO HINT. `toScenario` puts the brief where the UI expects `hint`, so
-	 *      there is no second slot to fill and nothing here offers one.
+	 *   1. NO HINT, AND THE BRIEF IS PRINTED ONCE. `toScenario` puts the brief
+	 *      where the UI expects `hint`, so there is no second slot to fill and
+	 *      nothing here offers one. That slot — one Puzzle icon and the prose,
+	 *      directly above the terminal — is the SAME slot a playground puts its
+	 *      lightbulb-free hint in, which is why this header carries no icon of
+	 *      its own and why TerminalPlayground does not echo the brief into the
+	 *      terminal scrollback for a challenge. One brief, one icon, one place.
 	 *   2. The pool is a KIT, not a walkthrough. TerminalPlayground labels the
 	 *      chips accordingly once it knows this is a challenge.
 	 *   3. The grade is FROZEN at the first passing check. Poking around after
 	 *      you have solved it must never demote you.
 	 */
 	import { onMount } from 'svelte';
-	import { RotateCcw, Target } from 'lucide-svelte';
+	import { Puzzle, RotateCcw } from 'lucide-svelte';
 	// Type-only, so it is erased: the real module is still fetched lazily below.
 	import type TerminalPlayground from '$lib/components/playground/TerminalPlayground.svelte';
 	import type { AttemptScore, Challenge, ChallengeGrade } from '$lib/playground/challenges';
@@ -149,8 +154,9 @@
 	bind:this={rootEl}
 >
 	<div class="activity-header">
-		<span class="flex items-center gap-1.5 text-sm font-semibold" style="color: {accent};">
-			<Target size={14} aria-hidden="true" />
+		<!-- No icon here. The card's one icon lives beside the brief below, exactly
+		     where a playground puts its own — see the header note. -->
+		<span class="text-sm font-semibold" style="color: {accent};">
 			<span class="sr-only">Challenge:</span>
 			{title}
 		</span>
@@ -226,7 +232,7 @@
 		     of what it cost you. -->
 		<div class="verdict" style="--verdict-accent: {verdictAccent};" role="status">
 			<p class="verdict-line">
-				<Target size={14} aria-hidden="true" />
+				<Puzzle size={14} aria-hidden="true" />
 				{#if verdict.grade === 'great'}
 					<!-- No number in this line. `greatCost` is the MAX across the
 					     canonical route and its alternates, so an economical solve is

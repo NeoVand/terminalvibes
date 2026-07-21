@@ -110,19 +110,40 @@ export const challengePart9: Challenge = {
 	},
 
 	/**
-	 * 17 entries for a job that needs 3. Every step of the ACCEPTABLE path is
-	 * clickable; the GREAT path's two pipelines are present as ingredients but
-	 * nothing is pre-chained, so composing the economical run is the learner's
-	 * own work.
+	 * 16 entries for a job that needs 3, and NOT ONE of them is a curl piped
+	 * into a jq piped into a file.
+	 *
+	 * It used to hold seven such lines, two of which were the great path
+	 * verbatim: `curl -s api.vibecloud.dev/releases | jq -r .latest >
+	 * report.txt` sat on a chip you could click, press Enter on, and be two
+	 * thirds of the way to GREAT having composed nothing. The signature lever of
+	 * this entire Part — DO NOT LET THE JSON TOUCH THE DISK — was a button.
+	 *
+	 * The pool now offers the three ingredients separately, at the granularity
+	 * the beginner's route uses them:
+	 *
+	 *   ask          curl -s <url>                    (see the reply)
+	 *   ask and keep curl -s -o <file> <url>          (park the reply)
+	 *   extract      cat <file> | jq -r .<key> > out  (read it back)
+	 *
+	 * GREAT is noticing that the first and the third are the same shape, and
+	 * that curl will hand its reply straight to jq if you let it. That is now
+	 * something you compose, not something you click.
+	 *
+	 * The distractors moved down to the same granularity and lost none of their
+	 * teeth: the missing `-r`, the `items[0]` misread and the `>`-for-`>>` slip
+	 * are all stated against the staged files, where they are one character from
+	 * the correct chip beside them and go just as wrong. Every step of the
+	 * ACCEPTABLE path is still clickable, in order.
 	 */
 	pool: [
 		{ command: 'cat api-notes.md', role: 'solution' },
 		{
-			command: 'curl -s api.vibecloud.dev/status | jq -r .latest > report.txt',
+			command: 'curl -s api.vibecloud.dev/status | jq -r .latest',
 			role: 'distractor',
 			kind: 'wrong-target',
 			teaches: 'section-9-3',
-			trap: '/status is the public status PAGE — it answers HTML, so jq died with "parse error" instead of giving you a version. And the > had already emptied report.txt before curl even dialled, so you are now worse off than when you started.'
+			trap: '/status is the public status PAGE — it answers HTML, not JSON, so jq gave up with "parse error" instead of a version. Point this at a file with a > on the end and you will have emptied that file before curl even dialled. api-notes.md says which endpoint carries the version, and it is not this one.'
 		},
 		{ command: 'curl -s api.vibecloud.dev/releases', role: 'solution' },
 		{
@@ -134,26 +155,23 @@ export const challengePart9: Challenge = {
 		},
 		{ command: 'curl -s -o releases.json api.vibecloud.dev/releases', role: 'solution' },
 		{
-			command: 'curl -s api.vibecloud.dev/releases | jq .latest > report.txt',
+			command: 'cat releases.json | jq .latest > report.txt',
 			role: 'distractor',
 			kind: 'misconception',
 			teaches: 'section-9-3',
-			trap: 'Without -r, jq prints a JSON string — quotes and all. report.txt now holds "2.4.0" instead of 2.4.0, which exits 0, looks right at a glance, and breaks whatever reads it next.'
+			trap: 'Without -r, jq prints a JSON string — quotes and all. report.txt now holds "2.4.0" instead of 2.4.0, which exits 0, looks right at a glance, and breaks whatever reads it next. One letter between this chip and the correct one.'
 		},
 		{ command: 'cat releases.json | jq -r .latest > report.txt', role: 'solution' },
 		{
-			command: 'curl -s api.vibecloud.dev/releases | jq -r .items[0].tag > report.txt',
+			command: 'cat releases.json | jq -r .items[0].tag > report.txt',
 			role: 'distractor',
 			kind: 'works-but-wrong',
 			teaches: 'section-9-3',
-			trap: 'items[0] is the newest tag, not the released one: you just filed 2.5.0-rc.1, a release candidate. The filter worked perfectly. It was the wrong question.'
+			trap: 'items[0] is the newest tag, not the released one: you just filed 2.5.0-rc.1, a release candidate. The filter worked perfectly. It was the wrong question, and api-notes.md warned you in as many words.'
 		},
+		{ command: 'curl -s localhost:3000/health', role: 'solution' },
 		{
-			command: 'curl -s api.vibecloud.dev/releases | jq -r .latest > report.txt',
-			role: 'solution'
-		},
-		{
-			command: 'curl -H "Authorization: Bearer sk-vibe-4d81f0c7" api.vibecloud.dev/releases',
+			command: 'curl -H "Key: sk-vibe-4d81f0c7" api.vibecloud.dev/releases',
 			role: 'distractor',
 			kind: 'misconception',
 			teaches: 'section-9-4',
@@ -167,15 +185,14 @@ export const challengePart9: Challenge = {
 			teaches: 'section-3-4',
 			trap: 'A glob does not match a dotfile. You just locked down api-notes.md, notes.md and everything else you had built — and left .env, the only file that actually holds a secret, exactly as open as it was.'
 		},
-		{ command: 'curl -s localhost:3000/health | jq -r .status >> report.txt', role: 'solution' },
+		{ command: 'cat health.json | jq -r .status >> report.txt', role: 'solution' },
 		{
-			command: 'curl -s localhost:3000/health | jq -r .status > report.txt',
+			command: 'cat health.json | jq -r .status > report.txt',
 			role: 'distractor',
 			kind: 'misconception',
 			teaches: 'section-4-1',
 			trap: 'Right value, wrong arrow. > replaces and >> appends: the version line you had just proved is gone, and report.txt holds nothing but the word ok.'
 		},
-		{ command: 'cat health.json | jq -r .status >> report.txt', role: 'solution' },
 		{ command: 'chmod 600 .env', role: 'solution' },
 		// -a, not just -l: a dotfile is exactly the thing `ls -l` does not show
 		// you, and .env is the file this challenge is really about.
