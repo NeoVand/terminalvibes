@@ -129,9 +129,13 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 				<Code code="-i" />
 				("interactive"):
 				<Code code="cp -i config.yaml backups/" />
-				asks
+				stops and asks
 				<Code code="overwrite?" />
-				before clobbering anything. This same silent-overwrite rule returns with
+				before clobbering anything — type <Code code="y" /> or <Code code="n" /> and press Enter, and
+				a bare Enter counts as no. That <Code code="-i" /> belongs to cp, though, not to the terminal:
+				<Code code="sed" /> takes the same letter and means something far sharper by it (<CourseLink
+					to="section-7-3"
+				/>). This same silent-overwrite rule returns with
 				<Code code="mv" /> in the next section — it's a theme.
 			</Callout>
 
@@ -169,7 +173,8 @@ cp -r projects backup-projects   # -r = recursive: the folder and everything ins
 
 			<Callout type="note">
 				<strong>The Problem:</strong> The agent scaffolded your project but named the main file
-				<Code code="untitled.py" />, and dropped three data files in the project root that belong in
+				<Code code="untitled.py" />, and dropped three data files in the project's top folder that
+				belong in
 				<Code code="data/" />. Tidy it up.
 			</Callout>
 
@@ -191,12 +196,23 @@ mv draft.md docs/chapter-1.md`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The middle line is the fine print behind "source first, destination second": once you name
+				more than two things, the <em>last</em> one has to be a folder, and it has to exist already.
+				Neither <Code code="cp" /> nor <Code code="mv" /> will make one for you — with no
+				<Code code="docs/" /> yet, the last line stops at
+				<Code code="No such file or directory" />, and you fix it with
+				<Code code="mkdir docs" /> and run it again.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Two nice surprises compared to <Code code="cp" />:
 				<Code code="mv" />
 				moves whole folders <em>without</em> needing
 				<Code code="-r" />
 				(on the same disk it just relabels the folder's address — instant, even for gigabytes), and since
-				nothing is duplicated, there's no copy lying around to get stale.
+				nothing is duplicated, there's no copy lying around to get stale. Move to a
+				<em>different</em> disk, though — an external drive, a USB stick — and mv quietly becomes a full
+				copy followed by a delete: slow, and interruptible halfway through.
 			</p>
 
 			<Callout type="warning">
@@ -370,7 +386,9 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 				asks before every single deletion, and
 				<Code code="rm -I" /> (capital i) asks once when deleting more than three files — a good permanent
 				default. And for anything precious, the calmer move is often mv: relocate to a scrap folder today,
-				delete the scrap folder next week.
+				delete the scrap folder next week. The exception is <strong>build artifacts</strong> — whatever
+				the project's build leaves behind, the step that turns your source files into something you can
+				run. Delete those freely; running the build again writes them straight back.
 			</Callout>
 
 			<h4
@@ -422,8 +440,8 @@ rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, 
 
 			<Callout type="note">
 				<strong>The mess:</strong> The agent's test run left 40
-				<Code code=".tmp" /> files scattered through your project. Deleting them one by one would take
-				ten minutes. One pattern does it in a second — if you can trust what the pattern matches.
+				<Code code=".tmp" /> files littered through this folder. Deleting them one by one would take ten
+				minutes. One pattern does it in a second — if you can trust what the pattern matches.
 			</Callout>
 
 			<div class="my-4 overflow-hidden rounded-lg" style="background: var(--color-bg-secondary);">
@@ -508,10 +526,11 @@ rm *.tmp                               # Now you KNOW what this deletes`}
 				<Code code="echo" />
 				just prints its arguments — so
 				<Code code="echo <pattern>" />
-				is a free, perfectly safe preview of any wildcard. (<Code code="ls <pattern>" /> works too.) Make
-				it a reflex before every destructive glob, and apply it to AI-proposed commands: when an agent
-				suggests a command containing a wildcard, echo that pattern in the target directory before you
-				approve the real thing.
+				is a free, safe preview of any wildcard. (<Code code="ls <pattern>" /> works too; the angle brackets
+				mark the spot you fill in and are never typed — the convention from
+				<CourseLink to="section-1-3" />.) Make it a reflex before every destructive glob, and apply
+				it to AI-proposed commands: when an agent suggests a command containing a wildcard, echo
+				that pattern in the target directory before you approve the real thing.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -523,8 +542,17 @@ rm *.tmp                               # Now you KNOW what this deletes`}
 				code={`cp *.md drafts/           # Copy every Markdown file into drafts/
 mv photo-0?.jpg january/  # Move photo-01.jpg through photo-09.jpg
 ls report-[12].txt        # List just report-1.txt and report-2.txt
-ls src/*.js               # Globs work inside paths too`}
+ls src/*.js               # Globs work inside a path too — but only one folder deep`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That last line is where globs stop: one never crosses a <Code code="/" />.
+				<Code code="src/*.js" /> looks inside <Code code="src" /> and gives up there — it will not find
+				<Code code="src/lib/util.js" />, and no arrangement of stars will make it. When a mess is
+				spread down through subfolders the pattern is the wrong tool, and walking a whole tree is
+				<Code code="find" />'s job: <Code code="find . -name '*.tmp'" /> would have caught those 40 files
+				wherever they'd landed. It has a section waiting in <CourseLink to="section-4-5" />.
+			</p>
 
 			<Callout type="warning">
 				Two classic surprises: <Code code="*" />

@@ -26,7 +26,7 @@ function resolveSectionId(command: string, category: string): string {
 
 	// Panic-row keys and history tricks first — they contain words that would
 	// otherwise match broader rules below.
-	if (cmd.includes('!!') || first === 'history') return 'section-11-2';
+	if (cmd.includes('!!') || first === 'history') return 'section-12-2';
 	if (first === 'ctrl+c' || first === 'ctrl+d' || first === 'ctrl+l' || first === 'reset')
 		return 'section-1-2';
 	if (first === 'q' || first === ':q!') return 'section-1-3';
@@ -280,7 +280,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-1-3',
 		title: 'Getting Help',
 		part: 'First Contact',
-		description: '--help, man pages, tldr — and q to escape the pager.',
+		description: 'What a flag is, --help, man pages, tldr — and q to escape the pager.',
 		keywords: [
 			'help',
 			'man page',
@@ -291,7 +291,19 @@ const topicEntries: SearchEntry[] = [
 			'what does this command do',
 			'pager',
 			'q to quit',
-			'stuck in man'
+			'stuck in man',
+			'flag',
+			'flags',
+			'option',
+			'what is a flag',
+			'dash',
+			'single dash vs double dash',
+			'argument',
+			'placeholder',
+			'angle brackets',
+			'usage line',
+			'synopsis',
+			'man section numbers'
 		],
 		kind: 'topic'
 	},
@@ -332,7 +344,18 @@ const topicEntries: SearchEntry[] = [
 			'tab completion',
 			'autocomplete',
 			'slash',
-			'root'
+			'root',
+			'quotes',
+			'single vs double quotes',
+			'quoting',
+			'escape a space',
+			'backslash',
+			'filename with spaces',
+			'trailing slash',
+			'/usr',
+			'/etc',
+			'/bin',
+			'/tmp'
 		],
 		kind: 'topic'
 	},
@@ -390,7 +413,15 @@ const topicEntries: SearchEntry[] = [
 			'see contents',
 			'watch log',
 			'follow log',
-			'tail -f'
+			'tail -f',
+			'csv',
+			'yaml',
+			'markdown',
+			'.md',
+			'.sh',
+			'file extension',
+			'byte',
+			'what is a byte'
 		],
 		kind: 'topic'
 	},
@@ -458,7 +489,11 @@ const topicEntries: SearchEntry[] = [
 			'pattern',
 			'match files',
 			'select files',
-			'expansion'
+			'expansion',
+			'glob vs regex',
+			'globbing',
+			'does a glob cross a slash',
+			'wildcard subfolders'
 		],
 		kind: 'topic'
 	},
@@ -478,6 +513,12 @@ const topicEntries: SearchEntry[] = [
 			'overwrite file',
 			'stderr',
 			'stdout',
+			'stdin',
+			'standard output',
+			'standard error',
+			'standard input',
+			'2>&1',
+			'stream',
 			'truncate',
 			'2>'
 		],
@@ -517,7 +558,14 @@ const topicEntries: SearchEntry[] = [
 			'search logs',
 			'case insensitive',
 			'recursive search',
-			'match'
+			'match',
+			'regex',
+			'regular expression',
+			'regex vs glob',
+			'anchor',
+			'log file',
+			'log levels',
+			'debug info warn error'
 		],
 		kind: 'topic'
 	},
@@ -560,12 +608,12 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 5: Permissions & Environment ─────
+	// ───── Part 5: Permissions & Config ─────
 	{
 		id: 'topic-ls-l',
 		sectionId: 'section-5-1',
 		title: 'Reading ls -l',
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: 'The 10-character permission string decoded: rwx for user, group, other.',
 		keywords: [
 			'ls -l',
@@ -576,7 +624,13 @@ const topicEntries: SearchEntry[] = [
 			'group',
 			'long listing',
 			'drwxr-xr-x',
-			'read write execute'
+			'read write execute',
+			'type character',
+			'link count',
+			'what is a group',
+			'staff group',
+			'x on a directory',
+			'total 12'
 		],
 		kind: 'topic'
 	},
@@ -584,7 +638,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-chmod',
 		sectionId: 'section-5-2',
 		title: 'chmod',
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: 'chmod +x to run a script; 755 and 644 as recipes.',
 		keywords: [
 			'chmod',
@@ -604,7 +658,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-sudo',
 		sectionId: 'section-5-3',
 		title: 'sudo',
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: 'Run as administrator — with respect, and never blindly.',
 		keywords: [
 			'sudo',
@@ -626,7 +680,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-env-vars',
 		sectionId: 'section-5-4',
 		title: 'Environment Variables',
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: '$HOME, export, PATH — and "command not found" demystified.',
 		keywords: [
 			'environment variable',
@@ -647,7 +701,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-shell-config',
 		sectionId: 'section-5-5',
 		title: 'Your Shell Config',
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: '.bashrc / .zshrc, alias, and source — make the shell your own.',
 		keywords: [
 			'bashrc',
@@ -659,11 +713,17 @@ const topicEntries: SearchEntry[] = [
 			'dotfiles',
 			'startup file',
 			'profile',
-			'customize shell'
+			'customize shell',
+			'child shell',
+			'subshell',
+			'source vs ./script.sh',
+			'why does cd in a script do nothing',
+			'zprofile',
+			'bash_profile'
 		],
 		kind: 'topic'
 	},
-	// ───── Part 6: Terminal for the AI Era ─────
+	// ───── Part 11: Terminal for the AI Era (kept here; array order does not affect ranking) ─────
 	{
 		id: 'topic-read-before-run',
 		sectionId: 'section-11-1',
@@ -762,7 +822,14 @@ const topicEntries: SearchEntry[] = [
 			'install script',
 			'install.sh',
 			'one-line install',
-			'is curl bash safe'
+			'is curl bash safe',
+			'-fsSL',
+			'curl flags',
+			'follow redirects',
+			'remote code execution',
+			'sandbox',
+			'seatbelt',
+			'bubblewrap'
 		],
 		kind: 'topic'
 	},
@@ -783,7 +850,11 @@ const topicEntries: SearchEntry[] = [
 			'.sh file',
 			'automate',
 			'arguments',
-			'$1'
+			'$1',
+			'env',
+			'usr bin env',
+			'what does shebang mean',
+			'script arguments'
 		],
 		kind: 'topic'
 	},
@@ -905,7 +976,15 @@ const topicEntries: SearchEntry[] = [
 			'cpu usage',
 			'high cpu',
 			'fans loud',
-			'list processes'
+			'list processes',
+			'aux',
+			'what does aux mean',
+			'process id',
+			'%cpu',
+			'%mem',
+			'cpu core',
+			'340% cpu',
+			'ps vs ps aux'
 		],
 		kind: 'topic'
 	},
@@ -925,7 +1004,18 @@ const topicEntries: SearchEntry[] = [
 			'not responding',
 			'wont stop',
 			'terminate',
-			'ctrl+c signal'
+			'ctrl+c signal',
+			'signal',
+			'signals',
+			'what is a signal',
+			'sigint',
+			'sighup',
+			'signal number',
+			'kill -15',
+			'kernel',
+			'what is the kernel',
+			'lock file',
+			'foreground'
 		],
 		kind: 'topic'
 	},
@@ -938,7 +1028,7 @@ const topicEntries: SearchEntry[] = [
 		keywords: [
 			'port',
 			'port 3000',
-			'eaddrinue',
+			'eaddrinuse',
 			'EADDRINUSE',
 			'address already in use',
 			'lsof',
@@ -986,7 +1076,14 @@ const topicEntries: SearchEntry[] = [
 			'localhost:3000',
 			'5173',
 			'8080',
-			'dev server url'
+			'dev server url',
+			'http',
+			'https',
+			'what does https mean',
+			'ip address',
+			'url path vs file path',
+			'404',
+			'route'
 		],
 		kind: 'topic'
 	},
@@ -1007,7 +1104,14 @@ const topicEntries: SearchEntry[] = [
 			'curl -H',
 			'api request',
 			'curl | bash',
-			'health check'
+			'health check',
+			'api',
+			'what is an api',
+			'http header',
+			'header',
+			'authorization',
+			'bearer token',
+			'x-api-key'
 		],
 		kind: 'topic'
 	},
@@ -1025,7 +1129,12 @@ const topicEntries: SearchEntry[] = [
 			'jq -r',
 			'api response',
 			'nested json',
-			'pretty print json'
+			'pretty print json',
+			'parse error',
+			'jq parse error',
+			'html',
+			'got html instead of json',
+			'what is json'
 		],
 		kind: 'topic'
 	},
@@ -1086,7 +1195,15 @@ const topicEntries: SearchEntry[] = [
 			'npm install -g',
 			'package manager',
 			'command not found after install',
-			'how to install a tool'
+			'how to install a tool',
+			'winget',
+			'brew not found',
+			'install homebrew',
+			'typosquatting',
+			'package.json',
+			'npm run',
+			'-g global install',
+			'install jq'
 		],
 		kind: 'topic'
 	},
@@ -1125,7 +1242,12 @@ const topicEntries: SearchEntry[] = [
 			'broken link',
 			'node_modules/.bin',
 			'wrong version',
-			'where is it really installed'
+			'where is it really installed',
+			'version manager',
+			'nvm',
+			'pyenv',
+			'relative vs absolute target',
+			'lrwxr-xr-x'
 		],
 		kind: 'topic'
 	},
@@ -1188,8 +1310,18 @@ const topicEntries: SearchEntry[] = [
 			'appearance',
 			'prompt customization',
 			'ps1',
+			'ps2',
+			'prompt string 1',
+			'continuation prompt',
 			'starship',
 			'profiles',
+			'terminal profile',
+			'monospaced font',
+			'true color',
+			'zsh plugins',
+			'zsh-autosuggestions',
+			'zsh-syntax-highlighting',
+			'oh-my-zsh',
 			'pretty terminal'
 		],
 		kind: 'topic'
@@ -1232,7 +1364,11 @@ const topicEntries: SearchEntry[] = [
 			'previous command',
 			'repeat command',
 			'last command',
-			'rerun'
+			'rerun',
+			'scrollback',
+			'history vs scrollback',
+			'zsh_history',
+			'bash_history'
 		],
 		kind: 'topic'
 	},
@@ -1337,7 +1473,18 @@ const topicEntries: SearchEntry[] = [
 			'cooked mode',
 			'canonical mode',
 			'stty',
-			'internals'
+			'internals',
+			'fork',
+			'exec',
+			'fork and exec',
+			'caret notation',
+			'^c',
+			'carriage return',
+			'newline',
+			'blocked read',
+			'trap',
+			'shell function',
+			'while read loop'
 		],
 		kind: 'topic'
 	},
@@ -1669,7 +1816,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-pg-fix-permissions',
 		sectionId: 'fix-permissions',
 		title: "Playground: The Script Won't Run",
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: 'Diagnose "Permission denied" and fix it with chmod +x.',
 		keywords: [
 			'playground',
@@ -1684,7 +1831,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-pg-path-repair',
 		sectionId: 'path-repair',
 		title: 'Playground: command not found',
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: 'Inspect PATH, find the missing tool, and run it anyway.',
 		keywords: [
 			'playground',
@@ -1699,7 +1846,7 @@ const topicEntries: SearchEntry[] = [
 		id: 'topic-pg-alias-workshop',
 		sectionId: 'alias-workshop',
 		title: 'Playground: Make Your Shortcuts',
-		part: 'Permissions & Environment',
+		part: 'Permissions & Config',
 		description: 'Create your own aliases and use them.',
 		keywords: ['playground', 'practice', 'alias workshop', 'shortcuts', 'alias practice'],
 		kind: 'topic'

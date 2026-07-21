@@ -88,8 +88,11 @@ kiwi smoothie — kiwi, ice, lime`}
 				<strong style="color: var(--color-text);">find this</strong>; <Code code="kiwi" /> is
 				<strong style="color: var(--color-text);">replace with this</strong>; <Code code="g" /> means
 				<strong style="color: var(--color-text);">every match on the line</strong>, not just the
-				first. Two more pieces complete the grammar: <Code code="I" /> ignores case, and the slashes are
-				just delimiters — any character works, which saves you from escaping paths:
+				first. That find half is a regular expression rather than a plain string, so
+				<Code code="." />, <Code code="*" />, <Code code="^" /> and <Code code="$" /> carry the meanings
+				they had in <CourseLink to="section-4-3" /> — a dot matches any character, even where you meant
+				a literal one. Two more pieces complete the grammar: <Code code="I" /> ignores case, and the slashes
+				are just delimiters — any character works, which saves you from escaping paths:
 			</p>
 
 			<CodeBlock
@@ -98,6 +101,14 @@ kiwi smoothie — kiwi, ice, lime`}
 sed 's/error/[&]/I' app.log            # & = whatever matched; I = any case
 [ERROR] payment timeout                # "error", "Error", "ERROR" all wrapped`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That <Code code="|" /> is doing sed's job, not the shell's — inside the quotes it's a delimiter,
+				and the same character outside them is the pipe from <CourseLink to="part-4" />. The single
+				quotes are the whole difference: they hand sed its script as one untouched word (<CourseLink
+					to="section-2-2"
+				/>), which is why every sed script in this part wears them.
+			</p>
 
 			<Callout type="tip">
 				<strong>Preview to the screen, then redirect.</strong> The same habit as echo-the-glob from
@@ -159,6 +170,16 @@ sed '3d' notes.txt            # drop line 3
 sed '2,5d' notes.txt          # drop lines 2 through 5
 sed '$d' notes.txt            # drop the last line`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Those four are most of the address vocabulary, and two of them are worth a second look.
+				<Code code="/DEBUG/" /> is a regular expression tried against every line, not a plain word — the
+				same rules as the find half of <Code code="s///" />. And <Code code="$" /> here is sed's name
+				for the last line: an address, not a variable, with nothing to do with the <Code
+					code="$NAME"
+				/> expansion from <CourseLink to="section-5-4" />. awk hands the same character a third job
+				in 7.4.
+			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The mirror image of dropping is <strong style="color: var(--color-text);"
@@ -224,8 +245,12 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
 				propose is usually <Code code="sed -i" /> —
 				<strong style="color: var(--color-text);">edit the file in place</strong>. Same
 				substitution, except now it rewrites the real file, silently, with no preview and no undo.
-				This is the one sed flag worth carrying into <CourseLink to="part-11" />, where auditing
-				becomes a routine.
+				<Code code="-i" /> was the letter that stopped and asked before overwriting back in
+				<CourseLink to="section-3-1" />; here it means the opposite of careful, which is exactly
+				what
+				<CourseLink to="section-1-3" /> meant by flag letters belonging to their command. It's also the
+				one sed flag worth carrying into
+				<CourseLink to="part-11" />, where auditing becomes a routine.
 			</p>
 
 			<div class="my-6">
@@ -251,19 +276,29 @@ sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
                     # config.yml      — rewritten
                     # config.yml.bak  — the original, untouched
 
-cat config.yml.bak  # your diff, your undo button
-mv config.yml.bak config.yml   # instant rollback if it went wrong`}
+diff config.yml.bak config.yml   # exactly what changed, nothing else
+mv config.yml.bak config.yml     # instant rollback if it went wrong`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The suffix goes <em>directly</em> after the flag — <Code code="-i.bak" />, no space — and
 				sed saves each original as <Code code="file.bak" /> before rewriting. It costs nothing, it works
-				on many files at once (<Code code="sed -i.bak 's/…/…/' *.yml" /> backs up every one), and it converts
-				"I hope that was right" into "let me check the diff." When an agent proposes a bare <Code
-					code="-i"
-				/>, don't approve or reject —
+				on many files at once (<Code code="sed -i.bak 's/<old>/<new>/' *.yml" /> backs up every one),
+				and it turns "I hope that was right" into something you can check. That's the
+				<Code code="diff" /> in the block above: hand it two files and it prints only the lines where
+				they disagree. When an agent proposes a bare <Code code="-i" />, don't approve or reject —
 				<strong style="color: var(--color-text);">edit the command and add the .bak</strong>.
-				Supervising means improving, not just gatekeeping.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				macOS enforces the house rule anyway. Mac and Linux carry different lineages of the same
+				veteran tools — BSD's on the Mac, GNU's on Linux — and BSD sed <em>insists</em> on that
+				suffix: leave it off and the command fails with an error pointing nowhere near the real
+				problem, while GNU sed takes the bare <Code code="-i" /> and keeps no copy at all. <Code
+					code="ps"
+				/>,
+				<Code code="ls" /> and <Code code="du" /> split the same two ways, which is why a command that
+				worked on a colleague's machine sometimes doesn't on yours.
 			</p>
 
 			<VibeBox
@@ -280,7 +315,8 @@ mv config.yml.bak config.yml   # instant rollback if it went wrong`}
 				Try It: The Agent's Mass Edit
 			</h4>
 			<PlaygroundNote>
-				The agent's plan switches the site to https — good idea, but its
+				The agent's plan switches the site to https — worth doing, since the <Code code="s" /> is what
+				makes the connection encrypted (<CourseLink to="section-9-1" />) — but its
 				<Code code="sed -i" /> keeps no backup. Read <Code code="agent-plan.txt" />, amend the
 				command to <Code code="-i.bak" />, run it on both config files, then open a
 				<Code code=".bak" /> to admire your safety net.
@@ -325,13 +361,26 @@ awk '/error/ {print $1}' app.log     # /pattern/ runs the action on matching lin
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The braces are awk's <strong style="color: var(--color-text);">action block</strong> — the
+				work it does on every line that reaches it, with the <Code code="/pattern/" /> guard outside and
+				in front. The <Code code="$1" /> inside belongs to awk, not the shell: it has nothing to do with
+				the numbered script arguments in <CourseLink to="section-6-1" />, and that collision is why
+				every awk program here sits in single quotes. Swap them for double quotes and the shell
+				empties
+				<Code code="$1" /> before awk ever sees it: <Code code={`{print $1}`} /> arrives as
+				<Code code={`{print }`} />, which awk reads as "print the whole line" and obeys without
+				complaint — the wrong answer, delivered confidently. Ask for two columns and it's a syntax
+				error instead. Neither one mentions quotes.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				You already know <Code code="cut" /> from <CourseLink to="part-4" /> — so which one? Honest answer:
-				<Code code="cut" /> for clean single-character delimiters (CSV, colon-separated), <Code
-					code="awk"
-				/> when the spacing is <em>ragged</em>. awk's default split treats any run of spaces as one
-				separator, which is exactly what column-aligned output needs — cut would see every space as
-				its own empty field and hand you garbage. Later in the course, when you meet process
-				listings, awk is the tool that reads them.
+				<Code code="cut" /> when a single character separates every field — a comma in a CSV, a colon
+				or a tab elsewhere — and <Code code="awk" /> when the spacing is <em>ragged</em>. awk's
+				default split treats any run of spaces as one separator, which is exactly what
+				column-aligned output needs — cut would see every space as its own empty field and hand you
+				garbage. When you meet process listings in <CourseLink to="section-8-1" />, awk is the tool
+				that reads them.
 			</p>
 
 			<Callout type="tip">

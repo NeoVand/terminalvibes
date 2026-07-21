@@ -57,9 +57,10 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				<Code code="localhost" /> is the name your machine uses for
-				<em>itself</em>. When your dev server prints "listening on http://localhost:3000", it isn't
-				on the internet — it's a program on your own computer, waiting at door number 3000, and only
-				you can knock. A URL packs several answers into one line:
+				<em>itself</em>. Ask for localhost and the request never touches the network — it leaves one
+				program on your computer and goes straight into another. That's why a dev server announcing
+				"listening on http://localhost:3000" is visible to you and to nobody else. A URL packs
+				several answers into one line:
 			</p>
 
 			<div class="my-6">
@@ -81,18 +82,32 @@
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				You've met ports already: they're the numbered doors from <CourseLink to="part-8" />, and
-				the same rule applies — one program per port. That's why the numbers recur. <Code
+				The first part names the language: <strong style="color: var(--color-text);">HTTP</strong>,
+				the hypertext transfer protocol — the rules a program and a server use to ask and answer. On
+				the public web you'll see <Code code="https" /> instead, the same conversation encrypted so nobody
+				in between can read it. And the tail end is a <em>URL</em> path, not a folder on your disk:
+				<Code code="/api/health" /> exists only because someone wrote that route into the server. Ask
+				for one nobody wrote and you get a 404 — the server saying it has no such path — not a broken
+				machine.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				You've met ports already: they're the numbered doors from <CourseLink to="section-8-3" />,
+				and the same rule applies — one program per port. That's why the numbers recur. <Code
 					code="3000"
 				/> is the Node convention,
-				<Code code="5173" /> is Vite's, <Code code="8080" /> is the classic alternate web port. If your
-				agent starts a project and mentions a number in that neighborhood, it's telling you which door
-				to knock on.
+				<Code code="5173" /> is Vite's — the tool that runs the dev server for a great many JavaScript
+				projects — and <Code code="8080" /> is the classic alternate web port. If your agent starts a
+				project and mentions a number in that neighborhood, it's telling you which door to knock on.
 			</p>
 
 			<Callout type="tip">
 				<Code code="127.0.0.1" /> is the same place as <Code code="localhost" /> — the numeric version
-				of "here." You'll see both in error messages and config files; they mean the same machine.
+				of "here." Machines find each other on a network by <strong>IP</strong> address — internet
+				protocol, the numbering scheme every networked machine answers to — and <Code
+					code="127.0.0.1"
+				/> is the one number reserved to mean <em>this</em> machine. You'll see both spellings in error
+				messages and config files; they mean the same computer.
 			</Callout>
 
 			<VibeBox
@@ -140,18 +155,29 @@ curl -I localhost:3000/health                  # just the headers`}
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Four flags cover almost everything you'll need. <Code code="-o FILE" /> saves the reply instead
 				of printing it. <Code code="-s" /> ("silent") hides the progress meter — always use it inside
-				pipelines and scripts. <Code code="-I" /> asks for just the headers, which is the quickest "is
-				this thing alive and what does it serve?" And <Code code="-H" /> adds a request header, which
-				is how APIs receive your key.
+				pipelines and scripts. <Code code="-I" /> shows you just the headers a server sends back, which
+				is the quickest "is this thing alive and what does it serve?" And <Code code="-H" /> adds one
+				to what you send.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				A <strong style="color: var(--color-text);">header</strong> is a name/value line travelling
+				alongside the request, carrying everything that isn't the content — what format you want
+				back, who you are, what software is asking. (Nothing to do with the header row of a
+				spreadsheet; the word just gets reused.) An
+				<strong style="color: var(--color-text);">API</strong> — an application programming interface,
+				a door a service opens for other programs rather than for people — knows which requests are yours
+				because your key rides in one. That's 9.4's whole subject.
 			</p>
 
 			<Callout type="caution">
-				<strong>Now you can read the red-flag pattern properly.</strong> Back in <CourseLink
-					to="part-6"
-				/> you learned to distrust <Code code="curl ... | bash" />. Here's exactly what it does:
-				curl fetches a script from the internet and the pipe feeds it straight into a shell that
-				runs it — unread, unreviewed, with your permissions. The fix is the same two-step as always:
-				<Code code="curl -o install.sh <url>" />, read the file, <em>then</em> run it.
+				<strong>Now you can read the red-flag pattern.</strong> You will meet
+				<Code code="curl ... | bash" /> everywhere, and it decodes with what you already have: curl fetches
+				a script off the internet, and the pipe feeds it straight into a shell that runs it — unread,
+				unreviewed, with your permissions. The two-step version is always available:
+				<Code code="curl -o install.sh <url>" />, read the file, <em>then</em> run it. When it's the
+				right call to skip that step — and it sometimes is — is the subject of
+				<CourseLink to="section-11-1" />.
 			</Callout>
 
 			<VibeBox
@@ -185,9 +211,18 @@ curl -I localhost:3000/health                  # just the headers`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				APIs answer in <strong style="color: var(--color-text);">JSON</strong> — labelled boxes
-				inside labelled boxes. Printed raw it's a wall of braces; what you usually want is one value
-				out of the middle. <Code code="jq" /> is the tool that reaches in and takes it, and since it reads
-				from a pipe, it joins the pipelines you built in <CourseLink to="part-4" />:
+				inside labelled boxes, built out of nested <Code code={`{ "name": value }`} /> pairs. Printed
+				raw it's a wall of braces; what you usually want is one value out of the middle. <Code
+					code="jq"
+				/> is the tool that reaches in and takes it, and since it reads from a pipe, it joins the pipelines
+				you built in <CourseLink to="part-4" />.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				One thing the sandbox hides: <Code code="jq" /> is not standard equipment. It's a third-party
+				tool you install first (<CourseLink to="section-10-1" />), so your first
+				<Code code="| jq" /> on a fresh machine may well answer
+				<Code code="command not found" /> rather than a version number.
 			</p>
 
 			<div class="my-6">
@@ -229,10 +264,13 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 			</p>
 
 			<Callout type="tip">
-				<strong>If jq says "parse error", look at the raw reply.</strong> Nine times out of ten the
-				server answered with an HTML error page instead of JSON, and the real problem is a wrong URL
-				or a dead server. Drop the <Code code="| jq" /> and read what actually arrived — the same build-the-pipeline-one-stage-at-a-time
-				habit from <CourseLink to="part-4" />.
+				<strong>If jq says "parse error", look at the raw reply.</strong> It means one thing only:
+				jq tried to read what arrived as JSON, and the bytes weren't JSON. Nine times out of ten
+				what arrived is an HTML error page — the tag-based format web pages are written in, so
+				you'll see angle brackets, a leading <Code code="<!doctype html>" /> and no braces anywhere. The
+				real problem is upstream: a wrong URL, or a dead server. Drop the <Code code="| jq" /> and read
+				what actually arrived, the same build-the-pipeline-one-stage-at-a-time habit from
+				<CourseLink to="part-4" />.
 			</Callout>
 
 			<VibeBox
@@ -268,9 +306,9 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 				Every API you talk to wants a key, and keys are the one kind of text you must never type
 				casually into a terminal. Here's the uncomfortable reason:
 				<strong style="color: var(--color-text);">your shell writes down everything you type</strong
-				>. A key pasted into a command lives on in <Code code="~/.bash_history" /> — the same history
-				you'll learn to search in <CourseLink to="part-11" /> works just as well for anyone else at your
-				machine.
+				>. A key pasted into a command lives on in <Code code="~/.zsh_history" /> — or
+				<Code code="~/.bash_history" /> if you're on bash — a plain text file that anyone who sits down
+				at your machine can read, and search with the tricks in <CourseLink to="section-12-2" />.
 			</p>
 
 			<div class="my-6">
@@ -284,13 +322,15 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 			<Callout type="caution">
 				<strong>Never put a secret directly in a command.</strong> Not in <Code code="curl -H" />,
 				not in an <Code code="export" /> you type by hand, not in a script you commit. It lands in your
-				history, in your terminal scrollback, and often in logs you don't control — and unlike a password,
-				an API key is usually a straight line to a bill.
+				history, in your terminal scrollback — the output your window is still holding, which is what
+				a screen-share shows — and often in logs you don't control. Unlike a password, an API key is usually
+				a straight line to a bill.
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The standard answer is a <Code code=".env" /> file: keys live in a file, the file is locked down,
-				and commands reference the <em>variable</em> instead of the value. That's the environment
+				The standard answer is a <Code code=".env" /> file — "env" for environment, and nothing inside
+				it but plain-text <Code code="NAME=value" /> lines, one per key. The file is locked down, and
+				your commands reference the <em>variable</em> instead of the value. That's the environment
 				variables and permissions from
 				<CourseLink to="part-5" /> doing real work together:
 			</p>
@@ -299,7 +339,7 @@ curl -s api.vibecloud.dev/releases | jq -r .items[0].tag
 				title="Keys in a file, not in a command"
 				code={`echo 'API_KEY=sk-vibe-9c2f10ab' > .env    # the key lives here
 chmod 600 .env                          # only you can read it
-source .env                             # load it into this shell
+source .env                             # run it in THIS shell, so the value sticks
 
 curl -H "Authorization: Bearer $API_KEY" https://api.example.com/deploy
 #                                 ↑ the variable, never the key itself
@@ -308,12 +348,38 @@ echo ".env" >> .gitignore               # and never commit it`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That header line has more moving parts than it looks.
+				<Code code="Authorization" /> is the header's name, the colon separates name from value, and
+				<Code code="Bearer" /> is a fixed keyword saying what kind of credential follows — only the token
+				at the end is yours. An API that wants <Code code="X-API-Key: sk-vibe-9c2f10ab" /> is the same
+				line with a different name and no keyword at all.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The quotes change style mid-block on purpose. Single quotes are fully literal, which is what
+				you want when writing the key into a file; double quotes still expand
+				<Code code="$API_KEY" />, which is what you want when handing its value to curl. That's the
+				rule from <CourseLink to="section-2-2" />, and getting it backwards sends the server the
+				eight characters <Code code="$API_KEY" /> instead of the key. <Code code="source" /> is what makes
+				the variable available to that curl at all, for the reason in <CourseLink
+					to="section-5-5"
+				/>.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				<Code code="chmod 600" /> is the <CourseLink to="part-5" /> permission lesson with the stakes
 				turned up: read and write for you, nothing at all for anyone else. And <Code
 					code=".gitignore"
-				/> is the line that keeps the key out of your repository — because a key pushed to GitHub is a
-				key that belongs to the internet, usually within minutes. If that happens, the only real fix is
-				to revoke and reissue the key; deleting the commit does not un-publish it.
+				/> keeps the key out of your repository — because a key pushed to GitHub is a key that belongs
+				to the internet, usually within minutes.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				One catch before you lean on that last line: a <Code code=".gitignore" /> entry stops git
+				<em>starting</em> to track a file and does nothing at all for one it already tracks — which is
+				exactly where you are if the key is already committed. Then the only fix is to revoke and reissue
+				the key, which you do on the provider's website rather than in the terminal. It works because
+				revoking kills the key on their servers; deleting the commit leaves it alive.
 			</p>
 
 			<Callout type="tip">
@@ -355,9 +421,9 @@ echo ".env" >> .gitignore               # and never commit it`}
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				One last idea, and it reframes everything you've learned: with
-				<Code code="ssh" />, the same terminal can drive a <em>different computer</em> — a server in a
-				data center, a Raspberry Pi in your closet, a cloud box that runs your app. Every command in this
-				course works there, unchanged.
+				<Code code="ssh" /> — secure shell, logging into another machine over the network — the same terminal
+				can drive a <em>different computer</em>: a server in a data center, a Raspberry Pi in your
+				closet, a cloud box that runs your app. Every command in this course works there, unchanged.
 			</p>
 
 			<div class="my-6">
@@ -389,9 +455,13 @@ vibe@laptop:~$`}
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				You log in with a <strong style="color: var(--color-text);">key pair</strong> rather than a
-				password: two matching files, of which the <em>public</em> half goes onto the server (it's a
-				lock — anyone may see it) and the <em>private</em> half never leaves your machine. Same rule as
-				9.4, in a different costume: the secret stays in a file, on your computer, with tight permissions.
+				password: two matching files in <Code code="~/.ssh" />. The <em>public</em> half is
+				<Code code="id_ed25519.pub" /> — the <Code code=".pub" /> is what tells them apart — and it goes
+				onto the server, where it acts as a lock anyone may see; the <em>private</em> half,
+				<Code code="id_ed25519" />, never leaves your machine. "Goes onto the server" is a concrete
+				act: that public half gets appended to <Code code="~/.ssh/authorized_keys" /> on the far side.
+				Same rule as 9.4, in a different costume: the secret stays in a file, on your computer, with tight
+				permissions.
 			</p>
 
 			<Callout type="tip">

@@ -60,6 +60,21 @@ describe('nav and anchors agree', () => {
 		const known = new Set(anchorIds);
 		expect(navIds().filter((id) => !known.has(id))).toEqual([]);
 	});
+
+	/**
+	 * A search hit scrolls to entry.sectionId. An id that no longer exists fails
+	 * silently — the result looks fine and clicking it goes nowhere. That is how
+	 * `section-11-2` outlived the reorder that moved history into Part 12: every
+	 * other consistency check in this file passed while the router pointed at a
+	 * section that had ceased to exist.
+	 */
+	it('every search result scrolls to a real anchor id', () => {
+		const known = new Set(anchorIds);
+		const broken = searchIndex
+			.filter((entry) => !known.has(entry.sectionId))
+			.map((entry) => `${entry.id} → ${entry.sectionId}`);
+		expect(broken).toEqual([]);
+	});
 });
 
 describe('course map', () => {

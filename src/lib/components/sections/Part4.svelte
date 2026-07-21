@@ -106,13 +106,20 @@ hello again`}
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Commands actually have <strong style="color: var(--color-text);">two</strong> output
-				streams: standard output for results, and
+				Standard output isn't the only channel — every command is born with three. <strong
+					style="color: var(--color-text);">Standard input</strong
+				>
+				(stdin) is where it reads from, normally your keyboard;
+				<strong style="color: var(--color-text);">standard output</strong>
+				(stdout) is where its results go; and
 				<strong style="color: var(--color-text);">standard error</strong>
-				for complaints. A plain
+				(stderr) is a separate channel for its complaints, kept apart so a failure never gets mixed in
+				with the results. They're numbered 0, 1 and 2 — which is the whole story of the
+				<Code code="2" />
+				in
+				<Code code="2>" />. A plain
 				<Code code=">" />
-				only captures the results — errors still land on your screen. To capture the errors, redirect
-				stream number 2:
+				captures stream 1 only, so errors still land on your screen. To catch those too:
 			</p>
 
 			<CodeBlock
@@ -129,8 +136,13 @@ ls: missing/: No such file or directory`}
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				You'll also meet <Code code="> all.log 2>&1" />
-				in AI-generated commands — it means "send errors to the same place as the output." You don't need
-				to write it yet; you just need to recognize it. Finally, the arrow points the other way too:
+				in AI-generated commands, and it reads left to right: send stream 2 to wherever stream 1 is currently
+				pointing, which the first half of the line has just set to
+				<Code code="all.log" />. The
+				<Code code="&amp;1" />
+				is what makes it a <em>reference</em> to a stream rather than a filename — drop the
+				<Code code="&amp;" /> and you create a file called
+				<Code code="1" />. Finally, the arrow points the other way too:
 				<Code code="<" />
 				feeds a file <em>into</em> a command as its input, as in
 				<Code code="sort < names.txt" />. It's rarer — most commands happily take a filename
@@ -196,6 +208,23 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Two small things in there. <Code code="history" /> prints the shell's own record of what you've
+				typed — it keeps one, whether or not you asked, and
+				<CourseLink to="section-12-2" /> puts that record to work. And
+				<Code code="tail -5" />
+				is shorthand for
+				<Code code="tail -n 5" />: for
+				<Code code="head" />
+				and
+				<Code code="tail" />, a bare dash-and-number is a line count. Not every dash-and-number is:
+				the
+				<Code code="9" />
+				in
+				<Code code="kill -9" />
+				is a signal number, which <CourseLink to="section-8-2" /> unpacks.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Read a pipeline left to right, like an assembly line: the text flows through each station
 				and comes out transformed. Here's the last example as a picture:
 			</p>
@@ -252,7 +281,7 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 					code="grep"
 				/>
 				prints only the lines that match a pattern — it's the terminal's search box, and probably the
-				single most-used tool in this entire course.
+				most-used tool in this course.
 			</p>
 
 			<div class="my-6">
@@ -262,6 +291,21 @@ cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
 					caption="grep keeps only the lines that match — the haystack goes in, the needles come out"
 				/>
 			</div>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That 10,000-line log is a <strong style="color: var(--color-text);">log file</strong> — a
+				plain text file a program keeps appending to as it works, one line per event, oldest at the
+				top. Most programs tag each line with a severity word:
+				<Code code="DEBUG" />
+				for chatter,
+				<Code code="INFO" />
+				for normal,
+				<Code code="WARN" />
+				and
+				<Code code="ERROR" />
+				for trouble. That convention is why searching for the bare word
+				<Code code="ERROR" /> works at all.
+			</p>
 
 			<CodeBlock
 				title="grep basics"
@@ -273,6 +317,73 @@ grep -r "TODO" src/              # Search every file under src/
 src/app.js:14:  // TODO: handle empty cart
 src/utils.js:3: // TODO: remove this hack`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Both patterns above are plain words, which is why nothing surprising happened. The moment
+				you reach for a wildcard, though, you've changed languages.
+				<Code code="grep" />
+				doesn't use globs. It uses
+				<strong style="color: var(--color-text);">regular expressions</strong>
+				— a second, older pattern language that looks deceptively similar and means different things.
+				Here
+				<Code code="*" />
+				means "zero or more of whatever came just before it",
+				<Code code="." />
+				matches any single character, and
+				<Code code="^" />
+				and
+				<Code code="$" />
+				anchor a match to the start and end of a line. The trap isn't hypothetical:
+				<Code code="ERR*" />
+				as a glob means "starts with ERR", but as a regular expression it means "ER followed by any number
+				of Rs" — so it matches
+				<Code code="ER" /> anywhere in any line, and quietly hands you the wrong answer.
+			</p>
+
+			<div class="my-4 overflow-x-auto rounded-lg" style="background: var(--color-bg-secondary);">
+				<table class="w-full text-[13px]">
+					<thead>
+						<tr style="background: var(--color-bg-tertiary);">
+							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
+								>Character</th
+							>
+							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
+								>In a glob (filenames)</th
+							>
+							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
+								>In a regular expression (grep)</th
+							>
+						</tr>
+					</thead>
+					<tbody style="color: var(--color-text-secondary);">
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-4 py-2"><Code code="*" /></td>
+							<td class="px-4 py-2">Any run of characters</td>
+							<td class="px-4 py-2">Zero or more of the character before it</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-4 py-2"><Code code="?" /></td>
+							<td class="px-4 py-2">Exactly one character</td>
+							<td class="px-4 py-2">An ordinary question mark</td>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-4 py-2"><Code code="." /></td>
+							<td class="px-4 py-2">An ordinary dot</td>
+							<td class="px-4 py-2">Any single character</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The glob column is the one you drilled in <CourseLink to="section-3-4" />, and it still
+				governs every filename you type. The regex column governs what's inside the quotes you hand
+				to
+				<Code code="grep" />, and later to
+				<Code code="sed" />
+				and
+				<Code code="awk" />. Same characters, different room.
+			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Five flags cover 95% of real-world grep:
@@ -424,6 +535,25 @@ uniq names.txt          # Collapse REPEATED ADJACENT lines into one
 cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 			/>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That last line hides a rule: some flags take a <em>value</em>.
+				<Code code="-d','" />
+				is one flag —
+				<Code code="d" />
+				for delimiter — with its value jammed straight onto the letter, and
+				<Code code="-f2" />
+				is
+				<Code code="f" />
+				for field, value
+				<Code code="2" />. Other commands want a space between the two, as in
+				<Code code="-n 3" />, and many take either. So
+				<Code code="-f2" />
+				is not two clustered flags the way
+				<Code code="ls -la" />
+				is — where the letter ends and its value begins is each command's own decision, and
+				<Code code="man cut" /> is what tells you.
+			</p>
+
 			<Callout type="warning">
 				<strong>The uniq gotcha:</strong>
 				<Code code="uniq" />
@@ -462,6 +592,19 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
 192.0.2.55 GET /home`}
 			/>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Two things to read before you start slicing. The number at the front is the visitor's <strong
+					style="color: var(--color-text);">IP</strong
+				>
+				address — each machine on a network has one, and <CourseLink to="section-9-1" /> takes it apart.
+				And
+				<Code code="/home" />
+				and
+				<Code code="/pricing" />
+				are <em>URL</em> paths — the part after the site's address — not folders on this machine. Same
+				slashes, different tree.
+			</p>
+
 			<CodeBlock
 				title="Stage 1 — `cut`: keep only the IP column"
 				code={`cut -d' ' -f1 access.log
@@ -492,7 +635,10 @@ cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
    1 192.0.2.55
    2 198.51.100.4
    3 203.0.113.9
-...`}
+...
+
+# -c = count: each collapsed group carries a tally of how many lines it stood for.
+# (Not grep's -c, which prints one total and no lines at all.)`}
 			/>
 
 			<CodeBlock
@@ -585,9 +731,10 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 				<Code code="*.md" />. Remember <CourseLink to="part-3" />: the <em>shell</em> expands
 				wildcards before the command ever runs. Unquoted,
 				<Code code="*.md" />
-				becomes a list of the Markdown files in your <em>current</em> folder — and find receives that
-				list instead of the pattern, searching for the wrong thing entirely. The quotes deliver the pattern
-				to find intact, so find can apply it at every level of the tree.
+				becomes a list of the Markdown files in your <em>current</em> folder — and find receives
+				that list instead of the pattern, searching for the wrong thing entirely. Single quotes are
+				the fully literal kind, so the pattern reaches find intact and gets applied at every level
+				of the tree — the rule for both kinds of quote is in <CourseLink to="section-2-2" />.
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -633,9 +780,23 @@ find ~ -name '.zshrc'          # Start the search from your home folder`}
 ./src/app.js:14:  // TODO: handle empty cart
 ./src/utils.js:3: // TODO: remove this hack
 
-# xargs turns the list of paths into arguments for grep.
 # (For a whole tree, grep -rn "TODO" . is the simpler everyday version.)`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="xargs" /> is there because
+				<Code code="grep" />
+				wants filenames as arguments, not on standard input. Pipe a list of paths straight into
+				<Code code="grep" />
+				and it dutifully searches the <em>text of those paths</em> instead of the files they name —
+				a pipeline that runs, returns nothing, and looks like an answer.
+				<Code code="xargs" />
+				collects the lines arriving on standard input and lays them out as arguments, which is the shape
+				<Code code="grep" />
+				was waiting for. Reach for it when you want to narrow the file set first — by name, type or depth
+				— and reach for
+				<Code code="grep -rn" /> when you want everything under a folder.
+			</p>
 
 			<h4
 				id="find-files"

@@ -76,8 +76,19 @@
 				code={`ls -l
 -rw-r--r--  1 vibe  staff   214 Jul 10 09:12 notes.txt
 -rwxr-xr-x  1 vibe  staff   512 Jul 10 09:30 deploy.sh
-drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
+drwxr-xr-x  4 vibe  staff  4096 Jul  9 18:02 projects`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Before those ten characters, the two names in the middle: they decide who the rules apply
+				to. <Code code="vibe" /> is the owner, and <Code code="staff" /> is the
+				<strong style="color: var(--color-text);">group</strong> — a named set of accounts the
+				system can grant permission to all at once. On a shared server that's your team; on your own
+				laptop it's usually <Code code="staff" /> or a group named after you with nobody else in it, which
+				is why the group's rules rarely bite until someone else is on the machine.
+				<Code code="id -gn" /> — <Code code="g" /> for group, <Code code="n" /> for the name rather than
+				the number — prints the name of yours.
+			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Take <Code code="-rwxr-xr-x" />
@@ -97,7 +108,8 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 						>
 						<span class="text-[11px]" style="color: var(--color-text-muted);"
 							>type<br /><Code code="-" /> file,
-							<Code code="d" /> dir</span
+							<Code code="d" /> dir,
+							<Code code="l" /> link</span
 						>
 					</div>
 					<div class="flex flex-col items-center gap-2">
@@ -117,7 +129,7 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 							>r-x</span
 						>
 						<span class="text-center text-[11px]" style="color: var(--color-text-muted);"
-							><strong style="color: var(--color-note);">group</strong><br />your team</span
+							><strong style="color: var(--color-note);">group</strong><br />your group</span
 						>
 					</div>
 					<div class="flex flex-col items-center gap-2">
@@ -145,6 +157,9 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 				everyone else can read and run it. And
 				<Code code="-rw-r--r--" />
 				is a typical document: only the owner can edit, everyone can read, nobody can execute.
+				<Code code="projects" /> opens with a
+				<Code code="d" /> because it's a directory; the third type character you'll meet is
+				<Code code="l" />, a symbolic link (<CourseLink to="section-10-3" />).
 			</p>
 
 			<Callout type="tip">
@@ -181,8 +196,11 @@ drwxr-xr-x  4 vibe  staff   128 Jul  9 18:02 projects`}
 				back <strong style="color: var(--color-text);">"Permission denied."</strong> Nothing is
 				broken. The file simply doesn't have its
 				<Code code="x" />
-				bit yet — files are never executable by default.
-				<Code code="chmod" /> ("change mode") flips the switch.
+				bit yet — files are never executable by default. The
+				<Code code=".sh" /> on the end isn't what runs it either; that's a convention for humans and editors
+				(<CourseLink to="section-2-5" />), and the file would run just as well named
+				<Code code="backup" />.
+				<Code code="chmod" /> ("change mode") flips the switch that does.
 			</p>
 
 			<div class="my-6">
@@ -216,6 +234,29 @@ Backing up projects/ ... done.`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="+x" /> is a small grammar rather than a magic word.
+				<Code code="+" /> adds a permission and
+				<Code code="-" /> removes it, and you can put an audience in front:
+				<Code code="u" /> for you,
+				<Code code="g" /> for your group,
+				<Code code="o" /> for everyone else,
+				<Code code="a" /> for all three. A bare
+				<Code code="+x" /> means
+				<Code code="a+x" />, which is why the line above became
+				<Code code="-rwxr-xr-x" /> and not just
+				<Code code="-rwxr--r--" />. When you only want it for yourself, say so:
+				<Code code="chmod u+x backup.sh" />.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				And the leading <Code code="./" /> isn't decoration. Typed bare,
+				<Code code="backup.sh" /> sends the shell hunting through the short list of folders it keeps for
+				programs — 5.4 names that list — and the folder you're standing in is deliberately not on it,
+				so nothing dropped into your current directory can impersonate a real command.
+				<Code code="./" /> means "the file right here": you saying you meant this one.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				You'll also see chmod used with <strong style="color: var(--color-text);">numbers</strong> —
 				<Code code="chmod 755" />,
 				<Code code="chmod 644" />
@@ -237,8 +278,8 @@ Backing up projects/ ... done.`}
 						<span><Code code="755" /> — scripts &amp; directories</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<Code code="rwxr-xr-x" />: you do everything, others read and run. The standard for
-						anything executable.
+						<Code code="rwxr-xr-x" />: you do everything; everyone else may read and run it — or, on
+						a directory, go inside it. The standard for anything executable.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -322,8 +363,8 @@ Backing up projects/ ... done.`}
 
 			<CodeBlock
 				title="What sudo looks like in the wild"
-				code={`apt install htop                 # Linux: install software system-wide
-E: Permission denied
+				code={`apt install htop                 # Linux: htop is a live view of what's running
+E: Permission denied             # E: is apt marking its own error, the way bash: marks bash's
 
 sudo apt install htop            # Same command, run as root
 [sudo] password for vibe:        # Type your password — nothing appears. Normal!
@@ -421,22 +462,47 @@ USER=vibe
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
-export EDITOR=nano        # Set one (this shell session only!)
+export EDITOR=nano        # Set one, and hand it down to what this shell starts
 echo $EDITOR
 nano`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Note the asymmetry: you write <Code code="export EDITOR=nano" />
-				with no dollar sign, but read it back as
-				<Code code="$EDITOR" />. And exported variables evaporate when you close the terminal —
-				making them permanent is the next section's job.
+				The <Code code="$" /> is what does the work: write
+				<Code code="$EDITOR" /> and the shell swaps in the value before the command ever sees it, which
+				is why
+				<Code code="echo $SHELL" /> prints a path and not the word SHELL. Note the asymmetry — you write
+				<Code code="export EDITOR=nano" /> with no dollar sign and read it back with one. And
+				<Code code="export" /> is the word that decides who else can see it: a bare
+				<Code code="EDITOR=nano" /> stays in this shell, while
+				<Code code="export EDITOR=nano" /> hands the setting down to every program the shell launches
+				from here on. Either way it evaporates when you close the terminal — making it stick is the next
+				section's job.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="$HOME" /> and the <Code code="~" /> from
+				<CourseLink to="part-2" /> name the same folder but aren't the same kind of thing.
+				<Code code="~" /> is shell shorthand, expanded only at the start of a word and never inside quotes;
+				<Code code="$HOME" /> is a real variable and expands anywhere a
+				<Code code="$" /> does. So
+				<Code code="cp report.md &quot;~/backups/&quot;" /> never reaches your home folder: the quotes
+				turn the
+				<Code code="~" /> into an ordinary character, and cp goes looking for a folder literally named
+				<Code code="~" /> in the directory you're standing in. Write
+				<Code code="&quot;$HOME/backups/&quot;" /> and it lands where you meant. (This is one of the few
+				places the playground is kinder than a real shell: its paths expand
+				<Code code="~" /> either way, so the quoted version quietly works there and bites you on your
+				own machine.)
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The variable that explains a thousand error messages is <strong
 					style="color: var(--color-text);">PATH</strong
-				>: a colon-separated list of directories. When you type
+				>: a colon-separated list of directories —
+				<Code code="/usr/bin" />,
+				<Code code="/usr/local/bin" /> and friends, where
+				<Code code="bin" /> is short for <em>binaries</em>, the programs themselves. When you type
 				<Code code="python" />, the shell walks that list in order, looking in each directory for an
 				executable file with that name. First match wins; no match anywhere means the infamous:
 			</p>
@@ -459,6 +525,16 @@ which ls                             # 'which' shows where a command lives
 which python                         # Silence/nothing = not on PATH`}
 			/>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="--version" /> earns its place there: it prints the version number and exits without
+				doing anything, so it's the harmless way to ask whether a program exists at all.
+				<Code code="which" /> answers the other PATH question — when two copies of a tool are installed,
+				the one it prints is the one you're running. Because the shell stops at the first match, a copy
+				in
+				<Code code="/usr/local/bin" /> quietly shadows the system's in
+				<Code code="/usr/bin" />, which is how you end up on a version you didn't mean to run.
+			</p>
+
 			<Callout type="tip">
 				"Command not found" always means exactly one of three things: a <strong>typo</strong>, a
 				tool that's <strong>not installed</strong>, or a tool installed
@@ -474,7 +550,7 @@ which python                         # Silence/nothing = not on PATH`}
 				<strong>One kind of variable needs extra care: secrets.</strong> API keys are usually handed
 				to programs as environment variables, and the tempting move — typing
 				<Code code="export API_KEY=sk-..." /> straight into your terminal — writes the key into your shell
-				history, where it stays. <CourseLink to="part-9" />.4 covers the safe pattern: keep keys in
+				history, where it stays. <CourseLink to="section-9-4" /> covers the safe pattern: keep keys in
 				a
 				<Code code=".env" /> file, lock it with <Code code="chmod 600" />, and reference
 				<Code code="$API_KEY" /> instead of the value.
@@ -542,7 +618,7 @@ which python                         # Silence/nothing = not on PATH`}
 
 			<CodeBlock
 				title="Aliases: your own shorthand"
-				code={`alias ll='ls -lh'         # Define it
+				code={`alias ll='ls -lh'         # Define it — -l long listing, -h human-readable sizes
 ll                        # Use it — the shell expands ll to ls -lh
 -rw-r--r--  1 vibe staff 1.2K Jul 11 09:14 notes.txt
 -rwxr-xr-x  1 vibe staff  512 Jul 10 09:30 deploy.sh
@@ -551,8 +627,10 @@ alias                     # List every alias currently defined`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Typed at the prompt, an alias lasts only for that session — put it in your config file to
-				keep it forever. Here's a battle-tested starter set to paste into <Code code="~/.zshrc" />
+				That <Code code="1.2K" /> is <Code code="-h" /> doing its job: the raw byte counts
+				<CourseLink to="part-2" /> showed you, rounded into units you can read at a glance. Typed at the
+				prompt, an alias lasts only for that session — put it in your config file to keep it forever.
+				Here's a battle-tested starter set to paste into <Code code="~/.zshrc" />
 				(or
 				<Code code="~/.bashrc" />):
 			</p>
@@ -569,6 +647,15 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				One of those needs a word. <strong style="color: var(--color-text);">Git</strong> is the
+				version-control tool that records snapshots of a project as you work — a whole subject of
+				its own, and deliberately not this course's (<CourseLink to="section-14-4" />). You're
+				pasting
+				<Code code="gs" /> now because it's the first command anyone reaches for the moment they meet
+				git; nothing between here and the end depends on understanding it.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				One last piece: the config file only runs at <em>startup</em>, so a freshly edited file
 				changes nothing in your current terminal. Either open a new window — or reload it in place
 				with
@@ -580,6 +667,26 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				code={`source ~/.zshrc     # Re-run the config file right here, right now
 # (bash users: source ~/.bashrc)`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="source" /> is doing something more general than reloading a config, and it's worth
+				seeing what. Run a file of commands the ordinary way — <Code code="./deploy.sh" />, or
+				<Code code="bash deploy.sh" /> — and you start a
+				<strong style="color: var(--color-text);">child shell</strong>: a fresh copy of the shell
+				that reads the lines, does them, and exits, taking its variables and its
+				<Code code="cd" /> with it. Nothing it changed survives.
+				<Code code="source" /> does the opposite, running the lines in the shell you're sitting in, so
+				everything sticks. It's also why a script full of
+				<Code code="cd" /> never seems to move you anywhere.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				One more place changes hide: <Code code="~/.zshrc" /> and
+				<Code code="~/.bashrc" /> are read every time you open a terminal window, while
+				<Code code="~/.zprofile" /> and
+				<Code code="~/.bash_profile" /> are read only at login. If an edit stubbornly refuses to take,
+				you probably edited the other one.
+			</p>
 
 			<Callout type="tip">
 				Your shell config is just a shell script — every line in it is a command you could type by

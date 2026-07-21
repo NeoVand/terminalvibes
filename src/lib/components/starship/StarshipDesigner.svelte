@@ -14,6 +14,7 @@
 		type Separator
 	} from '$lib/starship/types';
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import CourseLink from '$lib/components/ui/CourseLink.svelte';
 
 	let design = $state<PromptDesign>(clone(getPreset('tokyonight')));
 	let activePreset = $state('tokyonight');
@@ -441,10 +442,16 @@
 			<p class="sd-steps-title">Prefer to do it by hand? Three steps:</p>
 			<ol>
 				<li>
-					<strong>Install Starship.</strong> The official one-liner is
-					<code>curl -sS https://starship.rs/install.sh | sh</code> — but you learned in Part 6 to
-					be wary of <code>curl | sh</code>, so <code>brew install starship</code> (macOS) or
-					<code>winget install starship</code> (Windows) are just as good.
+					<strong>Install Starship.</strong> Reach for a package manager first — it's the auditable
+					route: <code>brew install starship</code> (macOS),
+					<code>winget install starship</code> (Windows), or
+					<code>pacman -S starship</code> / <code>dnf install starship</code> on Linux. Starship's
+					own documented installer is a <code>curl … | sh</code> one-liner — the pattern you learned
+					to stop on in <CourseLink to="section-11-1" />. If you'd rather take that route, take it
+					in two steps and actually read the script in the middle:
+					<pre class="sd-shell-cmd">curl -fsSLo starship-install.sh https://starship.rs/install.sh
+less starship-install.sh   # read it (or hand it to your AI to explain)
+sh starship-install.sh</pre>
 				</li>
 				<li>
 					<strong>Save the config.</strong> Put the downloaded file at

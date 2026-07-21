@@ -13,6 +13,7 @@
 
 import {
 	BIN_COMMANDS,
+	GROUP,
 	HOME,
 	USER,
 	globToRegExp,
@@ -59,6 +60,49 @@ function span(text: string, style: string): string {
 	return `<span style="${style}">${esc(text)}</span>`;
 }
 
+/** The SGR colours Part 13.2 demonstrates: \e[32m is "switch the pen to green". */
+const SGR_COLORS: Record<string, string> = {
+	'30': '#5c6370',
+	'31': '#e06c75',
+	'32': '#67b177',
+	'33': '#d19a66',
+	'34': '#61afef',
+	'35': '#c678dd',
+	'36': '#56b6c2',
+	'37': '#dcdfe4'
+};
+
+/** ESC (byte 27) followed by [ … m — the colour half of the VT100 vocabulary. */
+// eslint-disable-next-line no-control-regex
+const ANSI_RE = /\x1b\[([0-9;]*)m/;
+
+/**
+ * Turn a byte stream carrying escape sequences into the markup the terminal
+ * pane draws — the in-band formatting of 13.2, actually obeyed rather than
+ * printed. Anything that isn't a colour sequence is simply dropped, the same
+ * way an emulator swallows an instruction it has no pen for.
+ */
+function ansiToHtml(text: string): string {
+	let out = '';
+	let rest = text;
+	let style = '';
+	const open = () => (style ? `<span style="${style}">` : '');
+	const close = () => (style ? '</span>' : '');
+	let match = ANSI_RE.exec(rest);
+	while (match) {
+		out += open() + esc(rest.slice(0, match.index)) + close();
+		const codes = (match[1] || '0').split(';');
+		for (const code of codes) {
+			if (code === '' || code === '0') style = '';
+			else if (code === '1') style = (style + ';font-weight:700').replace(/^;/, '');
+			else if (SGR_COLORS[code]) style = `color:${SGR_COLORS[code]}`;
+		}
+		rest = rest.slice(match.index + match[0].length);
+		match = ANSI_RE.exec(rest);
+	}
+	return out + open() + esc(rest) + close();
+}
+
 /* ── execution context ────────────────────────────────────────────── */
 
 interface Ctx {
@@ -66,8 +110,9 @@ interface Ctx {
 	/** Positional parameters $1..$9 (set for script execution). */
 	params: string[];
 	/**
-	 * Script-local variable store; null means "interactive" and reads/writes
-	 * go straight to engine.env (so NAME=value persists across commands).
+	 * Variable store for plain NAME=value assignments. Interactively this is
+	 * engine.shellVars, so they persist across commands but stay unexported;
+	 * a script run with `bash file.sh` gets its own, thrown away on exit.
 	 */
 	vars: Record<string, string> | null;
 	/** Nested-script guard. */
@@ -675,6 +720,14 @@ async function dispatch(
 	}
 	if (cmd.includes('/')) return runScriptFile(ctx, cmd, args);
 
+	// `<command> --help` is the lookup habit Part 1.3 teaches, so it has to
+	// answer for every command that has a page. echo/printf print it instead,
+	// exactly as the real builtins do.
+	if (args.includes('--help') && cmd !== 'echo' && cmd !== 'printf') {
+		const help = usageFor(cmd);
+		if (help) return help;
+	}
+
 	switch (cmd) {
 		case 'agent':
 			// Interactive `agent` is intercepted by the playground terminal
@@ -754,6 +807,8 @@ async function dispatch(
 			return cmdType(engine, args);
 		case 'whoami':
 			return ok(USER + '\n');
+		case 'id':
+			return cmdId(args);
 		case 'date':
 			return cmdDate();
 		case 'cal':
@@ -792,6 +847,8 @@ async function dispatch(
 			return cmdDf(args);
 		case 'du':
 			return cmdDu(engine, args);
+		case 'diff':
+			return cmdDiff(engine, args);
 		case 'file':
 			return cmdFile(engine, args);
 		case 'stat':
@@ -1051,15 +1108,38 @@ function lsName(node: VfsNode, name: string, classify: boolean): { text: string;
 	return { text: name + suffix, html: span(name + suffix, style) };
 }
 
+/**
+ * Disk blocks a node occupies, in the 1K units `ls -l` and `du` report.
+ * Storage is handed out in 4K chunks, so even a 12-byte file costs 4 — which
+ * is why a real `total` is never the number of entries (Part 2.3).
+ */
+function blocksOf(node: VfsNode): number {
+	if (node.kind === 'dir') return 4;
+	return Math.ceil(node.content.length / 4096) * 4;
+}
+
+/**
+ * The link count column. A file has one name; a directory is pointed at by
+ * its own `.`, its parent's entry for it, and one `..` per subdirectory.
+ */
+function linkCount(node: VfsNode): number {
+	if (node.kind !== 'dir') return 1;
+	let subdirs = 0;
+	for (const child of node.children.values()) if (child.kind === 'dir') subdirs++;
+	return 2 + subdirs;
+}
+
 function lsLongLine(
 	node: VfsNode,
 	name: string,
-	classify: boolean
+	classify: boolean,
+	human = false
 ): { text: string; html: string } {
 	const mode = modeString(node);
-	const links = node.kind === 'dir' ? 2 : 1;
-	const size = node.kind === 'dir' ? 4096 : node.content.length;
-	const meta = ` ${links} ${USER} ${USER} ${String(size).padStart(6)} ${fmtMtime(node.mtime)} `;
+	const links = linkCount(node);
+	const bytes = node.kind === 'dir' ? 4096 : node.content.length;
+	const size = human ? humanSize(bytes) : String(bytes);
+	const meta = ` ${links} ${USER} ${GROUP} ${size.padStart(6)} ${fmtMtime(node.mtime)} `;
 	const nm = lsName(node, name, classify);
 	return {
 		text: mode + meta + nm.text,
@@ -1068,11 +1148,13 @@ function lsLongLine(
 }
 
 function cmdLs(engine: ShellEngine, args: string[]): ExecResult {
-	const { flags, rest } = flagSplit(args, 'laFR', 'ls');
+	const { flags, rest } = flagSplit(args, 'laFRht', 'ls');
 	const long = flags.has('l');
 	const all = flags.has('a');
 	const classify = flags.has('F');
 	const recursive = flags.has('R');
+	const human = flags.has('h');
+	const byTime = flags.has('t');
 	const paths = rest.length ? rest : ['.'];
 
 	const errs: string[] = [];
@@ -1098,7 +1180,7 @@ function cmdLs(engine: ShellEngine, args: string[]): ExecResult {
 		if (long) {
 			for (const f of filePaths) {
 				const node = engine.getNode(engine.resolve(f))!;
-				const line = lsLongLine(node, f, classify);
+				const line = lsLongLine(node, f, classify, human);
 				g.text.push(line.text);
 				g.html.push(line.html);
 			}
@@ -1127,11 +1209,15 @@ function cmdLs(engine: ShellEngine, args: string[]): ExecResult {
 				{ name: '..', node: engine.getNode(engine.resolve(abs + '/..'))! }
 			);
 		}
+		// -t sorts newest first; without it ls stays alphabetical.
+		if (byTime) entries.sort((a, b) => b.node.mtime - a.node.mtime);
 		if (long) {
-			g.text.push(`total ${entries.length}`);
-			g.html.push(span(`total ${entries.length}`, OUT_STYLE));
+			// `total` counts disk blocks, not files (Part 2.3 says so explicitly).
+			const total = entries.reduce((sum, e) => sum + blocksOf(e.node), 0);
+			g.text.push(`total ${total}`);
+			g.html.push(span(`total ${total}`, OUT_STYLE));
 			for (const e of entries) {
-				const line = lsLongLine(e.node, e.name, classify);
+				const line = lsLongLine(e.node, e.name, classify, human);
 				g.text.push(line.text);
 				g.html.push(line.html);
 			}
@@ -2200,13 +2286,13 @@ function padStart(value: string | number, width: number): string {
  * that bash is just another row.
  */
 function psTable(engine: ShellEngine, wide: boolean): string {
-	const rows = [
-		{ pid: 1024, cpu: 0.0, mem: 0.1, start: '09:10', command: 'bash' },
-		...engine.processes
-	].sort((a, b) => a.pid - b.pid);
-	const header = wide
-		? 'USER       PID %CPU %MEM START   COMMAND\n'
-		: 'USER       PID %CPU %MEM START   COMMAND\n';
+	// Plain `ps` shows only what's attached to this terminal — the shell and
+	// anything it started. Servers seeded elsewhere need `ps aux` (Part 8.1).
+	const mine = wide ? engine.processes : engine.processes.filter((p) => p.job !== undefined);
+	const rows = [{ pid: 1024, cpu: 0.0, mem: 0.1, start: '09:10', command: 'bash' }, ...mine].sort(
+		(a, b) => a.pid - b.pid
+	);
+	const header = 'USER       PID %CPU %MEM START   COMMAND\n';
 	const body = rows
 		.map(
 			(p) =>
@@ -2223,11 +2309,21 @@ function cmdPs(engine: ShellEngine, args: string[]): ExecResult {
 		// spellings everyone actually types, and both mean "show everything".
 		if (!/^(aux|-ef|-e|-f|a|u|x|-A)$/.test(a)) {
 			throw new CmdError(
-				`ps: unsupported option '${a}'\n(this playground understands plain ps, ps aux and ps -ef — all of which list every process here)`
+				`ps: unsupported option '${a}'\n(this playground understands plain ps — this terminal only — plus ps aux and ps -ef, which list everything)`
 			);
 		}
 	}
-	return ok(psTable(engine, false));
+	const everything = args.length > 0;
+	const table = psTable(engine, everything);
+	if (everything) return ok(table);
+	// The lesson of 8.1: the thing you're hunting usually isn't in this list.
+	const hidden = engine.processes.some((p) => p.job === undefined);
+	return ok(
+		table +
+			(hidden
+				? '(plain ps lists only this terminal — other processes are running; try ps aux)\n'
+				: '')
+	);
 }
 
 function cmdPgrep(engine: ShellEngine, args: string[]): ExecResult {
@@ -2251,7 +2347,18 @@ const SIGNALS: Record<string, number> = {
 	SIGTERM: 15,
 	'2': 2,
 	INT: 2,
-	SIGINT: 2
+	SIGINT: 2,
+	'1': 1,
+	HUP: 1,
+	SIGHUP: 1
+};
+
+/** Number → name, so the sandbox reports back the signal it was actually sent. */
+const SIGNAL_NAMES: Record<number, string> = {
+	1: 'SIGHUP',
+	2: 'SIGINT',
+	9: 'SIGKILL',
+	15: 'SIGTERM'
 };
 
 function cmdKill(engine: ShellEngine, args: string[]): ExecResult {
@@ -2263,7 +2370,7 @@ function cmdKill(engine: ShellEngine, args: string[]): ExecResult {
 			const resolved = SIGNALS[name];
 			if (resolved === undefined) {
 				throw new CmdError(
-					`kill: unknown signal '${a}'\n(this playground knows -15/-TERM — ask politely — and -9/-KILL — the last resort)`
+					`kill: unknown signal '${a}'\n(this playground knows -15/-TERM — ask politely — -9/-KILL — the last resort — plus -2/-INT and -1/-HUP)`
 				);
 			}
 			signal = resolved;
@@ -2286,10 +2393,11 @@ function cmdKill(engine: ShellEngine, args: string[]): ExecResult {
 			);
 			continue;
 		}
+		const name = SIGNAL_NAMES[signal];
 		if (signal !== 9 && proc.ignoresTerm) {
 			// The lesson: a polite request can be declined.
 			out.push(
-				`(no response — ${proc.command} is still running; a program can catch SIGTERM and ignore it. Escalate: kill -9 ${proc.pid})`
+				`(no response — ${proc.command} is still running; a program can catch ${name} and ignore it. Escalate: kill -9 ${proc.pid})`
 			);
 			continue;
 		}
@@ -2297,7 +2405,7 @@ function cmdKill(engine: ShellEngine, args: string[]): ExecResult {
 		out.push(
 			signal === 9
 				? `[killed] ${proc.command} (PID ${proc.pid}) — SIGKILL, no cleanup`
-				: `[terminated] ${proc.command} (PID ${proc.pid}) — SIGTERM, it shut down cleanly`
+				: `[terminated] ${proc.command} (PID ${proc.pid}) — ${name}, it shut down cleanly`
 		);
 	}
 	if (errs.length) {
@@ -2418,7 +2526,7 @@ function cmdEcho(args: string[]): ExecResult {
 	let s = args.slice(i).join(' ');
 	if (interpret) {
 		s = s.replace(/\\(.)/g, (m, c: string) =>
-			c === 'n' ? '\n' : c === 't' ? '\t' : c === '\\' ? '\\' : m
+			c === 'n' ? '\n' : c === 't' ? '\t' : c === '\\' ? '\\' : c === 'e' ? '\x1b' : m
 		);
 	}
 	return ok(s + (noNewline ? '' : '\n'));
@@ -2440,7 +2548,17 @@ function cmdPrintf(args: string[]): ExecResult {
 			const ch = fmt[i];
 			if (ch === '\\' && i + 1 < fmt.length) {
 				const n = fmt[++i];
-				res += n === 'n' ? '\n' : n === 't' ? '\t' : n === '\\' ? '\\' : '\\' + n;
+				// \e is the escape byte colour sequences start with (13.1).
+				res +=
+					n === 'n'
+						? '\n'
+						: n === 't'
+							? '\t'
+							: n === '\\'
+								? '\\'
+								: n === 'e' || n === 'E'
+									? '\x1b'
+									: '\\' + n;
 			} else if (ch === '%' && i + 1 < fmt.length) {
 				const n = fmt[++i];
 				if (n === '%') res += '%';
@@ -2466,8 +2584,21 @@ function cmdPrintf(args: string[]): ExecResult {
 
 const baseOf = (p: string) => p.replace(/\/+$/, '').split('/').pop() ?? p;
 
+/**
+ * cp and mv write a name into a folder that has to be there already — neither
+ * creates one on the way (Part 3.2). Returns the error line, or null if fine.
+ */
+function missingParent(engine: ShellEngine, targetAbs: string, shown: string, cmd: string) {
+	const parent = targetAbs.slice(0, targetAbs.lastIndexOf('/')) || '/';
+	if (engine.isDir(parent)) return null;
+	return (
+		`${cmd}: cannot create '${shown}': No such file or directory\n` +
+		`(the folder for that name doesn't exist yet, and ${cmd} won't make one — mkdir it first)`
+	);
+}
+
 function cmdCp(engine: ShellEngine, args: string[]): ExecResult {
-	const { flags, rest } = flagSplit(args, 'rR', 'cp');
+	const { flags, rest } = flagSplit(args, 'rRi', 'cp');
 	const recursive = flags.has('r') || flags.has('R');
 	if (rest.length < 2) {
 		return fail(
@@ -2508,6 +2639,17 @@ function cmdCp(engine: ShellEngine, args: string[]): ExecResult {
 		}
 		if (node.kind === 'file' && engine.isDir(targetAbs)) {
 			errs.push(`cp: cannot overwrite directory '${dest}' with non-directory`);
+			continue;
+		}
+		const noParent = missingParent(engine, targetAbs, dest, 'cp');
+		if (noParent) {
+			errs.push(noParent);
+			continue;
+		}
+		if (flags.has('i') && engine.exists(targetAbs)) {
+			errs.push(
+				`cp: not overwriting '${engine.pretty(targetAbs)}' — in a real terminal -i would ask you y/n first.\n(remove the target or drop -i if you mean to replace it)`
+			);
 			continue;
 		}
 		engine.attachNode(targetAbs, engine.cloneNode(node, baseOf(targetAbs)));
@@ -2551,6 +2693,11 @@ function cmdMv(engine: ShellEngine, args: string[]): ExecResult {
 		}
 		if (node.kind === 'file' && engine.isDir(targetAbs)) {
 			errs.push(`mv: cannot overwrite directory '${dest}' with non-directory`);
+			continue;
+		}
+		const noParent = missingParent(engine, targetAbs, dest, 'mv');
+		if (noParent) {
+			errs.push(noParent);
 			continue;
 		}
 		engine.removeNode(srcAbs);
@@ -2803,6 +2950,8 @@ function cmdExport(ctx: Ctx, args: string[]): ExecResult {
 		}
 		if (eq !== -1) engine.env[name] = a.slice(eq + 1);
 		else if (ctx.vars && name in ctx.vars) engine.env[name] = ctx.vars[name];
+		// Promoting a shell variable moves it: env is now the only copy.
+		if (ctx.vars) delete ctx.vars[name];
 	}
 	return errs.length ? fail(errs.join('\n')) : ok();
 }
@@ -2862,11 +3011,11 @@ function cmdChmod(engine: ShellEngine, args: string[]): ExecResult {
 		);
 	}
 	const mode = args[0];
-	const symbolic = mode.match(/^[ugoa]*([+-])x$/);
+	const symbolic = mode.match(/^([ugoa]*)([+-])([rwx]+)$/);
 	const octal = mode.match(/^[0-7]{3}$/);
 	if (!symbolic && !octal) {
 		return fail(
-			`chmod: invalid mode: '${mode}'\n(this playground supports +x, -x, u+x-style modes and 3-digit octal like 755 or 644)`
+			`chmod: invalid mode: '${mode}'\n(this playground supports symbolic modes like +x, u+x, go-w and 3-digit octal like 755 or 644)`
 		);
 	}
 	const errs: string[] = [];
@@ -2878,8 +3027,23 @@ function cmdChmod(engine: ShellEngine, args: string[]): ExecResult {
 			continue;
 		}
 		if (symbolic) {
-			if (node.kind === 'file') node.executable = symbolic[1] === '+';
-			delete node.mode;
+			// Start from whatever the file shows now, then edit only the
+			// audience the learner named — a bare +x means a+x (Part 5.2).
+			const current = engine.modeOf(p) || (node.kind === 'dir' ? 'rwxr-xr-x' : 'rw-r--r--');
+			const bits = current.split('');
+			const who = symbolic[1] || 'a';
+			const adding = symbolic[2] === '+';
+			const offsets: number[] = [];
+			if (who.includes('u') || who.includes('a')) offsets.push(0);
+			if (who.includes('g') || who.includes('a')) offsets.push(3);
+			if (who.includes('o') || who.includes('a')) offsets.push(6);
+			for (const perm of symbolic[3]) {
+				const slot = perm === 'r' ? 0 : perm === 'w' ? 1 : 2;
+				for (const off of offsets) bits[off + slot] = adding ? perm : '-';
+			}
+			node.mode = bits.join('');
+			// The owner's x bit is the one that decides whether ./file runs.
+			if (node.kind === 'file') node.executable = bits[2] === 'x';
 		} else {
 			const digits = mode.split('').map(Number);
 			// Only the owner-execute bit changes real behavior in the sandbox;
@@ -2892,6 +3056,35 @@ function cmdChmod(engine: ShellEngine, args: string[]): ExecResult {
 }
 
 /* ── info & misc ──────────────────────────────────────────────────── */
+
+/** Matches the Uid/Gid that `stat` reports, so the two never disagree. */
+const UID = 1000;
+const GID = 20;
+
+/**
+ * `id` — who the shell thinks you are. Part 5.1 sends the learner here for
+ * `id -gn` to name the group in the second column of `ls -l`, so the -u/-g
+ * (number) and -n (name) combinations all have to answer.
+ */
+function cmdId(args: string[]): ExecResult {
+	const flags = new Set<string>();
+	for (const a of args) {
+		if (a.startsWith('-') && a.length > 1) for (const c of a.slice(1)) flags.add(c);
+		else if (a !== '') return fail(`id: ${a}: no such user\n(this sandbox only knows ${USER})`);
+	}
+	const wantName = flags.has('n');
+	const wantUser = flags.has('u');
+	const wantGroup = flags.has('g');
+	if (wantName && !wantUser && !wantGroup) {
+		return fail('id: cannot print only names or real IDs in default format');
+	}
+	if (wantUser && wantGroup) {
+		return fail('id: cannot print "only" of more than one choice');
+	}
+	if (wantUser) return ok(`${wantName ? USER : UID}\n`);
+	if (wantGroup) return ok(`${wantName ? GROUP : GID}\n`);
+	return ok(`uid=${UID}(${USER}) gid=${GID}(${GROUP}) groups=${GID}(${GROUP})\n`);
+}
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -2935,9 +3128,13 @@ function cmdCal(): ExecResult {
 }
 
 function humanSize(n: number): string {
+	// One decimal only while it still means something, the way ls -lh and
+	// du -h round: 4.0K, 16K, 1.9M.
+	const scale = (v: number, unit: string) => (v < 10 ? v.toFixed(1) : String(Math.round(v))) + unit;
 	if (n < 1024) return String(n);
-	if (n < 1024 * 1024) return (n / 1024).toFixed(1) + 'K';
-	return (n / (1024 * 1024)).toFixed(1) + 'M';
+	if (n < 1024 * 1024) return scale(n / 1024, 'K');
+	if (n < 1024 * 1024 * 1024) return scale(n / (1024 * 1024), 'M');
+	return scale(n / (1024 * 1024 * 1024), 'G');
 }
 
 function cmdDf(args: string[]): ExecResult {
@@ -2959,7 +3156,9 @@ function cmdDf(args: string[]): ExecResult {
 function cmdDu(engine: ShellEngine, args: string[]): ExecResult {
 	const { flags, rest } = flagSplit(args, 'hs', 'du');
 	const human = flags.has('h');
-	const fmt = (n: number) => (human ? humanSize(n) : String(n));
+	// du counts allocated blocks, not bytes: its bare numbers are 1K blocks,
+	// and -h turns those into the K/M/G that Part 10.4 describes.
+	const fmt = (n: number) => (human ? humanSize(n * 1024) : String(n));
 	const paths = rest.length ? rest : ['.'];
 	const lines: string[] = [];
 	const errs: string[] = [];
@@ -2971,10 +3170,10 @@ function cmdDu(engine: ShellEngine, args: string[]): ExecResult {
 			continue;
 		}
 		const rec = (label: string, cur: VfsNode): number => {
-			if (cur.kind === 'file') return cur.content.length;
-			let sum = 0;
+			if (cur.kind === 'file') return blocksOf(cur);
+			let sum = blocksOf(cur);
 			for (const [name, child] of cur.children) {
-				sum += child.kind === 'dir' ? rec(`${label}/${name}`, child) : child.content.length;
+				sum += child.kind === 'dir' ? rec(`${label}/${name}`, child) : blocksOf(child);
 			}
 			if (!flags.has('s')) lines.push(`${fmt(sum)}\t${label}`);
 			return sum;
@@ -2987,6 +3186,43 @@ function cmdDu(engine: ShellEngine, args: string[]): ExecResult {
 		err: errs.length ? errs.join('\n') + '\n' : '',
 		code: errs.length ? 1 : 0
 	};
+}
+
+/**
+ * diff, in the plain line-by-line form Part 7.3 uses to check a sed -i.bak
+ * edit: `<` is the first file's line, `>` is the second's. Real diff groups
+ * changes into hunks with counts; this reports each differing line.
+ */
+function cmdDiff(engine: ShellEngine, args: string[]): ExecResult {
+	const rest = args.filter((a) => !a.startsWith('-'));
+	if (rest.length < 2) {
+		return fail(
+			'diff: missing operand\n(usage: diff OLD NEW — it prints only the lines that differ)'
+		);
+	}
+	const [aPath, bPath] = rest;
+	const errs: string[] = [];
+	for (const p of [aPath, bPath]) {
+		const node = engine.getNode(engine.resolve(p));
+		if (!node) errs.push(`diff: ${p}: No such file or directory`);
+		else if (node.kind === 'dir') errs.push(`diff: ${p}: Is a directory`);
+	}
+	if (errs.length) return fail(errs.join('\n'), 2);
+	const a = (engine.readFile(engine.resolve(aPath)) ?? '').split('\n');
+	const b = (engine.readFile(engine.resolve(bPath)) ?? '').split('\n');
+	if (a[a.length - 1] === '') a.pop();
+	if (b[b.length - 1] === '') b.pop();
+	const lines: string[] = [];
+	for (let i = 0; i < Math.max(a.length, b.length); i++) {
+		if (a[i] === b[i]) continue;
+		lines.push(`${i + 1}c${i + 1}`);
+		if (a[i] !== undefined) lines.push(`< ${a[i]}`);
+		if (a[i] !== undefined && b[i] !== undefined) lines.push('---');
+		if (b[i] !== undefined) lines.push(`> ${b[i]}`);
+	}
+	// Silence means identical — and diff says so with exit 0 vs exit 1.
+	if (!lines.length) return ok();
+	return { out: lines.join('\n') + '\n', err: '', code: 1 };
 }
 
 function cmdFile(engine: ShellEngine, args: string[]): ExecResult {
@@ -3052,7 +3288,7 @@ function cmdStat(engine: ShellEngine, args: string[]): ExecResult {
 		lines.push(
 			`  File: ${p}`,
 			`  Size: ${String(size).padEnd(10)} Blocks: ${Math.max(1, Math.ceil(size / 512))}          IO Block: 4096   ${kind}`,
-			`Access: (${modeToOctal(mode)}/${mode})  Uid: (1000/${USER})   Gid: (1000/${USER})`,
+			`Access: (${modeToOctal(mode)}/${mode})  Uid: (1000/${USER})   Gid: ( 20/${GROUP})`,
 			`Modify: ${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 		);
 	}
@@ -3671,8 +3907,8 @@ function cmdTldr(args: string[]): ExecResult {
 /* ── help & man ───────────────────────────────────────────────────── */
 
 const HELP_LINES: [string, string][] = [
-	['Orientation', 'pwd  ls  cd  clear  whoami  date  cal  history  help  man'],
-	['Files & dirs', 'mkdir  touch  cp  mv  rm  rmdir  cat  less  head  tail  file  stat'],
+	['Orientation', 'pwd  ls  cd  clear  whoami  id  date  cal  history  help  man'],
+	['Files & dirs', 'mkdir  touch  cp  mv  rm  rmdir  cat  less  head  tail  file  stat  diff'],
 	['Text tools', 'grep  sed  sort  uniq  cut  tr  wc  echo  printf  seq  tee  xargs'],
 	['Finding', 'find  which  type'],
 	['Permissions', 'chmod  (read them with ls -l)'],
@@ -3737,10 +3973,10 @@ const MAN_PAGES: Record<string, ManPage> = {
 	},
 	ls: {
 		name: 'list directory contents',
-		synopsis: 'ls [-l] [-a] [-F] [-R] [path ...]',
+		synopsis: 'ls [-l] [-a] [-h] [-t] [-F] [-R] [path ...]',
 		description:
-			'Lists what a directory contains. -l shows the long view (permissions, owner, size, date), -a includes hidden dotfiles, -F marks directories with / and executables with *, -R descends into subdirectories.',
-		examples: ['ls', 'ls -la', 'ls -l projects/'],
+			'Lists what a directory contains. -l shows the long view (permissions, link count, owner, group, size, date), -a includes hidden dotfiles, -h prints sizes as K/M/G instead of bytes, -t sorts newest first, -F marks directories with / and executables with *, -R descends into subdirectories. The "total" line -l prints is disk blocks used, not a count of the files.',
+		examples: ['ls', 'ls -la', 'ls -lat', 'ls -lh projects/'],
 		vibe: 'Look before you leap — ls before you rm.'
 	},
 	cd: {
@@ -3891,10 +4127,14 @@ const MAN_PAGES: Record<string, ManPage> = {
 	},
 	cp: {
 		name: 'copy files and directories',
-		synopsis: 'cp [-r] SOURCE DEST',
+		synopsis: 'cp [-r] [-i] SOURCE… DEST',
 		description:
-			'Copies SOURCE to DEST. If DEST is an existing directory, the copy lands inside it. Directories need -r (recursive) to copy everything within. Overwrites existing files silently — like the real thing.',
-		examples: ['cp notes.txt backup.txt', 'cp -r project/ project-backup/'],
+			'Copies SOURCE to DEST. If DEST is an existing directory, the copy lands inside it — and with more than one source, DEST has to be a directory that already exists, because cp never creates one. Directories need -r (recursive) to copy everything within. Overwrites existing files silently — like the real thing; -i stops and asks first.',
+		examples: [
+			'cp notes.txt backup.txt',
+			'cp -i config.yaml backups/',
+			'cp -r project/ project-backup/'
+		],
 		vibe: 'Duplicate first, experiment second.'
 	},
 	mv: {
@@ -3953,6 +4193,14 @@ const MAN_PAGES: Record<string, ManPage> = {
 		examples: ['whoami'],
 		vibe: 'An existential question with a one-word answer.'
 	},
+	id: {
+		name: 'print your user and group identity',
+		synopsis: 'id [-un] [-gn]',
+		description:
+			'Prints who the system thinks you are: your user id and name, and the group you belong to. Bare id prints all of it at once. -u asks for the user and -g for the group; adding -n asks for the name instead of the number, so id -gn prints the group name — the second name in every ls -l line (Part 5.1).',
+		examples: ['id', 'id -gn', 'id -un'],
+		vibe: 'whoami, with your group along for the ride.'
+	},
 	date: {
 		name: 'print the current date and time',
 		synopsis: 'date',
@@ -3987,10 +4235,10 @@ const MAN_PAGES: Record<string, ManPage> = {
 	},
 	man: {
 		name: 'read the manual',
-		synopsis: 'man command',
+		synopsis: 'man [section] command   man -k keyword',
 		description:
-			'Shows the manual page for a command. Real man pages open in a pager (q quits). Reading man pages — or asking your AI to explain one — is the core skill of verifying commands before running them.',
-		examples: ['man grep', 'man rm'],
+			"Shows the manual page for a command. Real man pages open in a pager (q quits). A leading section number picks between pages that share a name — man 1 crontab is the command, man 5 crontab the file format. man -k searches every page's one-line description, which is how you find a command whose name you do not know yet. Reading man pages — or asking your AI to explain one — is the core skill of verifying commands before running them.",
+		examples: ['man grep', 'man rm', 'man -k download'],
 		vibe: 'RTFM, said with love.'
 	},
 	history: {
@@ -4042,11 +4290,19 @@ const MAN_PAGES: Record<string, ManPage> = {
 	},
 	chmod: {
 		name: 'change file permissions',
-		synopsis: 'chmod +x file   chmod 755 file',
+		synopsis: 'chmod [ugoa][+-][rwx] file   chmod 755 file',
 		description:
-			'Changes who may read (r), write (w) and execute (x) a file. +x makes a script runnable — the step everyone forgets before ./script.sh. Octal recipes: 755 = I do everything / others read & run; 644 = I read & write / others read.',
-		examples: ['chmod +x deploy.sh', './deploy.sh', 'chmod 644 notes.txt'],
+			'Changes who may read (r), write (w) and execute (x) a file. + adds a permission, - removes one, and a letter in front picks the audience: u you, g your group, o everyone else, a all three. A bare +x means a+x, so chmod u+x grants it to you alone. +x makes a script runnable — the step everyone forgets before ./script.sh. Octal recipes: 755 = I do everything / others read & run; 644 = I read & write / others read.',
+		examples: ['chmod +x deploy.sh', 'chmod u+x deploy.sh', './deploy.sh', 'chmod 644 notes.txt'],
 		vibe: 'The bouncer of the filesystem.'
+	},
+	diff: {
+		name: 'compare two files line by line',
+		synopsis: 'diff OLD NEW',
+		description:
+			'Prints only the lines where two files disagree: < is a line from the first file, > the matching line from the second. The everyday use is checking an edit you just made — diff config.yml.bak config.yml after a sed -i.bak run. Identical files print nothing and exit 0; any difference exits 1.',
+		examples: ['diff config.yml.bak config.yml', 'diff notes.txt notes-old.txt'],
+		vibe: 'The undo button starts with knowing what changed.'
 	},
 	df: {
 		name: 'disk free space',
@@ -4189,7 +4445,10 @@ const MAN_PAGES: Record<string, ManPage> = {
 		simulated: true
 	},
 	curl: {
-		name: 'send a request, print the reply',
+		// The real NAME line, verbatim from `whatis curl`. Note it contains no
+		// "download", which is why `man -k download` does not find curl —
+		// exactly the lesson 1.3 draws about keyword search.
+		name: 'transfer a URL',
 		synopsis: 'curl [-s] [-I] [-o FILE] [-H "Name: value"] URL',
 		description:
 			'Asks a server for something and prints what comes back — the terminal\'s way of checking a claim like "the dev server is running". curl localhost:3000/health is the fastest way to find out for yourself. -o FILE saves the reply instead of printing it, -s hides the progress meter (use it in scripts and pipelines), -I asks for just the headers, and -H adds a request header. The reply is usually JSON, so it pipes straight into jq. In this sandbox localhost is answered by whatever process actually holds the port — kill the server and curl fails with "Connection refused", exactly like the real thing; other hosts answer from the scenario\'s canned network.',
@@ -4232,7 +4491,7 @@ const MAN_PAGES: Record<string, ManPage> = {
 		name: 'how much space is this using?',
 		synopsis: 'du -sh [PATH…]',
 		description:
-			'Measures disk usage. -h prints human sizes (K, M, G) and -s gives one summary line per argument instead of every subfolder. The everyday incantation is du -sh */ — the size of each folder here, so the space hog is obvious at a glance. Measure before you delete: it turns "I think node_modules is big" into a number, and it is the honest first step before any rm.',
+			'Measures disk usage in disk blocks, which is why even a tiny file costs 4K. -h prints human sizes (K, M, G) and -s gives one summary line per argument instead of every subfolder. The everyday incantation is du -sh */ — the size of each folder here, so the space hog is obvious at a glance. Measure before you delete: it turns "I think node_modules is big" into a number, and it is the honest first step before any rm.',
 		examples: ['du -sh *', 'du -sh node_modules', 'df -h'],
 		vibe: 'Find the space hog before you swing.'
 	},
@@ -4249,7 +4508,9 @@ const MAN_PAGES: Record<string, ManPage> = {
 		vibe: 'The key to the nested jar.'
 	},
 	wget: {
-		name: 'download a file from a URL',
+		// Real GNU wget's NAME line, so `man -k download` matches it here for
+		// the same reason it does on a real machine.
+		name: 'The non-interactive network downloader',
 		synopsis: 'wget URL',
 		description:
 			'Like curl, but saves to a file by default instead of printing. The playground simulates the download and writes a small canned file.',
@@ -4279,7 +4540,7 @@ const MAN_PAGES: Record<string, ManPage> = {
 		name: 'list running processes',
 		synopsis: 'ps [aux]',
 		description:
-			"Every running program is a row with a number. PID is that number — the handle you pass to kill. %CPU is how hard it is working (a runaway sits near 100). COMMAND is what it actually is. Plain ps, ps aux (BSD spelling) and ps -ef (System V spelling) all list everything here; on a real machine plain ps shows only your shell's processes and aux shows the whole machine. Pipe it: ps aux | grep node finds a process by name, and awk '{print $2}' pulls the PID column out.",
+			"Every running program is a row with a number. PID is that number — the handle you pass to kill. %CPU is how hard it is working (a runaway sits near 100). COMMAND is what it actually is. Plain ps lists only what is attached to this terminal — your shell and the jobs it started — which is why the server you are hunting is never in it. ps aux (BSD spelling) and ps -ef (System V spelling) both widen it to the whole machine. Pipe it: ps aux | grep node finds a process by name, and awk '{print $2}' pulls the PID column out.",
 		examples: ['ps', 'ps aux', 'ps aux | grep node'],
 		vibe: 'The census of everything running.'
 	},
@@ -4293,10 +4554,10 @@ const MAN_PAGES: Record<string, ManPage> = {
 	},
 	kill: {
 		name: 'signal a process to stop',
-		synopsis: 'kill [-9] PID',
+		synopsis: 'kill [-SIGNAL] PID',
 		description:
-			'Sends a signal to a process. Plain kill sends SIGTERM (15): a polite letter that says "please finish up and stop" — the program can save its work, close files, and bow out cleanly. It can also catch that signal and ignore it. kill -9 sends SIGKILL: the floor simply opens, with no cleanup and no goodbye, and no program can refuse it. Ask politely first; -9 is the last resort, not the default. Find the PID with ps, pgrep, or lsof -i :PORT. kill %1 addresses a background job by its number.',
-		examples: ['kill 412', 'kill -9 412', 'kill %1'],
+			'Sends a signal to a process. Plain kill sends SIGTERM (15): a polite letter that says "please finish up and stop" — the program can save its work, close files, and bow out cleanly. It can also catch that signal and ignore it. kill -9 sends SIGKILL: the floor simply opens, with no cleanup and no goodbye, and no program can refuse it. Ask politely first; -9 is the last resort, not the default. Find the PID with ps, pgrep, or lsof -i :PORT. kill %1 addresses a background job by its number. Every signal has a number and a name, and -N means "send signal N": -15/-TERM is the default, -9/-KILL cannot be caught, -2/-INT is what Ctrl+C sends, -1/-HUP is the traditional "reload your config".',
+		examples: ['kill 412', 'kill -9 412', 'kill -HUP 412', 'kill %1'],
 		vibe: 'Ask nicely. Then insist.'
 	},
 	lsof: {
@@ -4350,16 +4611,63 @@ const MAN_PAGES: Record<string, ManPage> = {
 	}
 };
 
+/**
+ * The short answer `<command> --help` gives: a usage line, then the flags.
+ * Returns null when the command has no page, so dispatch falls through.
+ */
+function usageFor(name: string): ExecResult | null {
+	const page = MAN_PAGES[MAN_ALIASES[name] ?? name];
+	if (!page) return null;
+	const text =
+		`Usage: ${page.synopsis}\n${page.name}\n\n` +
+		page.examples.map((e) => `  ${e}`).join('\n') +
+		`\n\n(the full page: man ${name})\n`;
+	return {
+		out: text,
+		err: '',
+		code: 0,
+		html:
+			span(`Usage: ${page.synopsis}`, HEADING_STYLE) +
+			span(`\n${page.name}\n\n` + page.examples.map((e) => `  ${e}`).join('\n'), OUT_STYLE) +
+			span(`\n\n(the full page: man ${name})`, META_STYLE)
+	};
+}
+
+/**
+ * `man -k WORD` — apropos: search every page's one-line description. The way
+ * you find a command whose name you don't know yet (Part 1.3).
+ */
+function manKeyword(word: string): ExecResult {
+	const needle = word.toLowerCase();
+	const hits = Object.entries(MAN_PAGES)
+		.filter(([cmd, page]) => cmd.includes(needle) || page.name.toLowerCase().includes(needle))
+		.map(([cmd, page]) => `${cmd}(1) - ${page.name}`);
+	if (!hits.length) {
+		return fail(`${word}: nothing appropriate.\n(no manual page here mentions that word)`);
+	}
+	return ok(hits.join('\n') + '\n');
+}
+
 function cmdMan(args: string[]): ExecResult {
+	const kIndex = args.findIndex((a) => a === '-k' || a === '--apropos');
+	if (kIndex !== -1) {
+		const word = args[kIndex + 1];
+		if (!word) return fail('man: -k needs a word to search for — try: man -k download');
+		return manKeyword(word);
+	}
 	if (!args.length) {
 		return fail(
 			'What manual page do you want?\nFor example, try: man ls   (each supported command has a short page here)'
 		);
 	}
-	const name = args[0];
-	const page = MAN_PAGES[MAN_ALIASES[name] ?? name];
+	// `man 5 crontab` — a leading section number picks which page, and with
+	// only one page per name here it just gets skipped (Part 1.3).
+	const name = /^\d+$/.test(args[0]) ? args[1] : args[0];
+	const page = name ? MAN_PAGES[MAN_ALIASES[name] ?? name] : undefined;
 	if (!page) {
-		return fail(`No manual entry for ${name}\n(try \`help\` for the list of supported commands)`);
+		return fail(
+			`No manual entry for ${name ?? args[0]}\n(try \`help\` for the list of supported commands)`
+		);
 	}
 	const indent = (s: string) =>
 		s
@@ -4415,7 +4723,7 @@ export async function runShellCommand(engine: ShellEngine, input: string): Promi
 	const ctx: Ctx = {
 		engine,
 		params: [],
-		vars: null,
+		vars: engine.shellVars,
 		depth: 0,
 		exit: engine.lastExitCode,
 		exited: false
@@ -4433,9 +4741,14 @@ export async function runShellCommand(engine: ShellEngine, input: string): Promi
 		return { output: '__CLEAR__' };
 	}
 	const error = line.code !== 0;
-	if (line.display.some((p) => p.html !== undefined)) {
+	const hasAnsi = line.display.some((p) => p.html === undefined && p.text.includes('\x1b['));
+	if (hasAnsi || line.display.some((p) => p.html !== undefined)) {
 		const output = line.display
-			.map((p) => p.html ?? span(p.text, p.isErr ? ERR_STYLE : OUT_STYLE))
+			.map((p) => {
+				if (p.html !== undefined) return p.html;
+				if (p.text.includes('\x1b[')) return ansiToHtml(p.text);
+				return span(p.text, p.isErr ? ERR_STYLE : OUT_STYLE);
+			})
 			.join('\n');
 		return { output, colored: true, error };
 	}

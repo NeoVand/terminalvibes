@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { cheatSheet } from '$lib/data/cheat-sheet';
+	import { cheatSheet, cheatSheetLegend } from '$lib/data/cheat-sheet';
 	import { tokenizeGitCommand } from '$lib/data/bash-syntax';
 </script>
 
@@ -25,6 +25,17 @@
 				>
 			</p>
 		</div>
+	</div>
+
+	<!-- Placeholder key: full width above the columns, so it is read before
+	     the first command rather than buried mid-page. -->
+	<div class="legend">
+		<p class="legend-lead">{cheatSheetLegend.lead}</p>
+		<ul>
+			{#each cheatSheetLegend.entries as entry (entry.notation)}
+				<li><code>{entry.notation}</code> <span>{entry.meaning}</span></li>
+			{/each}
+		</ul>
 	</div>
 
 	<div class="columns">
@@ -101,6 +112,46 @@
 	.url {
 		color: #6366f1;
 		font-weight: 600;
+	}
+
+	.legend {
+		margin-bottom: 10px;
+		padding: 5px 8px;
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		border-radius: 4px;
+		break-inside: avoid;
+	}
+
+	.legend-lead {
+		margin: 0 0 3px;
+		font-size: 8.75px;
+		font-weight: 600;
+		color: #334155;
+	}
+
+	.legend ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.legend li {
+		margin: 0 0 1.5px;
+		font-size: 8px;
+		line-height: 1.4;
+		color: #64748b;
+	}
+
+	/* Inline, unlike the block command chips below */
+	.legend code {
+		display: inline;
+		padding: 0 3px;
+		font-size: 8px;
+		color: #b45309;
+		font-style: italic;
+		border: none;
+		background: transparent;
 	}
 
 	.columns {

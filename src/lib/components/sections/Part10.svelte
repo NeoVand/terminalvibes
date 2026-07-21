@@ -55,11 +55,12 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				When a command doesn't exist, your shell says
-				<Code code="command not found" /> — which, as <CourseLink to="part-5" /> taught you, means "nothing
-				on your
+				<Code code="command not found" /> — which, as <CourseLink to="section-5-4" /> taught you, means
+				"nothing on your
 				<Code code="$PATH" /> has that name." A
-				<strong style="color: var(--color-text);">package manager</strong> fixes that in one step: it
-				fetches the tool, unpacks it, and puts it somewhere your PATH already looks.
+				<strong style="color: var(--color-text);">package manager</strong> is a program whose entire job
+				is installing other programs. You name a tool; it finds the right build for your system, puts
+				it somewhere your PATH already looks, and remembers enough to update or remove it later.
 			</p>
 
 			<div class="my-6">
@@ -71,10 +72,11 @@
 			</div>
 
 			<CodeBlock
-				title="Three managers, one idea"
+				title="One idea, several spellings"
 				code={`brew install cowsay            # macOS (Homebrew)
 sudo apt install cowsay        # Debian/Ubuntu Linux
-npm i -g serve                 # tools from the JavaScript world
+npm i -g serve                 # i = install, -g = global
+brew install jq                # jq isn't preinstalled either — same one line
 
 which cowsay                   # where did it land?
 /usr/local/bin/cowsay          # ...somewhere on $PATH. That's all "installed" means.`}
@@ -88,13 +90,39 @@ which cowsay                   # where did it land?
 				is mostly just <em>putting a file somewhere the shell already looks</em>.
 			</p>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Two spellings of one idea, and Windows has a third in <Code code="winget" />, which pulls
+				from its own catalogue the same way. <Code code="apt" /> needs <Code code="sudo" /> because it
+				writes into folders that belong to the machine rather than to you; Homebrew owns its own directory,
+				so it doesn't.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				One thing no setup guide mentions: Homebrew isn't on a stock Mac. <Code code="brew" /> is itself
+				third-party software, installed once by following the instructions at brew.sh — and until you
+				do, the first line of that block answers <Code code="command not found" />, which is a
+				confusing way to be told you're missing the thing that installs things.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="npm i -g serve" /> is the odd one out. <Code code="i" /> is install;
+				<Code code="-g" /> is global, meaning put it where PATH can see it rather than inside this project's
+				<Code code="node_modules" /> folder, where <Code code="which serve" /> would never look. And npm
+				installs JavaScript tools and nothing else, so if what you want isn't JavaScript, npm can't help
+				you. It also <em>runs</em> things: <Code code="npm run <name>" /> executes a script the project
+				defined for itself in its <Code code="package.json" /> file, which is all
+				<Code code="npm test &amp;&amp; npm run deploy" /> in <CourseLink to="section-6-2" /> was ever
+				doing.
+			</p>
+
 			<Callout type="caution">
 				<strong>Read what an install pulls in</strong> — especially from an agent. Three things
 				deserve a second look: <Code code="sudo npm install" /> (a global npm install should rarely need
 				root, and needing it usually means something is misconfigured);
-				<Code code="curl … | bash" /> installers (<CourseLink to="part-9" /> explained exactly why — download,
-				read, then run); and any package whose name is one typo away from a popular one, which is a real
-				and common attack.
+				<Code code="curl … | bash" /> installers (<CourseLink to="section-9-2" /> decoded exactly why
+				— download, read, then run); and any package whose name is one typo away from a popular one. That
+				last one has a name — <em>typosquatting</em> — and a fix: copy the install command from the project's
+				own documentation rather than from a search result.
 			</Callout>
 
 			<VibeBox
@@ -155,9 +183,22 @@ tar -czf backup.tar.gz notes/   # c: create an archive from notes/`}
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Swap one letter and you change the verb: <Code code="x" /> extracts,
 				<Code code="c" /> creates, <Code code="t" /> lists. The <Code code="z" /> and
-				<Code code="f" /> stay put. Once you can read them, the command stops being an incantation you
-				paste and becomes a sentence you understand — which is the entire thesis of this course applied
-				to one very ugly command.
+				<Code code="f" /> stay put, unless something other than gzip did the squeezing:
+				<Code code="-xjf" /> for a <Code code=".tar.bz2" />, <Code code="-xJf" /> for a
+				<Code code=".tar.xz" /> — same idea, different squeezer. Once you can read the letters, the command
+				stops being an incantation you paste and becomes a sentence you understand — which is the entire
+				thesis of this course applied to one very ugly command.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="tar" /> and <Code code="zip" /> split the job differently.
+				<Code code="tar" /> only bundles — it glues many files into one and stops there, which is why
+				compression is a separate <Code code="z" /> and why you end up with two extensions in
+				<Code code=".tar.gz" />. A <Code code=".zip" /> does both jobs in one format, which is what a
+				browser download or a Windows machine usually hands you; <Code code=".tar.gz" /> is the Unix default.
+				Opening one is <Code code="unzip archive.zip" />, and <Code code="unzip -l" /> lists what's inside
+				without extracting anything — <Code code="l" /> for list, the zip spelling of
+				<Code code="tar -tzf" />.
 			</p>
 
 			<Callout type="tip">
@@ -165,8 +206,8 @@ tar -czf backup.tar.gz notes/   # c: create an archive from notes/`}
 				a badly-built one scatters files all over your current folder instead of tidying them into
 				one directory. <Code code="tar -tzf archive.tar.gz" /> lists everything without extracting anything
 				— it costs a second and it's the same "look before you leap" habit as echo-the-glob in <CourseLink
-					to="part-3"
-				/>. The zip equivalent is <Code code="unzip -l" />.
+					to="section-3-4"
+				/>.
 			</Callout>
 
 			<VibeBox
@@ -223,8 +264,16 @@ current -> releases/v2.1`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				A <strong style="color: var(--color-text);">symlink</strong> is a tiny file whose entire
-				content is "look over there instead." It is
+				Those lines are trimmed — a real <Code code="ls -l" /> puts owner, group, size and date between
+				the permissions and the name — but the character doing the work is the first one. That
+				<Code code="l" /> is the type character from <CourseLink to="section-5-1" />'s legend, the
+				one entry that legend pointed forward to here.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				A <strong style="color: var(--color-text);">symlink</strong> — symbolic link, which is what
+				the <Code code="-s" /> stands for — is a tiny file whose entire content is "look over there instead."
+				It is
 				<em>not</em> a copy: there's still one real thing, and the link is a pointer to it. That's
 				why deleting the link leaves the original alone — and why deleting the original leaves a
 				<strong style="color: var(--color-text);">broken link</strong>, an arrow pointing at
@@ -232,12 +281,22 @@ current -> releases/v2.1`}
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				A link's target can be absolute or relative, and the two behave differently.
+				<Code code="/opt/homebrew/Cellar/…" /> above is absolute: it means the same thing from anywhere.
+				<Code code="releases/v2.1" /> is relative, worked out from the <em>link's</em> own folder rather
+				than from yours — so moving the link somewhere else breaks it while the file it pointed at sits
+				untouched.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				This is how a surprising amount of your machine is wired. Homebrew installs the real files
 				deep in its own folders and drops symlinks into <Code code="/usr/local/bin" />;
-				<Code code="node_modules/.bin" /> is full of them; version managers switch which
-				<Code code="node" /> you get by re-pointing one link. When a tool insists it's installed but the
-				command "isn't found" — or points at the wrong version — a symlink is usually the culprit, and
-				<Code code="ls -l" /> plus <Code code="which" /> is how you catch it.
+				<Code code="node_modules/.bin" /> is full of them. A
+				<strong style="color: var(--color-text);">version manager</strong> — <Code code="nvm" /> for Node,
+				<Code code="pyenv" /> for Python — lets one machine hold several versions of the same language,
+				and switches between them by re-pointing a single link. When a tool insists it's installed but
+				the command "isn't found" — or points at the wrong version — a symlink is usually the culprit,
+				and <Code code="ls -l" /> plus <Code code="which" /> is how you catch it.
 			</p>
 
 			<Callout type="tip">
@@ -281,10 +340,10 @@ current -> releases/v2.1`}
 			<CodeBlock
 				title="Where did it all go?"
 				code={`du -sh *              # how big is each thing HERE?
-1.9G    node_modules
-204M    .cache
- 12M    src
+204M    dist
 3.1M    docs
+1.9G    node_modules
+ 12M    src
 
 df -h                 # how full is the whole disk?
 Filesystem  Size  Used Avail Capacity
@@ -292,20 +351,31 @@ Filesystem  Size  Used Avail Capacity
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code="du" /> is "disk usage" — <Code code="-h" /> makes the numbers human (K, M, G) and
-				<Code code="-s" /> gives one summary line per item instead of every nested folder.
-				<Code code="df" /> is "disk free", the whole-disk view. The everyday move is
-				<Code code="du -sh *" />: one number per folder, sorted out by eye, and the hog is
-				immediately obvious. It's usually <Code code="node_modules" />, a build cache, or old
-				container images — things that regenerate, which is exactly why they're safe to delete.
+				<Code code="du" /> is "disk usage" — <Code code="-s" /> gives one summary line per item instead
+				of every nested folder, and <Code code="-h" /> is the same human-readable flag you aliased onto
+				<Code code="ls" /> in <CourseLink to="section-5-5" />. It's what turns the raw byte counts
+				from
+				<CourseLink to="section-2-5" /> into K, M and G, each rung roughly a thousand of the one below
+				— so <Code code="1.9G" /> dwarfs <Code code="12M" /> by far more than the digits suggest. <Code
+					code="df"
+				/> is "disk free", the whole-disk view; a real one also prints where each disk is mounted, plus
+				a few extra columns on macOS you can ignore.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The everyday move is <Code code="du -sh *" />: one number per folder, sorted out by eye, and
+				the hog is immediately obvious. It's usually <Code code="node_modules" />, a build cache, or
+				old container images — things that regenerate, which is exactly why they're safe to delete.
+				One catch: <Code code="*" /> never matches a name that starts with a dot, so a
+				<Code code=".cache" /> folder stays invisible until you name it yourself:
+				<Code code="du -sh .cache" />.
 			</p>
 
 			<Callout type="tip">
 				<strong>Measure, then delete — in that order.</strong> It's the same discipline as
-				<Code code="ls" /> before <Code code="rm" /> from <CourseLink to="part-3" /> and echo-the-glob
-				from <CourseLink to="part-3" />.4: make the invisible visible <em>before</em> the irreversible
-				step. Deleting the wrong 200 MB is annoying; deleting the wrong 200 MB because you never checked
-				is avoidable.
+				<Code code="ls" /> before <Code code="rm" /> in <CourseLink to="section-3-3" />: make the
+				invisible visible <em>before</em> the irreversible step. Deleting the wrong 200 MB is annoying;
+				deleting the wrong 200 MB because you never checked is avoidable.
 			</Callout>
 
 			<VibeBox

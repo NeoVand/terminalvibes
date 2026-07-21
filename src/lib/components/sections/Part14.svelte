@@ -186,9 +186,10 @@
 						<p class="text-xs" style="color: var(--color-text-muted);">
 							The safety habit that threads the whole course: <Code code="ls" />
 							before <Code code="rm" />, echo the glob before trusting it, count the arrows in a
-							redirect, audit every AI-proposed command with the four-step routine from 6.1. The
-							terminal does exactly what you say, immediately, with no undo — reading first is what
-							makes that power safe to hold.
+							redirect, audit every AI-proposed command with the four-step routine from <CourseLink
+								to="section-11-1"
+							/>. The terminal does exactly what you say, immediately, with no undo — reading first
+							is what makes that power safe to hold.
 						</p>
 					</div>
 				</div>
@@ -253,8 +254,11 @@
 			</div>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Everything from the course, grouped the way you'll reach for it. When a command's flags slip
-				your mind, <Code code="--help" /> is one keystroke closer than this table.
+				Everything from the course, grouped the way you'll reach for it — with <Code code="NAME" />,
+				<Code code="URL" /> and <Code code="PID" /> standing in for your own, never typed literally (<CourseLink
+					to="section-1-3"
+				/>). When a command's flags slip your mind, <Code code="man" /> is one keystroke closer than this
+				table.
 			</p>
 
 			<div class="overflow-x-auto rounded-lg" style="background: var(--color-bg-secondary);">
@@ -573,10 +577,13 @@
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Get help</td>
 							<td class="px-3 py-2"
-								><Code code="cmd --help" /> ·
-								<Code code="man cmd" /></td
+								><Code code="man cmd" /> ·
+								<Code code="cmd --help" /></td
 							>
-							<td class="px-3 py-2"><Code code="q" /> quits the pager; tldr for examples</td>
+							<td class="px-3 py-2"
+								><Code code="q" /> quits the pager; built-in <Code code="--help" /> is GNU-only, so
+								<Code code="man" /> on a Mac</td
+							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Practice all commands</td>
@@ -588,7 +595,7 @@
 									style="color: var(--color-primary);">Terminal Playground</button
 								>
 							</td>
-							<td class="px-3 py-2">Try-it activities throughout Parts 1–6</td>
+							<td class="px-3 py-2">Try-it activities in nearly every part</td>
 						</tr>
 					</tbody>
 				</table>
@@ -802,9 +809,9 @@
 						>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						The audit tool from section 6.1, permanently bookmarked. It maps every flag and argument
-						of a pasted command to the matching lines of the real man pages — the perfect second
-						opinion on anything an AI proposes.
+						The audit tool from <CourseLink to="section-11-1" />, permanently bookmarked. It maps
+						every flag and argument of a pasted command to the matching lines of the real man pages
+						— the perfect second opinion on anything an AI proposes.
 					</p>
 				</div>
 
@@ -878,10 +885,11 @@
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				There's one command this course kept respectfully walking past: <Code code="git" />. It's
-				the other half of the vibe coder's toolkit — the save-game system that makes AI-generated
-				changes reviewable, undoable, and safe to experiment with. And it lives exactly where you
-				now feel at home: the terminal.
+				There's one command this course kept respectfully walking past, and said so at the time (<CourseLink
+					to="section-5-5"
+				/>): <Code code="git" />. It's the other half of the vibe coder's toolkit — the save-game
+				system that makes AI-generated changes reviewable, undoable, and safe to experiment with.
+				And it lives exactly where you now feel at home: the terminal.
 			</p>
 
 			<div class="mb-4 space-y-3">

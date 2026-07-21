@@ -101,8 +101,11 @@
 
 			<Callout type="note">
 				<strong>The scenario:</strong> Your AI assistant says "run
-				<Code code="npm install" /> in the project folder." Which folder is your terminal actually in
-				right now? Guessing is how dependencies end up installed in your home directory.
+				<Code code="npm install" /> in the project folder." Node is the program that runs JavaScript outside
+				a browser, and npm is how a Node project fetches its
+				<strong>dependencies</strong> — the code other people wrote that it leans on rather than
+				rewriting. All of it lands in a <Code code="node_modules" /> folder, routinely hundreds of megabytes
+				of it. Which folder is your terminal actually in right now?
 			</Callout>
 
 			<p class="mb-4" style="color: var(--color-text-secondary);">
@@ -119,7 +122,11 @@
 			<p class="mt-4 mb-4" style="color: var(--color-text-secondary);">
 				That answer — <Code code="/home/vibe" />
 				— is a <strong>path</strong>, the full address of the folder you're standing in (paths get
-				their own section next). Now look around with
+				their own section next). It also names your
+				<strong style="color: var(--color-text);">home directory</strong> — the folder that belongs
+				to your account, where your files, settings and downloads live. Every account on the machine
+				gets one, and this one is the home of the account named
+				<Code code="vibe" /> — you. Now look around with
 				<Code code="ls" /> ("list"):
 			</p>
 
@@ -165,7 +172,8 @@
 						ls -l
 					</p>
 					<p class="text-xs" style="color: var(--color-text-secondary);">
-						"Tell me more" — one file per line with sizes, dates, and permissions. Your detail view.
+						"Tell me more" — one file per line with sizes, dates, and permissions: who's allowed to
+						read or change each file.
 					</p>
 				</div>
 			</div>
@@ -177,11 +185,14 @@
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Plain <Code code="ls" />
 				is holding out on you. Any file or folder whose name starts with a dot — a
-				<strong>dotfile</strong> — is hidden by default. That's where configuration lives:
-				<Code code=".bashrc" />,
-				<Code code=".gitignore" />, the
+				<strong style="color: var(--color-text);">dotfile</strong> — is hidden by default. That's
+				where configuration lives:
+				<Code code=".bashrc" />, your shell's own settings file (<CourseLink to="section-5-5" />);
+				<Code code=".gitignore" />; and the
 				<Code code=".env" />
-				file holding your API keys. Add
+				file holding your API keys — an <strong style="color: var(--color-text);">API</strong> being
+				a door a service opens for other programs rather than for people, which is why that file is
+				worth hiding (<CourseLink to="section-9-2" />). Add
 				<Code code="-a" /> ("all") to see them:
 			</p>
 
@@ -206,8 +217,10 @@
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				The long listing packs a lot into each line. For now, read just three things: the leading
 				<Code code="d" />
-				means "directory," the number before the date is the size in bytes, and the name is at the end.
-				The rest of that cryptic string is a permissions code — we decode it fully in <CourseLink
+				means "directory," the number before the date is the size in
+				<strong style="color: var(--color-text);">bytes</strong>, and the name is at the end. A byte
+				is one character's worth of storage, so a 118-byte file holds roughly 118 characters. The
+				rest of that cryptic string is the permissions code, and we decode it fully in <CourseLink
 					to="part-5"
 				/>.
 			</p>
@@ -216,20 +229,32 @@
 				title="The long listing — details per file"
 				code={`ls -l
 # total 12
-# drwxr-xr-x  3 vibe vibe 4096 Jul 10 09:14 documents
-# -rw-r--r--  1 vibe vibe  118 Jul 12 08:30 notes.txt
-# drwxr-xr-x  4 vibe vibe 4096 Jul 11 17:02 projects`}
+# drwxr-xr-x  3 vibe staff 4096 Jul 10 09:14 documents
+# -rw-r--r--  1 vibe staff  118 Jul 12 08:30 notes.txt
+# drwxr-xr-x  4 vibe staff 4096 Jul 11 17:02 projects`}
 			/>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Three things in that block mislead on sight. <Code code="total 12" /> is not a count of the files
+				— it's how much disk they take up, measured in blocks rather than bytes. The small number just
+				after the permissions is a link count, not a second size. And the two names beside it,
+				<Code code="vibe staff" />, are the file's owner and its group. All three get taken apart in
+				<CourseLink to="section-5-1" />.
+			</p>
+
 			<Callout type="note">
-				Flags stack: <Code code="ls -la" />
-				means "long listing, including hidden files" — the single most common
+				Single-letter flags cluster: <Code code="ls -la" />
+				is
+				<Code code="ls -l -a" />
+				typed faster — "long listing, including hidden files," the most common
 				<Code code="ls" />
-				invocation in the wild. (On Windows,
+				invocation in the wild. Only single letters cluster this way, and only behind one dash (<CourseLink
+					to="section-1-3"
+				/>). (On Windows,
 				<Code code="dir" />
-				is the cmd/PowerShell cousin of
+				is the Command Prompt cousin of
 				<Code code="ls" />
-				— but inside WSL or Git Bash,
+				— but inside WSL, or inside Git Bash, which bundles a bash shell into Windows,
 				<Code code="ls" /> works exactly as shown.)
 			</Callout>
 
@@ -266,10 +291,13 @@
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Everything starts at the <strong>root</strong>, written as a single slash
-				<Code code="/" />. Every other folder hangs somewhere beneath it, and a path is simply the
-				walk from one point to another, with
-				<Code code="/" /> between each step:
+				Everything starts at the <strong style="color: var(--color-text);">root</strong>, written as
+				a single slash
+				<Code code="/" /> — the one folder every other folder lives inside. Everything else hangs somewhere
+				beneath it, and a path is the walk from one point to another, with
+				<Code code="/" /> between each step. Fair warning, because the word gets reused: this root is
+				a <em>place</em>. The other root you'll meet is a <em>person</em>, the administrator account
+				in <CourseLink to="section-5-3" />, and the two have nothing to do with each other.
 			</p>
 
 			<MermaidDiagram
@@ -289,6 +317,23 @@
 				lives at
 				<Code code="/home/vibe/projects/app/.env" />
 				— root, then home, then vibe, then projects, then app.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The branches sitting beside <Code code="home" /> at the top belong to the machine rather than
+				to you, and a handful come up often enough to name.
+				<Code code="/bin" />
+				and
+				<Code code="/usr/bin" />
+				hold binaries — the programs themselves.
+				<Code code="/etc" />
+				holds system-wide configuration — that's what
+				<Code code="/etc/hosts" /> in the table below is, the short list of names your machine resolves
+				itself before asking the network.
+				<Code code="/tmp" />
+				is scratch space anyone can write to and the machine may clear without asking. And
+				<Code code="/usr" />, despite the spelling, is where the system's own software lives — it
+				has nothing to do with users.
 			</p>
 
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -375,7 +420,9 @@ cat projects/app/README.md`}
 				path that <em>exists</em>, spelled exactly right, with spaces and special characters escaped
 				for you. Most people who look fast in a terminal are completing, not typing. Try it:
 				<Code code="cd pro" />, TAB, watch it become
-				<Code code="cd projects/" />.
+				<Code code="cd projects/" />. That trailing slash is a marker meaning "this one's a folder"
+				— the shell mostly doesn't care either way, but the habit stops you misreading your own
+				commands later.
 			</Callout>
 
 			<Callout type="tip">
@@ -386,6 +433,31 @@ cat projects/app/README.md`}
 				folders with dashes:
 				<Code code="my-projects" />.
 			</Callout>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Those quotes are worth understanding properly, because you'll be reaching for them for the
+				rest of the course. There are two kinds, and one difference that matters.
+				<strong style="color: var(--color-text);">Single quotes</strong>
+				are literal — nothing inside them means anything to the shell, so
+				<Code code="'$HOME'" />
+				stays five characters instead of turning into the path to your home directory, and
+				<Code code="'*.txt'" />
+				stays five characters instead of becoming a list of files.
+				<strong style="color: var(--color-text);">Double quotes</strong> still let
+				<Code code="$NAME" />
+				and
+				<Code code="$(...)" /> expand into their values (<CourseLink to="section-5-4" />) while
+				still protecting the spaces. Reach for single quotes when you want the shell to keep its
+				hands off, double quotes when you want a value in the middle of a phrase.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				A backslash does the same job for exactly one character: <Code code="My\ Projects" /> is one filename,
+				not two words — which is what TAB completion is doing when it "escapes" a space for you. Anything
+				the shell would otherwise read as punctuation — a space, a
+				<Code code="*" />, a
+				<Code code="$" />, a quote mark — can be defused by putting a backslash in front of it.
+			</p>
 
 			<VibeBox
 				prompts={[
@@ -449,7 +521,9 @@ cd -              # Bounce back to wherever you just were`}
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				That last one is a gem most tutorials skip: <Code code="cd -" />
 				toggles between your two most recent locations — perfect when you're hopping between a project
-				and a config folder. And remember the habit from 2.2: type
+				and a config folder. It's also one of the rare places a lone dash is a value rather than a flag
+				(<CourseLink to="section-1-3" />) — here it stands in for "the last place I was," not for a
+				setting. And remember the habit from 2.2: type
 				<Code code="cd" />, a few letters, then TAB your way down the tree.
 			</p>
 
@@ -525,7 +599,7 @@ cd -              # Bounce back to wherever you just were`}
 			<CodeBlock
 				title="Create folders and files"
 				code={`mkdir notes            # One new folder in the current directory
-mkdir src tests docs   # Three at once
+mkdir src tests docs   # Three at once — src is short for "source"
 touch README.md        # One new, empty file
 ls                     # Verify — trust, but verify`}
 			/>
@@ -540,7 +614,7 @@ ls                     # Verify — trust, but verify`}
 				code={`mkdir src/components/buttons
 # mkdir: cannot create directory 'src/components/buttons': No such file or directory
 
-mkdir -p src/components/buttons   # -p creates every missing parent
+mkdir -p src/components/buttons   # -p = parents: create every missing one on the way
 # (no output — in the shell, silence means success)`}
 			/>
 
@@ -563,8 +637,16 @@ mkdir -p src/components/buttons   # -p creates every missing parent
 				title="A whole project skeleton in three lines"
 				code={`mkdir -p my-app/src/components my-app/tests
 touch my-app/README.md my-app/src/main.js
-ls -R my-app   # -R lists recursively, the whole tree at once`}
+ls -R my-app   # -R walks into every folder inside, and those folders' folders too`}
 			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Nothing on the machine requires that shape — <Code code="src" />, <Code code="tests" /> and
+				<Code code="docs" /> are a convention other people will recognize, not a rule anything enforces.
+				And that walking-into-everything behaviour has a name,
+				<em>recursive</em>, which comes back in <CourseLink to="section-3-1" /> as the flag that lets
+				copying and deleting reach a whole tree at once.
+			</p>
 
 			<VibeBox
 				prompts={[
@@ -612,6 +694,25 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 			/>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That file is <strong style="color: var(--color-text);">YAML</strong> — a config format built
+				to be read by humans, one <Code code="key: value" /> to a line. (A config file being any file
+				that changes how a program behaves without changing the program itself.)
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				A few other extensions keep turning up and work the same way.
+				<Code code=".csv" />
+				is comma-separated values: one record per line, the fields split on commas, the first line usually
+				naming the columns.
+				<Code code=".md" />
+				is Markdown — plain text with light formatting marks, like
+				<Code code="#" /> for a heading. <Code code=".sh" /> is a shell script. Every one of them is ordinary
+				text underneath: a file of characters, each character stored as a number. That's why the commands
+				below read all of them equally well, and why an extension is a convention for humans and editors
+				rather than the thing that makes a file work.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				<Code code="cat" />
 				(short for "concatenate") is perfect for short files — it prints everything and returns your prompt.
 				But
@@ -626,7 +727,7 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 # Opens a full-screen reader:
 #   space / b     page down / up
 #   arrow keys    scroll line by line
-#   /error        search for "error" (n = next match)
+#   /error        search for "error" — press Enter to run it (n = next match)
 #   q             QUIT — back to your prompt`}
 			/>
 
@@ -640,21 +741,24 @@ ls -R my-app   # -R lists recursively, the whole tree at once`}
 			</Callout>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				While we're here, three escape hatches worth memorizing now — because each one has stranded
-				somebody for an embarrassingly long time:
+				While we're here, four escape hatches worth memorizing now — because each one has stranded
+				somebody for an embarrassingly long time. Two are characters you type; two are chords, held
+				down together in one motion. The comments say which is which:
 			</p>
 
 			<CodeBlock
 				title="How to get out of things"
-				code={`q            # a pager: less, man, git log
-:q!          # vim — press Esc FIRST, then type it. (:wq saves instead)
-Ctrl+X       # nano — it tells you at the bottom, but nobody reads it
-Ctrl+C       # a running command, or a line you typed but haven't run`}
+				code={`q            # type it — any pager: less, or a man page. One keypress, no Enter
+:q!          # type it — vim. Press Esc FIRST, then these three, then Enter (:wq saves instead)
+Ctrl+X       # chord — nano. It says so at the bottom, but nobody reads it
+Ctrl+C       # chord — a running command, or a line you typed but haven't run`}
 			/>
 
 			<p class="mt-3 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code=":q!" /> is the famous one. Git drops you into <Code code="vim" /> to write a commit
-				message, the keyboard stops behaving, and there's no visible way out — the answer is
+				<Code code=":q!" /> is the famous one. Git — the tool that records snapshots of a project as you
+				work (<CourseLink to="section-5-5" />) — drops you into <Code code="vim" /> on most machines to
+				write the note that goes with a snapshot. The keyboard stops behaving, there's no visible way
+				out, and the answer is
 				<Code code="Esc" /> then <Code code=":q!" /> then Enter, which leaves without saving. You are
 				not expected to learn vim today; you're just expected to be able to leave.
 			</p>

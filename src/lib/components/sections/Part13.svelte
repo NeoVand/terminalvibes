@@ -74,7 +74,8 @@
 				end typed its replies onto rolling paper. Unix, born in that world, abbreviated the device to
 				<strong style="color: var(--color-text);">tty</strong>, and the abbreviation outlived the
 				hardware by half a century. The paper is gone, the cables are gone, but every terminal
-				window on your machine still checks in with the kernel as a tty device — ask it yourself:
+				window on your machine still checks in with the kernel (<CourseLink to="section-8-2" />) as
+				a tty device — ask it yourself:
 			</p>
 
 			<CodeBlock
@@ -199,8 +200,11 @@
 				Hand it to a program reading cooked input — press up while
 				<Code code="cat" />
 				is waiting — and it echoes as the literal
-				<Code code="^[[A" />. Now you know exactly what that gibberish means: the terminal spoke
-				arrow, and nobody translated. You can inspect your own line discipline's settings any time:
+				<Code code="^[[A" />. That gibberish is readable once you know the convention: a caret is
+				how a terminal writes a control character on paper, so
+				<Code code="^[" /> is Ctrl+[, which <em>is</em> Escape, followed by the plain characters
+				<Code code="[" /> and <Code code="A" />. The terminal spoke arrow, and nobody translated.
+				You can inspect your own line discipline's settings any time:
 			</p>
 
 			<CodeBlock
@@ -212,22 +216,32 @@
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+				The <Code code="-a" /> earns its place: a bare <Code code="stty" /> reports a couple of lines,
+				<Code code="-a" /> reports everything — that's the Linux layout above, and macOS groups the same
+				settings under different headings.
 				<Code code="icanon" />
-				is cooked mode's official name,
+				is cooked mode's official name.
 				<Code code="erase = ^?" />
-				is the kernel handling your Backspace — and
+				is the kernel handling your Backspace, and <Code code="^?" /> is the one token that breaks the
+				caret rule: it's Delete, not Ctrl+?.
+				<Code code="kill = ^U" /> wipes the line you're part-way through typing,
+				<Code code="eof = ^D" /> on an empty line ends it — and neither has anything to do with the
+				<Code code="kill" /> command from <CourseLink to="section-8-2" />, which talks to other
+				processes entirely. The <Code code="38400 baud" /> is a speed for a serial wire this PTY doesn't
+				have, vestigial like the name tty. And
 				<Code code="intr = ^C" /> is a promise we'll cash in a moment.
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Escape sequences run in the other direction too — they're how programs <em>draw</em>. A
 				program attached to a tty can only send bytes, so color, bold, and cursor movement travel
-				<strong style="color: var(--color-text);">in-band</strong>, mixed right into the text: byte
-				27 (<Code code="ESC" />, written
-				<Code code="\e" />) announces "the next few bytes are instructions, not text", and the
-				emulator obeys them instead of printing them. The vocabulary was standardized around DEC's
-				VT100 terminal in 1978 — your gleaming modern emulator is still, at heart, impersonating it.
-				Watch it obey:
+				<strong style="color: var(--color-text);">in-band</strong>, mixed right into the text.
+				Characters have numeric codes underneath (<CourseLink to="section-2-5" />), and byte 27 —
+				<Code code="ESC" />, written
+				<Code code="\e" /> — announces "the next few bytes are instructions, not text", so the emulator
+				obeys them instead of printing them. The vocabulary was standardized in 1978 around the VT100,
+				a physical terminal you could put on a desk, sold by Digital Equipment Corporation (DEC) — your
+				gleaming modern emulator is still, at heart, impersonating it. Watch it obey:
 			</p>
 
 			<CodeBlock
@@ -240,7 +254,11 @@
 				<Code code="\e[32m" />
 				means "switch the pen to green";
 				<Code code="\e[0m" />
-				means "back to normal". Every colorful
+				means "back to normal". That's <Code code="printf" /> and not the
+				<Code code="echo" /> you've used all course for one reason: echo's handling of backslashes differs
+				from shell to shell, so <Code code="\e" /> can arrive at the terminal as a backslash and an e.
+				printf behaves the same everywhere, at the price of writing the trailing newline
+				<Code code="\n" /> yourself. Every colorful
 				<Code code="ls" />, every fancy prompt, every full-screen dashboard is built from sequences
 				like these — and the colored output in this site's playground works the same way in spirit:
 				the text carries its own formatting, and whatever paints the glyphs interprets it.
@@ -253,7 +271,8 @@
 				at the line discipline, the kernel intercepts it — that's the
 				<Code code="intr = ^C" />
 				setting you just saw — and instead of passing it along, sends the foreground program a
-				<strong style="color: var(--color-text);">signal</strong> called
+				<strong style="color: var(--color-text);">signal</strong> (<CourseLink to="section-8-2" />)
+				called
 				<Code code="SIGINT" />
 				("interrupt"). The program can catch it and tidy up, or die on the spot. Either way, you get your
 				prompt back.
@@ -289,21 +308,26 @@
 			>
 				<li class="list-decimal">
 					The <strong style="color: var(--color-text);">emulator</strong> turns Enter into a carriage-return
-					byte and writes it to the PTY master — same as any other key.
+					byte — the teletype's "slam the print head back to the left margin", a different byte from the
+					newline that rolls the paper up a line — and writes it to the PTY master, same as any other
+					key.
 				</li>
 				<li class="list-decimal">
 					The <strong style="color: var(--color-text);">line discipline</strong> recognizes the end of
 					a line, converts it to a newline, and releases the whole buffered line to the slave end.
 				</li>
 				<li class="list-decimal">
-					The <strong style="color: var(--color-text);">shell</strong>, which has been blocked
-					reading the slave, wakes up holding
-					<Code code="ls" /> and parses it — expanding any $VARIABLES, ~, and globs first.
+					The <strong style="color: var(--color-text);">shell</strong>, which has been
+					<em>blocked</em> reading the slave — parked by the kernel, using no CPU at all while it
+					waits, which is why a prompt can sit open all day for free — wakes up holding
+					<Code code="ls" /> and parses it, expanding any $VARIABLES, ~, and globs first.
 				</li>
 				<li class="list-decimal">
-					It <strong style="color: var(--color-text);">forks</strong> a copy of itself and
-					<strong style="color: var(--color-text);">execs</strong> ls inside the copy, with the copy's
-					input and output still wired to the same tty.
+					It <strong style="color: var(--color-text);">forks</strong> — makes a copy of itself — and
+					inside that copy runs <strong style="color: var(--color-text);">exec</strong>, which
+					throws out the shell's program and loads ls in its place. That's why the two always travel
+					together: fork makes the process, exec decides what it becomes. The copy's input and
+					output are still wired to the same tty.
 				</li>
 				<li class="list-decimal">
 					ls does its work and writes its results — text plus color escape sequences — to the slave
@@ -330,10 +354,13 @@
 
 			<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				And here's the part the museum plaque leaves out: the byte protocol didn't stop evolving in
-				1978. Modern terminals are still quietly minting new escape sequences — <strong
+				1978. Modern terminals are still quietly minting new escape sequences. <strong
 					style="color: var(--color-text);">OSC 8</strong
 				>
-				makes text in a terminal a real clickable hyperlink, and a family of
+				— an Operating System Command, the numbered family of escapes for things that aren't drawing,
+				and despite the name nothing to do with
+				<em>your</em> operating system — makes text in a terminal a real clickable hyperlink, and a
+				family of
 				<strong style="color: var(--color-text);">shell-integration markers</strong> lets the shell whisper
 				structure into the byte stream itself. That second one turns out to be the quiet foundation of
 				the whole AI-terminal era — and it's exactly where we're headed next.
@@ -402,7 +429,8 @@
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Those bookmarks are why VS Code's integrated terminal (the one from 7.3) can paint a little
+				Those bookmarks are why VS Code's integrated terminal (<CourseLink to="section-12-3" />) can
+				paint a little
 				<strong style="color: var(--color-text);">success or failure dot</strong> next to every
 				command you run, let you jump between commands with a keystroke, and pin the running command
 				to the top of the panel while output scrolls. And they matter double in the AI era: an agent
@@ -418,20 +446,23 @@
 			</h4>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				In 7.1 you picked a window to live in. Step back and you can see the whole landscape
-				splitting in two. On one side, the classic emulators keep competing on speed and standards:
+				In <CourseLink to="section-12-1" /> you picked a window to live in. Step back and you can see
+				the whole landscape splitting in two. On one side, the classic emulators keep competing on speed
+				and standards:
 				<strong style="color: var(--color-text);">Ghostty</strong> 1.3 (March 2026) restructured
-				itself so its entire terminal core is a reusable library,
-				<Code code="libghostty" />
-				— the machinery of 13.1, packaged for any app that wants to embed a real terminal. On the other
-				side, a new generation is being designed <em>around</em> agents:
+				itself so its entire terminal core is a reusable
+				<strong style="color: var(--color-text);">library</strong>
+				— code packaged for other programs to call rather than to run, which is what the
+				<Code code="lib" /> in <Code code="libghostty" /> marks. It's the machinery of 13.1, ready for
+				any app that wants to embed a real terminal. On the other side, a new generation is being designed
+				<em>around</em> agents:
 				<strong style="color: var(--color-text);">Warp</strong> now calls itself an "agentic
-				development environment" and open-sourced its core (dual MIT/AGPL) — its pitch is
-				orchestrating whole fleets of local and cloud agents from one window, the 7.4 split-pane
-				fleet promoted to a first-class product. And
+				development environment" and open-sourced its core — its pitch is orchestrating whole fleets
+				of local and cloud agents from one window, the split-pane fleet from
+				<CourseLink to="section-12-4" /> promoted to a first-class product. And
 				<strong style="color: var(--color-text);">cmux</strong> builds terminal panes that agents
-				can drive <em>programmatically</em>, through a Unix socket — panes as an API, not just a
-				view.
+				can drive <em>programmatically</em>, through a Unix socket — a file-like endpoint two
+				programs on one machine use to talk. Panes as an API, not just a view.
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -451,7 +482,8 @@
 				The adoption runs deeper than windows and panes. Headless agent CLIs make the agent itself a
 				<strong style="color: var(--color-text);">composable Unix tool</strong>: run
 				<Code code="claude -p" />
-				("print mode") and the agent reads stdin, writes stdout, and sets an exit code — the exact contract
+				("print mode") and the agent reads stdin and writes stdout — the numbered streams from
+				<CourseLink to="section-4-1" /> — and sets an exit code, the exact contract
 				<Code code="grep" />
 				and
 				<Code code="sort" /> have honored since 1973. Which means everything you learned in <CourseLink
@@ -466,6 +498,7 @@
 git diff main | claude -p "review this diff; list issues as filename:line"
 
 # JSON output makes it pipeline-friendly: hand it to jq like anything else
+# --oneline = one commit per line; -20 = only the last 20 of them
 git log --oneline -20 \\
   | claude -p "summarize this week's work in one paragraph" --output-format json \\
   | jq -r '.result'`}
@@ -477,7 +510,11 @@ git log --oneline -20 \\
 				into another program's input. The second program just happens to be a language model. It sorts
 				into pipelines, redirects into files, chains with
 				<Code code="&&" />, and reports success through
-				<Code code="$?" /> — the Unix philosophy, now with a very well-read tool in the toolbox.
+				<Code code="$?" /> — the Unix philosophy, now with a very well-read tool in the toolbox. (The
+				second block is one command typed across three lines: a trailing backslash tells the shell the
+				line isn't finished, so it keeps reading instead of running what it has. Type that backslash and
+				press Enter yourself and the
+				<Code code=">" /> that comes back is bash saying "go on, I'm still listening" — not an error.)
 			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -486,9 +523,12 @@ git log --oneline -20 \\
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				And that unlocks the last upgrade: scripts that orchestrate agents need to be sturdier than
-				the five-liners from 6.2, and you finally know enough to write the grown-up kind. Every
-				robust bash script starts with the same three lines of armor — each one cashing in a lesson
-				from this part:
+				the five-liners from <CourseLink to="part-6" />, and you finally know enough to write the
+				grown-up kind. Every robust bash script starts with the same three lines of armor — each one
+				cashing in a lesson from this part. <Code code="set" /> does nothing on its own: it flips switches
+				that stay flipped for the rest of the script, and this particular combination is common enough
+				to have a name —
+				<strong style="color: var(--color-text);">strict mode</strong>.
 			</p>
 
 			<CodeBlock
@@ -499,18 +539,29 @@ set -euo pipefail
 # -u  treat unset variables as errors (catches $TYPO before it deletes ~)
 # -o pipefail  a pipeline fails if ANY stage fails, not just the last
 
-scratch=$(mktemp -d)             # private scratch dir, unique every run
+scratch=$(mktemp -d)             # -d = a directory, not a file: a fresh empty one in
+                                 # the system temp dir (/tmp on Linux), new name each run
 cleanup() { rm -rf "$scratch"; }
 trap cleanup EXIT INT            # runs on normal exit AND on Ctrl+C`}
 			/>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				That <Code code="trap" />
-				line is 13.1's SIGINT lesson cashed in: Ctrl+C sends a signal, signals can be caught, and
-				<Code code="trap" />
-				is how a script catches one — so your temp files get cleaned up even when you interrupt it mid-run.
-				Put the armor on a real job and you get something like this: a script that runs an agent review
-				over every file you've changed and collects the results —
+				The line above the trap defines a <strong style="color: var(--color-text);">function</strong
+				>:
+				<Code code="cleanup()" /> names a block of commands, the braces hold the body, and the
+				<Code code=";" /> before the closing brace is required. Defining it runs nothing — which is the
+				whole point, because the next line hands the <em>name</em> to something that will run it later.
+			</p>
+
+			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+				That something is <Code code="trap" />, and it's 13.1's SIGINT lesson cashed in: Ctrl+C
+				sends a signal, signals can be caught, and trap is how a script catches one. Its first
+				argument is the handler; the rest are signal names with the
+				<Code code="SIG" /> dropped, so <Code code="INT" /> is SIGINT.
+				<Code code="EXIT" /> isn't a signal at all — it's bash's own invention meaning "on the way out,
+				however that happens", which is what makes the cleanup run on the ordinary path too. Put the armor
+				on a real job and you get something like this: a script that runs an agent review over every file
+				you've changed and collects the results —
 			</p>
 
 			<CodeBlock
@@ -534,14 +585,25 @@ cat "$scratch"/*.review > review-report.txt
 echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.txt"`}
 			/>
 
+			<p class="mt-4 mb-3 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+				The loop is the one piece of shell grammar this course hasn't handed you yet.
+				<Code code="while read -r file; do … done" /> runs its body once per line:
+				<Code code="read" /> takes the next line and drops it into
+				<Code code="$file" />, and <Code code="-r" /> tells it to leave any backslashes in that line alone
+				rather than reading them as special. When the lines run out, read reports failure — and that failure
+				is what stops the loop. The redirect hangs off
+				<Code code="done" /> rather than off a command, which is what makes it feed the whole loop: read
+				draws from the file instead of your keyboard. Inside,
+				<Code code="basename" /> strips the folders off
+				<Code code="src/lib/foo.ts" />, because
+				<Code code="$file" /> arrives as a path and a path can't be a flat filename inside
+				<Code code="$scratch" />.
+			</p>
+
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Count the course in that script: redirection and pipes (<CourseLink to="part-4" />), a loop
-				feeding on a file (the <Code code="while read" />
-				pattern — each line of
-				<Code code="changed.txt" />
-				lands in
-				<Code code="$file" />), scripting and variables (<CourseLink to="part-6" />), signals and
-				cleanup (this part), and an AI agent doing the reading — supervised by a script <em>you</em>
+				feeding on a file, scripting and variables (<CourseLink to="part-6" />), signals and cleanup
+				(this part), and an AI agent doing the reading — supervised by a script <em>you</em>
 				can read line by line. If it fails halfway,
 				<Code code="set -e" />
 				stops it; if you Ctrl+C it, the trap tidies up. This is what "advanced automation" actually looks
