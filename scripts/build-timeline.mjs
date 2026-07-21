@@ -79,28 +79,33 @@ function decode(s) {
 /**
  * Inner HTML of a heading → plain text (the headings carry <strong>, <Code>…).
  *
- * Two stages, and the second is the one that actually guarantees anything.
+ * A character scanner, deliberately, with no regex that matches a whole tag.
  *
- * The loop drops whole tags so `<strong>Ports</strong>` reads "Ports" rather
- * than "strongPortsstrong" — that is a QUALITY pass, and it runs to a fixed
- * point because a single sweep can reassemble what it removed (`<scr<b>ipt>`
- * loses `<b>` and becomes `<script>`; `{a{b}c}` becomes `{ac}`).
+ * The obvious `.replace(/<[^>]*>/g, '')` is unsafe in the CWE-116 sense however
+ * many times you repeat it: a pattern that consumes a multi-character sequence
+ * can reassemble one from its own removal (`<scr<b>ipt>` loses `<b>` and becomes
+ * `<script>`). Looping to a fixed point makes the BEHAVIOUR right but leaves the
+ * hazard in the code, and a later single-character sweep only cleans up after it.
  *
- * But a regex that consumes a multi-character sequence can never be the
- * guarantee — that is CWE-116, and it is why matching whole tags is flagged
- * however many times you repeat it. So the guarantee is a separate, final pass
- * over SINGLE characters: whatever survives the loop, no angle bracket leaves
- * this function. One character cannot be reassembled from its own removal.
+ * Scanning sidesteps the whole class. Depth counting means nested or malformed
+ * brackets can never re-form a tag, and a stray `<` or `>` is simply consumed
+ * rather than left behind. Same for the `{…}` Svelte expressions the headings
+ * carry.
  */
-function headingText(inner) {
-	let out = inner;
-	for (let prev = null; prev !== out;) {
-		prev = out;
-		out = out.replace(/<[^>]*>/g, '').replace(/\{[^{}]*\}/g, '');
+function stripBracketed(s, open, close) {
+	let out = '';
+	let depth = 0;
+	for (const ch of s) {
+		if (ch === open) depth++;
+		else if (ch === close) {
+			if (depth > 0) depth--;
+		} else if (depth === 0) out += ch;
 	}
-	// The actual invariant. Single characters, so there is nothing to reassemble.
-	out = out.replace(/[<>]/g, '');
-	return decode(out);
+	return out;
+}
+
+function headingText(inner) {
+	return decode(stripBracketed(stripBracketed(inner, '<', '>'), '{', '}'));
 }
 
 const items = [];
