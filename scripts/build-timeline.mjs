@@ -54,22 +54,43 @@ function kindOf(id) {
 	return 'section';
 }
 
+/**
+ * `&amp;` is unescaped LAST, and the order is the whole point.
+ *
+ * Unescaping it first means `&amp;lt;` becomes `&lt;` on that pass and then `<`
+ * on a later one — the input is double-unescaped, and a heading that legitimately
+ * spells out an entity comes out as the character it names. The escape character
+ * has to be restored after everything that could produce one, exactly as it has
+ * to be escaped before them going the other way.
+ */
 function decode(s) {
 	return s
-		.replace(/&amp;/g, '&')
 		.replace(/&mdash;/g, '—')
 		.replace(/&nbsp;/g, ' ')
 		.replace(/&quot;/g, '"')
 		.replace(/&#39;/g, "'")
 		.replace(/&lt;/g, '<')
 		.replace(/&gt;/g, '>')
+		.replace(/&amp;/g, '&')
 		.replace(/\s+/g, ' ')
 		.trim();
 }
 
-/** Inner HTML of a heading → plain text (the headings carry <strong>, <Code>…). */
+/**
+ * Inner HTML of a heading → plain text (the headings carry <strong>, <Code>…).
+ *
+ * Both strips run to a FIXED POINT rather than once. A single pass can reassemble
+ * the very thing it removed: `<scr<b>ipt>` loses `<b>` and becomes `<script>`,
+ * and `{a{b}c}` loses `{b}` and becomes `{ac}`. Repeating until the string stops
+ * changing is what makes the removal actually total.
+ */
 function headingText(inner) {
-	return decode(inner.replace(/<[^>]*>/g, '').replace(/\{[^{}]*\}/g, ''));
+	let out = inner;
+	for (let prev = null; prev !== out;) {
+		prev = out;
+		out = out.replace(/<[^>]*>/g, '').replace(/\{[^{}]*\}/g, '');
+	}
+	return decode(out);
 }
 
 const items = [];
