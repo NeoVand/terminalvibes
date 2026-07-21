@@ -117,15 +117,16 @@ vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
 				you started a minute ago from yesterday's, still running. <Code code="COMMAND" /> is what it actually
 				is — though that's the <em>interpreter's</em> name, not your project's: a JavaScript server
 				shows up as <Code code="node" />, a Python one as <Code code="python" />, and that's what
-				you grep for. Notice <Code code="bash" /> in that list too: the shell you're typing into is just
-				another process, no more special than the rest.
+				you <Code code="grep" /> for. Notice <Code code="bash" /> in that list too: the shell you're typing
+				into is just another process, no more special than the rest.
 			</p>
 
 			<Callout type="tip">
-				<strong>ps output is just text</strong> — which means <CourseLink to="part-4" /> and <CourseLink
-					to="part-7"
-				/> already taught you how to search it. <Code code="ps aux | grep node" /> finds a process by
-				name, and
+				<strong><Code code="ps" /> output is just text</strong> — which means <CourseLink
+					to="part-4"
+				/> and <CourseLink to="part-7" /> already taught you how to search it. <Code
+					code="ps aux | grep node"
+				/> finds a process by name, and
 				<Code code={`awk '{print $2}'`} /> pulls the PID column out of the result. This is why the column-shaped
 				output of old Unix tools is worth putting up with: every tool composes. There's a shortcut for
 				the common case too — <Code code="pgrep node" /> prints matching PIDs directly.
@@ -154,10 +155,10 @@ vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
 				a
 				<strong style="color: var(--color-text);">signal</strong>, which is a short fixed message
 				the operating system delivers to a running process from outside, nothing to do with whatever
-				the program normally reads. They come in a small vocabulary and all share a prefix: SIG for
-				signal, then what it asks for, so SIGTERM is "terminate" — please finish up and stop. The
-				program gets to react: save its work, close its files, remove its lock, and exit cleanly.
-				It's a letter, not a bullet.
+				the program normally reads. They come in a small vocabulary and all share a prefix:
+				<Code code="SIG" /> for signal, then what it asks for, so <Code code="SIGTERM" /> is "terminate"
+				— please finish up and stop. The program gets to react: save its work, close its files, remove
+				its lock, and exit cleanly. It's a letter, not a bullet.
 			</p>
 
 			<div class="my-6">
@@ -185,9 +186,10 @@ kill -9 437              # SIGKILL, signal 9 — the floor opens, no cleanup
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				A program can <em>catch</em> SIGTERM and decide to ignore it — that's a feature, not a bug:
-				it's how servers finish serving the request they're mid-way through instead of dropping it.
-				But it also means a polite kill can bounce. <Code code="kill -9" /> sends
+				A program can <em>catch</em>
+				<Code code="SIGTERM" /> and decide to ignore it — that's a feature, not a bug: it's how servers
+				finish serving the request they're mid-way through instead of dropping it. But it also means a
+				polite kill can bounce. <Code code="kill -9" /> sends
 				<strong style="color: var(--color-text);">SIGKILL</strong>, which no program can catch,
 				refuse, or prepare for. The <strong style="color: var(--color-text);">kernel</strong> — the
 				core of the operating system, the part that owns the hardware and creates every process,
@@ -260,7 +262,8 @@ kill -9 437              # SIGKILL, signal 9 — the floor opens, no cleanup
 				The rule that generates all the pain is simple:
 				<strong style="color: var(--color-text);">one program per port</strong>. Try to open a door
 				someone's already standing in — here with <Code code="serve" />, a tiny dev server you
-				install with npm, playing the part of whatever starts your project — and you meet the error:
+				install with <Code code="npm" />, playing the part of whatever starts your project — and you
+				meet the error:
 			</p>
 
 			<div class="my-6">
@@ -319,8 +322,8 @@ serve: listening on http://localhost:3000`}
 			<Callout type="tip">
 				Where do stale servers come from? Usually an agent that started one in a
 				<strong>background shell</strong> — a whole separate session you never saw, which is not the
-				same thing as the background <em>jobs</em> in 8.4 below. When a port is mysteriously busy
-				right after an AI session, that's the first suspect — and
+				same thing as the background <em>jobs</em> in <CourseLink to="section-8-4" /> below. When a port
+				is mysteriously busy right after an AI session, that's the first suspect — and
 				<Code code="lsof -i :3000" /> tells you its name.
 			</Callout>
 

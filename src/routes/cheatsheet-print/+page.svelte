@@ -12,13 +12,23 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
+{#snippet chipText(text: string)}
+	<!-- Command mentions sit in `backticks`; render them as inline chips so the
+	     descriptions match the highlighted command column. -->
+	{#each text.split('`') as seg, si (si)}{#if si % 2 === 1}<code class="ic"
+				>{#each tokenizeGitCommand(seg) as token, ti (ti)}<span class="tok tok-{token.type}"
+						>{token.text}</span
+					>{/each}</code
+			>{:else}{seg}{/if}{/each}
+{/snippet}
+
 <div class="sheet">
 	<!-- div, not <header>: the site-wide print stylesheet hides `header`
 	     to strip app chrome, and page.pdf renders in print media -->
 	<div class="masthead">
 		<img src="{base}/images/logo-transparent.webp" alt="" class="logo" />
 		<div>
-			<h1>Git Cheat Sheet</h1>
+			<h1>Terminal Cheat Sheet</h1>
 			<p class="sub">
 				TerminalVibes — The Terminal for Vibe Coders · <span class="url"
 					>neovand.github.io/terminalvibes</span
@@ -33,7 +43,7 @@
 		<p class="legend-lead">{cheatSheetLegend.lead}</p>
 		<ul>
 			{#each cheatSheetLegend.entries as entry (entry.notation)}
-				<li><code>{entry.notation}</code> <span>{entry.meaning}</span></li>
+				<li><code>{entry.notation}</code> <span>{@render chipText(entry.meaning)}</span></li>
 			{/each}
 		</ul>
 	</div>
@@ -50,9 +60,9 @@
 										class="tok tok-{token.type}">{token.text}</span
 									>{/each}</code
 							>
-							<p>{cmd.description}</p>
+							<p>{@render chipText(cmd.description)}</p>
 							{#if cmd.detail}
-								<p class="detail">{cmd.detail}</p>
+								<p class="detail">{@render chipText(cmd.detail)}</p>
 							{/if}
 						</li>
 					{/each}
@@ -217,6 +227,18 @@
 	li p.detail {
 		font-size: 8px;
 		color: #94a3b8;
+	}
+
+	/* Inline command mention inside a description — chip look at body size,
+	   unlike the block command chips above. */
+	.sheet code.ic {
+		display: inline;
+		font-size: 0.95em;
+		line-height: inherit;
+		background: #f1f5f9;
+		border: none;
+		border-radius: 2px;
+		padding: 0 2px;
 	}
 
 	/* Token colors tuned for white paper (the app's dark-theme tok-* colors

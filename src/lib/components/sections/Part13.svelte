@@ -32,11 +32,10 @@
 			For twelve parts you've driven this machine without once opening the hood. Now you've earned
 			the wrench. This part is the optional deep dive: first <em>how the terminal actually works</em
 			>
-			— ttys, PTYs, escape sequences, and what Ctrl+C really does — and then what that machinery is becoming
-			in the AI era, and the genuinely advanced things you can build now that you understand it. Nothing
-			here is required to use the terminal. All of it makes the everyday mysteries — <Code
-				code="tty"
-			/>, <Code code="^[[A" />, Ctrl+C — feel ordinary.
+			— ttys, PTYs, escape sequences, and what <Code code="Ctrl+C" /> really does — and then what that
+			machinery is becoming in the AI era, and the genuinely advanced things you can build now that you
+			understand it. Nothing here is required to use the terminal. All of it makes the everyday mysteries
+			— <Code code="tty" />, <Code code="^[[A" />, <Code code="Ctrl+C" /> — feel ordinary.
 		</p>
 
 		<!-- 13.1 How the Terminal Works -->
@@ -62,9 +61,9 @@
 				it's called a
 				<Code code="tty" />, why arrow keys sometimes print
 				<Code code="^[[A" />
-				instead of moving, or what Ctrl+C <em>actually</em> does, this is where those mysteries get solved.
-				It's deliberately the most technical section of the course — and it repays the effort with a working
-				mental model of the machine you've been driving all along.
+				instead of moving, or what <Code code="Ctrl+C" /> <em>actually</em> does, this is where those
+				mysteries get solved. It's deliberately the most technical section of the course — and it repays
+				the effort with a working mental model of the machine you've been driving all along.
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -203,7 +202,8 @@
 				is waiting — and it echoes as the literal
 				<Code code="^[[A" />. That gibberish is readable once you know the convention: a caret is
 				how a terminal writes a control character on paper, so
-				<Code code="^[" /> is Ctrl+[, which <em>is</em> Escape, followed by the plain characters
+				<Code code="^[" /> is <Code code="Ctrl+[" />, which <em>is</em> Escape, followed by the
+				plain characters
 				<Code code="[" /> and <Code code="A" />. The terminal spoke arrow, and nobody translated.
 				You can inspect your own line discipline's settings any time:
 			</p>
@@ -224,12 +224,12 @@
 				is cooked mode's official name.
 				<Code code="erase = ^?" />
 				is the kernel handling your Backspace, and <Code code="^?" /> is the one token that breaks the
-				caret rule: it's Delete, not Ctrl+?.
+				caret rule: it's Delete, not <Code code="Ctrl+?" />.
 				<Code code="kill = ^U" /> wipes the line you're part-way through typing,
 				<Code code="eof = ^D" /> on an empty line ends it — and neither has anything to do with the
 				<Code code="kill" /> command from <CourseLink to="section-8-2" />, which talks to other
 				processes entirely. The <Code code="38400 baud" /> is a speed for a serial wire this PTY doesn't
-				have, vestigial like the name tty. And
+				have, vestigial like the name <Code code="tty" />. And
 				<Code code="intr = ^C" /> is a promise we'll cash in a moment.
 			</p>
 
@@ -256,9 +256,10 @@
 				means "switch the pen to green";
 				<Code code="\e[0m" />
 				means "back to normal". That's <Code code="printf" /> and not the
-				<Code code="echo" /> you've used all course for one reason: echo's handling of backslashes differs
-				from shell to shell, so <Code code="\e" /> can arrive at the terminal as a backslash and an e.
-				printf behaves the same everywhere, at the price of writing the trailing newline
+				<Code code="echo" /> you've used all course for one reason: <Code code="echo" />'s handling
+				of backslashes differs from shell to shell, so <Code code="\e" /> can arrive at the terminal as
+				a backslash and an e.
+				<Code code="printf" /> behaves the same everywhere, at the price of writing the trailing newline
 				<Code code="\n" /> yourself. Every colorful
 				<Code code="ls" />, every fancy prompt, every full-screen dashboard is built from sequences
 				like these — and the colored output in this site's playground works the same way in spirit:
@@ -266,10 +267,9 @@
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				One last piece of magic to demystify: <strong style="color: var(--color-text);"
-					>Ctrl+C</strong
-				>. It feels like input, but it never reaches the program as text. When Ctrl+C's byte arrives
-				at the line discipline, the kernel intercepts it — that's the
+				One last piece of magic to demystify: <Code code="Ctrl+C" />. It feels like input, but it
+				never reaches the program as text. When <Code code="Ctrl+C" />'s byte arrives at the line
+				discipline, the kernel intercepts it — that's the
 				<Code code="intr = ^C" />
 				setting you just saw — and instead of passing it along, sends the foreground program a
 				<strong style="color: var(--color-text);">signal</strong> (<CourseLink to="section-8-2" />)
@@ -280,19 +280,20 @@
 			</p>
 
 			<Callout type="note" title="Why the panic button works">
-				The cheat sheet's panic row promises Ctrl+C will interrupt a stuck command, and now you know
-				why it's reliable: it isn't input the program must get around to reading — it's the kernel
-				tapping the program on the shoulder. That's why it works even when a program is too busy to
-				look at the keyboard. (A few programs catch <Code code="SIGINT" /> and ask questions first — that's
-				them trapping the signal, not you failing to send it.)
+				The cheat sheet's panic row promises <Code code="Ctrl+C" /> will interrupt a stuck command, and
+				now you know why it's reliable: it isn't input the program must get around to reading — it's the
+				kernel tapping the program on the shoulder. That's why it works even when a program is too busy
+				to look at the keyboard. (A few programs catch <Code code="SIGINT" /> and ask questions first
+				— that's them trapping the signal, not you failing to send it.)
 			</Callout>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				You've already felt this from the other side. In <CourseLink to="part-8" /> you sent
 				<Code code="SIGTERM" /> with <Code code="kill" /> and watched a stubborn process shrug it off,
 				then sent <Code code="SIGKILL" /> with <Code code="kill -9" />, which it could not refuse.
-				Same machinery, three doors: <Code code="Ctrl+C" /> is SIGINT to whatever is in the foreground,
-				<Code code="kill" /> is SIGTERM to any PID you name, and
+				Same machinery, three doors: <Code code="Ctrl+C" /> is <Code code="SIGINT" /> to whatever is in
+				the foreground,
+				<Code code="kill" /> is <Code code="SIGTERM" /> to any PID you name, and
 				<Code code="kill -9" /> is the one signal no program is allowed to catch. What looked like three
 				unrelated tricks is one mechanism you now understand end to end.
 			</p>
@@ -321,18 +322,20 @@
 					The <strong style="color: var(--color-text);">shell</strong>, which has been
 					<em>blocked</em> reading the slave — parked by the kernel, using no CPU at all while it
 					waits, which is why a prompt can sit open all day for free — wakes up holding
-					<Code code="ls" /> and parses it, expanding any $VARIABLES, ~, and globs first.
+					<Code code="ls" /> and parses it, expanding any <Code code="$VARIABLES" />, <Code
+						code="~"
+					/>, and globs first.
 				</li>
 				<li class="list-decimal">
 					It <strong style="color: var(--color-text);">forks</strong> — makes a copy of itself — and
 					inside that copy runs <strong style="color: var(--color-text);">exec</strong>, which
-					throws out the shell's program and loads ls in its place. That's why the two always travel
-					together: fork makes the process, exec decides what it becomes. The copy's input and
-					output are still wired to the same tty.
+					throws out the shell's program and loads <Code code="ls" /> in its place. That's why the two
+					always travel together: fork makes the process, exec decides what it becomes. The copy's input
+					and output are still wired to the same tty.
 				</li>
 				<li class="list-decimal">
-					ls does its work and writes its results — text plus color escape sequences — to the slave
-					end.
+					<Code code="ls" /> does its work and writes its results — text plus color escape sequences —
+					to the slave end.
 				</li>
 				<li class="list-decimal">
 					The bytes flow back through the PTY to the master; the <strong
@@ -340,9 +343,8 @@
 					> reads them, obeys the escapes, and paints glyphs into its character grid.
 				</li>
 				<li class="list-decimal">
-					ls exits; the shell collects its exit code (the <Code code="$?" /> you met in <CourseLink
-						to="part-6"
-					/>) and prints a fresh prompt. Your turn.
+					<Code code="ls" /> exits; the shell collects its exit code (the <Code code="$?" /> you met in
+					<CourseLink to="part-6" />) and prints a fresh prompt. Your turn.
 				</li>
 			</ol>
 
@@ -400,8 +402,9 @@
 			</h4>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Remember the trick from 13.1 — instructions traveling <em>in-band</em>, mixed into the text?
-				Modern shells and terminals use the same trick to talk
+				Remember the trick from <CourseLink to="section-13-1" /> — instructions traveling
+				<em>in-band</em>, mixed into the text? Modern shells and terminals use the same trick to
+				talk
 				<em>about the conversation itself</em>. A standard called
 				<strong style="color: var(--color-text);">OSC 133</strong>
 				(born in the FinalTerm terminal, now adopted almost everywhere) has the shell emit invisible escape
@@ -436,10 +439,10 @@
 				command you run, let you jump between commands with a keystroke, and pin the running command
 				to the top of the panel while output scrolls. And they matter double in the AI era: an agent
 				watching a terminal through OSC markers doesn't have to <em>guess</em> where your prompt
-				ends and the output begins, or grep the scrollback for the word "error" — it knows the exact
-				command, the exact output, and the exact exit code, machine-readably. The
-				read-before-you-run contract from <CourseLink to="part-11" /> works in both directions now: you
-				can read what the agent runs, and the agent can reliably read what happened.
+				ends and the output begins, or <Code code="grep" /> the scrollback for the word "error" — it knows
+				the exact command, the exact output, and the exact exit code, machine-readably. The read-before-you-run
+				contract from <CourseLink to="part-11" /> works in both directions now: you can read what the
+				agent runs, and the agent can reliably read what happened.
 			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -454,8 +457,9 @@
 				itself so its entire terminal core is a reusable
 				<strong style="color: var(--color-text);">library</strong>
 				— code packaged for other programs to call rather than to run, which is what the
-				<Code code="lib" /> in <Code code="libghostty" /> marks. It's the machinery of 13.1, ready for
-				any app that wants to embed a real terminal. On the other side, a new generation is being designed
+				<Code code="lib" /> in <Code code="libghostty" /> marks. It's the machinery of
+				<CourseLink to="section-13-1" />, ready for any app that wants to embed a real terminal. On
+				the other side, a new generation is being designed
 				<em>around</em> agents:
 				<strong style="color: var(--color-text);">Warp</strong> now calls itself an "agentic
 				development environment" and open-sourced its core — its pitch is orchestrating whole fleets
@@ -467,12 +471,12 @@
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Here's the through-line, and it's the whole reason 13.1 was worth your time: every one of
-				these — the speed demons, the agent fleets, the socket-driven panes — still speaks the same
-				protocol. Bytes through a PTY, escape sequences in-band, signals from the line discipline. A
-				fifty-year-old interface turned out to be so simple, so universal, and so
-				automation-friendly that when AI agents needed a body, they moved into the terminal. The
-				machinery didn't get replaced by the AI era; it got <em>adopted</em> by it.
+				Here's the through-line, and it's the whole reason <CourseLink to="section-13-1" /> was worth
+				your time: every one of these — the speed demons, the agent fleets, the socket-driven panes —
+				still speaks the same protocol. Bytes through a PTY, escape sequences in-band, signals from the
+				line discipline. A fifty-year-old interface turned out to be so simple, so universal, and so automation-friendly
+				that when AI agents needed a body, they moved into the terminal. The machinery didn't get replaced
+				by the AI era; it got <em>adopted</em> by it.
 			</p>
 
 			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
@@ -555,10 +559,11 @@ trap cleanup EXIT INT            # runs on normal exit AND on Ctrl+C`}
 			</p>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				That something is <Code code="trap" />, and it's 13.1's SIGINT lesson cashed in: Ctrl+C
-				sends a signal, signals can be caught, and trap is how a script catches one. Its first
-				argument is the handler; the rest are signal names with the
-				<Code code="SIG" /> dropped, so <Code code="INT" /> is SIGINT.
+				That something is <Code code="trap" />, and it's the <Code code="SIGINT" /> lesson from
+				<CourseLink to="section-13-1" /> cashed in: <Code code="Ctrl+C" /> sends a signal, signals can
+				be caught, and <Code code="trap" /> is how a script catches one. Its first argument is the handler;
+				the rest are signal names with the
+				<Code code="SIG" /> dropped, so <Code code="INT" /> is <Code code="SIGINT" />.
 				<Code code="EXIT" /> isn't a signal at all — it's bash's own invention meaning "on the way out,
 				however that happens", which is what makes the cleanup run on the ordinary path too. Put the armor
 				on a real job and you get something like this: a script that runs an agent review over every file
@@ -591,10 +596,10 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 				<Code code="while read -r file; do … done" /> runs its body once per line:
 				<Code code="read" /> takes the next line and drops it into
 				<Code code="$file" />, and <Code code="-r" /> tells it to leave any backslashes in that line alone
-				rather than reading them as special. When the lines run out, read reports failure — and that failure
-				is what stops the loop. The redirect hangs off
-				<Code code="done" /> rather than off a command, which is what makes it feed the whole loop: read
-				draws from the file instead of your keyboard. Inside,
+				rather than reading them as special. When the lines run out, <Code code="read" /> reports failure
+				— and that failure is what stops the loop. The redirect hangs off
+				<Code code="done" /> rather than off a command, which is what makes it feed the whole loop:
+				<Code code="read" /> draws from the file instead of your keyboard. Inside,
 				<Code code="basename" /> strips the folders off
 				<Code code="src/lib/foo.ts" />, because
 				<Code code="$file" /> arrives as a path and a path can't be a flat filename inside
@@ -607,8 +612,8 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 				(this part), and an AI agent doing the reading — supervised by a script <em>you</em>
 				can read line by line. If it fails halfway,
 				<Code code="set -e" />
-				stops it; if you Ctrl+C it, the trap tidies up. This is what "advanced automation" actually looks
-				like: not longer commands — stronger habits.
+				stops it; if you <Code code="Ctrl+C" /> it, the trap tidies up. This is what "advanced automation"
+				actually looks like: not longer commands — stronger habits.
 			</p>
 
 			<VibeBox

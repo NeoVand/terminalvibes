@@ -13,7 +13,7 @@ test.describe('Command search', () => {
 	test('finds chmod commands instead of chapter titles', async ({ page }) => {
 		await page.goto('/');
 
-		const search = page.getByPlaceholder('Search commands...');
+		const search = page.getByPlaceholder('Search');
 		await search.focus();
 		await search.fill('chmod');
 
@@ -23,7 +23,7 @@ test.describe('Command search', () => {
 	test('navigates to the grep lesson from search', async ({ page }) => {
 		await page.goto('/');
 
-		const search = page.getByPlaceholder('Search commands...');
+		const search = page.getByPlaceholder('Search');
 		await search.fill('grep');
 		await results(page).getByRole('option', { name: /grep/i }).first().click();
 
@@ -33,7 +33,7 @@ test.describe('Command search', () => {
 	test('shows empty state for nonsense queries', async ({ page }) => {
 		await page.goto('/');
 
-		const search = page.getByPlaceholder('Search commands...');
+		const search = page.getByPlaceholder('Search');
 		await search.fill('xyzzynotacommand');
 		await expect(page.getByText(/No commands match/)).toBeVisible();
 	});

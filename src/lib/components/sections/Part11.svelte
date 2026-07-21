@@ -262,7 +262,7 @@ rm -rf build/*`}
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						<Code code="sudo" />
 						removes every guardrail the system has. The rule from <CourseLink to="section-5-3" />
-						doubles here: never sudo a command you don't understand —
+						doubles here: never <Code code="sudo" /> a command you don't understand —
 						<em>especially</em> one an AI wrote. Understand first, elevate second.
 					</p>
 				</div>
@@ -275,9 +275,10 @@ rm -rf build/*`}
 						<span><Code code="curl ... | bash" /> — run code straight off the internet</span>
 					</h4>
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						You decoded this pattern in <CourseLink to="section-9-2" /> — curl fetches a script off the
-						internet, and the pipe feeds it straight into a shell that runs it, sight unseen. What's left
-						is the judgement call, and honesty requires a 2026 update: this is now an
+						You decoded this pattern in <CourseLink to="section-9-2" /> — <Code code="curl" /> fetches
+						a script off the internet, and the pipe feeds it straight into a shell that runs it, sight
+						unseen. What's left is the judgement call, and honesty requires a 2026 update: this is now
+						an
 						<em>official</em> install method. Claude Code's documented installer is
 						<Code code="curl -fsSL https://claude.ai/install.sh | bash" />, and Codex CLI ships the
 						same way. Four letters ride along there:
@@ -291,8 +292,8 @@ rm -rf build/*`}
 						thread, a README, or an agent's suggestion is not. When in doubt the two-step version is
 						always available —
 						<Code code="curl -o install.sh <url>" />, read it, <em>then</em> run it — and a package
-						manager (brew, apt, or Windows' winget — <CourseLink to="section-10-1" />) remains the
-						more auditable alternative.
+						manager (<Code code="brew" />, <Code code="apt" />, or Windows' <Code code="winget" /> —
+						<CourseLink to="section-10-1" />) remains the more auditable alternative.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
@@ -325,8 +326,9 @@ rm -rf build/*`}
 					<p class="text-[13px]" style="color: var(--color-text-secondary);">
 						The "make the error go away" hammer (<CourseLink to="part-5" />). It works by giving
 						every user on the system full control of the file — which is almost never what the
-						situation actually needs. If an agent reaches for 777, ask it what the <em>minimal</em> permission
-						would be; the answer is usually 755 or 644.
+						situation actually needs. If an agent reaches for <Code code="777" />, ask it what the
+						<em>minimal</em> permission would be; the answer is usually <Code code="755" /> or
+						<Code code="644" />.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">

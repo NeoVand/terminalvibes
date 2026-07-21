@@ -223,7 +223,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-intro-anatomy',
 		title: 'Anatomy of a Prompt',
 		part: 'Introduction',
-		description: 'user@host:~/projects$ decoded — the cursor, Enter, and the up arrow.',
+		description: '`user@host:~/projects$` decoded — the cursor, Enter, and the up arrow.',
 		keywords: [
 			'prompt',
 			'dollar sign',
@@ -261,7 +261,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-1-2',
 		title: 'Your First Commands',
 		part: 'First Contact',
-		description: 'whoami, echo, date, clear — nothing here can break anything.',
+		description: '`whoami`, `echo`, `date`, `clear` — nothing here can break anything.',
 		keywords: [
 			'first command',
 			'whoami',
@@ -280,7 +280,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-1-3',
 		title: 'Getting Help',
 		part: 'First Contact',
-		description: 'What a flag is, --help, man pages, tldr — and q to escape the pager.',
+		description: 'What a flag is, `--help`, `man` pages, `tldr` — and `q` to escape the pager.',
 		keywords: [
 			'help',
 			'man page',
@@ -313,7 +313,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-2-1',
 		title: 'Where Am I?',
 		part: 'Moving Around',
-		description: 'pwd and ls — your position and your surroundings, always on tap.',
+		description: '`pwd` and `ls` — your position and your surroundings, always on tap.',
 		keywords: [
 			'where am i',
 			'pwd',
@@ -332,7 +332,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-2-2',
 		title: 'Paths',
 		part: 'Moving Around',
-		description: 'Absolute vs relative, /, ~, . and .. — plus TAB completion.',
+		description: 'Absolute vs relative, `/`, `~`, `.` and `..` — plus TAB completion.',
 		keywords: [
 			'path',
 			'absolute path',
@@ -364,7 +364,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-2-3',
 		title: 'Changing Directories',
 		part: 'Moving Around',
-		description: 'cd, cd .., cd ~, and cd - — moving through the filesystem.',
+		description: '`cd`, `cd ..`, `cd ~`, and `cd -` — moving through the filesystem.',
 		keywords: [
 			'cd',
 			'change directory',
@@ -382,7 +382,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-2-4',
 		title: 'Making Things',
 		part: 'Moving Around',
-		description: 'mkdir, mkdir -p, and touch — creating folders and files.',
+		description: '`mkdir`, `mkdir -p`, and `touch` — creating folders and files.',
 		keywords: [
 			'mkdir',
 			'touch',
@@ -401,7 +401,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-2-5',
 		title: 'Looking Inside Files',
 		part: 'Moving Around',
-		description: 'cat, less, head, tail — reading files without opening an editor.',
+		description: '`cat`, `less`, `head`, `tail` — reading files without opening an editor.',
 		keywords: [
 			'cat',
 			'less',
@@ -431,7 +431,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-3-1',
 		title: 'Copying',
 		part: 'Copy, Move, Delete',
-		description: 'cp and cp -r — duplicating files and whole folders.',
+		description: '`cp` and `cp -r` — duplicating files and whole folders.',
 		keywords: [
 			'cp',
 			'copy',
@@ -448,7 +448,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-3-2',
 		title: 'Moving & Renaming',
 		part: 'Copy, Move, Delete',
-		description: 'mv does both — and silently overwrites unless you ask it not to.',
+		description: '`mv` does both — and silently overwrites unless you ask it not to.',
 		keywords: ['mv', 'move', 'rename', 'rename file', 'move file', 'overwrite', 'mv -i'],
 		kind: 'topic'
 	},
@@ -457,7 +457,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-3-3',
 		title: 'Deleting (Carefully)',
 		part: 'Copy, Move, Delete',
-		description: 'rm has NO trash can — the safety lesson, including rm -rf.',
+		description: '`rm` has NO trash can — the safety lesson, including `rm -rf`.',
 		keywords: [
 			'rm',
 			'delete',
@@ -478,7 +478,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-3-4',
 		title: 'Wildcards',
 		part: 'Copy, Move, Delete',
-		description: '*, ? and [abc] globs — and the "echo the glob first" habit.',
+		description: '`*`, `?` and `[abc]` globs — and the "`echo` the glob first" habit.',
 		keywords: [
 			'wildcard',
 			'glob',
@@ -503,7 +503,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-4-1',
 		title: 'Redirection',
 		part: 'Text & Pipes',
-		description: '>, >>, 2> and < — sending output to files (and > truncates!).',
+		description: '`>`, `>>`, `2>` and `<` — sending output to files (and `>` truncates!).',
 		keywords: [
 			'redirect',
 			'redirection',
@@ -529,7 +529,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-4-2',
 		title: 'Pipes',
 		part: 'Text & Pipes',
-		description: 'The | operator — small tools composed into big answers.',
+		description: 'The `|` operator — small tools composed into big answers.',
 		keywords: [
 			'pipe',
 			'pipes',
@@ -547,7 +547,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-4-3',
 		title: 'Searching Text with grep',
 		part: 'Text & Pipes',
-		description: 'grep -i -n -r -v -c — find lines in logs and code.',
+		description: '`grep -i -n -r -v -c` — find lines in logs and code.',
 		keywords: [
 			'grep',
 			'search text',
@@ -574,7 +574,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-4-4',
 		title: 'Counting & Shaping',
 		part: 'Text & Pipes',
-		description: 'wc, sort, uniq, cut — and the sort | uniq -c | sort -rn recipe.',
+		description: '`wc`, `sort`, `uniq`, `cut` — and the `sort | uniq -c | sort -rn` recipe.',
 		keywords: [
 			'wc',
 			'sort',
@@ -595,7 +595,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-4-5',
 		title: 'Finding Files',
 		part: 'Text & Pipes',
-		description: 'find . -name -type — search file names; grep searches contents.',
+		description: '`find . -name -type` — search file names; `grep` searches contents.',
 		keywords: [
 			'find',
 			'find files',
@@ -639,7 +639,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-5-2',
 		title: 'chmod',
 		part: 'Permissions & Config',
-		description: 'chmod +x to run a script; 755 and 644 as recipes.',
+		description: '`chmod +x` to run a script; `755` and `644` as recipes.',
 		keywords: [
 			'chmod',
 			'permission denied',
@@ -681,7 +681,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-5-4',
 		title: 'Environment Variables',
 		part: 'Permissions & Config',
-		description: '$HOME, export, PATH — and "command not found" demystified.',
+		description: '`$HOME`, `export`, `PATH` — and `command not found` demystified.',
 		keywords: [
 			'environment variable',
 			'env var',
@@ -702,7 +702,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-5-5',
 		title: 'Your Shell Config',
 		part: 'Permissions & Config',
-		description: '.bashrc / .zshrc, alias, and source — make the shell your own.',
+		description: '`.bashrc` / `.zshrc`, `alias`, and `source` — make the shell your own.',
 		keywords: [
 			'bashrc',
 			'zshrc',
@@ -838,7 +838,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-6-1',
 		title: 'Your First Script',
 		part: 'Scripts & Automation',
-		description: 'Shebang, chmod +x, ./ — scripts are saved commands.',
+		description: 'Shebang, `chmod +x`, `./` — scripts are saved commands.',
 		keywords: [
 			'script',
 			'bash script',
@@ -863,7 +863,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-6-2',
 		title: 'Exit Codes & Chaining',
 		part: 'Scripts & Automation',
-		description: '$?, && and || — 0 means success, and chains make decisions.',
+		description: '`$?`, `&&` and `||` — 0 means success, and chains make decisions.',
 		keywords: [
 			'exit code',
 			'$?',
@@ -884,7 +884,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-7-1',
 		title: 'Find & Replace with sed',
 		part: 'Text Surgery',
-		description: 's/old/new/g — substitute text in a stream; the file stays untouched.',
+		description: '`s/old/new/g` — substitute text in a stream; the file stays untouched.',
 		keywords: [
 			'sed',
 			'find and replace',
@@ -902,9 +902,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-sed-lines',
 		sectionId: 'section-7-2',
-		title: 'Delete & Print Lines with sed',
+		title: 'Delete & Print Lines with `sed`',
 		part: 'Text Surgery',
-		description: 'Addresses pick lines; d drops them, -n + p prints only the selection.',
+		description: 'Addresses pick lines; `d` drops them, `-n` + `p` prints only the selection.',
 		keywords: [
 			'sed d',
 			'delete lines',
@@ -922,9 +922,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-sed-in-place',
 		sectionId: 'section-7-3',
-		title: 'sed -i and the .bak Rule',
+		title: '`sed -i` and the `.bak` Rule',
 		part: 'Text Surgery',
-		description: '-i rewrites the real file — -i.bak keeps the original as your undo button.',
+		description: '`-i` rewrites the real file — `-i.bak` keeps the original as your undo button.',
 		keywords: [
 			'sed -i',
 			'in place',
@@ -944,7 +944,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-7-4',
 		title: 'Columns & awk',
 		part: 'Text Surgery',
-		description: "awk '{print $2}' pulls fields out of tables; -F sets the separator.",
+		description: "`awk '{print $2}'` pulls fields out of tables; `-F` sets the separator.",
 		keywords: [
 			'awk',
 			'print column',
@@ -963,9 +963,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-processes',
 		sectionId: 'section-8-1',
-		title: 'Processes & ps',
+		title: 'Processes & `ps`',
 		part: 'Processes & Ports',
-		description: 'Every running program is a row with a number — read PID, %CPU and COMMAND.',
+		description: 'Every running program is a row with a number — read `PID`, `%CPU` and `COMMAND`.',
 		keywords: [
 			'ps',
 			'ps aux',
@@ -991,9 +991,10 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-kill',
 		sectionId: 'section-8-2',
-		title: 'kill & Signals',
+		title: '`kill` & Signals',
 		part: 'Processes & Ports',
-		description: 'SIGTERM asks politely; kill -9 (SIGKILL) cannot be refused — and skips cleanup.',
+		description:
+			'`SIGTERM` asks politely; `kill -9` (`SIGKILL`) cannot be refused — and skips cleanup.',
 		keywords: [
 			'kill',
 			'kill -9',
@@ -1022,9 +1023,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-ports',
 		sectionId: 'section-8-3',
-		title: 'Ports & EADDRINUSE',
+		title: 'Ports & `EADDRINUSE`',
 		part: 'Processes & Ports',
-		description: 'One program per port — lsof -i :3000 names the squatter so you can kill it.',
+		description: 'One program per port — `lsof -i :3000` names the squatter so you can kill it.',
 		keywords: [
 			'port',
 			'port 3000',
@@ -1046,7 +1047,7 @@ const topicEntries: SearchEntry[] = [
 		title: 'Background Jobs',
 		part: 'Processes & Ports',
 		description:
-			'& sends a command backstage; jobs lists them, fg brings one forward, Ctrl+Z pauses.',
+			'`&` sends a command backstage; `jobs` lists them, `fg` brings one forward, `Ctrl+Z` pauses.',
 		keywords: [
 			'background',
 			'&',
@@ -1065,9 +1066,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-localhost',
 		sectionId: 'section-9-1',
-		title: 'localhost & URLs',
+		title: '`localhost` & URLs',
 		part: 'Talking to the Network',
-		description: 'localhost is this machine; the port is which door, the path is which room.',
+		description: '`localhost` is this machine; the port is which door, the path is which room.',
 		keywords: [
 			'localhost',
 			'127.0.0.1',
@@ -1120,7 +1121,8 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-9-3',
 		title: 'Reading JSON with jq',
 		part: 'Talking to the Network',
-		description: 'jq .key walks into a JSON reply; -r prints the bare value for the next command.',
+		description:
+			'`jq .key` walks into a JSON reply; `-r` prints the bare value for the next command.',
 		keywords: [
 			'jq',
 			'json',
@@ -1141,10 +1143,10 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-secrets',
 		sectionId: 'section-9-4',
-		title: 'API Keys & .env',
+		title: 'API Keys & `.env`',
 		part: 'Talking to the Network',
 		description:
-			'Keys live in a locked-down .env file — never in a command, where history keeps them.',
+			'Keys live in a locked-down `.env` file — never in a command, where history keeps them.',
 		keywords: [
 			'api key',
 			'secret',
@@ -1185,7 +1187,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-10-1',
 		title: 'Package Managers',
 		part: 'The Toolshed',
-		description: 'brew, apt and npm fetch a tool and put it where $PATH already looks.',
+		description: '`brew`, `apt` and `npm` fetch a tool and put it where `$PATH` already looks.',
 		keywords: [
 			'install',
 			'brew',
@@ -1212,7 +1214,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-10-2',
 		title: 'Archives — tar & zip',
 		part: 'The Toolshed',
-		description: 'tar -xzf decoded letter by letter — and tar -tzf to peek before unpacking.',
+		description: '`tar -xzf` decoded letter by letter — and `tar -tzf` to peek before unpacking.',
 		keywords: [
 			'tar',
 			'tar -xzf',
@@ -1233,7 +1235,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-10-3',
 		title: 'Symlinks',
 		part: 'The Toolshed',
-		description: 'The -> arrow in ls -l: a signpost to the real file, not a copy.',
+		description: 'The `->` arrow in `ls -l`: a signpost to the real file, not a copy.',
 		keywords: [
 			'symlink',
 			'symbolic link',
@@ -1257,7 +1259,7 @@ const topicEntries: SearchEntry[] = [
 		title: 'Disk Usage — du & df',
 		part: 'The Toolshed',
 		description:
-			'du -sh * finds the space hog; df -h shows the whole disk. Measure before deleting.',
+			'`du -sh *` finds the space hog; `df -h` shows the whole disk. Measure before deleting.',
 		keywords: [
 			'du',
 			'df',
@@ -1278,7 +1280,7 @@ const topicEntries: SearchEntry[] = [
 		title: 'Design Your Prompt (Starship)',
 		part: 'Your Cockpit',
 		description:
-			'Interactive prompt designer: pick a theme, customize modules, and download a real starship.toml for your shell.',
+			'Interactive prompt designer: pick a theme, customize modules, and download a real `starship.toml` for your shell.',
 		keywords: [
 			'starship',
 			'prompt',
@@ -1301,7 +1303,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-12-1',
 		title: 'Make It Yours',
 		part: 'Your Cockpit',
-		description: 'Themes, fonts, and prompt customization — PS1 and starship.',
+		description: 'Themes, fonts, and prompt customization — `PS1` and `starship`.',
 		keywords: [
 			'theme',
 			'colors',
@@ -1353,7 +1355,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-12-2',
 		title: 'History Superpowers',
 		part: 'Your Cockpit',
-		description: 'Up arrow, history, !!, sudo !!, and Ctrl+R reverse search.',
+		description: 'Up arrow, `history`, `!!`, `sudo !!`, and `Ctrl+R` reverse search.',
 		keywords: [
 			'history',
 			'up arrow',
@@ -1417,7 +1419,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-12-4',
 		title: 'Many Terminals at Once',
 		part: 'Your Cockpit',
-		description: 'Tabs, splits, and a one-line introduction to tmux.',
+		description: 'Tabs, splits, and a one-line introduction to `tmux`.',
 		keywords: [
 			'tabs',
 			'splits',
@@ -1493,7 +1495,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-13-1',
 		title: 'Escape sequences & ANSI colors',
 		part: 'Under the Hood',
-		description: 'Colors and cursor movement are in-band bytes — \\e[32m turns the text green.',
+		description: 'Colors and cursor movement are in-band bytes — `\\e[32m` turns the text green.',
 		keywords: [
 			'escape sequence',
 			'escape sequences',
@@ -1517,7 +1519,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-13-1',
 		title: 'What Ctrl+C really does',
 		part: 'Under the Hood',
-		description: 'The tty driver turns Ctrl+C into SIGINT — a kernel signal, not input.',
+		description: 'The `tty` driver turns `Ctrl+C` into `SIGINT` — a kernel signal, not input.',
 		keywords: [
 			'ctrl+c',
 			'ctrl c',
@@ -1600,10 +1602,10 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-robust-scripts',
 		sectionId: 'section-13-2',
-		title: 'Robust bash scripts: set -euo pipefail & trap',
+		title: 'Robust bash scripts: `set -euo pipefail` & `trap`',
 		part: 'Under the Hood',
 		description:
-			'The grown-up script preamble — strict mode, cleanup traps, and mktemp scratch dirs.',
+			'The grown-up script preamble — strict mode, cleanup traps, and `mktemp` scratch dirs.',
 		keywords: [
 			'set -euo pipefail',
 			'set -e',
@@ -1699,7 +1701,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'first-steps',
 		title: 'Playground: Say Hello to the Machine',
 		part: 'First Contact',
-		description: 'Try echo, whoami, pwd, and date in the sandbox terminal.',
+		description: 'Try `echo`, `whoami`, `pwd`, and `date` in the sandbox terminal.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1716,7 +1718,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'navigation',
 		title: 'Playground: Find the Lost API Key',
 		part: 'Moving Around',
-		description: 'A treasure hunt through nested directories with cd and ls.',
+		description: 'A treasure hunt through nested directories with `cd` and `ls`.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1733,7 +1735,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'workspace-setup',
 		title: 'Playground: Build Your Workspace',
 		part: 'Moving Around',
-		description: 'Build a project skeleton with mkdir -p and touch.',
+		description: 'Build a project skeleton with `mkdir -p` and `touch`.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1749,7 +1751,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'tidy-up',
 		title: 'Playground: Clean the Downloads Mess',
 		part: 'Copy, Move, Delete',
-		description: 'Inspect, sort into folders with mv, and delete the junk.',
+		description: 'Inspect, sort into folders with `mv`, and delete the junk.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1766,7 +1768,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'glob-practice',
 		title: 'Playground: Select the Right Files',
 		part: 'Copy, Move, Delete',
-		description: 'Target exactly the right files with * ? and [abc] globs.',
+		description: 'Target exactly the right files with `*` `?` and `[abc]` globs.',
 		keywords: ['playground', 'practice', 'glob', 'wildcard practice', 'select files', 'patterns'],
 		kind: 'topic'
 	},
@@ -1775,7 +1777,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'log-detective',
 		title: 'Playground: Find the Crash',
 		part: 'Text & Pipes',
-		description: 'Hunt through server.log with grep and pipes.',
+		description: 'Hunt through `server.log` with `grep` and pipes.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1792,7 +1794,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'pipeline-practice',
 		title: 'Playground: Build a Pipeline',
 		part: 'Text & Pipes',
-		description: 'Rank the top visitors in access.log with sort, uniq, and cut.',
+		description: 'Rank the top visitors in `access.log` with `sort`, `uniq`, and `cut`.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1808,7 +1810,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'find-files',
 		title: 'Playground: Hunt Down Every TODO',
 		part: 'Text & Pipes',
-		description: 'Combine find and grep to sweep a whole project.',
+		description: 'Combine `find` and `grep` to sweep a whole project.',
 		keywords: ['playground', 'practice', 'find files', 'todo', 'find and grep', 'sweep project'],
 		kind: 'topic'
 	},
@@ -1817,7 +1819,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'fix-permissions',
 		title: "Playground: The Script Won't Run",
 		part: 'Permissions & Config',
-		description: 'Diagnose "Permission denied" and fix it with chmod +x.',
+		description: 'Diagnose `Permission denied` and fix it with `chmod +x`.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1830,9 +1832,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-pg-path-repair',
 		sectionId: 'path-repair',
-		title: 'Playground: command not found',
+		title: 'Playground: `command not found`',
 		part: 'Permissions & Config',
-		description: 'Inspect PATH, find the missing tool, and run it anyway.',
+		description: 'Inspect `PATH`, find the missing tool, and run it anyway.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1865,7 +1867,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'first-script',
 		title: 'Playground: Automate the Backup',
 		part: 'Scripts & Automation',
-		description: 'Build a backup script with echo >>, chmod +x, and run it.',
+		description: 'Build a backup script with `echo >>`, `chmod +x`, and run it.',
 		keywords: ['playground', 'practice', 'first script', 'backup script', 'automation exercise'],
 		kind: 'topic'
 	},
@@ -1874,7 +1876,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'exit-codes',
 		title: 'Playground: Deploy Only on Green',
 		part: 'Scripts & Automation',
-		description: 'Wire up && and || so deploys only happen when tests pass.',
+		description: 'Wire up `&&` and `||` so deploys only happen when tests pass.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1890,7 +1892,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'capstone',
 		title: 'Playground: One Messy Home Folder',
 		part: 'Conclusion',
-		description: 'Navigate, organize, grep, and script — everything combined.',
+		description: 'Navigate, organize, `grep`, and script — everything combined.',
 		keywords: [
 			'playground',
 			'practice',
@@ -1906,7 +1908,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'help-lookup',
 		title: 'Playground: Read the Manual First',
 		part: 'First Contact',
-		description: 'Look up a command with man before you run it, then use it.',
+		description: 'Look up a command with `man` before you run it, then use it.',
 		keywords: ['playground', 'practice', 'man page', 'help lookup', 'read the manual', 'head'],
 		kind: 'topic'
 	},
@@ -1915,7 +1917,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'count-lines',
 		title: 'Playground: Count Before You Fix',
 		part: 'Text & Pipes',
-		description: 'Count matching lines with grep piped into wc -l, and save the total.',
+		description: 'Count matching lines with `grep` piped into `wc -l`, and save the total.',
 		keywords: ['playground', 'practice', 'wc', 'count lines', 'wc -l', 'how many', 'grep wc'],
 		kind: 'topic'
 	},
@@ -1924,7 +1926,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'history-recall',
 		title: 'Playground: Retrace Your Steps',
 		part: 'Your Cockpit',
-		description: 'Search your command history with history | grep and save what you find.',
+		description: 'Search your command history with `history | grep` and save what you find.',
 		keywords: ['playground', 'practice', 'history', 'history grep', 'recall command', 'retrace'],
 		kind: 'topic'
 	},
@@ -1949,7 +1951,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'capture-errors',
 		title: 'Playground: Catch the Red Text',
 		part: 'Text & Pipes',
-		description: 'Split stdout and stderr into separate files with > and 2>.',
+		description: 'Split stdout and stderr into separate files with `>` and `2>`.',
 		keywords: ['playground', 'practice', 'stderr', '2>', 'capture errors', 'redirect errors'],
 		kind: 'topic'
 	},
@@ -1958,7 +1960,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'script-args',
 		title: 'Playground: One Script, Any Folder',
 		part: 'Scripts & Automation',
-		description: 'Make a script reusable by swapping a hard-coded path for $1.',
+		description: 'Make a script reusable by swapping a hard-coded path for `$1`.',
 		keywords: ['playground', 'practice', 'script arguments', '$1', 'reusable script', 'parameters'],
 		kind: 'topic'
 	},
@@ -1968,7 +1970,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-3-3',
 		title: 'I deleted a file!',
 		part: 'Panic',
-		description: 'rm has no trash can — but your editor history or git may save you.',
+		description: '`rm` has no trash can — but your editor history or `git` may save you.',
 		keywords: [
 			'deleted a file',
 			'accidentally deleted',
@@ -1989,7 +1991,7 @@ const topicEntries: SearchEntry[] = [
 		sectionId: 'section-1-3',
 		title: 'My terminal is frozen',
 		part: 'Panic',
-		description: 'Usually a pager or a waiting program — q, Ctrl+C, or Esc :q! for vim.',
+		description: 'Usually a pager or a waiting program — `q`, `Ctrl+C`, or `Esc` `:q!` for `vim`.',
 		keywords: [
 			'frozen terminal',
 			'terminal frozen',
@@ -2008,9 +2010,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-panic-not-found',
 		sectionId: 'section-5-4',
-		title: 'command not found',
+		title: '`command not found`',
 		part: 'Panic',
-		description: 'The tool is not on your PATH — or not installed. Here is how to tell.',
+		description: 'The tool is not on your `PATH` — or not installed. Here is how to tell.',
 		keywords: [
 			'command not found',
 			'not recognized',
@@ -2026,9 +2028,9 @@ const topicEntries: SearchEntry[] = [
 	{
 		id: 'topic-panic-permission',
 		sectionId: 'section-5-2',
-		title: 'Permission denied',
+		title: '`Permission denied`',
 		part: 'Panic',
-		description: 'Missing execute bit or wrong owner — chmod +x fixes the common case.',
+		description: 'Missing execute bit or wrong owner — `chmod +x` fixes the common case.',
 		keywords: [
 			'permission denied',
 			'cannot execute',
@@ -2067,8 +2069,10 @@ export function scoreSearchEntry(entry: SearchEntry, rawQuery: string): number {
 
 	const tokens = query.split(/\s+/).filter(Boolean);
 	const command = entry.command?.toLowerCase() ?? '';
-	const title = entry.title.toLowerCase();
-	const description = entry.description.toLowerCase();
+	// Titles and descriptions carry `backticks` around command mentions for
+	// display; strip them so "command not found" still matches exactly.
+	const title = entry.title.toLowerCase().replaceAll('`', '');
+	const description = entry.description.toLowerCase().replaceAll('`', '');
 	const keywordBlob = entry.keywords.join(' ').toLowerCase();
 
 	if (entry.kind === 'command' && command) {

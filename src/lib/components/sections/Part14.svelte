@@ -30,38 +30,41 @@
 		onOpenPlayground?: () => void;
 	} = $props();
 
+	// Command names sit in `backticks`; the renderer below turns those segments
+	// into syntax-highlighted chips, the same convention the headings use.
 	const SKILL_CHECKLIST = [
 		{
 			id: 'navigate',
 			label:
-				'I can get anywhere with pwd, ls, and cd — using TAB completion, not typing full paths.'
+				'I can get anywhere with `pwd`, `ls`, and `cd` — using TAB completion, not typing full paths.'
 		},
 		{
 			id: 'paths',
-			label: 'I can read any path on sight: absolute vs relative, ~, ., and .. — no guessing.'
+			label: 'I can read any path on sight: absolute vs relative, `~`, `.`, and `..` — no guessing.'
 		},
 		{
 			id: 'rm-safety',
 			label:
-				'I never delete blind: ls (or echo the glob) first, then rm — and I know there is no trash can.'
+				'I never delete blind: `ls` (or `echo` the glob) first, then `rm` — and I know there is no trash can.'
 		},
 		{
 			id: 'pipes',
-			label: 'I can chain small tools with | and redirect with > and >> — and I know > truncates.'
+			label:
+				'I can chain small tools with `|` and redirect with `>` and `>>` — and I know `>` truncates.'
 		},
 		{
 			id: 'grep-find',
 			label:
-				'I can find things: grep for text inside files, find for files by name — and I know which is which.'
+				'I can find things: `grep` for text inside files, `find` for files by name — and I know which is which.'
 		},
 		{
 			id: 'permissions',
 			label:
-				'I can decode an ls -l permission string and fix "permission denied" with the minimal chmod.'
+				'I can decode an `ls -l` permission string and fix `permission denied` with the minimal `chmod`.'
 		},
 		{
 			id: 'path-env',
-			label: 'I can demystify "command not found" with echo $PATH and which.'
+			label: 'I can demystify `command not found` with `echo $PATH` and `which`.'
 		},
 		{
 			id: 'audit',
@@ -69,36 +72,36 @@
 		},
 		{
 			id: 'script',
-			label: 'I can write and run a script: shebang, chmod +x, ./, variables, and $1.'
+			label: 'I can write and run a script: shebang, `chmod +x`, `./`, variables, and `$1`.'
 		},
 		{
 			id: 'exit-codes',
-			label: 'I know what $? holds and when && vs || vs ; runs the next command.'
+			label: 'I know what `$?` holds and when `&&` vs `||` vs `;` runs the next command.'
 		},
 		{
 			id: 'sed-backup',
 			label:
-				'I can find-and-replace across files with sed — and I never run -i without a .bak backup.'
+				'I can find-and-replace across files with `sed` — and I never run `-i` without a `.bak` backup.'
 		},
 		{
 			id: 'processes',
 			label:
-				'I can find what is hogging a port or a CPU, stop it politely, and escalate to -9 only when it refuses.'
+				'I can find what is hogging a port or a CPU, stop it politely, and escalate to `-9` only when it refuses.'
 		},
 		{
 			id: 'verify-network',
 			label:
-				'I check a server myself with curl instead of trusting "it\'s running" — and I can pull one value out of JSON.'
+				'I check a server myself with `curl` instead of trusting "it\'s running" — and I can pull one value out of JSON.'
 		},
 		{
 			id: 'secrets',
 			label:
-				'I keep API keys in a locked-down .env file, never typed into a command where history keeps them.'
+				'I keep API keys in a locked-down `.env` file, never typed into a command where history keeps them.'
 		},
 		{
 			id: 'toolshed',
 			label:
-				'I can install a missing tool, peek inside an archive before unpacking it, and measure with du before deleting.'
+				'I can install a missing tool, peek inside an archive before unpacking it, and measure with `du` before deleting.'
 		}
 	];
 </script>
@@ -419,7 +422,7 @@
 								><Code code="echo $PATH" /> ·
 								<Code code="which cmd" /></td
 							>
-							<td class="px-3 py-2">The shell only searches PATH</td>
+							<td class="px-3 py-2">The shell only searches <Code code="PATH" /></td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Shortcuts</td>
@@ -541,7 +544,9 @@
 								><Code code="tar -tzf f.tar.gz" /> ·
 								<Code code="tar -xzf f.tar.gz" /></td
 							>
-							<td class="px-3 py-2">t lists, x extracts — peek before you unpack</td>
+							<td class="px-3 py-2"
+								><Code code="t" /> lists, <Code code="x" /> extracts — peek before you unpack</td
+							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">What's eating the disk?</td>
@@ -573,7 +578,7 @@
 								<Code code="!!" /> ·
 								<Code code="history" /></td
 							>
-							<td class="px-3 py-2">Ctrl+R is the biggest speed unlock</td>
+							<td class="px-3 py-2"><Code code="Ctrl+R" /> is the biggest speed unlock</td>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Get help</td>
@@ -614,8 +619,8 @@
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Reading is not knowing. Here's the exam — one gloriously messy home folder, no step-by-step
-				instructions. Everything you need is in Parts 1 through 6, and the playground will tell you
-				the moment you've won.
+				instructions. Everything you need is in <CourseLink to="part-1" /> through
+				<CourseLink to="part-6" />, and the playground will tell you the moment you've won.
 			</p>
 
 			<div class="my-6">
@@ -651,10 +656,12 @@
 			</h4>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The first challenge covers Parts 1–6. This one is the power tools: a release is due, a stale
-				server is squatting on your port, the config still says <Code code="http:" />, and you
-				refuse to ship on faith. Free the port, fix the config <em>with a backup</em>, start your
-				server, and save the proof it's alive — Parts 7, 8, 9 and 10 in a single sitting.
+				The first challenge covers <CourseLink to="part-1" /> through <CourseLink to="part-6" />.
+				This one is the power tools: a release is due, a stale server is squatting on your port, the
+				config still says <Code code="http:" />, and you refuse to ship on faith. Free the port, fix
+				the config <em>with a backup</em>, start your server, and save the proof it's alive —
+				<CourseLink to="part-7" />, <CourseLink to="part-8" />, <CourseLink to="part-9" /> and
+				<CourseLink to="part-10" /> in a single sitting.
 			</p>
 
 			<h4
@@ -711,7 +718,9 @@
 								? 'var(--color-text-muted)'
 								: 'var(--color-text-secondary)'};"
 						>
-							{item.label}
+							{#each item.label.split('`') as seg, i (i)}{#if i % 2 === 1}<Code
+										code={seg}
+									/>{:else}{seg}{/if}{/each}
 						</span>
 					</button>
 				{/each}

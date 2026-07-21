@@ -954,17 +954,24 @@
 {/snippet}
 
 {#if panel}
-	<div class="pg-shell flex min-h-0 flex-1 flex-col overflow-hidden">
+	<div class="pg-shell pg-container flex min-h-0 flex-1 flex-col overflow-hidden">
 		<header
-			class="flex shrink-0 flex-wrap items-center gap-2 px-3 py-2 sm:gap-2.5 sm:px-5 sm:py-3"
+			class="flex min-w-0 shrink-0 flex-nowrap items-center gap-2 px-3 py-2 sm:gap-2.5 sm:px-5 sm:py-3"
 			style="background: color-mix(in srgb, var(--color-bg-tertiary) 55%, transparent); border-bottom: 1px solid var(--color-border);"
 			data-fabric
 		>
-			<Terminal size={14} style="color: var(--color-important);" />
-			<span class="text-sm font-semibold" style="color: var(--color-text);">Playground</span>
-			<span class="hidden sm:inline">{@render statusBadge()}</span>
+			<Terminal size={14} class="shrink-0" style="color: var(--color-important);" />
+			<span class="shrink-0 text-sm font-semibold" style="color: var(--color-text);"
+				>Playground</span
+			>
+			<!-- `shrink-0`: this never truncates. A clipped pill reading "sandboxed ba"
+			     looks broken in a way an ellipsised dropdown does not, because a pill
+			     is a fixed label rather than variable content. The select absorbs all
+			     the shrinkage instead — it can ellipsise honestly, and its full text
+			     is in the popup. -->
+			<span class="hidden shrink-0 sm:inline">{@render statusBadge()}</span>
 
-			<div class="ml-auto flex flex-wrap items-center gap-1.5 sm:gap-2">
+			<div class="ml-auto flex min-w-0 flex-nowrap items-center gap-1.5 sm:gap-2">
 				{@render scenarioSelect()}
 				<button
 					type="button"
@@ -1232,16 +1239,48 @@
 		}
 	}
 
+	/* `min-width: 0` is the whole fix. A <select> sizes itself to its WIDEST
+	   option — "Say hello to the machine" and friends — and as a flex item its
+	   auto min-width refuses to go below that, so the header had no choice but
+	   to wrap. Allowing it to shrink, and ellipsising the label inside, keeps the
+	   row on one line at every panel width. The full title is still in the popup,
+	   which is where you read it. */
+	/* The panel's width is set by its own layout, not the viewport, so a media
+	   query is the wrong instrument — at 800px of viewport this panel is 336px,
+	   and `sm:` had long since decided the pill should show. A container query
+	   asks the question that actually matters. */
+	.pg-container {
+		container-type: inline-size;
+	}
+
+	@container (max-width: 30rem) {
+		.pg-status {
+			display: none;
+		}
+	}
+
 	.pg-select-wrap {
 		position: relative;
 		display: inline-flex;
 		align-items: center;
+		min-width: 0;
+		flex: 0 1 auto;
 	}
 
 	.pg-select {
 		appearance: none;
 		-webkit-appearance: none;
 		cursor: pointer;
+		/* A floor, not zero. Shrinking to fit was collapsing this to ~42px — a
+		   chevron with no label, which is worse than no picker at all. Below this
+		   the STATUS PILL yields instead (see the container query), because a
+		   label the prompt already repeats is cheaper to lose than the only
+		   control for switching scenario. */
+		min-width: 8.5rem;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		border-radius: 0.5rem;
 		border: 1px solid var(--color-border);
 		background: var(--color-surface);

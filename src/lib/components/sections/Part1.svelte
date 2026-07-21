@@ -464,7 +464,7 @@ man -k download
 				opens in a <em>pager</em> — a full-screen reader that takes over your terminal, and the one
 				you'll get is <Code code="less" /> (<CourseLink to="section-2-5" />). Scroll with the arrow
 				keys or Space, search by typing <Code code="/word" /> and pressing Enter, and press
-				<strong>q</strong> to get your prompt back. Everyone gets "stuck" in a pager once — now you won't.
+				<Code code="q" /> to get your prompt back. Everyone gets "stuck" in a pager once — now you won't.
 			</Callout>
 
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -485,7 +485,7 @@ man -k download
 			</p>
 
 			<CodeBlock
-				title="tldr: examples first"
+				title="`tldr`: examples first"
 				code={`tldr tar
 # tar
 #   Archiving utility.

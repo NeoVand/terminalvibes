@@ -171,7 +171,7 @@
 				onfocus={handleFocus}
 				onkeydown={handleKeydown}
 				type="text"
-				placeholder="Search commands..."
+				placeholder="Search"
 				class="search-input"
 				aria-label="Search commands"
 				autocomplete="off"
@@ -206,9 +206,24 @@
 									>{/each}</span
 							>
 						{:else}
-							<span class="result-title">{entry.title}</span>
+							<span class="result-title"
+								>{#each entry.title.split('`') as seg, si (si)}{#if si % 2 === 1}<code
+											class="result-ic"
+											>{#each tokenizeShellCommand(seg) as token, ti (ti)}<span
+													class="tok tok-{token.type}">{token.text}</span
+												>{/each}</code
+										>{:else}{seg}{/if}{/each}</span
+							>
 						{/if}
-						<span class="result-description">{entry.description}</span>
+						<span class="result-description"
+							><!-- Command mentions sit in `backticks`; render them as inline chips
+							     so descriptions match the highlighted command beside them. -->{#each entry.description.split('`') as seg, si (si)}{#if si % 2 === 1}<code
+										class="result-ic"
+										>{#each tokenizeShellCommand(seg) as token, ti (ti)}<span
+												class="tok tok-{token.type}">{token.text}</span
+											>{/each}</code
+									>{:else}{seg}{/if}{/each}</span
+						>
 					</div>
 					<span class="result-part">{entry.part}</span>
 				</button>
@@ -357,13 +372,20 @@
 		flex-shrink: 0;
 	}
 
+	/* 12px, not 13. The resting box is 176px, which leaves the input 105px — and
+	   "Search commands..." measures 126.8px at 13px, so it was being cut to
+	   "Search comman". Shrinking the type alone does not reach: the same string
+	   still needs 107px at 11px, below which the field starts looking frail. So
+	   the placeholder shortens too. Next to a magnifier, in a header, "Search" is
+	   not ambiguous — and the full field with its shortcut hint is one click away,
+	   where there is room for both. */
 	.search-input {
 		flex: 1;
 		border: none;
 		background: transparent;
 		color: var(--color-text);
 		font-family: var(--font-sans);
-		font-size: 13px;
+		font-size: 12px;
 		outline: none;
 		box-shadow: none;
 		padding: 0;
@@ -532,6 +554,15 @@
 			font-size: 11px;
 			line-height: 1.35;
 		}
+	}
+
+	/* Inline command mention inside a result description */
+	.result-ic {
+		font-family: var(--font-mono);
+		font-size: 0.95em;
+		background: var(--color-code-bg);
+		border-radius: 0.2rem;
+		padding: 0 0.2em;
 	}
 
 	.result-part {

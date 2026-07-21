@@ -61,7 +61,13 @@
 	style="--activity-accent: {accent};"
 	bind:this={rootEl}
 >
-	<div class="activity-header">
+	<!-- `data-fabric` is what actually puts the twinkling pixels under this.
+	     BackgroundPixels paints its overlay canvas ABOVE the content and clips
+	     it to [data-fabric] surfaces, so an unmarked element gets no pixels no
+	     matter how transparent it is — which is why tuning blur and alpha here
+	     changed nothing visible. The callout above this card carries the same
+	     marker; that is the whole difference. -->
+	<div class="activity-header" data-fabric>
 		<span class="text-sm font-semibold" style="color: var(--activity-accent);">{title}</span>
 		<button
 			type="button"
@@ -134,7 +140,18 @@
 		border: 1px solid color-mix(in srgb, var(--activity-accent) 55%, var(--color-border));
 		border-bottom: none;
 		border-radius: 0.75rem 0.75rem 0 0;
-		background: transparent;
+		/* Matched to the CALLOUT, not to the side panels.
+
+		   `--panel-glass` is 93% opaque in light — right for a panel that floats
+		   over the whole article and has to stay readable, wrong for a lid sitting
+		   inside the prose, where it reads as a solid slab and the animated pixel
+		   fabric behind it disappears. The callout runs 55% at blur(28px), and a
+		   card embedded in a chapter belongs to that family: enough veil to
+		   separate the header from the terminal, enough transparency that the
+		   texture still shows through. */
+		background: color-mix(in srgb, var(--color-bg-secondary) 55%, transparent);
+		backdrop-filter: blur(28px) saturate(1.5);
+		-webkit-backdrop-filter: blur(28px) saturate(1.5);
 	}
 
 	.activity-panel {

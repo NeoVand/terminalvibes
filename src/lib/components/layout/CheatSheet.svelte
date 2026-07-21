@@ -138,11 +138,21 @@
 						style="background: var(--color-code-bg); color: var(--color-code-text); font-family: var(--font-mono);"
 						>{entry.notation}</code
 					>
-					{entry.meaning}
+					{@render chipText(entry.meaning)}
 				</li>
 			{/each}
 		</ul>
 	</div>
+{/snippet}
+
+{#snippet chipText(text: string)}
+	<!-- Command mentions sit in `backticks`; render those segments as the same
+	     syntax-highlighted chips the command column wears. -->
+	{#each text.split('`') as seg, si (si)}{#if si % 2 === 1}<code class="cs-ic"
+				>{#each tokenizeShellCommand(seg) as token, ti (ti)}<span class="tok tok-{token.type}"
+						>{token.text}</span
+					>{/each}</code
+			>{:else}{seg}{/if}{/each}
 {/snippet}
 
 {#snippet commandRow(cmd: CheatSheetCommand, showDetail: boolean = false)}
@@ -176,11 +186,11 @@
 			{/if}
 		</span>
 		<p class="mt-0.5 text-[11px] leading-snug" style="color: var(--color-text-muted);">
-			{cmd.description}
+			{@render chipText(cmd.description)}
 		</p>
 		{#if showDetail && cmd.detail}
 			<p class="mt-1 text-[11px] leading-relaxed" style="color: var(--color-text-muted);">
-				{cmd.detail}
+				{@render chipText(cmd.detail)}
 			</p>
 		{/if}
 		{#if isCopied}
@@ -451,5 +461,15 @@
 
 	.cheat-modal-category {
 		break-inside: avoid;
+	}
+
+	/* Inline command mention inside a description — the chip look, sized to
+	   sit within 11px muted text without shouting. */
+	.cs-ic {
+		font-family: var(--font-mono);
+		font-size: 0.95em;
+		background: var(--color-code-bg);
+		border-radius: 0.2rem;
+		padding: 0 0.25em;
 	}
 </style>

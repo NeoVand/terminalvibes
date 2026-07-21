@@ -600,10 +600,10 @@
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 				<p
 					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text); font-family: var(--font-mono);"
+					style="color: var(--color-text);"
 				>
 					<AtSign size={14} style="color: var(--color-primary);" />
-					vibe@sandbox
+					<Code code="vibe@sandbox" />
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>Who and where:</strong> you're logged in as user <em>vibe</em> on a machine named
@@ -615,10 +615,10 @@
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 				<p
 					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text); font-family: var(--font-mono);"
+					style="color: var(--color-text);"
 				>
 					<FolderOpen size={14} style="color: var(--color-primary);" />
-					~/projects
+					<Code code="~/projects" />
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>Your current directory</strong> — where commands will act. The
@@ -629,10 +629,10 @@
 			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
 				<p
 					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text); font-family: var(--font-mono);"
+					style="color: var(--color-text);"
 				>
 					<Play size={14} style="color: var(--color-primary);" />
-					$
+					<Code code="$" />
 				</p>
 				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 					<strong>"Your turn":</strong> the shell is ready for a command. A
@@ -698,7 +698,7 @@
 
 		<Callout type="tip">
 			Prompts vary from machine to machine — yours might show a different name, extra colors, or
-			even a git branch. The parts are always the same: <em>who@where:directory$</em>. In
+			even a git branch. The parts are always the same: <Code code="who@where:directory$" />. In
 			<CourseLink to="section-12-1" /> you'll learn to customize it yourself.
 		</Callout>
 	</div>

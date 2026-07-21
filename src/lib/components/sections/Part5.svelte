@@ -27,8 +27,8 @@
 			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
 			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
 		>
-			"'Permission denied' and 'command not found' aren't errors. They're the system explaining its
-			rules — once you can read them."
+			"<Code code="Permission denied" /> and <Code code="command not found" /> aren't errors. They're
+			the system explaining its rules — once you can read them."
 		</blockquote>
 
 		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
@@ -188,14 +188,13 @@ drwxr-xr-x  4 vibe  staff  4096 Jul  9 18:02 projects`}
 			<SectionHeader
 				level="section"
 				icon={KeyRound}
-				title="5.2 chmod — Changing the Rules"
+				title="5.2 `chmod` — Changing the Rules"
 				color="var(--color-primary)"
 			/>
 
 			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Here's the classic novice moment: you save a script, try to run it, and the terminal snaps
-				back <strong style="color: var(--color-text);">"Permission denied."</strong> Nothing is
-				broken. The file simply doesn't have its
+				back <Code code="Permission denied" />. Nothing is broken. The file simply doesn't have its
 				<Code code="x" />
 				bit yet — files are never executable by default. The
 				<Code code=".sh" /> on the end isn't what runs it either; that's a convention for humans and editors
@@ -252,13 +251,16 @@ Backing up projects/ ... done.`}
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				And the leading <Code code="./" /> isn't decoration. Typed bare,
 				<Code code="backup.sh" /> sends the shell hunting through the short list of folders it keeps for
-				programs — 5.4 names that list — and the folder you're standing in is deliberately not on it,
-				so nothing dropped into your current directory can impersonate a real command.
+				programs — <CourseLink to="section-5-4" /> names that list — and the folder you're standing in
+				is deliberately not on it, so nothing dropped into your current directory can impersonate a real
+				command.
 				<Code code="./" /> means "the file right here": you saying you meant this one.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				You'll also see chmod used with <strong style="color: var(--color-text);">numbers</strong> —
+				You'll also see <Code code="chmod" /> used with
+				<strong style="color: var(--color-text);">numbers</strong>
+				—
 				<Code code="chmod 755" />,
 				<Code code="chmod 644" />
 				— in every tutorial and AI suggestion. Each digit is one audience (user, group, other), built
@@ -340,7 +342,7 @@ Backing up projects/ ... done.`}
 			<SectionHeader
 				level="section"
 				icon={Lock}
-				title="5.3 sudo — Borrowed Superpowers"
+				title="5.3 `sudo` — Borrowed Superpowers"
 				color="var(--color-primary)"
 			/>
 
@@ -363,7 +365,7 @@ Backing up projects/ ... done.`}
 			</div>
 
 			<CodeBlock
-				title="What sudo looks like in the wild"
+				title="What `sudo` looks like in the wild"
 				code={`apt install htop                 # Linux: htop is a live view of what's running
 E: Permission denied             # E: is apt marking its own error, the way bash: marks bash's
 
@@ -377,9 +379,9 @@ Setting up htop ... done.`}
 					>the password prompt shows nothing while you type</strong
 				>
 				— no dots, no asterisks. Every beginner assumes their keyboard broke; it's just a privacy habit
-				from 1970 that stuck. Second, you need sudo far less than the internet implies: everything inside
-				your home folder is already yours, and macOS users installing via Homebrew usually don't need
-				it at all. If a command fails inside
+				from 1970 that stuck. Second, you need <Code code="sudo" /> far less than the internet implies:
+				everything inside your home folder is already yours, and macOS users installing via Homebrew usually
+				don't need it at all. If a command fails inside
 				<Code code="~" />, the answer is almost never
 				<Code code="sudo" />
 				— it's a wrong path or a missing
@@ -390,22 +392,24 @@ Setting up htop ... done.`}
 				<strong>Windows note:</strong> Windows 11 (24H2 and later) now ships a real built-in
 				<Code code="sudo" />
 				command — turn it on under Settings → System → For developers → "Enable sudo". So everything in
-				this section transfers to native Windows too, not just WSL; inside WSL, sudo has always worked
-				exactly as described here.
+				this section transfers to native Windows too, not just WSL; inside WSL, <Code code="sudo" /> has
+				always worked exactly as described here.
 			</Callout>
 
 			<Callout type="caution">
-				<strong>Never sudo a command you don't understand — especially one an AI wrote.</strong>
-				Every safety net you've learned assumes the system can say "no" to you. sudo removes the "no."
-				An AI-suggested
+				<strong
+					>Never <Code code="sudo" /> a command you don't understand — especially one an AI wrote.</strong
+				>
+				Every safety net you've learned assumes the system can say "no" to you. <Code code="sudo" /> removes
+				the "no." An AI-suggested
 				<Code code="sudo rm -rf" />
 				with the wrong path doesn't delete your project — it can delete your
 				<em>operating system</em>. This isn't hypothetical: 2025 and 2026 saw repeated,
 				well-documented incidents of AI coding agents running destructive commands on real systems —
 				<CourseLink to="part-11" /> dissects them. The rule: when a command fails with "permission denied,"
-				don't reflexively re-run it with sudo. First ask <em>why</em> it was denied — read the command,
-				check the path, ask your AI to explain each flag. Escalate only when you can narrate what the
-				command does.
+				don't reflexively re-run it with <Code code="sudo" />. First ask <em>why</em> it was denied —
+				read the command, check the path, ask your AI to explain each flag. Escalate only when you can
+				narrate what the command does.
 			</Callout>
 
 			<Callout type="note">
@@ -472,7 +476,8 @@ nano`}
 				The <Code code="$" /> is what does the work: write
 				<Code code="$EDITOR" /> and the shell swaps in the value before the command ever sees it, which
 				is why
-				<Code code="echo $SHELL" /> prints a path and not the word SHELL. Note the asymmetry — you write
+				<Code code="echo $SHELL" /> prints a path and not the word <Code code="SHELL" />. Note the
+				asymmetry — you write
 				<Code code="export EDITOR=nano" /> with no dollar sign and read it back with one. And
 				<Code code="export" /> is the word that decides who else can see it: a bare
 				<Code code="EDITOR=nano" /> stays in this shell, while
@@ -489,7 +494,8 @@ nano`}
 				<Code code="$" /> does. So
 				<Code code="cp report.md &quot;~/backups/&quot;" /> never reaches your home folder: the quotes
 				turn the
-				<Code code="~" /> into an ordinary character, and cp goes looking for a folder literally named
+				<Code code="~" /> into an ordinary character, and <Code code="cp" /> goes looking for a folder
+				literally named
 				<Code code="~" /> in the directory you're standing in. Write
 				<Code code="&quot;$HOME/backups/&quot;" /> and it lands where you meant. (This is one of the few
 				places the playground is kinder than a real shell: its paths expand
@@ -498,9 +504,8 @@ nano`}
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The variable that explains a thousand error messages is <strong
-					style="color: var(--color-text);">PATH</strong
-				>: a colon-separated list of directories —
+				The variable that explains a thousand error messages is <Code code="PATH" />: a
+				colon-separated list of directories —
 				<Code code="/usr/bin" />,
 				<Code code="/usr/local/bin" /> and friends, where
 				<Code code="bin" /> is short for <em>binaries</em>, the programs themselves. When you type
@@ -509,7 +514,7 @@ nano`}
 			</p>
 
 			<CodeBlock
-				title="'command not found', demystified"
+				title="`command not found`, demystified"
 				code={`echo $PATH
 /usr/local/bin:/usr/bin:/bin
 
@@ -529,22 +534,22 @@ which python                         # Silence/nothing = not on PATH`}
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				<Code code="--version" /> earns its place there: it prints the version number and exits without
 				doing anything, so it's the harmless way to ask whether a program exists at all.
-				<Code code="which" /> answers the other PATH question — when two copies of a tool are installed,
-				the one it prints is the one you're running. Because the shell stops at the first match, a copy
-				in
+				<Code code="which" /> answers the other <Code code="PATH" /> question — when two copies of a tool
+				are installed, the one it prints is the one you're running. Because the shell stops at the first
+				match, a copy in
 				<Code code="/usr/local/bin" /> quietly shadows the system's in
 				<Code code="/usr/bin" />, which is how you end up on a version you didn't mean to run.
 			</p>
 
 			<Callout type="tip">
-				"Command not found" always means exactly one of three things: a <strong>typo</strong>, a
-				tool that's <strong>not installed</strong>, or a tool installed
-				<strong>outside PATH</strong>. Check them in that order —
+				<Code code="command not found" /> always means exactly one of three things: a
+				<strong>typo</strong>, a tool that's <strong>not installed</strong>, or a tool installed
+				<strong>outside <Code code="PATH" /></strong>. Check them in that order —
 				<Code code="which" />
 				and
 				<Code code="echo $PATH" />
-				settle it in seconds. This is also why installers keep telling you to "add something to your PATH":
-				they put the tool in a folder your shell doesn't search yet.
+				settle it in seconds. This is also why installers keep telling you to "add something to your
+				<Code code="PATH" />": they put the tool in a folder your shell doesn't search yet.
 			</Callout>
 
 			<Callout type="caution">
@@ -562,15 +567,15 @@ which python                         # Silence/nothing = not on PATH`}
 				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
 				style="color: var(--color-text);"
 			>
-				Try It: command not found
+				Try It: <Code code="command not found" />
 			</h4>
 			<PlaygroundNote>
 				A tool called <Code code="greet" />
 				is installed somewhere in the playground, but typing
 				<Code code="greet" />
-				only gets you "command not found." Inspect
+				only gets you <Code code="command not found" />. Inspect
 				<Code code="echo $PATH" />, hunt the executable down with
-				<Code code="find" />, and run it — by its full path, or by fixing PATH.
+				<Code code="find" />, and run it — by its full path, or by fixing <Code code="PATH" />.
 			</PlaygroundNote>
 			<LessonActivity title="command not found" scenarioId="path-repair" id="path-repair" />
 
@@ -653,7 +658,7 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				its own, and deliberately not this course's (<CourseLink to="section-14-4" />). You're
 				pasting
 				<Code code="gs" /> now because it's the first command anyone reaches for the moment they meet
-				git; nothing between here and the end depends on understanding it.
+				<Code code="git" />; nothing between here and the end depends on understanding it.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -693,8 +698,9 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				Your shell config is just a shell script — every line in it is a command you could type by
 				hand. That means everything in this course applies to it: read it with <Code code="cat" />,
 				search it with
-				<Code code="grep" />, and when an installer says "we added a line to your .zshrc," you can
-				open it and see exactly what changed. No magic, ever.
+				<Code code="grep" />, and when an installer says "we added a line to your <Code
+					code=".zshrc"
+				/>," you can open it and see exactly what changed. No magic, ever.
 			</Callout>
 
 			<h4
