@@ -10,6 +10,7 @@
 	import SectionHeader from '../ui/SectionHeader.svelte';
 	import VibeBox from '../ui/VibeBox.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 </script>
 
@@ -552,5 +553,7 @@ man -k download
 				]}
 			/>
 		</div>
+
+		<ChallengeActivity title="Look It Up First" part={1} id="ch-1-read-the-flags" />
 	</div>
 </section>

@@ -115,6 +115,31 @@ export const playgroundAnchorIds = [
 	'midnight-deploy'
 ] as const;
 
+/**
+ * Anchor ids of the fourteen graded challenges — one closing each Part, in
+ * course order. Separate from `playgroundAnchorIds` because the two are counted
+ * separately everywhere: a challenge is not one of the 35 exercises, it is the
+ * Part's exit test. `src/lib/playground/challenges.ts` owns the ids; this list
+ * is what makes them deep-linkable, and the timeline manifest is generated from
+ * it (see scripts/build-timeline.mjs).
+ */
+export const challengeAnchorIds = [
+	'ch-1-read-the-flags',
+	'ch-2-scaffold',
+	'ch-3-after-the-agent',
+	'ch-4-top-visitors',
+	'ch-5-deploy-kit',
+	'ch-6-ship-all-three',
+	'ch-7-promote-the-stack',
+	'ch-8-agent-cleanup',
+	'ch-9-prove-the-release',
+	'ch-10-handover',
+	'ch-11-approve-the-plan',
+	'ch-12-handover',
+	'ch-13-exit-codes',
+	'ch-14-desk-clear'
+] as const;
+
 /** Sub-anchors for notable interactive tools that aren't full sections but
  *  should be deep-linkable and reachable from the sidebar. */
 export const toolAnchorIds = ['prompt-designer'] as const;
@@ -123,5 +148,6 @@ export const toolAnchorIds = ['prompt-designer'] as const;
 export const anchorIds: readonly string[] = [
 	...sectionIds,
 	...playgroundAnchorIds,
+	...challengeAnchorIds,
 	...toolAnchorIds
 ];

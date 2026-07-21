@@ -15,6 +15,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
@@ -498,5 +499,7 @@ cd /tmp/build && rm -rf *
 				]}
 			/>
 		</div>
+
+		<ChallengeActivity title="Ship All Three" part={6} id="ch-6-ship-all-three" />
 	</div>
 </section>

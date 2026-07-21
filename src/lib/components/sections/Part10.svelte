@@ -7,6 +7,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
 
@@ -403,5 +404,7 @@ Filesystem  Size  Used Avail Capacity
 				everyday chores that used to require someone else's help.
 			</p>
 		</div>
+
+		<ChallengeActivity title="Hand It Over, Not the Bloat" part={10} id="ch-10-handover" />
 	</div>
 </section>

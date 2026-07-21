@@ -7,6 +7,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
@@ -418,5 +419,7 @@ awk '/error/ {print $1}' app.log     # /pattern/ runs the action on matching lin
 				keeps drilling: <strong style="color: var(--color-text);">read first, run second</strong>.
 			</p>
 		</div>
+
+		<ChallengeActivity title="Promote the Stack" part={7} id="ch-7-promote-the-stack" />
 	</div>
 </section>

@@ -7,6 +7,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"build:index": "node scripts/build-course-index.mjs",
+		"build:timeline": "node scripts/build-timeline.mjs && node scripts/build-timeline-thumbs.mjs",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

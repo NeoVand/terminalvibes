@@ -14,6 +14,20 @@
 	--color-surface-hover: #f4efe6;
 	--color-border: #e3dbc9;
 	--color-border-light: #ece6d8;
+
+	/* ── the sidebar thread ──────────────────────────────────────────────
+	   The hairline running through the section icons, and the brighter run
+	   marking the part you are inside of. Per-theme rather than one shared
+	   token, because matching them numerically does NOT match them to the
+	   eye: at these levels the old pair sat at dL* +4.79 (dark) and -5.20
+	   (light) — near-identical on paper — and read as "barely there" against
+	   near-black and "very present" against cream. Near black, L* moves
+	   steeply for a tiny absolute luminance change, and this line sits on
+	   blurred glass over a moving backdrop, so dark needs roughly twice the
+	   nominal step to land in the same place. Tinted from --color-text so
+	   each theme leans on its own ink. */
+	--thread-dim: color-mix(in srgb, var(--color-text) 5%, transparent);
+	--thread-lit: color-mix(in srgb, var(--color-text) 10%, transparent);
 	--color-text: #231c11;
 	--color-text-secondary: #564b38;
 	--color-text-muted: #857a66;
@@ -23,6 +37,17 @@
 	--color-primary-light: #5d9a55;
 	--color-primary-dim: #eaf2e4;
 	--color-primary-text: #35562e;
+
+	/* Search hits on the Thread rail. The hue is the playground terminal's own
+	   ANSI cyan (SGR 36, #56b6c2 — see shell-commands.ts): the only cool colour
+	   in an otherwise entirely warm palette, so a hit reads as its own channel
+	   rather than competing with green (where you are), brown (sections) or
+	   caramel (playgrounds).
+	   Light mode cannot use #56b6c2 directly — it lands at 2.2:1 on the cream
+	   #f8f5ef, which is invisible for a 7px dot. This is the SAME hue (187°)
+	   darkened to L 30% with saturation raised to 70% so the hue survives the
+	   darkening: 4.9:1 on the page background. */
+	--color-search-hit: #177582;
 
 	--color-branch-main: #15803d;
 	--color-branch-feature: #b45309;
@@ -56,6 +81,62 @@
 	--color-playground-bg: #f6efe3;
 	--color-playground-border: #cfa86a;
 	--color-playground-header: #efe4cf;
+
+	/* Challenges — the earth-red sibling of the caramel playground family.
+	   Brick / russet / burnt umber: forest-native (iron-rich clay, autumn leaf
+	   litter, mushroom caps), so it sits beside the parchment-and-bark palette
+	   instead of intruding on it. A challenge is a reward, not an error, so it
+	   must never be mistaken for the danger family:
+
+	     token             OKLCH L / C / H
+	     challenge         0.385 / 0.121 /  28°   <- this
+	     --color-important 0.470 / 0.143 /  37°
+	     --color-diff-del  0.505 / 0.190 /  28°
+	     --color-caution   0.577 / 0.215 /  27°
+
+	   It shares their hue — you cannot be earth-red without doing so — but is
+	   0.085–0.19 DARKER and, against the two true signal reds, carries only
+	   56–64% of their chroma (ΔE00 12.8 vs diff-del, 20.1 vs caution). Signal
+	   red is loud and light; fired clay is deep and muted.
+
+	   The tightest neighbour is --color-important #9a3412 at ΔE00 11.0 — still
+	   comfortably above the ~5 threshold where two colours start reading as one,
+	   and the two never share a surface: --color-important is a prose-callout
+	   accent, --color-challenge is a rail mark and a panel chrome. If they are
+	   ever put side by side, widen this gap rather than trusting it.
+
+	   Against its actual neighbour on the Thread rail, caramel #cfa86a, the gap
+	   is ΔE00 49 — the two are never confusable at 5px. The rail separates them
+	   by shape and lane as well: caramel SQUARES above the thread, earth-red
+	   RHOMBOIDS below it. */
+	--color-challenge: #77211c;
+	--color-challenge-text: #651d16;
+	--color-challenge-bg: #fcefea;
+	--color-challenge-border: #dda797;
+	--color-challenge-header: #f8ded4;
+
+	/* The COMPLETED lift, used only by the Thread rail's solved marks. Not a
+	   sixth hue: each is its own family's own OKLCh hue held fixed, with
+	   lightness and chroma raised. Earned green 0.493/0.097 -> 0.594/0.151 at
+	   142°; challenge clay 0.385/0.121 -> 0.490/0.200 at 28°.
+
+	   These are the two colours a reader compares to decide "did I finish this
+	   one", so they are also the pair that has to survive colour blindness.
+
+	   Simulated deuteranopia, ΔE00:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   14.0
+	                  solved green vs visited caramel         16.0
+	     CROSS LANE   bright-green vs bright-red              12.0
+	                  solved red vs visited caramel           27.5
+	                  solved green vs unsolved clay           21.4
+	   The within-lane pair is listed because it is now load-bearing: a solved
+	   mark keeps its square/rhomboid silhouette rather than swapping to a star,
+	   so hue is the only thing separating solved from attempted inside a lane.
+	   Light clears the 11.4 floor there without retuning; dark did not, and the
+	   note beside the dark values records what that cost. Contrast on
+	   --color-bg is 3.50 and 6.39. Re-run the numbers before retuning either. */
+	--color-earned-bright: #419439;
+	--color-challenge-bright: #b7000e;
 
 	--color-diff-add: #166534;
 	--color-diff-add-bg: rgba(22, 101, 52, 0.08);
@@ -107,6 +188,8 @@
 		--color-surface-hover: #19120a;
 		--color-border: #291e11;
 		--color-border-light: #1d150c;
+		--thread-dim: color-mix(in srgb, var(--color-text) 9%, transparent);
+		--thread-lit: color-mix(in srgb, var(--color-text) 15%, transparent);
 		--color-text: #ece5d8;
 		--color-text-secondary: #b3a68f;
 		--color-text-muted: #6f6250;
@@ -116,6 +199,10 @@
 		--color-primary-light: #97cba1;
 		--color-primary-dim: #17251a;
 		--color-primary-text: #a8d3ae;
+
+		/* Dark mode takes the terminal cyan unaltered — it is already a light
+		   tint and sits at 8.5:1 on #0d0906. */
+		--color-search-hit: #56b6c2;
 
 		--color-note: #dfc09a;
 		--color-note-bg: #241a0e;
@@ -142,6 +229,62 @@
 		--color-playground-bg: #1a1409;
 		--color-playground-border: #55401f;
 		--color-playground-header: #120e07;
+
+		/* Challenges, lifted for the dark ground: the same clay at OKLCH
+		   0.660 / 0.128 / 32°, 6.05:1 on #0d0906.
+
+		   Dark mode's deletion red is a PINK (#f38ba8, H 3°) and its warning
+		   tint an AMBER (#fdba74, H 66°) — the terracotta lands ~32° from each,
+		   midway between, so it is read as neither. Against the raw #dc2626
+		   that still leaks in through --color-branch-hotfix (declared only in
+		   :root), the gap is +0.083 L and −0.087 C.
+
+		   Held DELIBERATELY darker than the light-mode analogue would suggest:
+		   dark mode's playground mark is --color-btn-agent #cbac45 at L 0.753,
+		   and under deuteranopia both collapse toward khaki. The 0.093 lightness
+		   drop is what keeps them apart there (ΔE00 11.4 simulated, vs 10.2 at
+		   L 0.686). Hue alone does NOT carry this pair in dark mode — the rail's
+		   square-above / rhomboid-below split is load-bearing, not decorative. */
+		--color-challenge: #d5725f;
+		--color-challenge-text: #eea694;
+		--color-challenge-bg: #25110d;
+		--color-challenge-border: #643229;
+		--color-challenge-header: #160a08;
+
+		/* The COMPLETED lift for dark. Same rule as light — each family's own hue
+	   held fixed, L and C raised — but the red goes VIVID rather than pale, and
+	   that is forced rather than chosen. --color-btn-agent #cbac45 (the
+	   unsolved playground mark) sits at L 0.753, and under deuteranopia gold
+	   and orange-red both collapse to the same khaki, so a solved challenge
+	   pushed UP in lightness lands on top of it: at L 0.720 the pair is ΔE00
+	   8.5 simulated, below the 11.4 floor recorded above. Holding L near 0.62
+	   instead reads as a strong red on the near-black ground while keeping that
+	   gap open.
+
+	   THE RED CARRIES ITS OWN LANE NOW. It used to be #e9452a (L 0.625 /
+	   C 0.205 / H 28), and at that chroma the WITHIN-LANE step — solved red
+	   against unsolved clay #d5725f — was only ΔE00 9.2 simulated, under the
+	   11.4 floor. That was survivable while the rail swapped a solved mark to a
+	   four-point star, because the shape change carried the step instead of the
+	   hue. The rail no longer does that: "do not use a circle, just the same
+	   kind of square and rhomboid, but with the field bright pattern in colour",
+	   so a solved challenge stays a rhomboid and hue is the ONLY channel left
+	   within the lane. The hue is held at the family's 28° and the chroma is
+	   pushed 0.205 -> 0.254, which is what buys the gap back.
+
+	   Simulated deuteranopia, ΔE00, all measured against this value:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   12.2  (was 9.2)
+	                  solved green vs visited gold            12.7
+	     CROSS LANE   bright-green vs bright-red              24.4
+	                  solved red vs visited gold              12.1
+	                  solved green vs unsolved clay           19.1
+	                  visited gold vs unsolved clay           11.7
+	   Every pair now clears 11.4 on hue alone, so shape and lane are redundancy
+	   rather than the load path. Contrast on --color-bg is 15.29 and 4.83.
+	   Re-run the numbers before retuning either — and note that raising L to
+	   reclaim contrast walks straight back into the gold collision above. */
+		--color-earned-bright: #69fe92;
+		--color-challenge-bright: #fb0011;
 
 		--color-diff-add: #7ee787;
 		--color-diff-add-bg: rgba(126, 231, 135, 0.1);
@@ -174,6 +317,8 @@
 	--color-surface-hover: #f4efe6;
 	--color-border: #e3dbc9;
 	--color-border-light: #ece6d8;
+	--thread-dim: color-mix(in srgb, var(--color-text) 5%, transparent);
+	--thread-lit: color-mix(in srgb, var(--color-text) 10%, transparent);
 	--color-text: #231c11;
 	--color-text-secondary: #564b38;
 	--color-text-muted: #857a66;
@@ -182,6 +327,7 @@
 	--color-primary-light: #5d9a55;
 	--color-primary-dim: #eaf2e4;
 	--color-primary-text: #35562e;
+	--color-search-hit: #177582;
 	--color-note-bg: #faf3ea;
 	--color-note-border: #e6d3b3;
 	--color-tip-bg: #edf3e6;
@@ -203,6 +349,34 @@
 	--color-playground-bg: #f6efe3;
 	--color-playground-border: #cfa86a;
 	--color-playground-header: #efe4cf;
+	--color-challenge: #77211c;
+	--color-challenge-text: #651d16;
+	--color-challenge-bg: #fcefea;
+	--color-challenge-border: #dda797;
+	--color-challenge-header: #f8ded4;
+
+	/* The COMPLETED lift, used only by the Thread rail's solved marks. Not a
+	   sixth hue: each is its own family's own OKLCh hue held fixed, with
+	   lightness and chroma raised. Earned green 0.493/0.097 -> 0.594/0.151 at
+	   142°; challenge clay 0.385/0.121 -> 0.490/0.200 at 28°.
+
+	   These are the two colours a reader compares to decide "did I finish this
+	   one", so they are also the pair that has to survive colour blindness.
+
+	   Simulated deuteranopia, ΔE00:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   14.0
+	                  solved green vs visited caramel         16.0
+	     CROSS LANE   bright-green vs bright-red              12.0
+	                  solved red vs visited caramel           27.5
+	                  solved green vs unsolved clay           21.4
+	   The within-lane pair is listed because it is now load-bearing: a solved
+	   mark keeps its square/rhomboid silhouette rather than swapping to a star,
+	   so hue is the only thing separating solved from attempted inside a lane.
+	   Light clears the 11.4 floor there without retuning; dark did not, and the
+	   note beside the dark values records what that cost. Contrast on
+	   --color-bg is 3.50 and 6.39. Re-run the numbers before retuning either. */
+	--color-earned-bright: #419439;
+	--color-challenge-bright: #b7000e;
 	--color-code-bg: #fdfbf6;
 	--color-code-text: #2a2315;
 	--color-vibe: #8b5e34;
@@ -230,6 +404,8 @@
 	--color-surface-hover: #19120a;
 	--color-border: #291e11;
 	--color-border-light: #1d150c;
+	--thread-dim: color-mix(in srgb, var(--color-text) 9%, transparent);
+	--thread-lit: color-mix(in srgb, var(--color-text) 15%, transparent);
 	--color-text: #ece5d8;
 	--color-text-secondary: #b3a68f;
 	--color-text-muted: #6f6250;
@@ -238,6 +414,7 @@
 	--color-primary-light: #97cba1;
 	--color-primary-dim: #17251a;
 	--color-primary-text: #a8d3ae;
+	--color-search-hit: #56b6c2;
 	--color-note: #dfc09a;
 	--color-note-bg: #241a0e;
 	--color-note-border: #55401f;
@@ -261,6 +438,46 @@
 	--color-playground-bg: #1a1409;
 	--color-playground-border: #55401f;
 	--color-playground-header: #120e07;
+	--color-challenge: #d5725f;
+	--color-challenge-text: #eea694;
+	--color-challenge-bg: #25110d;
+	--color-challenge-border: #643229;
+	--color-challenge-header: #160a08;
+
+	/* The COMPLETED lift for dark. Same rule as light — each family's own hue
+	   held fixed, L and C raised — but the red goes VIVID rather than pale, and
+	   that is forced rather than chosen. --color-btn-agent #cbac45 (the
+	   unsolved playground mark) sits at L 0.753, and under deuteranopia gold
+	   and orange-red both collapse to the same khaki, so a solved challenge
+	   pushed UP in lightness lands on top of it: at L 0.720 the pair is ΔE00
+	   8.5 simulated, below the 11.4 floor recorded above. Holding L near 0.62
+	   instead reads as a strong red on the near-black ground while keeping that
+	   gap open.
+
+	   THE RED CARRIES ITS OWN LANE NOW. It used to be #e9452a (L 0.625 /
+	   C 0.205 / H 28), and at that chroma the WITHIN-LANE step — solved red
+	   against unsolved clay #d5725f — was only ΔE00 9.2 simulated, under the
+	   11.4 floor. That was survivable while the rail swapped a solved mark to a
+	   four-point star, because the shape change carried the step instead of the
+	   hue. The rail no longer does that: "do not use a circle, just the same
+	   kind of square and rhomboid, but with the field bright pattern in colour",
+	   so a solved challenge stays a rhomboid and hue is the ONLY channel left
+	   within the lane. The hue is held at the family's 28° and the chroma is
+	   pushed 0.205 -> 0.254, which is what buys the gap back.
+
+	   Simulated deuteranopia, ΔE00, all measured against this value:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   12.2  (was 9.2)
+	                  solved green vs visited gold            12.7
+	     CROSS LANE   bright-green vs bright-red              24.4
+	                  solved red vs visited gold              12.1
+	                  solved green vs unsolved clay           19.1
+	                  visited gold vs unsolved clay           11.7
+	   Every pair now clears 11.4 on hue alone, so shape and lane are redundancy
+	   rather than the load path. Contrast on --color-bg is 15.29 and 4.83.
+	   Re-run the numbers before retuning either — and note that raising L to
+	   reclaim contrast walks straight back into the gold collision above. */
+	--color-earned-bright: #69fe92;
+	--color-challenge-bright: #fb0011;
 	--color-diff-add: #7ee787;
 	--color-diff-add-bg: rgba(126, 231, 135, 0.1);
 	--color-diff-del: #f38ba8;
@@ -333,7 +550,14 @@ strong {
 		   here later. */
 		margin-right: 0 !important;
 	}
-	.sidebar-drawer {
+	/* This was `.sidebar-drawer` — a class no component has rendered since the
+	   first draft, so the rule had been dead for a long time. The BEHAVIOUR it
+	   encoded is not dead: below 1024px the open sidebar overlays the article
+	   instead of pushing it (see the margin-left above), and the panel's normal
+	   fabric is a 55% wash of --color-bg, so body text showed through the
+	   contents list. Opaque while it is an overlay, translucent when it is an
+	   edge — hence `.is-open`, which is the only state that overlays. */
+	.sidebar-panel.is-open {
 		background: var(--color-bg) !important;
 	}
 }
@@ -450,7 +674,14 @@ kbd {
 
 /* Auto-hiding scrollbars for panel scroll areas (sidebar TOC, cheat sheet,
    playground terminal): invisible at rest, a slim theme-tinted thumb while
-   hovering or scrolling. Applied via the autohideScroll action. */
+   hovering or scrolling. Applied via the autohideScroll action.
+
+   The visible thumb sits just above the threshold of perception: 12% lands
+   around 1.09:1 against the panel in dark and 1.14:1 in light, so it reads
+   as a faint change in the edge rather than a bar drawn on top of the
+   content. Pointing straight at it raises it to 30% (~1.3:1), which is
+   still under where the resting state used to be — reaching for the bar
+   firms it up without it ever becoming an object in its own right. */
 .autohide-scrollbar {
 	scrollbar-width: thin;
 	scrollbar-color: transparent transparent;
@@ -459,7 +690,7 @@ kbd {
 
 .autohide-scrollbar:hover,
 .autohide-scrollbar.is-scrolling {
-	scrollbar-color: color-mix(in srgb, var(--color-text-muted) 45%, transparent) transparent;
+	scrollbar-color: color-mix(in srgb, var(--color-text-muted) 12%, transparent) transparent;
 }
 
 .autohide-scrollbar::-webkit-scrollbar {
@@ -474,11 +705,11 @@ kbd {
 
 .autohide-scrollbar:hover::-webkit-scrollbar-thumb,
 .autohide-scrollbar.is-scrolling::-webkit-scrollbar-thumb {
-	background: color-mix(in srgb, var(--color-text-muted) 45%, transparent);
+	background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
 }
 
 .autohide-scrollbar::-webkit-scrollbar-thumb:hover {
-	background: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
+	background: color-mix(in srgb, var(--color-text-muted) 30%, transparent);
 }
 
 /* Mermaid overrides for professional look */

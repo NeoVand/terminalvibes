@@ -16,6 +16,7 @@
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
@@ -589,5 +590,7 @@ ls src/*.js               # Globs work inside a path too — but only one folder
 				]}
 			/>
 		</div>
+
+		<ChallengeActivity title="Clean Up After the Agent" part={3} id="ch-3-after-the-agent" />
 	</div>
 </section>

@@ -27,6 +27,7 @@
 	import VibeBox from '../ui/VibeBox.svelte';
 	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
+	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
 	import StarshipDesigner from '../starship/StarshipDesigner.svelte';
 </script>
 
@@ -655,5 +656,7 @@ sudo !!
 				]}
 			/>
 		</div>
+
+		<ChallengeActivity title="Hand Over the Cockpit" part={12} id="ch-12-handover" />
 	</div>
 </section>
