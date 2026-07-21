@@ -9,7 +9,6 @@
 		clamp,
 		challengeMark,
 		clamp01,
-		laneMark,
 		layoutMarks,
 		longLabel,
 		makeLayout,
@@ -85,7 +84,6 @@
 	let headNodes: HTMLElement[] = [];
 	let pgNodes: HTMLElement[] = [];
 	let stemNodes: HTMLElement[] = [];
-	let starNodes: SVGElement[] = [];
 	let hitNodes: HTMLElement[] = [];
 
 	/* ---- dwell heat --------------------------------------------------------
@@ -132,7 +130,6 @@
 	   read from `f`. See `resolveChallenges` for the placement rule. */
 	let chNodes: HTMLElement[] = [];
 	let chStems: HTMLElement[] = [];
-	let chStars: SVGElement[] = [];
 	/** document position per challenge, parallel to `chList` */
 	let chUs: number[] = [];
 	/** screen x per challenge, written by paint(), read by the hit test */
@@ -566,12 +563,6 @@
 			// so it stops ON the vertex rather than inside the diamond's corner.
 			chStems[i].style.height = c.stemH + 'px';
 			chStems[i].style.marginBottom = c.top - c.vertex + 'px';
-			// Sized from the SQUARE's edge, not the diamond's, so a solved star
-			// is exactly the same star in both lanes.
-			const ss = laneMark(k, live()).size * 1.85;
-			chStars[i].style.width = ss + 'px';
-			chStars[i].style.height = ss + 'px';
-			chStars[i].style.margin = `${-ss / 2}px 0 0 ${-ss / 2}px`;
 		}
 
 		for (let i = 0; i < marks.pgs.length; i++) {
@@ -582,10 +573,6 @@
 			n.style.height = g.size + 'px';
 			n.style.top = g.top + 'px';
 			stemNodes[i].style.height = g.stemH + 'px';
-			const ss = g.size * 1.85;
-			starNodes[i].style.width = ss + 'px';
-			starNodes[i].style.height = ss + 'px';
-			starNodes[i].style.margin = `${-ss / 2}px 0 0 ${-ss / 2}px`;
 		}
 
 		// Search hits ride the same mapping as everything else, so a point stays
@@ -615,10 +602,10 @@
 	}
 
 	function rebuildLut() {
-		// `chromaGamma` is the ONE concavity applied on the heat->colour axis, and
-		// it is what makes the first minutes of a read visible on a 12px bar. The
-		// time->heat axis is deliberately linear; see the header of dwell.ts for
-		// why the two specs' concavities cannot both be applied there.
+		// `chromaGamma` ships at 1: the heat->colour axis is deliberately linear
+		// now, and the concavity that makes the first seconds of a read visible
+		// lives on the time->heat axis instead, as `DWELL.heatGamma`. See the
+		// header of dwell.ts for why it moved.
 		heatLut = buildHeatLut(isDarkTheme() ? 'dark' : 'light', DWELL.chromaGamma);
 	}
 
@@ -1031,6 +1018,29 @@
 	}
 
 	function jump(id: string) {
+		/* Dismiss FIRST, and hand the lens back to rest.
+
+		   `jump` used to do nothing but call `onNavigate`. The card stayed open,
+		   `mode` stayed 'pointer' with the lens pinned wherever the cursor had
+		   been, and neither followed the page to the section just navigated to —
+		   so after a click the preview hung there, stuck, until some later
+		   pointerleave or blur happened to fire. That is the reported "it gets
+		   stuck until I click outside".
+
+		   Blurring is not enough on its own: `onBlur` early-returns while
+		   `hovering` is true, and after a click the pointer is of course still
+		   over the rail. So the dismissal has to be explicit here.
+
+		   Returning to 'rest' does more than tidy up. The resting lens tracks
+		   `position`, which the page's scroll-spy is ALREADY updating as the jump
+		   scrolls — so the lens glides to the section the reader just chose
+		   instead of staying where their hand happened to be. The rail follows
+		   the click, which is what "the timeline switches to that part" means. */
+		open = false;
+		applyCursor(null, false);
+		mode = 'rest';
+		startTween(TUNE.leaveMs);
+
 		const ci = chIndex(id);
 		// The rail's cursor id for a challenge is the synthetic `ch:<n>`, which
 		// is not an anchor. `chJump` holds the real destination — the card's own
@@ -1240,12 +1250,12 @@
 	   reconciliation over 100+ nodes at pointer-move rate would reintroduce it
 	   wholesale. */
 
-	const SVG_NS = 'http://www.w3.org/2000/svg';
-
 	/** `searchEntries` returns at most 8, and hits are deduped by anchor. */
 	const HIT_MAX = 8;
 
-	/** Four-point sparkle path, centred on 0,0 with radius r. */
+	/** Four-point sparkle path, centred on 0,0 with radius r. Only the hover
+	 *  card's "Solved"/"Completed" chip draws one now — the rail's own marks
+	 *  keep their silhouette when they are finished. See `.tt-pg.is-done`. */
 	function sparkPath(r: number): string {
 		const w = r * 0.34;
 		return (
@@ -1254,29 +1264,6 @@
 			` C ${-w} ${w}, ${-w} ${w}, ${-r} 0` +
 			` C ${-w} ${-w}, ${-w} ${-w}, 0 ${-r} Z`
 		);
-	}
-
-	/** The completed-mark: a four-point star, over a pad that cuts it out of
-	 *  whatever it sits on. Shared by playgrounds and challenges — only the
-	 *  colour differs, and that comes from the lane's own class. */
-	function buildStar(): SVGElement {
-		const svg = document.createElementNS(SVG_NS, 'svg');
-		svg.setAttribute('class', 'star');
-		svg.setAttribute('viewBox', '-10 -10 20 20');
-		svg.setAttribute('aria-hidden', 'true');
-		for (const [cls, tag, attr] of [
-			['pad', 'circle', 'r:6.2'],
-			['bloom', 'path', 'd:' + sparkPath(8.5)],
-			['ring', 'circle', 'r:5.4'],
-			['spark', 'path', 'd:' + sparkPath(4.4)]
-		] as [string, string, string][]) {
-			const node = document.createElementNS(SVG_NS, tag);
-			node.setAttribute('class', cls);
-			const i = attr.indexOf(':');
-			node.setAttribute(attr.slice(0, i), attr.slice(i + 1));
-			svg.appendChild(node);
-		}
-		return svg;
 	}
 
 	function el(tag: string, cls: string, parent: Element): HTMLElement {
@@ -1291,10 +1278,8 @@
 		headNodes = [];
 		pgNodes = [];
 		stemNodes = [];
-		starNodes = [];
 		chNodes = [];
 		chStems = [];
-		chStars = [];
 
 		glowNode = el('div', 'tt-glow', host);
 
@@ -1346,14 +1331,11 @@
 			else if (readIds.has(f.item.id)) n.classList.add('is-read');
 			el('div', 'gem', n);
 			const stem = el('div', 'stem', n);
-			const svg = buildStar();
-			n.appendChild(svg);
 
 			// eslint-disable-next-line svelte/no-dom-manipulating -- dedicated mount node
 			host.appendChild(n);
 			pgNodes.push(n);
 			stemNodes.push(stem);
-			starNodes.push(svg);
 		}
 
 		/* The challenge lane. Same construction as the playgrounds, one lane
@@ -1378,14 +1360,11 @@
 			else if (chTried[i]) n.classList.add('is-tried');
 			el('div', 'gem', n);
 			const stem = el('div', 'stem', n);
-			const svg = buildStar();
-			n.appendChild(svg);
 
 			// eslint-disable-next-line svelte/no-dom-manipulating -- dedicated mount node
 			host.appendChild(n);
 			chNodes.push(n);
 			chStems.push(stem);
-			chStars.push(svg);
 		}
 
 		// Search-hit points. Built once, like everything else here, and only ever
@@ -2114,15 +2093,59 @@
 		inset: 0;
 		border-radius: 1.5px;
 	}
-	/* Squares. The former 45° rotation is gone — that is the shape swap. */
+	/* Squares. Axis-aligned, so an ordinary 1px border rasterises exactly: at
+	   DPR 1 it measures 1.00 device px of ink at peak coverage 0.999. Nothing
+	   to correct, so nothing is done to it. */
 	.thread-wrap :global(.tt-pg .gem) {
 		border: 1px solid var(--pg-line);
 		background: var(--pg-fill);
 	}
-	/* Rhomboids. */
+
+	/* Rhomboids, and the reason they are NOT drawn with `border`.
+	   "the border of the rhomboids for challenges is thicker than the border of
+	   the squares" — they were both literally `border: 1px`, and the rhomboid
+	   still read heavier, because a square rotated 45° meets the pixel grid
+	   diagonally. Its stroke cannot land on a pixel row, so the rasteriser
+	   spreads it across two, and a band of half-lit pixels twice as wide reads
+	   as a fatter pen even though the total ink is identical.
+
+	   Measured (8 sub-pixel phases, coverage profile along the edge normal,
+	   equivalent width = ink / peak):
+
+	     DPR 1, 9.5px square vs 7.6px rhomboid, both 1px
+	       square    ink 1.000  peak 0.999  equivWidth 1.001
+	       rhomboid  ink 0.893  peak 0.686  equivWidth 1.301   <- 1.30x
+	     DPR 2, same pair, both 1px
+	       square    ink 1.000  peak 1.000  equivWidth 1.000
+	       rhomboid  ink 0.952  peak 0.940  equivWidth 1.013   <- already level
+
+	   So the defect is a DPR 1 artefact and DPR 2 needs no correction at all —
+	   which is why the fix is behind a resolution query rather than applied flat.
+
+	   `border-width` cannot express the correction: Chrome quantises it to whole
+	   CSS pixels. Measured on a 40px box, border-width 0.25 / 0.5 / 0.75 / 1 /
+	   1.5px ALL render exactly 156 css-px^2 of ink (= 4 x 39 x 1), and only 2px
+	   moves, to 304. That holds at DPR 2 as well. `outline` is quantised too
+	   (164 at every width). An inset box-shadow is the one stroke that is
+	   genuinely sub-pixel — its ink scales with the spread at both DPRs — so the
+	   rhomboid's outline is drawn with one.
+
+	   0.75px is where the diagonal band bottoms out: it takes equivWidth from
+	   1.301 to 1.165, and no thinner value goes lower (0.70 -> 1.169, 0.60 ->
+	   1.178, 0.45 -> 1.278, as ink collapses faster than extent). The residual
+	   1.165 vs 1.001 is the irreducible cost of a diagonal on a 1x grid. */
+	.thread-wrap {
+		--ch-stroke: 0.75px;
+	}
+	@media (min-resolution: 2dppx) {
+		.thread-wrap {
+			--ch-stroke: 1px;
+		}
+	}
 	.thread-wrap :global(.tt-ch .gem) {
 		transform: rotate(45deg);
-		border: 1px solid var(--ch-line);
+		border: 0;
+		box-shadow: inset 0 0 0 var(--ch-stroke) var(--ch-line);
 		background: var(--ch-fill);
 	}
 
@@ -2135,8 +2158,9 @@
 	   Three states now, and they step monotonically in weight:
 	     not attempted -> hairline outline, barely-there fill
 	     visited       -> solid, on-colour
-	     solved        -> a star, which is a different SHAPE and so is legible
-	                      at 5px and under every CVD type
+	     solved        -> solid, in the family's BRIGHT lift
+	   The silhouette is constant across all three: the step from visited to
+	   solved is carried by hue and lightness, not by swapping the shape out.
 	   The hatch is gone from both: a 3px stripe inside a 5px square is noise,
 	   and it was a second moiré source for no information. */
 	.thread-wrap {
@@ -2163,97 +2187,65 @@
 	   identically however much work the reader had put in. */
 	.thread-wrap :global(.tt-ch.is-tried .gem) {
 		background: var(--tv-clay);
-		border-color: var(--tv-clay);
+		box-shadow: inset 0 0 0 var(--ch-stroke) var(--tv-clay);
 	}
-	.thread-wrap :global(.tt-pg.is-done .gem),
+
+	/* SOLVED KEEPS ITS SILHOUETTE.
+	   "For completed playground and completed challenge, do not use a circle.
+	   Just the same kind of square and rhomboid, but with the field bright
+	   pattern in color." This used to `display: none` the gem and swap in a
+	   four-point star, so finishing something changed WHAT SHAPE IT WAS. A
+	   solved playground is now still a square and a solved challenge still a
+	   rhomboid; the whole signal is the bright fill in the lane's own family.
+
+	   That swap was not idle decoration — the note in layout.css recorded that
+	   in dark mode, under deuteranopia, solved red against unsolved clay is only
+	   ΔE00 9.2, below the rail's 11.4 floor, and said the gap was "carried by
+	   the star/rhomboid shape change, not by hue". Deleting the star therefore
+	   had to be paid for in colour, and it was: --color-challenge-bright moves
+	   in dark mode so the pair clears the floor on hue alone. See layout.css. */
+	.thread-wrap :global(.tt-pg.is-done .gem) {
+		background: var(--tv-earned-bright);
+		border-color: var(--tv-earned-bright);
+	}
 	.thread-wrap :global(.tt-ch.is-done .gem) {
-		display: none;
+		background: var(--tv-clay-bright);
+		box-shadow: inset 0 0 0 var(--ch-stroke) var(--tv-clay-bright);
 	}
 
-	.thread-wrap :global(.tt-pg .star),
-	.thread-wrap :global(.tt-ch .star) {
-		position: absolute;
-		left: 50%;
-		top: 50%;
-		display: none;
-		overflow: visible;
-	}
-	.thread-wrap :global(.tt-pg.is-done .star),
-	.thread-wrap :global(.tt-ch.is-done .star) {
-		display: block;
-	}
-	/* The pad cuts the star out of whatever is behind it, so it stays a star
-	   rather than merging with the thread. */
-	.thread-wrap :global(.tt-pg .star .pad),
-	.thread-wrap :global(.tt-ch .star .pad) {
-		fill: var(--tv-surface);
-		stroke-width: 0.75;
-	}
-	.thread-wrap :global(.tt-pg .star .ring),
-	.thread-wrap :global(.tt-ch .star .ring) {
-		stroke-width: 1;
-	}
-	.thread-wrap :global(.tt-pg .star .bloom),
-	.thread-wrap :global(.tt-ch .star .bloom) {
-		opacity: 0.4;
-		filter: blur(2.6px);
-	}
-	/* THE STAR SURVIVES, and it is now BRIGHT.
+	/* THE CURSOR RECOLOURS THE MARK'S OWN OUTLINE. It does not add a ring.
 
-	   The owner asked for solved marks to be "nice bright green" and "nice
-	   bright red", which leaves open whether the star stays or becomes a plain
-	   brighter square/rhomboid. It stays, for one reason: the star is the only
-	   WITHIN-LANE signal that a mark is finished. Between lanes the split is
-	   square-above / rhomboid-below and that is untouched; within a lane, the
-	   step from unsolved to solved would otherwise be colour alone — and in
-	   dark mode the solved red against the unsolved clay is only ΔE00 9.2
-	   under simulated deuteranopia, which is exactly the case a shape change
-	   has to cover. So: same star, new colours.
+	   "When they are hovered, they get a second border, and I think this happens
+	   to the squares as well. Instead, their border color should change instead
+	   of getting an extra border." The old rule was
+	       box-shadow: 0 0 0 2px var(--tv-green)
+	   which paints a 2px ring OUTSIDE the 1px border that is already there — two
+	   concentric outlines on a mark that is 4px across at rest, which is most of
+	   the mark's own width spent on chrome.
 
-	   The colours themselves stop being a dimmer or equal sibling of the lane
-	   they sit in. A solved playground was `--color-tip`, one step off the
-	   playhead green; a solved challenge was the SAME clay as an unsolved one,
-	   separated only by silhouette. Both now take their family's bright lift,
-	   and the ring gains a solid fill rather than a 20% wash so the star reads
-	   as a filled mark at 5px instead of an outline. */
-	.thread-wrap :global(.tt-pg .star .pad) {
-		stroke: color-mix(in srgb, var(--tv-earned-bright) 35%, transparent);
-	}
-	.thread-wrap :global(.tt-pg .star .ring) {
-		fill: color-mix(in srgb, var(--tv-earned-bright) 45%, transparent);
-		stroke: var(--tv-earned-bright);
-	}
-	.thread-wrap :global(.tt-pg .star .spark),
-	.thread-wrap :global(.tt-pg .star .bloom) {
-		fill: var(--tv-earned-bright);
-	}
-	.thread-wrap :global(.tt-ch .star .pad) {
-		stroke: color-mix(in srgb, var(--tv-clay-bright) 35%, transparent);
-	}
-	.thread-wrap :global(.tt-ch .star .ring) {
-		fill: color-mix(in srgb, var(--tv-clay-bright) 45%, transparent);
-		stroke: var(--tv-clay-bright);
-	}
-	.thread-wrap :global(.tt-ch .star .spark),
-	.thread-wrap :global(.tt-ch .star .bloom) {
-		fill: var(--tv-clay-bright);
-	}
-	/* The bloom is what makes "bright" read as brightness rather than as a
-	   lighter tint: a blurred copy of the spark under the mark, so a solved
-	   star glows out onto the rail instead of sitting flat on it. */
-	.thread-wrap :global(.tt-pg.is-done .star .bloom),
-	.thread-wrap :global(.tt-ch.is-done .star .bloom) {
-		opacity: 0.55;
-	}
+	   Now each lane recolours the stroke it already has: the square its border,
+	   the rhomboid its inset shadow. Same geometry before and after, so the mark
+	   does not grow or shift on hover — only its outline changes colour.
 
-	.thread-wrap :global(.tt-pg.is-cursor .gem),
+	   Colour alone is enough here, and it is worth saying why rather than
+	   reaching for a weight change as well. The weakest case is a SOLVED
+	   playground, whose fill is already a bright green: the cursor green landing
+	   on it is the smallest contrast this rule ever has to carry, and it is
+	   ΔE00 18.8 in dark and 14.1 in light (17.8 / 13.2 under deuteranopia) —
+	   comfortably clear of the ~5 where two colours start reading as one. Every
+	   other state is further away than that. Thickening the stroke as well would
+	   re-introduce exactly the growth the owner objected to, for a distinction
+	   that is already unambiguous.
+
+	   `brightness(1.1)` on the whole mark STAYS. It is not doing the cursor's
+	   work — the recoloured stroke is — but it lifts the fill too, which keeps
+	   the cursor legible on the one mark whose outline is the least of it: a
+	   solved mark, which is mostly fill. It costs no layout and no second edge. */
+	.thread-wrap :global(.tt-pg.is-cursor .gem) {
+		border-color: var(--tv-green);
+	}
 	.thread-wrap :global(.tt-ch.is-cursor .gem) {
-		box-shadow: 0 0 0 2px var(--tv-green);
-	}
-	.thread-wrap :global(.tt-pg.is-cursor .star .ring),
-	.thread-wrap :global(.tt-ch.is-cursor .star .ring) {
-		stroke: var(--tv-green);
-		stroke-width: 1.6;
+		box-shadow: inset 0 0 0 var(--ch-stroke) var(--tv-green);
 	}
 	.thread-wrap :global(.tt-pg.is-cursor),
 	.thread-wrap :global(.tt-ch.is-cursor) {
@@ -2380,7 +2372,11 @@
 	/* ---- hover / focus card ---- */
 	.tt-card {
 		position: absolute;
-		top: 78px;
+		/* 58, not 78. The header is 48px tall, so 78 left a 30px void between the
+		   rail and the thing the rail was pointing at — the card read as floating
+		   near the header rather than hanging off the mark under the cursor. 10px
+		   is enough for the arrow and the shadow to breathe. */
+		top: 58px;
 		z-index: 60;
 		width: 236px;
 		background: var(--tv-surface);

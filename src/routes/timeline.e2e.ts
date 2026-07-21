@@ -122,6 +122,30 @@ test.describe('Thread rail', () => {
 		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
 	});
 
+	test('a click dismisses the card and takes the lens with it', async ({ page }) => {
+		await page.goto('/');
+		const rail = page.locator(RAIL);
+		await expect(rail).toBeVisible();
+		const rect = (await rail.boundingBox())!;
+
+		await page.mouse.move(rect.x + rect.width * 0.62, rect.y + 24);
+		await expect(page.locator('.tt-card.is-on')).toBeVisible();
+
+		// Click WITHOUT moving the pointer afterwards. `onBlur` early-returns while
+		// `hovering` is true, so if the click handler does not dismiss explicitly
+		// the card hangs there until some unrelated pointerleave fires — which is
+		// exactly the bug this pins: "it gets stuck until I click outside".
+		await page.mouse.down();
+		await page.mouse.up();
+
+		await expect(page.locator('.tt-card.is-on')).toHaveCount(0);
+
+		// …and the reading head follows the page to where the click sent it,
+		// rather than staying where the hand happened to be.
+		await expect(page).toHaveURL(/#(section|part)-/, { timeout: 5000 });
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+	});
+
 	test('is fully operable from the keyboard', async ({ page }) => {
 		await page.goto('/');
 		const rail = page.locator(RAIL);
@@ -245,7 +269,10 @@ test.describe('Thread rail', () => {
 	});
 
 	test('is hidden below tablet portrait', async ({ page }) => {
-		await page.setViewportSize({ width: 743, height: 1000 });
+		// 719, one pixel under RAIL_MEDIA_QUERY. The gate is 720 rather than 744
+		// deliberately: 744 is iPad mini portrait exactly, so gating there put the
+		// target device ON the boundary where a scrollbar tips it into mobile.
+		await page.setViewportSize({ width: 719, height: 1000 });
 		await page.goto('/');
 		await expect(page.locator(RAIL)).toHaveCount(0);
 	});

@@ -19,10 +19,27 @@
  * string; indexing a LUT is 16 array reads and a join.
  */
 
-/** Endpoints, seated inside the sRGB gamut at their own (L,H) so no stop clips. */
+/**
+ * Endpoints, seated inside the sRGB gamut at their own (L,H) so no stop clips.
+ *
+ * DELIBERATELY QUIETER than the first version, which ran to L 0.525 / C 0.128 on
+ * cream and L 0.815 / C 0.145 on dark. Two things changed at once and only
+ * together do they make sense.
+ *
+ * The heat curve is now strongly concave (`heatGamma` 0.26), which means the
+ * mid and upper ramp is where ordinary reading actually LIVES — before, most
+ * bars sat in the bottom fifth and the loud hot end was mostly theoretical. Ship
+ * the old endpoints under the new curve and the rail comes back saturated
+ * everywhere, which is the "too busy, less beautiful" complaint made worse.
+ *
+ * So the swing is cut by roughly a third on both axes in both themes. What is
+ * lost is resolution: two bars an hour of reading apart are now a smaller colour
+ * step than they were. That is the intended trade — the rail is a mood, not a
+ * gauge, and a reader who wants the number has the progress summary.
+ */
 const RAMP = {
-	light: { L: [0.9, 0.525], C: [0.008, 0.128], H: [76, 52] },
-	dark: { L: [0.29, 0.815], C: [0.01, 0.145], H: [58, 74] }
+	light: { L: [0.9, 0.66], C: [0.006, 0.072], H: [76, 52] },
+	dark: { L: [0.31, 0.66], C: [0.008, 0.085], H: [58, 74] }
 } as const;
 
 export type Theme = 'light' | 'dark';
@@ -51,9 +68,13 @@ function oklch(L: number, C: number, H: number): [number, number, number] {
 }
 
 /**
- * Build the LUT for a theme. `chromaGamma` below 1 front-loads the chroma rise,
- * which is what makes the first seconds of a read visible at all — see the note
- * on concavity in dwell.ts.
+ * Build the LUT for a theme. `chromaGamma` below 1 front-loads the chroma rise.
+ *
+ * It ships at 1 — linear — and the reason is worth keeping next to the code:
+ * front-loading here was compensating for a heat curve that was too straight at
+ * the bottom, and that has been fixed at the source. Turning both on stacks two
+ * concavities on the same visual result, which is the exact mistake dwell.ts's
+ * header spends a page warning about.
  */
 export function buildHeatLut(theme: Theme, chromaGamma = 1): string[] {
 	const r = RAMP[theme];

@@ -28,30 +28,46 @@
  *    dwell exactly where a learner lingers longest, which is the current bug
  *    wearing a new hat.
  *
- *  - CONCAVITY: ONE, and it is the SATURATION FRACTION (`saturateAt`, 0.70 of
- *    modelled time), not an exponent on the ratio.
+ *  - CONCAVITY: ONE PER AXIS, and the two axes now each hold theirs in the
+ *    obvious place. On time -> heat it is `heatGamma`. On heat -> colour it is
+ *    nothing at all: `chromaGamma` is 1 and the ramp is linear.
  *
- *    The two specs each proposed a concavity on the same axis: "saturate at 70%
- *    of modelled time" and `heat = (dwell/expected)^0.7`. Both lift the low end
- *    and compress the top, so applying both compounds them and everything
- *    saturates far too fast — a reader would hit full heat at roughly a third
- *    of the modelled time and the top half of the ramp would be unreachable.
+ *    This is a REVERSAL of the original choice, and the reversal is the fix.
  *
- *    The fraction wins for two reasons. It is the better-evidenced of the two:
- *    it comes out of a reading-speed argument with a number attached (200 wpm
- *    modelled, so saturating at 0.70 means "keep up with a 286 wpm skimmer"),
- *    whereas the exponent was chosen for how it looked. And it is the one a
- *    human can hold in their head while tuning — "you must spend 70% of the
- *    modelled time" is a sentence; "raise the ratio to the 0.7" is not.
+ *    The two competing specs both proposed a concavity on the time axis —
+ *    "saturate at 70% of modelled time" and `heat = (dwell/expected)^0.7` — and
+ *    the first was picked because it is the more sayable sentence. But they are
+ *    not interchangeable, and the difference is precisely the complaint this
+ *    file exists to answer. A saturation fraction is a CLIP POINT: it scales the
+ *    ratio uniformly and then flattens the top. It cannot change the SHAPE near
+ *    zero, and the shape near zero is the entire problem — "a skim leaves
+ *    nothing, and then it goes dark" is a description of a curve that is too
+ *    straight at the bottom and clipped at the top, which is exactly what a clip
+ *    point gives you.
  *
- *    The exponent's actual job — making the first seconds of a read visible on
- *    a 12px bar — is a DISPLAY-BUDGET problem, so it is solved in the display,
- *    by `chromaGamma` on the colour ramp. That is a different axis (heat ->
- *    colour, not time -> heat) and composing with it is legitimate.
+ *    So the roles swap. `saturateAt` goes to 1.0 — the deliberately-disabled
+ *    knob, meaning only "a full read is the modelled time, no more, no less" —
+ *    and `heatGamma` carries the concavity. See its note for the shipped table.
  *
- *    `heatGamma` below is left as an exposed knob, defaulting to 1 (linear). It
- *    is the second concavity, deliberately switched off. Turning it down is the
- *    first thing to try if the rail lights too slowly.
+ * ---------------------------------------------------------------------------
+ * THE DEAD ZONE HAD TWO HALVES, AND THE CURVE WAS THE SMALLER ONE
+ *
+ * Measured on the production build, fresh profile, 1440x900, wheel-scrolled at
+ * a real wall clock, reading back the tracker's own stored seconds:
+ *
+ *     skim @  700 px/s   276s of scrolling   57/57 bars touched, median 4.4s
+ *     skim @ 1500 px/s   158s of scrolling    5/57 bars touched, median 0.25s
+ *
+ * The second row is the owner's "just casually skimming through". Two and a half
+ * minutes of continuous scrolling deposited SIX SECONDS total and left 52 bars
+ * at literally zero — not a faint mark, no mark. That is not the curve being
+ * shy; that is `maxVelocityPxPerSec` being a cliff at 900 and rejecting the
+ * whole traverse. A cliff cannot be softened by tuning what is on the far side
+ * of it, which is why previous passes at the curve alone did not land.
+ *
+ * So the gate becomes a RAMP rather than a wall (`readingVelocityPxPerSec` ->
+ * `maxVelocityPxPerSec`), and the curve becomes concave. The first change
+ * removes the hard edge; the second makes the seconds that survive it visible.
  *
  * ---------------------------------------------------------------------------
  * ALL TUNING LIVES IN `DWELL`. Nothing else in this file holds a magic number.
@@ -87,39 +103,143 @@ export const DWELL = {
 	bucketsPerBar: 1,
 
 	/**
-	 * Fraction of modelled reading time at which a bucket reads as fully hot.
-	 * THE chosen concavity — see the header. 1.0 means nobody ever fills a bar;
-	 * 0.5 is reachable by pausing twice on the way down.
+	 * Fraction of modelled reading time that counts as a full read.
+	 *
+	 * 1.0: OFF. This is the disabled knob now — see the header for why the
+	 * concavity moved off it and onto `heatGamma`. It survives because it still
+	 * says something a tuner might want to change ("a full read is 85% of the
+	 * modelled time, because our model is slow") and because `free` is scaled by
+	 * it in lockstep with `target`, so a completed playground saturates exactly
+	 * whatever this is set to.
 	 */
-	saturateAt: 0.7,
+	saturateAt: 1,
 
 	/**
-	 * The SECOND concavity on the time->heat axis. 1 = linear; below 1 lifts the
-	 * low end. It DOES compound with `saturateAt` — the header argues at length
-	 * for spending only one of them, and 0.65 is that budget being deliberately
-	 * spent anyway, on instruction: the owner asked for colour that visibly moves
-	 * within a single sitting and said they would tune by feel afterwards.
+	 * THE concavity on the time->heat axis. 1 = linear; lower lifts the low end
+	 * and compresses the top.
 	 *
-	 * What it buys, on the median section (153.5s modelled, so 107.5s to full):
+	 * 0.26, and it is deliberately strong, because the requirement is "a skim
+	 * must leave a visible mark on the first pass" and a skim deposits SECONDS
+	 * against a bar modelled in MINUTES. On the median bar (258s modelled):
 	 *
-	 *     dwell    heat (gamma 1)    heat (gamma 0.65)
-	 *      10s          0.09              0.21
-	 *      37s          0.34              0.50
-	 *     107s          1.00              1.00
+	 *     dwell   what that is                heat   LUT lvl
+	 *      0.8s   a fling's landing tail      0.078   cold
+	 *      1.5s   one pause                   0.221    4
+	 *      4.4s   MEASURED: one 700px/s skim  0.347    6
+	 *       15s   a proper glance             0.477    8
+	 *       60s   reading a quarter of it     0.684   11
+	 *      180s   most of a real read         0.910   15
+	 *      258s   the full modelled read      1.000   16
 	 *
-	 * The top of the ramp is compressed, not unreachable — a full-attention read
-	 * of a section still lands at 1.0, which is the invariant that matters.
+	 * Read the right-hand column as the thing that matters: a skim is six of the
+	 * seventeen available levels, and a full read is seventeen. The gap is real
+	 * and legible, but the FIRST pass is already a third of the way up — there is
+	 * no stretch of the curve where effort buys nothing, which is the definition
+	 * of the dead zone that was being complained about.
+	 *
+	 * The cost, stated plainly: the top of the curve is compressed, so the last
+	 * two minutes of a read move the colour less than the first fifteen seconds
+	 * do. That is the trade the owner asked for — softer and more giving, at the
+	 * price of resolution at the hot end.
 	 */
-	heatGamma: 0.65,
+	heatGamma: 0.26,
 
-	/** Chroma front-loading in the colour ramp. Display budget, not measurement. */
-	chromaGamma: 0.75,
+	/**
+	 * Chroma shaping on the heat->colour axis. 1 = linear, i.e. OFF.
+	 *
+	 * It was 0.75, front-loading the chroma so that the first seconds of a read
+	 * were visible at all. That job now belongs to `heatGamma`, which does it on
+	 * the axis where it is actually a measurement question rather than a display
+	 * trick. Leaving both on would stack them again — heat 0.35 would paint like
+	 * heat 0.45 — and the rail would come back loud.
+	 */
+	chromaGamma: 1,
+
+	/**
+	 * Seconds over which a brand-new mark fades in from nothing.
+	 *
+	 * A strongly concave curve has a near-vertical start: at gamma 0.26 a tenth
+	 * of a second of dwell would otherwise paint at 0.13, so any stray sliver
+	 * anywhere would show. This is the noise gate that stops that, and it is NOT
+	 * a third concavity — it is a smoothstep confined to the first two seconds,
+	 * multiplying the curve rather than reshaping it, and it is 1.0 everywhere
+	 * above.
+	 *
+	 * It also does something unplanned and better than the thing it was added
+	 * for. Because it gates on a bar's OWN accumulated seconds, and a neighbour
+	 * receives only a fraction of each deposit, the bleed below reaches further
+	 * the longer you stay: a 4s skim bleeds nothing, a 40s read warms its two
+	 * immediate neighbours, a 120s read reaches two out on each side. The wash
+	 * widens with attention instead of being a fixed-width smear.
+	 */
+	markKneeSeconds: 2,
 
 	/** No bucket expects less than this, so a near-empty one cannot pop hot. */
 	minBucketSeconds: 3,
 
-	/** Above this scroll speed nothing accrues: that is travel, not reading. */
-	maxVelocityPxPerSec: 900,
+	/**
+	 * The velocity ramp. At or below `readingVelocityPxPerSec` a second of wall
+	 * clock deposits a full second; at or above `maxVelocityPxPerSec` it deposits
+	 * nothing; between them it falls off as `t ** velocityFalloff`.
+	 *
+	 * This used to be one number and a hard rejection at 900px/s, and that cliff
+	 * was the larger half of the dead zone — see the header for the measurement.
+	 * The reader gets no feedback about where the cliff is, so crossing it feels
+	 * like the feature intermittently not working, which is precisely how it was
+	 * described.
+	 *
+	 * The three numbers, and what each is anchored to:
+	 *
+	 *  - 650 px/s is a viewport (852px under the header) every 1.3 seconds. That
+	 *    is the pace of the measured skim that accrued cleanly under the old
+	 *    gate, so full credit at or below it changes nothing that already worked.
+	 *
+	 *  - 2200 px/s is a viewport every 0.39s. Nobody takes anything in at that
+	 *    rate, so it is the honest zero.
+	 *
+	 *  - the 1.5 exponent bends the ramp toward the slow end, so the credit lost
+	 *    in the first slice above reading pace is small. At 1000px/s — brisk, but
+	 *    a reader could still be tracking headings — credit is 0.68.
+	 *
+	 * THE FLING IS UNAFFECTED, and this is the invariant to check first if these
+	 * numbers move. A throw to the bottom of this document runs at tens of
+	 * thousands of px/s, an order of magnitude past the zero point, and the
+	 * trailing-window velocity stays there for a full `velocityWindowMs` after it
+	 * lands. Verified after the change: a 40-notch fling left 56 of 57 bars at
+	 * exactly zero seconds.
+	 */
+	readingVelocityPxPerSec: 650,
+	maxVelocityPxPerSec: 2200,
+	velocityFalloff: 1.5,
+
+	/**
+	 * Spatial softness: what fraction of a deposit lands on the SECTION either
+	 * side, relative to the section actually being read. `neighbourReach` is how
+	 * many sections out the kernel extends, each step multiplying by the bleed
+	 * again — so 0.1 and 2 give weights 0.01 : 0.1 : 1 : 0.1 : 0.01.
+	 *
+	 * This is what turns marks into a wash. It is a different mechanism from
+	 * `kernelFloor` below, and the two are easy to confuse: that one is
+	 * ATTRIBUTION (how a second is split among the bars physically on screen, and
+	 * it is a fact about eyes), this one is DEPOSIT (how a second, once
+	 * attributed, is allowed to smear into the neighbourhood, and it is a
+	 * deliberate softening of the truth).
+	 *
+	 * Normalised before use, so the total deposited is unchanged: bleeding is
+	 * redistribution, never creation. That is what keeps the fling cold — a
+	 * kernel over zero is still zero.
+	 *
+	 * 0.1 is low and the strong `heatGamma` is why. Gamma compresses ratios, so a
+	 * neighbour holding a tenth of the deposit paints at roughly half the heat of
+	 * the source, not a tenth. Measured on a 40s read of one section, in heat:
+	 *
+	 *     0.013   0.321   0.585   0.321   0.013
+	 *
+	 * which is a gradient across five sections off a single stationary read. A
+	 * larger bleed here does not make it softer, it makes it uniform.
+	 */
+	neighbourBleed: 0.1,
+	neighbourReach: 2,
 
 	/**
 	 * The window the velocity above is measured over, as NET DISPLACEMENT from
@@ -185,14 +305,32 @@ export const DWELL = {
 	kernelFloor: 0.45,
 	kernelRamp: 0.2,
 
-	/** Heat given to sections an existing reader had already visited. */
-	seedHeat: 0.5,
+	/**
+	 * Heat given to sections an existing reader had already visited.
+	 *
+	 * This is a HEAT, not a fraction of target, and the distinction started
+	 * mattering with `heatGamma`. It used to be read as "seed dwell to half the
+	 * target"; under a 0.26 gamma half the target paints at 0.83, so the same
+	 * line would have back-filled every previously-visited section to nearly
+	 * full. `seedFromBinaryProgress` inverts the curve instead, so this number is
+	 * the thing you can actually see.
+	 */
+	seedHeat: 0.45,
 
 	/** Trailing flush to localStorage. Also flushed on hide and pagehide. */
 	flushMs: 20_000,
 
-	/** Below this mean heat a bar is "never been here" and keeps the hatch. */
-	coldBelow: 0.04,
+	/**
+	 * Below this mean heat a bar is "never been here" and keeps the hatch.
+	 *
+	 * 0.08, up from 0.04, and the raise is a beauty decision rather than a
+	 * measurement one. Hatch-to-no-hatch is the single loudest step on the rail —
+	 * far louder than any two adjacent LUT levels — so it should be the step that
+	 * is hardest to trip. Under the shipped curve this asks for a little under a
+	 * second of genuine dwell before a bar stops being hatched, which the
+	 * velocity ramp already guarantees a fling cannot supply.
+	 */
+	coldBelow: 0.08,
 
 	/** Below this bar width a gradient is indistinguishable from its own mean. */
 	gradientMinPx: 8,
@@ -274,6 +412,8 @@ const CALIB = calibration.anchors as Record<string, number>;
 
 interface BarState {
 	id: string;
+	/** Document order. The axis `neighbourBleed` spreads along. */
+	i: number;
 	s: number;
 	e: number;
 	/** modelled seconds to saturate, per bucket */
@@ -320,8 +460,40 @@ function spread(out: Float64Array, barS: number, barE: number, s: number, e: num
 	}
 }
 
+/** Hermite ease, 0 at 0 and 1 at 1 with zero slope at both ends. */
+function smoothstep(x: number): number {
+	if (x <= 0) return 0;
+	if (x >= 1) return 1;
+	return x * x * (3 - 2 * x);
+}
+
+/**
+ * How much of a second of wall clock counts, at this scroll speed. See the note
+ * on `readingVelocityPxPerSec`.
+ */
+function velocityCredit(v: number): number {
+	const { readingVelocityPxPerSec: lo, maxVelocityPxPerSec: hi, velocityFalloff } = DWELL;
+	if (v <= lo) return 1;
+	if (v >= hi) return 0;
+	return Math.pow((hi - v) / (hi - lo), velocityFalloff);
+}
+
+/**
+ * The normalised bleed kernel, centred: `[b^r, ..., b, 1, b, ..., b^r] / sum`.
+ * Built once — it depends only on constants.
+ */
+const BLEED = (() => {
+	const r = Math.max(0, DWELL.neighbourReach);
+	const w: number[] = [];
+	for (let i = -r; i <= r; i++) w.push(Math.pow(DWELL.neighbourBleed, Math.abs(i)));
+	const sum = w.reduce((a, x) => a + x, 0);
+	return w.map((x) => x / sum);
+})();
+
 export function createDwellTracker(): DwellTracker {
 	const bars = new Map<string, BarState>();
+	/** The same states in document order, so the bleed has an axis to walk. */
+	let order: BarState[] = [];
 	const listeners = new Set<(dirty: string[]) => void>();
 	const stored = loadStored();
 	let seeded = stored.seeded;
@@ -372,12 +544,14 @@ export function createDwellTracker(): DwellTracker {
 		}
 
 		const seen = new Set<string>();
+		order = [];
 		for (const b of m.bars) {
 			seen.add(b.item.id);
 			let st = bars.get(b.item.id);
 			if (!st) {
 				st = {
 					id: b.item.id,
+					i: 0,
 					s: b.s,
 					e: b.e,
 					target: new Float64Array(N),
@@ -387,6 +561,11 @@ export function createDwellTracker(): DwellTracker {
 				};
 				bars.set(b.item.id, st);
 			}
+			// Rebuilt every time rather than assigned once: a re-measure can add or
+			// drop bars, and a stale index would bleed a deposit into whatever now
+			// sits at that position.
+			st.i = order.length;
+			order.push(st);
 			st.s = b.s;
 			st.e = b.e;
 			st.target.fill(0);
@@ -439,10 +618,12 @@ export function createDwellTracker(): DwellTracker {
 		// written by then — which is the failure described on `seedSource`.
 		seeded = true;
 		dirtyStore = true;
+		// Invert the heat curve, so `seedHeat` means the heat it says it means.
+		const ratio = Math.pow(DWELL.seedHeat, 1 / DWELL.heatGamma);
 		for (const [id, st] of bars) {
 			if (!seedSource[id]) continue;
 			for (let k = 0; k < st.dwell.length; k++) {
-				st.dwell[k] = Math.max(st.dwell[k], st.target[k] * DWELL.seedHeat);
+				st.dwell[k] = Math.max(st.dwell[k], st.target[k] * ratio);
 			}
 		}
 		seeded = true;
@@ -462,8 +643,13 @@ export function createDwellTracker(): DwellTracker {
 			heatBuf.set(id, out);
 		}
 		for (let k = 0; k < out.length; k++) {
-			const r = Math.min(1, (st.dwell[k] + st.free[k]) / st.target[k]);
-			out[k] = DWELL.heatGamma === 1 ? r : Math.pow(r, DWELL.heatGamma);
+			const secs = st.dwell[k] + st.free[k];
+			const r = Math.min(1, secs / st.target[k]);
+			const h = DWELL.heatGamma === 1 ? r : Math.pow(r, DWELL.heatGamma);
+			// The knee gates on ABSOLUTE seconds, not on the ratio, and it has to:
+			// its job is to reject slivers, and a sliver is a sliver whether it
+			// landed on the shortest bar or the longest.
+			out[k] = h * smoothstep(secs / DWELL.markKneeSeconds);
 		}
 		return out;
 	}
@@ -542,7 +728,12 @@ export function createDwellTracker(): DwellTracker {
 		const awake =
 			document.visibilityState === 'visible' && now - lastInteraction < DWELL.idleMs && hasFocus;
 
-		if (!awake || velocity > DWELL.maxVelocityPxPerSec) {
+		// Partial credit between reading pace and the zero point. The settle gate
+		// below still keys off credit reaching zero, so "landed after a fling"
+		// behaves exactly as it did — only the boundary is no longer a cliff.
+		const credit = velocityCredit(velocity);
+
+		if (!awake || credit <= 0) {
 			// Reset rather than pause: coming back to a tab, or landing after a
 			// fling, a reader needs a moment to find their line again before
 			// anything they are looking at counts as read.
@@ -556,7 +747,7 @@ export function createDwellTracker(): DwellTracker {
 			return;
 		}
 
-		accrue(y, dt / 1000);
+		accrue(y, (dt / 1000) * credit);
 		if (++ticks % DWELL.publishEvery === 0) publish(false);
 	}
 
@@ -567,10 +758,14 @@ export function createDwellTracker(): DwellTracker {
 	 * measure honest rather than merely plausible. Without it, one second of
 	 * sitting still would deposit one second into each of the ~5 buckets in
 	 * view, and the rail would fill in a fifth of the real reading time. With
-	 * it, one second of wall clock deposits exactly one bucket-second, split by
+	 * it, one second of wall clock deposits at most one bucket-second, split by
 	 * shape — so total dwell across the document can never exceed total time on
 	 * the page, and lighting the whole rail requires genuinely spending the
 	 * modelled hours.
+	 *
+	 * "At most", because the caller now scales `secs` by the velocity credit. The
+	 * neighbour bleed applied at the end does NOT change the total: its kernel is
+	 * normalised, so it moves seconds sideways and never mints them.
 	 */
 	function accrue(scrollY: number, secs: number) {
 		const scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -611,9 +806,25 @@ export function createDwellTracker(): DwellTracker {
 		// a near-zero sum there would deposit an enormous lump into one bucket.
 		if (sum < 0.05) return;
 
+		// Each attributed share is then smeared along the bar axis by the bleed
+		// kernel before it is banked. Doing it here rather than at read time is
+		// what makes it cheap: the smear is paid once per 250ms sample over the
+		// handful of bars on screen, not on every repaint over all 57.
+		const r = DWELL.neighbourReach;
 		for (const h of hits) {
-			const cap = h.st.target[h.k] * DWELL.runawayFactor;
-			h.st.dwell[h.k] = Math.min(cap, h.st.dwell[h.k] + (secs * h.w) / sum);
+			const share = (secs * h.w) / sum;
+			for (let o = -r; o <= r; o++) {
+				const nb = order[h.st.i + o];
+				if (!nb) continue;
+				const w = BLEED[o + r];
+				if (w <= 0) continue;
+				// Bleeding into the same bucket index only makes sense at one bucket
+				// per bar, which is what ships. Clamp so a future N > 1 lands in a
+				// real bucket rather than off the end.
+				const k = Math.min(h.k, nb.dwell.length - 1);
+				const cap = nb.target[k] * DWELL.runawayFactor;
+				nb.dwell[k] = Math.min(cap, nb.dwell[k] + share * w);
+			}
 		}
 		dirtyStore = true;
 	}

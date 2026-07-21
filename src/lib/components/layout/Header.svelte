@@ -443,7 +443,13 @@
 	   toggle leaves the viewport. Measured at 1120px with the box open: the
 	   cluster ended 28px past the header's right edge. A floor that defends the
 	   rail by pushing the controls off screen is worse than no floor. */
-	@media (min-width: 744px) {
+	/* 720px, and it MUST equal RAIL_MEDIA_QUERY in src/lib/timeline/breakpoint.ts.
+	   The script mounts the rail off that query and this floor defends its width;
+	   if the two disagree there is a band where the rail exists with no floor
+	   under it. Moved 744 -> 720 with the query, for the reason recorded there:
+	   744 is iPad mini portrait exactly, so gating on it put the target device on
+	   the boundary. Measured cell width at 720 is 496px, which clears this. */
+	@media (min-width: 720px) {
 		.thread-cell {
 			min-width: 494px;
 		}

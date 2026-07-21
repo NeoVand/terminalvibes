@@ -28,15 +28,21 @@
  *   1280 → 518px    1120 → 480px    860 → 484px    820 → 554px    744 → 478px
  *
  * all of them clear the 448px sweep floor documented on `.thread-cell` in
- * Header.svelte. Below 744 no amount of shedding clears it, so that is where
- * the rail stops and the sidebar's mini timeline takes over.
+ * Header.svelte.
+ *
+ * The gate is 720, NOT 744, and the 24px is the point. 744pt is iPad mini
+ * portrait exactly — gating there means the device the rail is meant to reach
+ * sits precisely ON the boundary, and a scrollbar or any browser chrome tips it
+ * into mobile. Measured, the rail is 474px at 744 and 450px at 720, so 720 is
+ * the true floor (700 gives 430 and fails); gating there buys iPad mini a real
+ * cushion instead of a coin flip.
  *
  * This is a resting-state guarantee. Focusing the search box deliberately
  * squeezes the rail leftward, and on tablets that squeeze does dip under the
  * floor — see the note on `.thread-cell`. That is a mode the reader is in for
  * as long as they are typing, and it restores itself on blur.
  */
-export const RAIL_MEDIA_QUERY = '(min-width: 744px)';
+export const RAIL_MEDIA_QUERY = '(min-width: 720px)';
 
 /**
  * Track `RAIL_MEDIA_QUERY` from inside an `$effect`. Returns the teardown, so

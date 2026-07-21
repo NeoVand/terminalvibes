@@ -122,9 +122,18 @@
 
 	   These are the two colours a reader compares to decide "did I finish this
 	   one", so they are also the pair that has to survive colour blindness.
-	   Simulated deuteranopia, ΔE00: bright-green vs bright-red 12.0, and every
-	   cross-lane pairing with the unsolved marks stays above the 11.4 floor
-	   recorded for --color-challenge below (21.4 and 27.5). Contrast on
+
+	   Simulated deuteranopia, ΔE00:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   14.0
+	                  solved green vs visited caramel         16.0
+	     CROSS LANE   bright-green vs bright-red              12.0
+	                  solved red vs visited caramel           27.5
+	                  solved green vs unsolved clay           21.4
+	   The within-lane pair is listed because it is now load-bearing: a solved
+	   mark keeps its square/rhomboid silhouette rather than swapping to a star,
+	   so hue is the only thing separating solved from attempted inside a lane.
+	   Light clears the 11.4 floor there without retuning; dark did not, and the
+	   note beside the dark values records what that cost. Contrast on
 	   --color-bg is 3.50 and 6.39. Re-run the numbers before retuning either. */
 	--color-earned-bright: #419439;
 	--color-challenge-bright: #b7000e;
@@ -248,18 +257,34 @@
 	   unsolved playground mark) sits at L 0.753, and under deuteranopia gold
 	   and orange-red both collapse to the same khaki, so a solved challenge
 	   pushed UP in lightness lands on top of it: at L 0.720 the pair is ΔE00
-	   8.5 simulated, below the 11.4 floor recorded above. Dropping to L 0.625
-	   and pulling chroma to 0.205 instead reads as a much stronger red on the
-	   near-black ground while restoring the gap.
+	   8.5 simulated, below the 11.4 floor recorded above. Holding L near 0.62
+	   instead reads as a strong red on the near-black ground while keeping that
+	   gap open.
 
-	   Simulated deuteranopia, ΔE00: bright-green vs bright-red 23.2; solved
-	   green vs unsolved clay 19.1; unsolved gold vs solved red 11.5. Every
-	   CROSS-LANE pair is at or above 11.4. The one that is not is within a
-	   lane — solved red vs unsolved clay, 9.2 — and that step is carried by the
-	   star/rhomboid shape change, not by hue. Contrast on --color-bg is 15.29
-	   and 5.05. Re-run the numbers before retuning either. */
+	   THE RED CARRIES ITS OWN LANE NOW. It used to be #e9452a (L 0.625 /
+	   C 0.205 / H 28), and at that chroma the WITHIN-LANE step — solved red
+	   against unsolved clay #d5725f — was only ΔE00 9.2 simulated, under the
+	   11.4 floor. That was survivable while the rail swapped a solved mark to a
+	   four-point star, because the shape change carried the step instead of the
+	   hue. The rail no longer does that: "do not use a circle, just the same
+	   kind of square and rhomboid, but with the field bright pattern in colour",
+	   so a solved challenge stays a rhomboid and hue is the ONLY channel left
+	   within the lane. The hue is held at the family's 28° and the chroma is
+	   pushed 0.205 -> 0.254, which is what buys the gap back.
+
+	   Simulated deuteranopia, ΔE00, all measured against this value:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   12.2  (was 9.2)
+	                  solved green vs visited gold            12.7
+	     CROSS LANE   bright-green vs bright-red              24.4
+	                  solved red vs visited gold              12.1
+	                  solved green vs unsolved clay           19.1
+	                  visited gold vs unsolved clay           11.7
+	   Every pair now clears 11.4 on hue alone, so shape and lane are redundancy
+	   rather than the load path. Contrast on --color-bg is 15.29 and 4.83.
+	   Re-run the numbers before retuning either — and note that raising L to
+	   reclaim contrast walks straight back into the gold collision above. */
 		--color-earned-bright: #69fe92;
-		--color-challenge-bright: #e9452a;
+		--color-challenge-bright: #fb0011;
 
 		--color-diff-add: #7ee787;
 		--color-diff-add-bg: rgba(126, 231, 135, 0.1);
@@ -337,9 +362,18 @@
 
 	   These are the two colours a reader compares to decide "did I finish this
 	   one", so they are also the pair that has to survive colour blindness.
-	   Simulated deuteranopia, ΔE00: bright-green vs bright-red 12.0, and every
-	   cross-lane pairing with the unsolved marks stays above the 11.4 floor
-	   recorded for --color-challenge below (21.4 and 27.5). Contrast on
+
+	   Simulated deuteranopia, ΔE00:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   14.0
+	                  solved green vs visited caramel         16.0
+	     CROSS LANE   bright-green vs bright-red              12.0
+	                  solved red vs visited caramel           27.5
+	                  solved green vs unsolved clay           21.4
+	   The within-lane pair is listed because it is now load-bearing: a solved
+	   mark keeps its square/rhomboid silhouette rather than swapping to a star,
+	   so hue is the only thing separating solved from attempted inside a lane.
+	   Light clears the 11.4 floor there without retuning; dark did not, and the
+	   note beside the dark values records what that cost. Contrast on
 	   --color-bg is 3.50 and 6.39. Re-run the numbers before retuning either. */
 	--color-earned-bright: #419439;
 	--color-challenge-bright: #b7000e;
@@ -416,18 +450,34 @@
 	   unsolved playground mark) sits at L 0.753, and under deuteranopia gold
 	   and orange-red both collapse to the same khaki, so a solved challenge
 	   pushed UP in lightness lands on top of it: at L 0.720 the pair is ΔE00
-	   8.5 simulated, below the 11.4 floor recorded above. Dropping to L 0.625
-	   and pulling chroma to 0.205 instead reads as a much stronger red on the
-	   near-black ground while restoring the gap.
+	   8.5 simulated, below the 11.4 floor recorded above. Holding L near 0.62
+	   instead reads as a strong red on the near-black ground while keeping that
+	   gap open.
 
-	   Simulated deuteranopia, ΔE00: bright-green vs bright-red 23.2; solved
-	   green vs unsolved clay 19.1; unsolved gold vs solved red 11.5. Every
-	   CROSS-LANE pair is at or above 11.4. The one that is not is within a
-	   lane — solved red vs unsolved clay, 9.2 — and that step is carried by the
-	   star/rhomboid shape change, not by hue. Contrast on --color-bg is 15.29
-	   and 5.05. Re-run the numbers before retuning either. */
+	   THE RED CARRIES ITS OWN LANE NOW. It used to be #e9452a (L 0.625 /
+	   C 0.205 / H 28), and at that chroma the WITHIN-LANE step — solved red
+	   against unsolved clay #d5725f — was only ΔE00 9.2 simulated, under the
+	   11.4 floor. That was survivable while the rail swapped a solved mark to a
+	   four-point star, because the shape change carried the step instead of the
+	   hue. The rail no longer does that: "do not use a circle, just the same
+	   kind of square and rhomboid, but with the field bright pattern in colour",
+	   so a solved challenge stays a rhomboid and hue is the ONLY channel left
+	   within the lane. The hue is held at the family's 28° and the chroma is
+	   pushed 0.205 -> 0.254, which is what buys the gap back.
+
+	   Simulated deuteranopia, ΔE00, all measured against this value:
+	     WITHIN LANE  solved red vs unsolved/attempted clay   12.2  (was 9.2)
+	                  solved green vs visited gold            12.7
+	     CROSS LANE   bright-green vs bright-red              24.4
+	                  solved red vs visited gold              12.1
+	                  solved green vs unsolved clay           19.1
+	                  visited gold vs unsolved clay           11.7
+	   Every pair now clears 11.4 on hue alone, so shape and lane are redundancy
+	   rather than the load path. Contrast on --color-bg is 15.29 and 4.83.
+	   Re-run the numbers before retuning either — and note that raising L to
+	   reclaim contrast walks straight back into the gold collision above. */
 	--color-earned-bright: #69fe92;
-	--color-challenge-bright: #e9452a;
+	--color-challenge-bright: #fb0011;
 	--color-diff-add: #7ee787;
 	--color-diff-add-bg: rgba(126, 231, 135, 0.1);
 	--color-diff-del: #f38ba8;
@@ -500,7 +550,14 @@ strong {
 		   here later. */
 		margin-right: 0 !important;
 	}
-	.sidebar-drawer {
+	/* This was `.sidebar-drawer` — a class no component has rendered since the
+	   first draft, so the rule had been dead for a long time. The BEHAVIOUR it
+	   encoded is not dead: below 1024px the open sidebar overlays the article
+	   instead of pushing it (see the margin-left above), and the panel's normal
+	   fabric is a 55% wash of --color-bg, so body text showed through the
+	   contents list. Opaque while it is an overlay, translucent when it is an
+	   edge — hence `.is-open`, which is the only state that overlays. */
+	.sidebar-panel.is-open {
 		background: var(--color-bg) !important;
 	}
 }
