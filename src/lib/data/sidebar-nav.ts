@@ -406,3 +406,20 @@ for (const section of sidebarNav) {
 export function courseEntry(id: string): NavEntry | null {
 	return byId.get(id) ?? null;
 }
+
+const partOf = new Map<string, string>();
+for (const section of sidebarNav) {
+	partOf.set(section.id, section.id);
+	for (const child of section.children ?? []) {
+		partOf.set(child.id, section.id);
+	}
+}
+
+/**
+ * The `part-N` (or `hero`) section that owns an anchor. The standalone
+ * /parts/<slug> pages use this to decide whether a cross-reference stays a
+ * same-page hash or must travel back to the full course page.
+ */
+export function partIdOf(id: string): string | null {
+	return partOf.get(id) ?? null;
+}

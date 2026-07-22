@@ -8,32 +8,10 @@
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
 		<meta name="theme-color" content="#0d0906" />
-		<meta
-			name="description"
-			content="The Terminal for Vibe Coders — an interactive, visual tutorial that teaches the command line to AI-assisted developers. Learn navigation, pipes, permissions, and how to audit AI-proposed commands."
-		/>
-		<meta property="og:title" content="TerminalVibes — The Terminal for Vibe Coders" />
-		<meta
-			property="og:description"
-			content="An interactive, visual terminal tutorial for AI-assisted developers. Learn navigation, pipes, permissions, and command auditing."
-		/>
-		<meta property="og:image" content="%sveltekit.assets%/og-image.png" />
-		<meta
-			property="og:image:alt"
-			content="The Terminal for Vibe Coders — read, verify, and run shell commands with confidence"
-		/>
-		<meta property="og:type" content="website" />
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content="TerminalVibes — The Terminal for Vibe Coders" />
-		<meta
-			name="twitter:description"
-			content="An interactive, visual terminal tutorial for AI-assisted developers."
-		/>
-		<meta name="twitter:image" content="%sveltekit.assets%/og-image.png" />
-		<meta
-			name="twitter:image:alt"
-			content="The Terminal for Vibe Coders — read, verify, and run shell commands with confidence"
-		/>
+		<!-- description/og/twitter meta live in each page's <svelte:head> so the
+		     standalone /parts pages can carry their own titles and social cards
+		     (crawlers take the FIRST og:* tag, so a shared set here would win
+		     over any per-page override). -->
 		<script>
 			// Apply the theme before first paint to avoid a flash of the wrong one.
 			// Mirrors $lib/theme.ts (loadThemePreference + applyTheme), and MUST stay

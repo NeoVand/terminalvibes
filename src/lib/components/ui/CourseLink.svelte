@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { courseEntry } from '$lib/data/sidebar-nav';
+	import { page } from '$app/state';
+	import { base } from '$app/paths';
+	import { courseEntry, partIdOf } from '$lib/data/sidebar-nav';
+	import { partPageById } from '$lib/data/part-pages';
 
 	/**
 	 * An in-course cross-reference that names its destination.
@@ -26,10 +29,28 @@
 	const entry = $derived(courseEntry(to));
 	const text = $derived(label ?? entry?.label ?? to);
 	const Icon = $derived(entry?.icon);
+
+	// On the full course page every anchor is local, so the link stays a plain
+	// hash. On a standalone /parts/<slug> page only this part's own anchors
+	// exist in the DOM — references to other parts travel back to the course
+	// page, hash intact.
+	const currentSlug = $derived(
+		page.route.id === '/parts/[slug]' ? (page.params.slug ?? null) : null
+	);
+	const ownerSlug = $derived.by(() => {
+		const owner = partIdOf(to);
+		return owner ? (partPageById(owner)?.slug ?? null) : null;
+	});
+	const href = $derived(
+		currentSlug === null || currentSlug === ownerSlug ? `#${to}` : `${base}/#${to}`
+	);
 </script>
 
+<!-- The cross-page form is `${base}/#anchor`, which resolve() route ids can't
+     express (they have no hash) — the hash IS the destination. -->
+<!-- eslint-disable svelte/no-navigation-without-resolve -->
 <a
-	href="#{to}"
+	{href}
 	class="course-link"
 	title={entry ? `Go to ${entry.label}` : undefined}
 	data-sveltekit-noscroll={undefined}
@@ -38,6 +59,8 @@
 		<Icon size={13} class="course-link-icon" aria-hidden="true" />
 	{/if}<span>{text}</span>
 </a>
+
+<!-- eslint-enable svelte/no-navigation-without-resolve -->
 
 <style>
 	.course-link {
