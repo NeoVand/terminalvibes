@@ -225,7 +225,8 @@
 				<Code code="erase = ^?" />
 				is the kernel handling your Backspace, and <Code code="^?" /> is the one token that breaks the
 				caret rule: it's Delete, not <Code code="Ctrl+?" />.
-				<Code code="kill = ^U" /> wipes the line you're part-way through typing,
+				<Code code="kill = ^U" /> wipes the line you're part-way through typing — the
+				<Code code="Ctrl+U" /> from <CourseLink to="section-12-2" />, meeting its kernel name —
 				<Code code="eof = ^D" /> on an empty line ends it — and neither has anything to do with the
 				<Code code="kill" /> command from <CourseLink to="section-8-2" />, which talks to other
 				processes entirely. The <Code code="38400 baud" /> is a speed for a serial wire this PTY doesn't
@@ -605,6 +606,31 @@ echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.tx
 				<Code code="$file" /> arrives as a path and a path can't be a flat filename inside
 				<Code code="$scratch" />.
 			</p>
+
+			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
+				The loop's sibling turns up in agent transcripts even more often:
+				<Code code="for" /> walks a list instead of a file.
+				<Code code="for f in *.txt; do wc -l &quot;$f&quot;; done" /> reads: expand the glob (<CourseLink
+					to="section-3-4"
+				/> — the shell does it before the loop starts), park each name in <Code code="$f" /> in turn,
+				run the body. Same skeleton —
+				<Code code="do" /> … <Code code="done" /> — and the same quoting habit around
+				<Code code="&quot;$f&quot;" />, for the same spaces-in-filenames reason as ever. You now
+				read both of the loops the shell knows, which is most of the loop-shaped code an agent will
+				ever ask you to approve.
+			</p>
+
+			<Callout type="note" title="When 'every night at nine' enters the picture">
+				The missing piece between "a script I run" and "a script that runs itself" is
+				<Code code="cron" />, the scheduler that has shipped with every Unix since before screens. <Code
+					code="crontab -e"
+				/> opens your personal schedule in an editor; each line is five time fields, then a command —
+				<Code code="0 9 * * 1-5 ~/backup.sh notes" /> means minute 0, hour 9, any day of the month, any
+				month, Monday through Friday. You met its manual pages back in
+				<CourseLink to="section-1-3" />: <Code code="man 5 crontab" /> is the field-format page, and this
+				is where that early example finally pays off. A real-machine tool — the sandbox has no clock ticking
+				overnight — and the reason a server can feel staffed at 3 a.m.
+			</Callout>
 
 			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
 				Count the course in that script: redirection and pipes (<CourseLink to="part-4" />), a loop

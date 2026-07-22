@@ -350,6 +350,16 @@ rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
 				<Code code="~" /> or a wrong folder.
 			</p>
 
+			<Callout type="warning" title="Files that start with a dash">
+				A file named <Code code="-old.txt" /> jams the grammar from <CourseLink to="section-1-3" />:
+				<Code code="rm -old.txt" /> reads as a fistful of flags, not a filename, and the error complains
+				about an invalid option instead of the real problem. Two ways out:
+				<Code code="rm -- -old.txt" /> — the double dash means "everything after this is a name, no matter
+				what it looks like," and nearly every command honors it — or point at the file with a path, <Code
+					code="rm ./-old.txt"
+				/>. Worth knowing before some download names itself something dashed.
+			</Callout>
+
 			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
 				The Ritual: <Code code="ls" /> First, Then <Code code="rm" />
 			</h4>
@@ -574,6 +584,17 @@ ls src/*.js               # Globs work inside a path too — but only one folder
 				error
 				<Code code="cannot access '*.tpm'" />. Both surprises are caught instantly by the echo
 				habit.
+			</Callout>
+
+			<Callout type="note" title="Braces look like a glob — and aren't one">
+				One more pattern-shaped thing, so it never fools you:
+				<Code code={'mkdir -p src/{components,lib}'} />. Those braces don't <em>match</em> anything
+				— they <em>expand</em>, unconditionally: the shell rewrites the line into
+				<Code code="mkdir -p src/components src/lib" /> before <Code code="mkdir" /> ever runs. A glob
+				asks "what's already here?"; braces say "make me these." That's why braces work for files that
+				don't exist yet — exactly where a glob would come back empty-handed — and why coding agents lean
+				on this shape every time they scaffold a project. You'll read it far more often than you'll type
+				it.
 			</Callout>
 
 			<h4

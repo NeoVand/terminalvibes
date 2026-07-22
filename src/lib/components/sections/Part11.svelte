@@ -293,7 +293,12 @@ rm -rf build/*`}
 						always available —
 						<Code code="curl -o install.sh <url>" />, read it, <em>then</em> run it — and a package
 						manager (<Code code="brew" />, <Code code="apt" />, or Windows' <Code code="winget" /> —
-						<CourseLink to="section-10-1" />) remains the more auditable alternative.
+						<CourseLink to="section-10-1" />) remains the more auditable alternative. Downloading
+						first unlocks one more check, too: vendors publish a SHA-256
+						<em>fingerprint</em> beside their installers, and
+						<Code code="shasum -a 256 install.sh" /> prints the fingerprint of the file you actually received
+						(Linux spells it <Code code="sha256sum" />). If the two differ, the file is not what
+						they shipped — stop.
 					</p>
 				</div>
 				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">

@@ -761,6 +761,17 @@ Ctrl+C       # chord — a running command, or a line you typed but haven't run`
 				not expected to learn vim today; you're just expected to be able to leave.
 			</p>
 
+			<Callout type="tip" title="The one editor you can walk into on purpose">
+				Those escape hatches treat editors as places you fell into. <Code code="nano" /> is the one worth
+				entering deliberately: <Code code="nano notes.txt" /> opens the file, you type the way you'd type
+				anywhere, and the only two chords that matter are printed at the bottom of its screen the whole
+				time — <Code code="Ctrl+O" /> then Enter to save ("write out"),
+				<Code code="Ctrl+X" /> to leave. It ships on nearly every Linux machine and every Mac, and the
+				day <CourseLink to="section-9-5" /> lands you on a server with a config file to fix, this is the
+				tool you'll reach for. (Not in the playground — its files are edited with
+				<Code code="echo" /> and friends; <Code code="nano" /> is a real-machine comfort.)
+			</Callout>
+
 			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
 				Sometimes you only care about the edges of a file — the header row of a CSV, or the most
 				recent lines of a log. That's <Code code="head" />

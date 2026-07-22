@@ -132,6 +132,15 @@ vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
 				the common case too — <Code code="pgrep node" /> prints matching PIDs directly.
 			</Callout>
 
+			<Callout type="note">
+				<Code code="ps" /> is a photograph. For the movie, <Code code="top" /> repaints the same table
+				live, a few times a second, worst offenders first — and <Code code="q" /> gets you out, the same
+				escape as every pager (<CourseLink to="section-2-5" />). Its nicer cousin is
+				<Code code="htop" />, the very tool <CourseLink to="section-5-3" />'s install example
+				happened to pick. Between them: <Code code="ps" /> answers "what exactly is running?",
+				<Code code="top" /> answers "what is my machine <em>doing</em> right now?"
+			</Callout>
+
 			<VibeBox
 				prompts={[
 					"What's using all my CPU right now? Show me how to check, and explain the columns",
@@ -393,10 +402,15 @@ fg %1                    # bring job 1 into the spotlight`}
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				A <strong style="color: var(--color-text);">background job</strong> is still yours and still tied
-				to this shell: close the window and it goes with it, unless you take extra steps. Backstage is
-				not the same as somewhere safe — don't send a long build back there and then walk away from the
-				terminal.
+				A <strong style="color: var(--color-text);">background job</strong> is still yours and still
+				tied to this shell: close the window and it goes with it, unless you take extra steps. The
+				step has a name — <Code code="nohup" />, "no hangup," from the days when closing a terminal
+				literally hung up a phone line: <Code code="nohup ./slowbuild.sh &" /> keeps running after the
+				window is gone and parks its output in <Code code="nohup.out" />. It works, but it's a
+				patch; the comfortable answer to work that must outlive your window is a terminal that
+				survives on its own, which is <Code code="tmux" /> in <CourseLink to="section-12-4" />.
+				Either way, backstage is not the same as somewhere safe — don't send a long build back there
+				bare and then walk away from the terminal.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
