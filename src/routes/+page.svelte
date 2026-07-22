@@ -419,6 +419,9 @@
 	{scrollPosition}
 	readIds={progressSets.readIds}
 	doneIds={progressSets.doneIds}
+	{cheatSheetOpen}
+	{playgroundOpen}
+	{agentOpen}
 />
 <Sidebar open={sidebarOpen} {activeSection} onToggle={toggleSidebar} onNavigate={handleNavigate} />
 <CheatSheet open={cheatSheetOpen} onToggle={toggleCheatSheet} />
