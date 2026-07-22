@@ -44,8 +44,8 @@
 	   There is now ONE tree, always mounted. Collapsed and expanded are the same
 	   nav at two container widths:
 
-	     - the panel's WIDTH animates, 52px ⇄ 280px, and nothing translates;
-	     - `.rail-inner` is laid out at the FULL 280px at all times and the panel
+	     - the panel's WIDTH animates, 52px ⇄ 273.5px, and nothing translates;
+	     - `.rail-inner` is laid out at the FULL 273.5px at all times and the panel
 	       clips it, so no row ever reflows horizontally — the collapsed state is
 	       literally the expanded state with 228px of it cropped off;
 	     - labels and carets fade and then go `visibility: hidden`, which is what
@@ -265,7 +265,7 @@
 	/* ── the mini timeline ──────────────────────────────────────────────────
 	   GRANULARITY IS PARTS (15), and that survives the rebuild unchanged,
 	   because it was always a measurement rather than a preference. The
-	   expanded bar gets ~216px (280px sidebar, less 32px of padding and 32px
+	   expanded bar gets ~209px (273.5px sidebar, less 32px of padding and 32px
 	   for the reset button). At 57 segments with 1.5px gaps each segment is
 	   (216 - 84) / 57 = 2.3px — under the 5.5px at which the rail itself gives
 	   up on the hatch (`is-tiny`). At 15 segments each gets ~13px, which is
@@ -471,7 +471,7 @@
 	       it. Exposing it twice would make the same fifteen parts announce
 	       thirty times;
 	     - it lives OUTSIDE the `<aside>`. The panel is `overflow: hidden` (that
-	       clip is what crops the 280px rail to 52px), so anything inside it
+	       clip is what crops the 273.5px-wide rail to 52px), so anything inside it
 	       would be cut off at the icon column. Being a fixed-position sibling
 	       also means it cannot reflow the nav, cannot shift the icon column off
 	       26px, and cannot put a scrollbar anywhere near it.
@@ -540,7 +540,7 @@
 	 * THE 26px INVARIANT HAS A HOLE, and this plugs it.
 	 *
 	 * `overflow: hidden` hides a scrollbar; it does not make a box unscrollable.
-	 * `.rail-inner` is laid out at the full 280px inside a 52px panel, so while
+	 * `.rail-inner` is laid out at the full 273.5px inside a 52px panel, so while
 	 * collapsed the panel has 228px of real scrollable overflow — invisible, but
 	 * there. Anything that asks the browser to bring a row into view along the
 	 * inline axis will happily take it: `scrollIntoView({ inline: 'center' })`
@@ -776,9 +776,11 @@
 		{#if !wide && (sectionsRead > 0 || doneCount > 0)}
 			<div class="reveal" class:is-shown={open}>
 				<div class="reveal-inner">
-					<div class="px-4 pb-2" title={progressLabel}>
-						<!-- mr-1 puts the reset button on the same vertical axis (30px
-						     from the right edge) as the section carets. -->
+					<div class="pr-[9.5px] pb-2 pl-4" title={progressLabel}>
+						<!-- pr-[9.5px] + mr-1 puts the reset button on the same vertical
+						     axis (23.5px from the right edge) as the section carets — the
+						     right padding absorbs the 6.5px the panel gave up when the nav
+						     went symmetric. -->
 						<div class="flex items-center">
 							<div class="min-w-0 flex-1">
 								{@render miniTimeline()}
@@ -813,7 +815,7 @@
 		     place. Retire it rather than track it. -->
 		<nav
 			id="sidebar-contents"
-			class="rail-nav flex-1 py-2 pr-3 pl-[5.5px]"
+			class="rail-nav flex-1 py-2 pr-[5.5px] pl-[5.5px]"
 			use:autohideScroll
 			onscroll={(e) => {
 				pinLeft(e);
@@ -877,7 +879,7 @@
 						</button>
 						{#if section.children}
 							<!-- -mr-1 lines the caret up with the reset button (both
-							     centered 30px from the sidebar's right edge).
+							     centered 23.5px from the sidebar's right edge).
 
 							     This is the disclosure control, so it carries
 							     `aria-expanded`/`aria-controls` rather than a label that
@@ -1107,7 +1109,7 @@
 
 	.rail-nav {
 		overflow-y: auto;
-		/* The nav is 280px wide inside a 52px panel while collapsed; without this
+		/* The nav is 273.5px wide inside a 52px panel while collapsed; without this
 		   the overhang would offer a horizontal scrollbar for content the reader
 		   is not supposed to reach that way. */
 		overflow-x: hidden;
@@ -1290,7 +1292,7 @@
 	.nav-item:hover {
 		background: color-mix(in srgb, var(--color-text) 4%, transparent);
 	}
-	/* No hover wash while collapsed: the panel clips the 280px row at 52px,
+	/* No hover wash while collapsed: the panel clips the 273.5px row at 52px,
 	   which turned the pill into a shape cut off mid-air. The flyout is the
 	   rail's hover response. */
 	.sidebar-panel:not(.is-open) .nav-item:hover {
@@ -1322,7 +1324,7 @@
 
 	   210px is the same width the previous flyout had, and it is measured
 	   rather than chosen: the longest subsection label in the manifest sets it,
-	   and the panel it previews is 280px less the 44.5px the child rows are
+	   and the panel it previews is 273.5px less the 44.5px the child rows are
 	   indented by, plus the card's own padding.
 
 	   It never scrolls. `flyoutTop` slides a bottom-of-the-rail part back up
