@@ -151,6 +151,29 @@ ls: missing/: No such file or directory`}
 				<strong style="color: var(--color-text);">arrows move text in and out of files</strong>.
 			</p>
 
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				One member of the family points both ways at once. <Code code="tee" /> — named for the T-shaped
+				pipe fitting, and it is exactly that — sits in the middle of a stream, writes everything flowing
+				through it into a file, and passes the same text along untouched. It's the answer to a want the
+				plain arrow can't satisfy: "show me this <em>and</em> keep a copy."
+			</p>
+
+			<CodeBlock
+				title="`tee` — watch it and save it"
+				code={`npm run build | tee build.log
+# The build scrolls past as usual — AND lands in build.log
+
+npm test 2>&1 | tee test.log     # errors included, still watching live`}
+			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				With a plain <Code code=">" /> you trade the live view for the file; <Code code="tee" />
+				refuses the trade. That makes it the receipt habit for anything long-running — let an agent's
+				build talk to the screen while <Code code="tee" /> keeps the transcript, and "what did it actually
+				say?" always has an answer. (<Code code="tee -a" /> appends instead of overwriting, the same courtesy
+				<Code code=">>" /> extends.)
+			</p>
+
 			<VibeBox
 				prompts={[
 					'Run the build and save all output — including errors — to build.log so I can read it later',

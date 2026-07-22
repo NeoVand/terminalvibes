@@ -12,6 +12,8 @@
 		ScrollText,
 		Repeat,
 		Search,
+		Keyboard,
+		ClipboardCopy,
 		PanelTop,
 		Columns2
 	} from 'lucide-svelte';
@@ -159,6 +161,23 @@
 						output line up, so the choice is less taste than it looks. Pick one with a legible
 						<Code code="0" />-vs-<Code code="O" /> and a size you don't squint at. JetBrains Mono, Fira
 						Code, and Cascadia Code are free favorites.
+					</p>
+				</div>
+				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
+					<p
+						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<ClipboardCopy size={14} style="color: var(--color-primary);" />
+						Everywhere: the clipboard bridge
+					</p>
+					<p class="text-xs" style="color: var(--color-text-secondary);">
+						Terminal to clipboard without a mouse: on macOS
+						<Code code="ps aux | pbcopy" /> copies the whole output and
+						<Code code="pbpaste" /> brings the clipboard back into a pipe. Linux says
+						<Code code="xclip" /> (or <Code code="wl-copy" />), WSL says
+						<Code code="clip.exe" />. The everyday move for handing a wall of output to an AI chat
+						without screenshotting your terminal.
 					</p>
 				</div>
 				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
@@ -396,6 +415,23 @@ PS1="🌲 \\W $ "
 							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
 							>Ctrl+C</kbd
 						> to bail. That 40-character command from last Tuesday? Three letters and it's back.
+					</p>
+				</div>
+				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
+					<h4
+						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
+						style="color: var(--color-text);"
+					>
+						<Keyboard size={14} style="color: var(--color-primary);" />
+						Edit the line — without riding the arrow keys
+					</h4>
+					<p class="text-[13px]" style="color: var(--color-text-secondary);">
+						A recalled command usually needs one fix, and holding an arrow key across 60 characters
+						is not the fix. <Code code="Ctrl+A" /> jumps to the start of the line,
+						<Code code="Ctrl+E" /> to the end, <Code code="Ctrl+W" /> deletes the word behind the cursor,
+						and <Code code="Ctrl+U" /> wipes the line entirely — the panic-adjacent one, for when you've
+						typed something you'd rather not have sitting at a prompt. Four chords, and recall-then-edit
+						becomes one motion.
 					</p>
 				</div>
 			</div>

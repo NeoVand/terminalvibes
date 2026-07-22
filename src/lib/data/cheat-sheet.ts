@@ -164,6 +164,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'`-p` is for parents: it makes every missing folder along the path and never complains if some already exist — the standard way to build a project skeleton.'
 			},
 			{
+				command: 'mkdir -p src/{components,lib}',
+				description: 'Brace expansion: several names from one line',
+				detail:
+					'Braces are not globs — the shell expands `{components,lib}` into both names before `mkdir` runs, so nothing needs to exist first. Agents scaffold projects with this shape constantly.'
+			},
+			{
 				command: 'touch <file>',
 				description: 'Create an empty file (or update its timestamp)',
 				detail:
@@ -230,6 +236,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'Space or arrows scroll, `/` searches forward, `n` repeats the search, `q` quits. `man` uses the same pager, so these keys work there too.'
 			},
 			{
+				command: 'nano <file>',
+				description: 'Edit a file right in the terminal',
+				detail:
+					'The friendly editor: type normally, `Ctrl+O` then Enter saves ("write out"), `Ctrl+X` leaves — both printed at the bottom of its screen the whole time. On a server with no GUI, this is the tool.'
+			},
+			{
 				command: 'head <file>',
 				description: 'Show the first 10 lines',
 				detail:
@@ -288,6 +300,18 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'Capture error output separately',
 				detail:
 					'Every command has three channels: stdin (0), stdout (1) and stderr (2). `2>` catches just the errors; `2>&1` sends stream 2 wherever stream 1 currently points — the `&1` makes it a reference to a stream rather than a file named `1`.'
+			},
+			{
+				command: '<command> | tee out.log',
+				description: 'See the output AND save it',
+				detail:
+					'`tee` passes text through unchanged while writing a copy to the file — the receipt habit for builds and agent runs. `tee -a` appends, like `>>`.'
+			},
+			{
+				command: '<command> | pbcopy',
+				description: 'Send output to the clipboard (macOS)',
+				detail:
+					'Straight to the clipboard, ready to paste into a chat; `pbpaste` brings it back into a pipe. Linux: `xclip -selection clipboard` or `wl-copy`. WSL: `clip.exe`.'
 			},
 			{
 				command: 'sort <file>',
@@ -421,6 +445,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'Bare `ps` shows only this terminal’s handful; `aux` widens it to the whole machine — `a` all users, `u` the readable columns, `x` including processes with no terminal, which is where servers hide. They take no dash: `ps` uses an older option style. `PID` is the number you pass to `kill`, `%CPU` is measured against one core (so 340% is three cores, not an error), `COMMAND` is the interpreter’s name — a JavaScript server shows as `node`. Your real output has more columns than the course shows.'
 			},
 			{
+				command: 'top',
+				description: 'Live view of what is running — `q` quits',
+				detail:
+					'The moving picture to `ps`’s photograph: the same table, repainted live, worst offenders first. `htop` is the nicer third-party cousin.'
+			},
+			{
 				command: 'pgrep NAME',
 				description: 'Print the PIDs of processes matching a name',
 				detail:
@@ -449,6 +479,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'Run it in the background, keep your prompt',
 				detail:
 					'The shell answers with `[1]` and a PID. `jobs` lists what is backstage, `fg %1` brings job 1 forward, `kill %1` stops it. The job is tied to this shell: close the window and it goes too, so do not background a long build and walk away. Not to be confused with `&&` (run on success) or `2>&1` (a stream reference).'
+			},
+			{
+				command: 'nohup <command> &',
+				description: 'Keep a job alive after the window closes',
+				detail:
+					'"No hangup": the job survives the terminal, output lands in `nohup.out`. The patch version of persistence — `tmux` is the comfortable one.'
 			},
 			{
 				command: 'Ctrl+Z  then  bg',
@@ -491,6 +527,18 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'Open a shell on another machine',
 				detail:
 					'Every command in this course works there too. The prompt changes to show the other machine — check it before running anything destructive. `exit` comes home.'
+			},
+			{
+				command: 'scp <file> user@host:~/',
+				description: 'Copy a file to (or from) another machine',
+				detail:
+					'Reads like `cp` — source first, destination second — with a colon marking the remote side. Forget the trailing `:` and you make a strange local file instead of crossing the network. `-r` for folders.'
+			},
+			{
+				command: 'rsync -avz <dir>/ user@host:<dir>/',
+				description: 'Sync a folder: send only what changed',
+				detail:
+					'Resumable, narrated, and skips what is already there. Trailing slash on the source means "the contents of". `--dry-run` rehearses the whole transfer without moving a byte.'
 			}
 		]
 	},
@@ -515,6 +563,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'Extract a `.tar.gz` archive',
 				detail:
 					'`x` extract, `z` un-gzip, `f` this file. Swap `x` for `c` to create (`tar -czf backup.tar.gz notes/`) or `t` to list. The letters are separate instructions, not one magic word.'
+			},
+			{
+				command: 'shasum -a 256 <file>',
+				description: 'Verify a download against its published fingerprint',
+				detail:
+					'Vendors publish a SHA-256 next to installers; this prints the fingerprint of the file you actually got. If the two differ, the file is not what they shipped — stop. Linux spelling: `sha256sum`.'
 			},
 			{
 				command: 'ln -s target linkname',
@@ -559,6 +613,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'The standard mode for ordinary files — nobody can execute it, others cannot change it.'
 			},
 			{
+				command: 'sudo chown NAME <file>',
+				description: 'Change who owns a file',
+				detail:
+					'Owners decide whose rules apply (`ls -l` shows them). Reassigning takes root, and you will mostly meet it on servers and around Docker, where container-made files come out owned by somebody else. Recognize it more than you type it.'
+			},
+			{
 				command: 'sudo <command>',
 				description: 'Run one command as the administrator (root)',
 				detail:
@@ -599,6 +659,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'Set a variable for this session and its children',
 				detail:
 					'Lasts until the terminal closes. To make it permanent, add the `export` line to `~/.bashrc` or `~/.zshrc`.'
+			},
+			{
+				command: 'export PATH="$PATH:<dir>"',
+				description: 'Add a folder to your `PATH` — in your shell config',
+				detail:
+					'The `$PATH` on the right keeps the old list, so you are appending, not replacing — drop it and everything goes `command not found` until that terminal closes. The line every installer means by "add it to your PATH".'
 			},
 			{
 				command: 'env',
@@ -653,6 +719,18 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'Use the first argument passed to your script',
 				detail:
 					'`$1`, `$2`, … hold the arguments; `$@` is all of them. Quote them so arguments containing spaces stay whole.'
+			},
+			{
+				command: "cat <<'EOF' > file.txt",
+				description: 'Write a whole file in one command (here-doc)',
+				detail:
+					'Feeds every following line in as input, until a line that is exactly `EOF`. Quoted delimiter: `$` travels literally — right for scripts. Unquoted: expands now. The lines between the markers ARE the file — audit them like one.'
+			},
+			{
+				command: 'crontab -e',
+				description: 'Edit your scheduled jobs (cron)',
+				detail:
+					'Each line: five time fields, then a command — `0 9 * * 1-5 ~/backup.sh` is 9:00 on weekday mornings. `man 5 crontab` decodes the fields. How a script becomes a script that runs itself.'
 			},
 			{
 				command: 'echo $?',
@@ -737,6 +815,12 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'What did I actually run? Read the record',
 				detail:
 					'Numbered list of your recent commands — the first step of any post-incident investigation, and `Ctrl+R` searches it interactively.'
+			},
+			{
+				command: 'Ctrl+U',
+				description: 'Wipe the line you are typing',
+				detail:
+					'The kernel’s own line-wipe (`kill = ^U` in `stty -a`) — for when something scary is sitting at the prompt half-typed. Its friends: `Ctrl+A`/`Ctrl+E` jump to line start/end, `Ctrl+W` eats the word behind the cursor.'
 			}
 		]
 	}

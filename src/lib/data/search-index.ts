@@ -30,6 +30,23 @@ function resolveSectionId(command: string, category: string): string {
 	if (first === 'ctrl+c' || first === 'ctrl+d' || first === 'ctrl+l' || first === 'reset')
 		return 'section-1-2';
 	if (first === 'q' || first === ':q!') return 'section-1-3';
+	if (first === 'ctrl+u') return 'section-12-2';
+
+	// Specific homes that the broad pipe/redirect/first-word rules below would
+	// otherwise claim — order is load-bearing here.
+	if (cmd.includes('<<')) return 'section-6-1'; // a here-doc, not a redirect
+	if (bare.includes('tee')) return 'section-4-1';
+	if (bare.includes('pbcopy')) return 'section-12-1';
+	if (cmd.includes('jq')) return 'section-9-3';
+	if (cmd.includes('.env')) return 'section-9-4'; // before the chmod rule
+	if (first === 'curl') return 'section-9-2';
+	if (cmd.includes('chown')) return 'section-5-1'; // before the sudo rule
+	if (cmd.includes('export path')) return 'section-5-5'; // before the export rule
+	if (first === 'mkdir' && cmd.includes('{')) return 'section-3-4'; // braces, not 2.4
+	if (first === 'sed' && cmd.includes('-i')) return 'section-7-3';
+	if (first === 'sed' && (cmd.includes("d'") || cmd.includes('-n'))) return 'section-7-2';
+	if (first === 'sed') return 'section-7-1';
+	if (first === 'awk') return 'section-7-4'; // before the $1 rule below
 
 	if (first === 'sudo') return 'section-5-3';
 	if (cmd.includes('chmod')) return 'section-5-2';
@@ -85,6 +102,23 @@ function resolveSectionId(command: string, category: string): string {
 		return 'section-1-2';
 	if (first === 'open' || cmd.includes('xdg-open') || cmd.includes('explorer.exe'))
 		return 'section-2-4';
+	if (first === 'nano') return 'section-2-5';
+
+	if (first === 'ps' || first === 'pgrep' || first === 'top' || first === 'htop')
+		return 'section-8-1';
+	if (first === 'kill') return 'section-8-2';
+	if (first === 'lsof') return 'section-8-3';
+	if (first === 'nohup' || first === 'ctrl+z' || bare.includes('&')) return 'section-8-4';
+
+	if (first === 'ssh' || first === 'scp' || first === 'rsync') return 'section-9-5';
+
+	if (first === 'brew' || first === 'winget' || cmd.includes('apt install')) return 'section-10-1';
+	if (first === 'tar' || first === 'unzip') return 'section-10-2';
+	if (first === 'ln') return 'section-10-3';
+	if (first === 'du' || first === 'df') return 'section-10-4';
+
+	if (first === 'shasum' || first === 'sha256sum') return 'section-11-1';
+	if (first === 'crontab') return 'section-13-2';
 
 	const categoryFallback: Record<string, string> = {
 		Orientation: 'section-1-2',
@@ -93,9 +127,13 @@ function resolveSectionId(command: string, category: string): string {
 		'Viewing Files': 'section-2-5',
 		'Text & Pipes': 'section-4-2',
 		Searching: 'section-4-3',
+		'Text Surgery': 'section-7-1',
 		Permissions: 'section-5-1',
 		Environment: 'section-5-4',
 		Scripting: 'section-6-1',
+		'Processes & Ports': 'section-8-1',
+		'Network & Secrets': 'section-9-2',
+		'The Toolshed': 'section-10-1',
 		'Panic Button': 'section-1-3'
 	};
 
@@ -407,6 +445,9 @@ const topicEntries: SearchEntry[] = [
 			'less',
 			'head',
 			'tail',
+			'nano',
+			'edit a file',
+			'text editor',
 			'view file',
 			'read file',
 			'print file',
@@ -463,6 +504,9 @@ const topicEntries: SearchEntry[] = [
 			'delete',
 			'remove',
 			'rm -rf',
+			'double dash',
+			'leading dash',
+			'rm --',
 			'what does rm -rf do',
 			'no trash',
 			'recycle bin',
@@ -484,6 +528,9 @@ const topicEntries: SearchEntry[] = [
 			'glob',
 			'asterisk',
 			'star',
+			'brace expansion',
+			'braces',
+			'curly braces',
 			'*.txt',
 			'question mark',
 			'pattern',
@@ -509,6 +556,8 @@ const topicEntries: SearchEntry[] = [
 			'redirection',
 			'output to file',
 			'save output',
+			'tee',
+			'see and save',
 			'append',
 			'overwrite file',
 			'stderr',
@@ -620,6 +669,8 @@ const topicEntries: SearchEntry[] = [
 			'permissions',
 			'rwx',
 			'file mode',
+			'chown',
+			'file owner',
 			'owner',
 			'group',
 			'long listing',
@@ -708,6 +759,8 @@ const topicEntries: SearchEntry[] = [
 			'zshrc',
 			'shell config',
 			'alias',
+			'add to path',
+			'path append',
 			'source',
 			'dotfile',
 			'dotfiles',
@@ -735,6 +788,10 @@ const topicEntries: SearchEntry[] = [
 			'audit',
 			'is this command safe',
 			'scary command',
+			'checksum',
+			'sha256',
+			'shasum',
+			'verify download',
 			'dangerous command',
 			'dry run',
 			'--dry-run',
@@ -843,6 +900,10 @@ const topicEntries: SearchEntry[] = [
 			'script',
 			'bash script',
 			'shell script',
+			'heredoc',
+			'here-doc',
+			'here document',
+			'eof',
 			'shebang',
 			'#!/bin/bash',
 			'#!/usr/bin/env bash',
@@ -971,6 +1032,10 @@ const topicEntries: SearchEntry[] = [
 			'ps aux',
 			'process',
 			'pid',
+			'top',
+			'htop',
+			'live view',
+			'cpu monitor',
 			'pgrep',
 			'what is running',
 			'cpu usage',
@@ -1052,6 +1117,8 @@ const topicEntries: SearchEntry[] = [
 			'background',
 			'&',
 			'jobs',
+			'nohup',
+			'keep running after close',
 			'fg',
 			'bg',
 			'ctrl+z',
@@ -1170,6 +1237,11 @@ const topicEntries: SearchEntry[] = [
 		description: 'The same terminal, driving another machine — the prompt tells you which one.',
 		keywords: [
 			'ssh',
+			'scp',
+			'rsync',
+			'copy file to server',
+			'upload to server',
+			'deploy files',
 			'remote server',
 			'log into server',
 			'ssh key',
@@ -1309,6 +1381,10 @@ const topicEntries: SearchEntry[] = [
 			'colors',
 			'font',
 			'customize',
+			'clipboard',
+			'pbcopy',
+			'xclip',
+			'copy output',
 			'appearance',
 			'prompt customization',
 			'ps1',
@@ -1361,6 +1437,11 @@ const topicEntries: SearchEntry[] = [
 			'up arrow',
 			'ctrl+r',
 			'reverse search',
+			'line editing',
+			'ctrl+a',
+			'ctrl+e',
+			'ctrl+w',
+			'ctrl+u',
 			'!!',
 			'sudo !!',
 			'previous command',
@@ -1610,6 +1691,10 @@ const topicEntries: SearchEntry[] = [
 			'set -euo pipefail',
 			'set -e',
 			'pipefail',
+			'cron',
+			'crontab',
+			'schedule a script',
+			'for loop',
 			'strict mode',
 			'trap',
 			'trap exit',

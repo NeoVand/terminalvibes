@@ -88,7 +88,11 @@ drwxr-xr-x  4 vibe  staff  4096 Jul  9 18:02 projects`}
 				laptop it's usually <Code code="staff" /> or a group named after you with nobody else in it, which
 				is why the group's rules rarely bite until someone else is on the machine.
 				<Code code="id -gn" /> — <Code code="g" /> for group, <Code code="n" /> for the name rather than
-				the number — prints the name of yours.
+				the number — prints the name of yours. Owners can be reassigned:
+				<Code code="chown" /> ("change owner") hands a file to a different account, and it's a root-only
+				move you'll mostly meet on servers and around Docker, where files created inside a container come
+				out owned by somebody who isn't you. Recognize it when an agent proposes it; on your own laptop
+				you'll almost never type it.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
@@ -659,6 +663,29 @@ alias grep='grep --color=auto'  # Highlight what matched`}
 				pasting
 				<Code code="gs" /> now because it's the first command anyone reaches for the moment they meet
 				<Code code="git" />; nothing between here and the end depends on understanding it.
+			</p>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The other line you'll end up pasting into this file is the one installers keep asking for.
+				When a tool lands in a folder your shell doesn't search, "add it to your <Code
+					code="PATH"
+				/>" means exactly one line here:
+			</p>
+
+			<CodeBlock
+				title="The `PATH` line every installer wants"
+				code={`export PATH="$PATH:$HOME/.local/bin"
+# Read it right to left: take PATH's current value, add one folder, save it back`}
+			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The <Code code="$PATH" /> on the right-hand side is the read/write asymmetry from
+				<CourseLink to="section-5-4" /> doing real work: it expands to the old list first, so you're
+				<em>appending</em>, not replacing. Drop it —
+				<Code code="export PATH=&quot;$HOME/.local/bin&quot;" /> — and every command on the machine goes
+				<Code code="command not found" /> at once, because you just told the shell to search one folder
+				and nothing else. No lasting harm done (the broken value dies with the terminal window, and the
+				file isn't re-read until a new shell starts), but it's a memorable minute.
 			</p>
 
 			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">

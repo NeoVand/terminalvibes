@@ -472,6 +472,55 @@ vibe@laptop:~$`}
 				file, on your computer, with tight permissions.
 			</p>
 
+			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+				Moving files through the door
+			</h4>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				<Code code="ssh" /> carries your keystrokes through the door; its sibling
+				<Code code="scp" /> ("secure copy") carries files — same door, same keys. It reads exactly like
+				the <Code code="cp" /> you know from <CourseLink to="part-3" />, source first, destination
+				second, except either side may live on another machine, and a colon marks which:
+			</p>
+
+			<CodeBlock
+				title="`scp` — `cp`, across machines"
+				code={`scp status.json vibe@garden.example.com:~/reports/   # up: here -> there
+scp vibe@garden.example.com:~/logs/server.log .      # down: there -> here
+scp -r site/ vibe@garden.example.com:~/www/          # -r for folders, like cp`}
+			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				That colon is load-bearing: leave it off the destination and nothing crosses the network —
+				<Code code="scp status.json vibe@garden.example.com" /> just makes a <em>local</em> file
+				named like an address, quietly, in the folder you're standing in. The
+				<Code code="ls" />-your-target habit from <CourseLink to="part-3" /> catches it.
+			</p>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				The heavy-duty version — and the one agents reach for in deploy scripts — is
+				<Code code="rsync" />: it compares the two sides first and sends only what changed, so the
+				second run of a big copy takes seconds, and an interrupted one picks up where it stopped.
+			</p>
+
+			<CodeBlock
+				title="`rsync` — send only what changed"
+				code={`rsync -avz site/ vibe@garden.example.com:~/www/
+# -a archive: keep permissions and timestamps    -v narrate    -z compress on the wire
+
+rsync -avz --dry-run site/ vibe@garden.example.com:~/www/   # rehearse first`}
+			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				One sharp edge worth respecting: on the <em>source</em>, a trailing slash means "the
+				contents of" while no slash means "the folder itself" — <Code code="site/" /> fills
+				<Code code="~/www/" /> directly, <Code code="site" /> creates <Code code="~/www/site" />
+				inside it. The difference between the two is a nested folder you didn't want, which is exactly
+				why <Code code="--dry-run" /> — the rehearsal flag from
+				<CourseLink to="section-11-1" />'s audit routine — earns a place in the command before the
+				real run. Echo-the-glob, at server scale.
+			</p>
+
 			<Callout type="tip">
 				This is a real-machine lesson — the sandbox has no other computer to visit. When you do have
 				a server to reach, ask your assistant to walk you through generating a key with

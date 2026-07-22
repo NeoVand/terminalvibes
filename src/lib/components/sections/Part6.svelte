@@ -228,6 +228,42 @@ echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
 				real machine, the dated version works exactly as shown.
 			</Callout>
 
+			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
+				How agents deliver a file: the here-doc
+			</h4>
+
+			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Watch a coding agent create a file and you'll see one shape over and over — a whole file,
+				delivered in a single command:
+			</p>
+
+			<CodeBlock
+				title="A file in one command"
+				code={`cat <<'EOF' > backup.sh
+#!/usr/bin/env bash
+mkdir -p backups
+cp -r notes "backups/notes-$(date +%F)"
+EOF`}
+			/>
+
+			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
+				Read the first line in three parts. <Code code="cat" /> you know. <Code code="<<'EOF'" />
+				is a <strong style="color: var(--color-text);">here-document</strong>: "feed the lines that
+				follow straight in as input, until a line that says exactly
+				<Code code="EOF" />." And <Code code="> backup.sh" /> is the redirection from
+				<CourseLink to="part-4" />, catching all of it in a file. The delimiter is any word you like
+				— <Code code="EOF" /> ("end of file") is convention, not a keyword. The quotes around it are the
+				single-quote rule from <CourseLink to="section-2-2" /> in a new costume: quoted, every <Code
+					code="$"
+				/> between the markers travels into the file
+				<em>literally</em> — which is what you want when the script's own
+				<Code code="$(date +%F)" /> should run later, not now. Unquoted, the shell expands them all before
+				the file is even written. One habit to take from this: the lines between the markers
+				<em>are</em> the file — audit them exactly the way you'd audit the script they're about to become.
+				(The playground doesn't speak here-docs; this one is for reading agent transcripts, and for your
+				real machine.)
+			</p>
+
 			<Callout type="important">
 				<strong>Agents write scripts constantly.</strong> Ask an AI to "set up the project" or
 				"automate the deploy" and odds are it produces a

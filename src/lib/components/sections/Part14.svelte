@@ -512,6 +512,17 @@
 							>
 						</tr>
 						<tr style="border-top: 1px solid var(--color-border);">
+							<td class="px-3 py-2">Copy files to a server</td>
+							<td class="px-3 py-2"
+								><Code code="scp f host:~/" /> ·
+								<Code code="rsync -avz d/ host:d/" /></td
+							>
+							<td class="px-3 py-2"
+								>Like <Code code="cp" />, across machines; <Code code="rsync" /> resumes and skips what's
+								done</td
+							>
+						</tr>
+						<tr style="border-top: 1px solid var(--color-border);">
 							<td class="px-3 py-2">Read JSON</td>
 							<td class="px-3 py-2"><Code code="curl -s URL | jq -r .field" /></td>
 							<td class="px-3 py-2"><Code code="-r" /> drops the quotes for the next command</td>
