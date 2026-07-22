@@ -20,7 +20,10 @@
 	import Part12 from '$lib/components/sections/Part12.svelte';
 	import Part13 from '$lib/components/sections/Part13.svelte';
 	import Part14 from '$lib/components/sections/Part14.svelte';
+	import { resolve } from '$app/paths';
 	import { anchorIds } from '$lib/data/sections';
+	import { courseEntry } from '$lib/data/sidebar-nav';
+	import { partPages } from '$lib/data/part-pages';
 	import { markSectionVisited } from '$lib/data/progress';
 	import { createProgressSets, timelineManifest } from '$lib/timeline/state.svelte';
 	import { createReflowWatcher, measureOffsets, scrollFraction } from '$lib/timeline/measure';
@@ -341,6 +344,29 @@
 		content="An interactive guide to the terminal for developers using AI tools. Learn to read, verify, and run shell commands with confidence on macOS, Linux, and Windows."
 	/>
 	<link rel="canonical" href="https://neovand.github.io/terminalvibes/" />
+	<meta property="og:title" content="TerminalVibes — The Terminal for Vibe Coders" />
+	<meta
+		property="og:description"
+		content="An interactive, visual terminal tutorial for AI-assisted developers. Learn navigation, pipes, permissions, and command auditing."
+	/>
+	<meta property="og:image" content="https://neovand.github.io/terminalvibes/og-image.png" />
+	<meta
+		property="og:image:alt"
+		content="The Terminal for Vibe Coders — read, verify, and run shell commands with confidence"
+	/>
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://neovand.github.io/terminalvibes/" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="TerminalVibes — The Terminal for Vibe Coders" />
+	<meta
+		name="twitter:description"
+		content="An interactive, visual terminal tutorial for AI-assisted developers."
+	/>
+	<meta name="twitter:image" content="https://neovand.github.io/terminalvibes/og-image.png" />
+	<meta
+		name="twitter:image:alt"
+		content="The Terminal for Vibe Coders — read, verify, and run shell commands with confidence"
+	/>
 	<!-- Safe {@html}: the payload is JSON.stringify of a static literal — no
 	     user input can reach it. It exists only to emit the JSON-LD script tag,
 	     which Svelte cannot render any other way. -->
@@ -423,9 +449,34 @@
 	<Part13 />
 	<Part14 onOpenPlayground={openPlayground} />
 
-	<footer class="py-10 text-center" style="border-top: 1px solid var(--color-border);">
-		<p class="text-xs" style="color: var(--color-text-muted);">
-			Built for the vibe coding generation.
-		</p>
+	<footer class="px-6 py-12" style="border-top: 1px solid var(--color-border);">
+		<div class="mx-auto max-w-4xl">
+			<!-- Every part as its own shareable page — the course's internal
+			     linking surface, in the sidebar's own naming and iconography. -->
+			<p
+				class="mb-4 text-xs font-bold tracking-widest uppercase"
+				style="color: var(--color-text-muted); font-family: var(--font-heading); letter-spacing: 0.14em;"
+			>
+				The course, part by part
+			</p>
+			<div class="footer-parts mb-10 grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+				{#each partPages as p (p.id)}
+					{@const entry = courseEntry(p.id)}
+					{@const EntryIcon = entry?.icon}
+					<a
+						href={resolve('/parts/[slug]', { slug: p.slug })}
+						class="footer-part-link flex items-center gap-2 py-1 text-[13px]"
+					>
+						{#if EntryIcon}
+							<EntryIcon size={14} aria-hidden="true" class="shrink-0" />
+						{/if}
+						<span class="truncate">{entry?.label ?? p.title}</span>
+					</a>
+				{/each}
+			</div>
+			<p class="text-center text-xs" style="color: var(--color-text-muted);">
+				Built for the vibe coding generation.
+			</p>
+		</div>
 	</footer>
 </main>

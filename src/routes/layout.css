@@ -826,6 +826,16 @@ h4:hover .heading-anchor,
 	opacity: 1;
 }
 
+/* Footer index of the standalone /parts pages */
+.footer-part-link {
+	color: var(--color-text-secondary);
+	transition: color 0.15s ease;
+}
+
+.footer-part-link:hover {
+	color: var(--color-primary);
+}
+
 /* ───── Print styles ───── */
 @media print {
 	header,
