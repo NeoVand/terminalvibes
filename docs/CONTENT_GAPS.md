@@ -9,6 +9,13 @@ have since shipped as scenarios)._
 Each entry was verified absent from every section source before listing. Placement suggestions
 reference existing sections so an entry can be picked up as a self-contained task.
 
+> **Status (2026-07-21, later the same day):** every Tier 1 and Tier 2 entry below has shipped —
+> as in-section prose (no new section ids), plus matching cheat-sheet rows, search-index routing,
+> and a quick-reference row for `scp`/`rsync`. Only the exact placements changed in two cases:
+> brace expansion landed in 3.4 (after globs exist to contrast with) and here-docs in 6.1. This
+> doc now serves as the record of what was added and why; the maintenance risks at the bottom
+> remain open.
+
 ---
 
 ## Tier 1 — real gaps worth a subsection or lesson
