@@ -64,8 +64,8 @@
 
 	/**
 	 * One clock for the entire morph: the panel's width, the labels fading up,
-	 * the icons brightening, the carets turning, the children sliding down and
-	 * the thread lighting. They are not separate animations that happen to be
+	 * the icons brightening, the carets turning and the children sliding
+	 * down. They are not separate animations that happen to be
 	 * near each other, they are one gesture, and the moment two of them disagree
 	 * it reads as a swap again.
 	 *
@@ -205,9 +205,11 @@
 	/**
 	 * The part row's ink, and the only thing about a row that differs between
 	 * the two states — which is the point. Collapsed, an inactive part sits at
-	 * `--color-text-muted`; expanded it lifts to `--color-text`. The active part
-	 * is `--color-primary` in both, because "where you are" does not get quieter
-	 * just because the panel is narrow.
+	 * `--color-text-muted`; expanded it lifts one step to
+	 * `--color-text-secondary` — not all the way to `--color-text`, which made
+	 * fifteen rows of navigation as bright as the prose they navigate. The
+	 * active part is `--color-primary` in both, because "where you are" does
+	 * not get quieter just because the panel is narrow.
 	 *
 	 * It is returned as a colour rather than an opacity so the CSS transition on
 	 * `color` interpolates it, and so the row's icon, label and caret all
@@ -215,7 +217,7 @@
 	 */
 	function partInk(active: boolean): string {
 		if (active) return 'var(--color-primary)';
-		return open ? 'var(--color-text)' : 'var(--color-text-muted)';
+		return open ? 'var(--color-text-secondary)' : 'var(--color-text-muted)';
 	}
 
 	/* ── which theme, so the heat ramp can be resolved ──────────────────────
@@ -818,12 +820,12 @@
 				if (flyoutId) closeFlyout();
 			}}
 		>
-			{#each sections as section, i (section.id)}
+			{#each sections as section (section.id)}
 				{@const active = isActive(section.id)}
 				{@const shown = shows(section.id)}
-				<!-- Blocks and rows sit flush against each other so the thread's
-				     per-row pieces meet with no seam; the rows' own py-2.5 is what
-				     keeps the list breathing, not margins between them. -->
+				<!-- Blocks and rows sit flush against each other; the rows' own
+				     py-2.5 is what keeps the list breathing, not margins between
+				     them. -->
 				<div class="nav-block">
 					<!-- The row, not the button, is the hover target: the row is what the
 					     flyout is anchored to, and `overflow: hidden` on the panel clips
@@ -841,20 +843,12 @@
 					<div
 						role="none"
 						class="nav-item relative flex w-full items-center gap-2.5 px-3 py-2.5 text-left"
-						class:spine-start={i === 0}
-						class:spine-end={i === sections.length - 1}
 						style="color: {partInk(active)};"
 						onmouseenter={(e) => {
 							if (canHover()) openFlyout(section, e.currentTarget);
 						}}
 						onmouseleave={() => closeFlyout(90)}
 					>
-						<!-- The lit half of the thread: from this icon's centre down
-						     through everything the part holds. A real element rather
-						     than a second background on ::before, because opacity is
-						     the only thing that can fade the brightening up in step
-						     with the slide instead of switching it on at frame one. -->
-						<span class="nav-spine-lit" class:is-lit={shown} aria-hidden="true"></span>
 						<button
 							onclick={() => handlePartClick(section)}
 							class="nav-part flex flex-1 cursor-pointer items-center gap-2.5 text-left"
@@ -928,7 +922,7 @@
 						     The rule hangs from the section ICON, whose centre is 26px
 						     from the panel's left edge. This div's content edge is at the
 						     nav's 5.5px, so ml-5 (20px) puts the 1px border at 25.5–26.5 —
-						     centred on it, and on the thread above it.
+						     centred on it.
 
 						     The child icons line up with the section LABEL, which starts
 						     after the icon and its gap-2.5: 5.5 + 12 + 17 + 10 = 44.5px.
@@ -1095,11 +1089,6 @@
 		   text wants; 30% of the way to secondary reads as the same quiet
 		   second level while clearing 4.47:1 and 4.74:1. */
 		--nav-child-ink: color-mix(in srgb, var(--color-text-muted) 70%, var(--color-text-secondary));
-		/* Clearance the thread leaves around each icon: the 17px glyph plus
-		   3px either side, so the strokes never touch the line. Widening this
-		   shortens the connecting dashes between rows — at the ~44.7px row
-		   pitch, 23px leaves about 10.8px of line above and below each icon. */
-		--thread-gap: 23px;
 	}
 
 	.sidebar-panel.is-open {
@@ -1205,11 +1194,30 @@
 
 	/* Turned by a class rather than an inline style so it reads `--morph-ms`
 	   and cannot drift from the slide it accompanies. cubic-bezier(0.33, 1,
-	   0.68, 1) is cubicOut, the easing the children's reveal uses. */
+	   0.68, 1) is cubicOut, the easing the children's reveal uses.
+
+	   QUIET until asked for: fifteen chevrons in a resting column were
+	   fifteen pieces of chrome saying the same thing. On pointer devices the
+	   glyph appears when the row is hovered or the control is focused; an
+	   open part keeps its (turned) caret visible so the way back never has
+	   to be discovered. Touch has no hover, and there the sidebar is the
+	   primary nav — so every caret stays visible under (hover: none). */
 	.caret-glyph {
 		display: flex;
+		opacity: 0;
+		transition:
+			transform var(--morph-ms) cubic-bezier(0.33, 1, 0.68, 1),
+			opacity 150ms ease-out;
+	}
+	.nav-item:hover .caret-glyph,
+	.nav-caret:focus-visible .caret-glyph,
+	.caret-glyph.is-turned {
 		opacity: 0.5;
-		transition: transform var(--morph-ms) cubic-bezier(0.33, 1, 0.68, 1);
+	}
+	@media (hover: none) {
+		.caret-glyph {
+			opacity: 0.5;
+		}
 	}
 	.caret-glyph.is-turned {
 		transform: rotate(90deg);
@@ -1274,6 +1282,7 @@
 	   brightens the icon, the label and the caret together off one inherited
 	   value. This is the owner's "those icons get brighter". */
 	.nav-item {
+		border-radius: 8px;
 		transition:
 			color var(--morph-ms) ease-out,
 			background-color 150ms ease-out;
@@ -1281,86 +1290,14 @@
 	.nav-item:hover {
 		background: color-mix(in srgb, var(--color-text) 4%, transparent);
 	}
+	/* No hover wash while collapsed: the panel clips the 280px row at 52px,
+	   which turned the pill into a shape cut off mid-air. The flyout is the
+	   rail's hover response. */
+	.sidebar-panel:not(.is-open) .nav-item:hover {
+		background: transparent;
+	}
 	.nav-glyph {
 		display: flex;
-	}
-
-	/* ───── the thread ───────────────────────────────────────────────────
-	   A hairline threading the section icons from the rocket at the top to
-	   the book at the bottom, so the parts read as stops on a single course
-	   rather than fifteen unrelated rows. It is drawn in BOTH states now,
-	   because it lives at x=26 — dead centre of the icon column — so the
-	   collapsed rail gets the string its beads were always sitting on. It is
-	   not the mini timeline wearing a disguise: it is one dim hairline through
-	   the glyphs, carries no state, and measures nothing.
-
-	   It BREAKS at every icon. Drawing it straight through looked dirty:
-	   these are outlined, open glyphs, so a line crossing one shows through
-	   its interior and collides with its strokes. Stopping short either side
-	   lets the icon sit in the thread the way a bead sits on a string.
-
-	   It is deliberately NOT one element. Each row draws the two pieces that
-	   cross it and each open part's rule draws its own, so the thread is
-	   produced by layout instead of measured against it: nothing to
-	   recompute on resize, on expand, or per frame while a part animates
-	   open. The cost is that rows must sit flush — hence no margins between
-	   blocks.
-
-	   left: 20px is the row's own offset to the icon's centre. The row begins
-	   at the nav's 5.5px padding and pads itself 12px more, so the 17px icon
-	   spans 17.5–34.5px from the panel edge and its centre is 26px; 20px
-	   within the row puts this 1px line at 25.5–26.5px, centred on it. */
-	.nav-item::before,
-	.nav-item::after {
-		content: '';
-		position: absolute;
-		left: 20px;
-		width: 1px;
-		background: var(--thread-dim);
-		pointer-events: none;
-	}
-
-	/* Above the icon, and below it. The gap is centred on 50% because the
-	   icon is vertically centred in its row, so neither piece needs to know
-	   the row height. */
-	.nav-item::before {
-		top: 0;
-		bottom: calc(50% + var(--thread-gap) / 2);
-	}
-	.nav-item::after {
-		top: calc(50% + var(--thread-gap) / 2);
-		bottom: 0;
-	}
-
-	/* The thread starts and ends ON an icon, not in the space above the
-	   first or below the last: the first row has no piece above its icon,
-	   the last none below. */
-	.nav-item.spine-start::before,
-	.nav-item.spine-end::after {
-		content: none;
-	}
-
-	/* Inside an open part the thread lifts one step, --thread-dim →
-	   --thread-lit. Both stay far below the text beside them; the point is
-	   the *relative* change, which reads as "you are inside this" without
-	   either state becoming a visible bar.
-
-	   It starts below this row's icon, so the brighter run always begins at
-	   the part it belongs to. On the last row it is also what carries the
-	   thread past the point .spine-end stopped it. */
-	.nav-spine-lit {
-		position: absolute;
-		left: 20px;
-		top: calc(50% + var(--thread-gap) / 2);
-		bottom: 0;
-		width: 1px;
-		background: var(--thread-lit);
-		opacity: 0;
-		transition: opacity var(--morph-ms) cubic-bezier(0.33, 1, 0.68, 1);
-		pointer-events: none;
-	}
-	.nav-spine-lit.is-lit {
-		opacity: 1;
 	}
 
 	/* ───── child rows ────────────────────────────────────────────────────
