@@ -170,6 +170,9 @@
 	   beside them (desktop reading mode). Keep in sync with the panels'
 	   md:w-[min(42vw,40rem)] classes. */
 	--panel-reading-width: min(42vw, 40rem);
+	/* The cheat sheet is a narrower reading-mode panel: wide enough for every
+	   command on one line, no wider — it shares the viewport with an exercise. */
+	--cheatsheet-width: 21rem;
 
 	/* Frosted-panel fills. Light mode stays near-opaque so dark banner art
 	   blurred behind a panel can never muddy the text; dark mode stays airy.
@@ -565,12 +568,17 @@ strong {
 	}
 }
 
-/* Desktop reading mode: an open Agent/Playground panel RESHAPES the page —
-   the course text reflows into the remaining column instead of being
-   covered, so learners read and chat side by side. */
+/* Desktop reading mode: an open side panel RESHAPES the page — the course
+   text reflows into the remaining column instead of being covered, so
+   learners read beside the Agent, the Playground, or the cheat sheet. */
 @media (min-width: 1024px) {
 	.main-content.reading-mode {
 		margin-right: var(--panel-reading-width);
+	}
+
+	/* The cheat sheet is the narrow one; the content keeps the difference. */
+	.main-content.reading-mode.cheat-mode {
+		margin-right: var(--cheatsheet-width);
 	}
 
 	/* Tighter section gutters while sharing the viewport with a panel. */
