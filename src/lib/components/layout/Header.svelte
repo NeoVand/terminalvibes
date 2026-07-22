@@ -21,7 +21,10 @@
 		timelineItems = [],
 		scrollPosition = 0,
 		readIds = new Set<string>(),
-		doneIds = new Set<string>()
+		doneIds = new Set<string>(),
+		cheatSheetOpen = false,
+		playgroundOpen = false,
+		agentOpen = false
 	}: {
 		theme: string;
 		onToggleTheme: () => void;
@@ -34,6 +37,10 @@
 		scrollPosition?: number;
 		readIds?: Set<string>;
 		doneIds?: Set<string>;
+		/** Which panel is open, so its button can wear the state it caused. */
+		cheatSheetOpen?: boolean;
+		playgroundOpen?: boolean;
+		agentOpen?: boolean;
 	} = $props();
 
 	let aboutOpen = $state(false);
@@ -197,6 +204,8 @@
 		<button
 			onclick={onTogglePlayground}
 			class="playground-btn labelled-btn flex h-8 w-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg transition-all"
+			class:is-active={playgroundOpen}
+			aria-pressed={playgroundOpen}
 			aria-label="Open Terminal Playground"
 		>
 			<Gamepad2 size={16} />
@@ -206,6 +215,8 @@
 		<button
 			onclick={onToggleAgent}
 			class="agent-btn labelled-btn flex h-8 w-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg transition-all"
+			class:is-active={agentOpen}
+			aria-pressed={agentOpen}
 			aria-label="Open Agent"
 		>
 			<Bot size={16} />
@@ -215,6 +226,8 @@
 		<button
 			onclick={onToggleCheatSheet}
 			class="cheatsheet-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-all"
+			class:is-active={cheatSheetOpen}
+			aria-pressed={cheatSheetOpen}
 			aria-label="Terminal Cheat Sheet"
 		>
 			<ScrollText size={16} />
@@ -496,13 +509,21 @@
 	}
 
 	/* The trio reads as a warm gradient across the header: playground tan,
-	   agent amber, cheat sheet moss — each with the same 10% hover wash. */
+	   agent amber, cheat sheet moss — each with the same 10% hover wash, and
+	   a steadier 16% while its panel is open, so the header always says which
+	   surface is on screen. The is-active rules sit AFTER the hover rules on
+	   purpose: same specificity, so source order is what keeps an open
+	   button's wash from dimming under the pointer. */
 	.playground-btn {
 		color: var(--color-btn-playground);
 	}
 
 	.playground-btn:hover {
 		background: color-mix(in srgb, var(--color-btn-playground) 10%, transparent);
+	}
+
+	.playground-btn.is-active {
+		background: color-mix(in srgb, var(--color-btn-playground) 16%, transparent);
 	}
 
 	.agent-btn {
@@ -513,6 +534,10 @@
 		background: color-mix(in srgb, var(--color-btn-agent) 10%, transparent);
 	}
 
+	.agent-btn.is-active {
+		background: color-mix(in srgb, var(--color-btn-agent) 16%, transparent);
+	}
+
 	/* Same inviting treatment as the playground button, in the cheat
 	   sheet's accent — matching its "Quick reference" callout on the page */
 	.cheatsheet-btn {
@@ -521,5 +546,9 @@
 
 	.cheatsheet-btn:hover {
 		background: color-mix(in srgb, var(--color-btn-cheatsheet) 10%, transparent);
+	}
+
+	.cheatsheet-btn.is-active {
+		background: color-mix(in srgb, var(--color-btn-cheatsheet) 16%, transparent);
 	}
 </style>

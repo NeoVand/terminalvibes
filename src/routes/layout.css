@@ -160,7 +160,10 @@
 	--color-btn-agent: #8f6412;
 	--color-btn-cheatsheet: #4a8144;
 
-	--sidebar-width: 280px;
+	/* 273.5, not a round 280: the nav pads 5.5px each side (the left one is
+	   fixed by the 26px icon column), and the extra 6.5px the panel used to
+	   carry sat as dead space to the right of every hover pill. */
+	--sidebar-width: 273.5px;
 	--sidebar-collapsed-width: 52px;
 	--header-height: 48px;
 	/* Width of the Agent/Playground side panels while the course reflows
