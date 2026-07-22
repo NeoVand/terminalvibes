@@ -14,10 +14,13 @@
 		Eye,
 		FileCode,
 		FolderPlus,
+		Gamepad2,
 		Globe,
 		LifeBuoy,
+		ListFilter,
 		Lock,
 		Package,
+		Puzzle,
 		Route,
 		Scissors,
 		Workflow,
@@ -34,6 +37,8 @@
 		type CheatSheetCommand
 	} from '$lib/data/cheat-sheet';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
+	import { readingContext } from '$lib/ai/reading-context.svelte';
+	import { exerciseFocusOf, rowUsesWords } from '$lib/playground/exercise-commands';
 
 	let { open = false, onToggle }: { open: boolean; onToggle: () => void } = $props();
 
@@ -73,12 +78,41 @@
 		'life-buoy': LifeBuoy
 	};
 
-	let filteredCategories = $derived.by(() => {
-		const query = searchQuery.toLowerCase().trim();
-		if (!query) return cheatSheet;
+	/* ── exercise focus ──────────────────────────────────────────────────
+	   When the learner is AT a playground or challenge — the scroll-spy
+	   anchor resolves to one, or the panel opened on one — the sheet can
+	   narrow itself to the commands that exercise actually reaches for.
+	   The lightbulb-free ListFilter toggle in the toolbar turns it off and
+	   on; it only appears while there is an exercise to focus on. */
+	let focusEnabled = $state(true);
 
+	const exercise = $derived(exerciseFocusOf(readingContext.scenarioId ?? readingContext.sectionId));
+
+	/** The sheet narrowed to the exercise's commands — null when that would
+	 *  leave nothing to show (an exercise whose commands the sheet lacks). */
+	const focusedCategories = $derived.by(() => {
+		if (!exercise) return null;
 		const result: CheatSheetCategory[] = [];
 		for (const category of cheatSheet) {
+			const commands = category.commands.filter((cmd) => rowUsesWords(cmd.command, exercise.words));
+			if (commands.length > 0) result.push({ ...category, commands });
+		}
+		return result.length > 0 ? result : null;
+	});
+
+	const focusActive = $derived(focusEnabled && focusedCategories !== null);
+	const focusAccent = $derived(
+		exercise?.kind === 'challenge' ? 'var(--color-challenge)' : 'var(--color-important)'
+	);
+	const FocusIcon = $derived(exercise?.kind === 'challenge' ? Puzzle : Gamepad2);
+
+	let filteredCategories = $derived.by(() => {
+		const base = focusActive && focusedCategories ? focusedCategories : cheatSheet;
+		const query = searchQuery.toLowerCase().trim();
+		if (!query) return base;
+
+		const result: CheatSheetCategory[] = [];
+		for (const category of base) {
 			const matchingCommands = category.commands.filter(
 				(cmd) =>
 					cmd.command.toLowerCase().includes(query) ||
@@ -116,9 +150,56 @@
 			for (const category of filteredCategories) expandedCategories.add(category.label);
 		}
 	});
+
+	// A focused sheet is short; a collapsed category inside it hides half of
+	// an already-small kit. Expand what the focus surfaces (never collapse).
+	$effect(() => {
+		if (focusActive && focusedCategories) {
+			for (const category of focusedCategories) expandedCategories.add(category.label);
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
+
+{#snippet focusToggle()}
+	<!-- Only rendered while an exercise is in view AND the sheet has rows for
+	     it — a filter that could only produce an empty list never appears. -->
+	{#if exercise && focusedCategories}
+		<button
+			onclick={() => (focusEnabled = !focusEnabled)}
+			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:opacity-70"
+			style="color: {focusActive
+				? focusAccent
+				: 'var(--color-text-muted)'}; background: {focusActive
+				? `color-mix(in srgb, ${focusAccent} 14%, transparent)`
+				: 'transparent'};"
+			aria-pressed={focusActive}
+			aria-label="Show only this exercise's commands"
+			title={focusActive
+				? 'Showing this exercise’s commands — click for all'
+				: 'Show only this exercise’s commands'}
+		>
+			<ListFilter size={14} />
+		</button>
+	{/if}
+{/snippet}
+
+{#snippet focusStrip()}
+	<!-- Names what the filter is doing, so a suddenly-short list reads as a
+	     feature rather than as missing content. -->
+	{#if focusActive && exercise}
+		<div
+			class="flex items-center gap-2 px-4 py-1.5"
+			style="background: color-mix(in srgb, {focusAccent} 7%, transparent);"
+		>
+			<FocusIcon size={12} style="color: {focusAccent}; flex-shrink: 0;" />
+			<p class="min-w-0 truncate text-[11px]" style="color: var(--color-text-secondary);">
+				Commands for <strong style="font-weight: 600;">{exercise.title}</strong>
+			</p>
+		</div>
+	{/if}
+{/snippet}
 
 {#snippet legend()}
 	<!-- Placeholder key. Sits above the list rather than inside a category:
@@ -212,7 +293,7 @@
 
 <!-- Right-side sliding panel -->
 <aside
-	class="cheat-panel fixed top-0 right-0 bottom-0 z-40 flex w-full flex-col border-l transition-transform duration-200 ease-out sm:w-84"
+	class="cheat-panel fixed top-0 right-0 bottom-0 z-40 flex w-full flex-col border-l transition-transform duration-200 ease-out sm:w-[var(--cheatsheet-width)]"
 	style="padding-top: var(--header-height); border-color: var(--color-border);"
 	class:translate-x-0={open}
 	class:translate-x-full={!open}
@@ -227,9 +308,10 @@
 			class="text-xs font-semibold tracking-wider uppercase"
 			style="color: var(--color-text-muted); letter-spacing: 0.08em;"
 		>
-			Terminal Cheat Sheet
+			Cheat Sheet
 		</span>
 		<div class="flex items-center gap-0.5">
+			{@render focusToggle()}
 			<a
 				href={pdfHref}
 				download="terminalvibes-cheatsheet.pdf"
@@ -275,9 +357,13 @@
 		/>
 	</div>
 
-	<!-- Scrollable command list -->
+	{@render focusStrip()}
+
+	<!-- Scrollable command list. The legend rests while the sheet is focused
+	     on an exercise: a learner mid-exercise is copying commands, not
+	     decoding notation, and the short list should read at a glance. -->
 	<div class="flex-1 overflow-y-auto px-2 py-2.5" use:autohideScroll>
-		{#if filteredCategories.length > 0}
+		{#if filteredCategories.length > 0 && !focusActive}
 			{@render legend()}
 		{/if}
 		{#each filteredCategories as category (category.label)}
@@ -349,9 +435,10 @@
 					class="text-xs font-semibold tracking-wider uppercase"
 					style="color: var(--color-text-muted); letter-spacing: 0.08em;"
 				>
-					Terminal Cheat Sheet
+					Cheat Sheet
 				</span>
 				<div class="flex items-center gap-1">
+					{@render focusToggle()}
 					<a
 						href={pdfHref}
 						download="terminalvibes-cheatsheet.pdf"
@@ -388,8 +475,10 @@
 				/>
 			</div>
 
+			{@render focusStrip()}
+
 			<div class="min-h-0 flex-1 overflow-y-auto px-5 py-4" use:autohideScroll>
-				{#if filteredCategories.length > 0}
+				{#if filteredCategories.length > 0 && !focusActive}
 					{@render legend()}
 				{/if}
 				<div class="cheat-modal-columns">
