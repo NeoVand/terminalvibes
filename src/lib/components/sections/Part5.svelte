@@ -2,6 +2,7 @@
 	import { Shield, ScrollText, KeyRound, Lock, AtSign, FileText } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -31,7 +32,7 @@
 			<SectionHeader level="section" icon={ScrollText} title="5.1 Read a File’s Permissions" />
 			<p>
 				Ask for a long listing of one file. This example is a small script—a file of commands that
-				we will learn to write in Part 6:
+				we will learn to write in <CourseLink to="part-6" />:
 			</p>
 			<CommandTranscript
 				command="ls -l backup.sh"

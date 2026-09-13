@@ -2,6 +2,7 @@
 	import { Workflow, MoveRight, Search, ListOrdered, FileSearch } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -238,7 +239,8 @@
 			<h4>When you need a pattern instead of literal text</h4>
 			<p>
 				Without -F, grep uses a <strong>regular expression</strong>. This is a pattern language for
-				text, different from the filename globs in Part 3. Begin with just two anchors:
+				text, different from the filename globs in <CourseLink to="part-3" />. Begin with just two
+				anchors:
 			</p>
 			<CodeBlock
 				code={"grep '^Water' garden-tasks.txt\ngrep 'basil$' garden-tasks.txt"}
@@ -366,7 +368,7 @@
 						A simple table such as <Code code="basil,green,3" /> is easy to split at commas. Real CSV
 						can quote a value that contains a comma, a quote, or even a newline. Neither plain cut nor
 						<Code code="awk -F," /> parses those CSV rules. Use a CSV-aware tool or library for a general
-						spreadsheet export. Part 7 practises simple tables and explains the boundary.
+						spreadsheet export. <CourseLink to="part-7" /> practises simple tables and explains the boundary.
 					</p>
 				</div>
 			</details>

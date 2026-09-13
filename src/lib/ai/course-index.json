@@ -3,13 +3,13 @@
 		"id": "hero",
 		"part": 0,
 		"title": "Introduction",
-		"text": "TerminalVibes · learn by doing Your first command. Right here. A terminal is a place to give your computer written instructions. Let’s try one. No install, account, or experience needed."
+		"text": "TerminalVibes — The Terminal for Vibe Coders Welcome! Let’s make the terminal say hello. Type your first command below—there’s nothing to install."
 	},
 	{
 		"id": "hello-first-command",
 		"part": 0,
 		"title": "Your First Command",
-		"text": "You typed Your command ❯ Run Recall Discard draft Ctrl+C The practice terminal could not load. Try loading again Next: get comfortable with the keyboard → Practise these first steps again Practice in your browser. Your computer’s files stay untouched. A small instruction. A visible result. We’ll build from there."
+		"text": "You typed Your command ❯ Run Recall Discard draft Ctrl+C The practice terminal could not load. Try loading again Next: get comfortable with the keyboard → Practise these first steps again Practice in your browser. Your computer’s files stay untouched."
 	},
 	{
 		"id": "keyboard-workshop",
@@ -27,7 +27,7 @@
 		"id": "keyboard-workshop",
 		"part": 0,
 		"title": "Keyboard Workshop",
-		"text": "A browser demonstration is useful; your own keyboard is where the habit grows. Keep going Small skills, useful things. Next, get comfortable reading a reply and asking for help. Then we’ll find folders, make a notebook, and work with your files. Continue to Part 1 Curious about the words and the tools? Open any of these. You can come back later."
+		"text": "A browser demonstration is useful; your own keyboard is where the habit grows. Curious about the words and the tools? Open any of these. You can come back later."
 	},
 	{
 		"id": "section-intro-what",
@@ -45,13 +45,13 @@
 		"id": "section-intro-shells",
 		"part": 0,
 		"title": "Intro · Your Machine's Terminal",
-		"text": "Can I use the terminal on my own computer? Yes. You can also complete the first lessons entirely in this browser. When you want to try a real terminal, Part 1 walks through opening yours . On a Mac, Terminal is already in Applications → Utilities. It usually starts zsh. On Linux, look for Terminal in your application menu; the shell depends on your setup. On Windows, this course’s commands need a Bash environment such as WSL or Git Bash. Windows Terminal is the window; its PowerShell tab uses a different command language. You can postpone setup and keep practising here. The browser playground is a learning model, not a complete operating system. Commands such as package installs and network requests use simulated data here. Later lessons identify the steps to repeat on your own computer."
+		"text": "Can I use the terminal on my own computer? Yes. You can also complete the first lessons entirely in this browser. When you want to try a real terminal, Opening Your Terminal walks through the setup. On a Mac, Terminal is already in Applications → Utilities. It usually starts zsh. On Linux, look for Terminal in your application menu; the shell depends on your setup. On Windows, this course’s commands need a Bash environment such as WSL or Git Bash. Windows Terminal is the window; its PowerShell tab uses a different command language. You can postpone setup and keep practising here. The browser playground is a learning model, not a complete operating system. Commands such as package installs and network requests use simulated data here. Later lessons identify the steps to repeat on your own computer."
 	},
 	{
 		"id": "section-intro-history",
 		"part": 0,
 		"title": "Intro · Why Written Commands?",
-		"text": "Why do people still type commands? A written instruction can be repeated, changed, shared, or connected to another instruction. That is useful when you need to rename many files, find one line in a large log, or repeat a task tomorrow. Modern shells grew out of Unix, developed at Bell Labs starting in 1969. People connected small programs so that the result from one became the input to the next. You will try this idea yourself when we reach pipes . You do not have to replace your everyday apps. Use the terminal when it makes a task easier. The aim is to gain another useful way to work. Open practice terminal Experiment with simulated files. Ask the course helper Get a hint or a smaller explanation. Explore the course map"
+		"text": "Why do people still type commands? A written instruction can be repeated, changed, shared, or connected to another instruction. That is useful when you need to rename many files, find one line in a large log, or repeat a task tomorrow. Modern shells grew out of Unix, developed at Bell Labs starting in 1969. People connected small programs so that the result from one became the input to the next. You will try this idea yourself when we reach pipes . You do not have to replace your everyday apps. Use the terminal when it makes a task easier. The aim is to gain another useful way to work. Open Terminal Playground Experiment with simulated files. Ask the AI tutor Get a hint or a smaller explanation. Explore the course map In First Contact , we’ll try a few more commands and learn how to ask for help."
 	},
 	{
 		"id": "part-1",
@@ -75,7 +75,7 @@
 		"id": "section-1-2",
 		"part": 1,
 		"title": "1.2 Your First Commands",
-		"text": "Type one command at a time. Press Enter to run it, then read what appeared. The line where you type is called the prompt . A new prompt means the shell is ready for another instruction. Start with a message you choose. Change the words between the quotes: echo \"My garden notebook\" My garden notebook echo prints text. The message above is the computer’s reply to the command, so you do not type that second line yourself. Ask for your username whoami You type It prints the name of the account running the command. Here that name is vibe . On your computer it may be different. Ask for the date and time date You type It prints a date and time. The format and time zone depend on the computer, so your result need not match someone else’s. One more question will matter throughout the course: where am I working? Type pwd . It prints your current folder’s location. In this sandbox it begins as /home/vibe . Part 2 will make that location concrete with a folder map. Try it: a short conversation Try a message, your username, the time, and your location below. You can change the examples. The file tree is a picture of this practice terminal’s files; you do not need to use it yet."
+		"text": "Type one command at a time. Press Enter to run it, then read what appeared. The line where you type is called the prompt . A new prompt means the shell is ready for another instruction. Start with a message you choose. Change the words between the quotes: echo \"My garden notebook\" My garden notebook echo prints text. The message above is the computer’s reply to the command, so you do not type that second line yourself. Ask for your username whoami You type It prints the name of the account running the command. Here that name is vibe . On your computer it may be different. Ask for the date and time date You type It prints a date and time. The format and time zone depend on the computer, so your result need not match someone else’s. One more question will matter throughout the course: where am I working? Type pwd . It prints your current folder’s location. In this sandbox it begins as /home/vibe . Moving Around will make that location concrete with a folder map. Try it: a short conversation Try a message, your username, the time, and your location below. You can change the examples. The file tree is a picture of this practice terminal’s files; you do not need to use it yet."
 	},
 	{
 		"id": "section-1-2",
@@ -111,7 +111,7 @@
 		"id": "section-2-1",
 		"part": 2,
 		"title": "2.1 Where Am I?",
-		"text": "A byte is a unit of stored data; one written character can use more than one byte. The first character is - for a regular file or d for a directory. Part 5 explains the other permission letters. ls -lh formats larger sizes as values such as 4.2K . ls -la combines the long listing with hidden names. For this command, -la is shorthand for -l -a ; option letters belong to each individual command."
+		"text": "A byte is a unit of stored data; one written character can use more than one byte. The first character is - for a regular file or d for a directory. Permissions & Config explains the other permission letters. ls -lh formats larger sizes as values such as 4.2K . ls -la combines the long listing with hidden names. For this command, -la is shorthand for -l -a ; option letters belong to each individual command."
 	},
 	{
 		"id": "section-2-2",
@@ -123,13 +123,13 @@
 		"id": "section-2-2",
 		"part": 2,
 		"title": "2.2 Paths",
-		"text": "The quotes are instructions to the shell; they are not part of the folder’s name. A backslash can protect a single space too: cd My\\ Notes . Try typing the first few letters of a name, then pressing Tab . In many shells, completion fills in a matching name. If several names match, type another letter or press Tab again to see choices. The keyboard workshop gives you a place to practise this without a long command to manage. Single quotes, double quotes, and literal text Both 'My Notes' and \"My Notes\" keep the space inside the name. Single quotes preserve their contents literally. Double quotes also allow variable values such as $HOME to expand; we will use variables in Part 5. Keep the home shortcut outside quotes: ~/\"My Notes\" works. \"~/My Notes\" treats the tilde as an ordinary character in a real shell. Later, \"$HOME/My Notes\" will give you a convenient quoted form."
+		"text": "The quotes are instructions to the shell; they are not part of the folder’s name. A backslash can protect a single space too: cd My\\ Notes . Try typing the first few letters of a name, then pressing Tab . In many shells, completion fills in a matching name. If several names match, type another letter or press Tab again to see choices. The keyboard workshop gives you a place to practise this without a long command to manage. Single quotes, double quotes, and literal text Both 'My Notes' and \"My Notes\" keep the space inside the name. Single quotes preserve their contents literally. Double quotes also allow variable values such as $HOME to expand; we will use variables in Permissions & Config . Keep the home shortcut outside quotes: ~/\"My Notes\" works. \"~/My Notes\" treats the tilde as an ordinary character in a real shell. Later, \"$HOME/My Notes\" will give you a convenient quoted form."
 	},
 	{
 		"id": "section-2-3",
 		"part": 2,
 		"title": "2.3 Changing Directories",
-		"text": "cd changes your current folder. It does not move the files themselves. Try a move, then ask pwd where you landed: cd garden pwd ls In the example tree above · run one line at a time After this move, pwd would show /home/vibe/garden . If a folder called garden does not exist in your current practice, choose a name you can see with ls instead. Command What changes cd .. Go to the parent folder. cd ~ Go home. Plain cd does this too. cd - Return to the previous working folder. ls photos Look inside photos without changing your location. If cd reports “No such file or directory,” your location has not changed. Check pwd , list the names, then correct the path. If it says “Not a directory,” you may have chosen a file. If it says “Permission denied,” the folder exists but your account cannot enter it; Part 5 explains that case. Each shell has its own current folder. Moving in one terminal tab does not move another tab. This is why checking your location is useful even when you were “just there.” Try it: find the hidden garden note Explore the seeded folders below with pwd , ls , and cd . Use ls -a if a clue seems missing."
+		"text": "cd changes your current folder. It does not move the files themselves. Try a move, then ask pwd where you landed: cd garden pwd ls In the example tree above · run one line at a time After this move, pwd would show /home/vibe/garden . If a folder called garden does not exist in your current practice, choose a name you can see with ls instead. Command What changes cd .. Go to the parent folder. cd ~ Go home. Plain cd does this too. cd - Return to the previous working folder. ls photos Look inside photos without changing your location. If cd reports “No such file or directory,” your location has not changed. Check pwd , list the names, then correct the path. If it says “Not a directory,” you may have chosen a file. If it says “Permission denied,” the folder exists but your account cannot enter it; Permissions & Config explains that case. Each shell has its own current folder. Moving in one terminal tab does not move another tab. This is why checking your location is useful even when you were “just there.” Try it: find the hidden garden note Explore the seeded folders below with pwd , ls , and cd . Use ls -a if a clue seems missing."
 	},
 	{
 		"id": "section-2-3",
@@ -165,7 +165,7 @@
 		"id": "section-2-5",
 		"part": 2,
 		"title": "2.5 Looking Inside Files",
-		"text": "These are instructions inside Vim , not commands to type at an ordinary shell prompt. Try it: build your notebook workspace Make the folders and empty files described in the practice below. Inspect each folder before continuing. These files start empty. Open one with Edit a file if you want to add a note, then read it back with cat. Part 4 will show another way to write files: saving a command’s output. Before moving on, explain this in your own words: why can the same notes.txt command name a different file after cd ? Next, we will copy, rename, and organize the files you can now find."
+		"text": "These are instructions inside Vim , not commands to type at an ordinary shell prompt. Try it: build your notebook workspace Make the folders and empty files described in the practice below. Inspect each folder before continuing. These files start empty. Open one with Edit a file if you want to add a note, then read it back with cat. Text & Pipes will show another way to write files: saving a command’s output. Before moving on, explain this in your own words: why can the same notes.txt command name a different file after cd ? Next, we will copy, rename, and organize the files you can now find."
 	},
 	{
 		"id": "part-3",
@@ -273,7 +273,7 @@
 		"id": "section-4-3",
 		"part": 4,
 		"title": "4.3 Searching Text",
-		"text": "When you need a pattern instead of literal text Without -F, grep uses a regular expression . This is a pattern language for text, different from the filename globs in Part 3. Begin with just two anchors: grep '^Water' garden-tasks.txt grep 'basil$' garden-tasks.txt First: lines starting with Water. Second: lines ending with basil. ^ marks the beginning of a line; $ marks its end. A dot in a regular expression matches a character. A star repeats the pattern item before it. To search for a literal filename such as plan.md , grep -F 'plan.md' file.txt avoids treating the dot as a wildcard. Keep the pattern in quotes so the shell passes it intact. grep '*.txt' is not the way to select text files: grep’s pattern is for contents . A filename glob goes where the filenames go, for example grep -F 'basil' ./*.txt . Try it: read the story of a crash Search the supplied server.log. Start with one useful word, include line numbers, then narrow the result. Read the nearby text before deciding what caused the failure."
+		"text": "When you need a pattern instead of literal text Without -F, grep uses a regular expression . This is a pattern language for text, different from the filename globs in Copy, Move, Delete . Begin with just two anchors: grep '^Water' garden-tasks.txt grep 'basil$' garden-tasks.txt First: lines starting with Water. Second: lines ending with basil. ^ marks the beginning of a line; $ marks its end. A dot in a regular expression matches a character. A star repeats the pattern item before it. To search for a literal filename such as plan.md , grep -F 'plan.md' file.txt avoids treating the dot as a wildcard. Keep the pattern in quotes so the shell passes it intact. grep '*.txt' is not the way to select text files: grep’s pattern is for contents . A filename glob goes where the filenames go, for example grep -F 'basil' ./*.txt . Try it: read the story of a crash Search the supplied server.log. Start with one useful word, include line numbers, then narrow the result. Read the nearby text before deciding what caused the failure."
 	},
 	{
 		"id": "section-4-4",
@@ -291,7 +291,7 @@
 		"id": "section-4-4",
 		"part": 4,
 		"title": "4.4 Counting & Shaping",
-		"text": "Real CSV can quote a value that contains a comma, a quote, or even a newline. Neither plain cut nor awk -F, parses those CSV rules. Use a CSV-aware tool or library for a general spreadsheet export. Part 7 practises simple tables and explains the boundary."
+		"text": "Real CSV can quote a value that contains a comma, a quote, or even a newline. Neither plain cut nor awk -F, parses those CSV rules. Use a CSV-aware tool or library for a general spreadsheet export. Text Surgery practises simple tables and explains the boundary."
 	},
 	{
 		"id": "section-4-5",
@@ -315,7 +315,7 @@
 		"id": "section-5-1",
 		"part": 5,
 		"title": "5.1 Reading ls -l",
-		"text": "Ask for a long listing of one file. This example is a small script—a file of commands that we will learn to write in Part 6: ls -l backup.sh -rw-r--r-- 1 vibe staff 214 Jul 12 08:30 backup.sh The owner’s account name is vibe. The group is staff: a named collection of accounts. The letters at the start describe permissions for the owner, the group, and everyone else. - Regular file rw- Owner: read and write r-- Group: read r-- Others: read r permits reading, w permits writing, and x permits executing a file as a program. A dash in one of those positions means that permission is absent. The initial character describes the file type: - for a regular file, d for a directory, or l for a symbolic link. The owner is not necessarily you. Use whoami to check your account and id to see its groups. A process—including an AI agent—usually acts with the account that started it. Merely calling a program an “agent” does not give it a separate restricted account. Directories use the letters differently Permission On a directory Read (r) List the names inside. Execute (x) Traverse the directory to access a named entry; cd needs this."
+		"text": "Ask for a long listing of one file. This example is a small script—a file of commands that we will learn to write in Scripts & Automation : ls -l backup.sh -rw-r--r-- 1 vibe staff 214 Jul 12 08:30 backup.sh The owner’s account name is vibe. The group is staff: a named collection of accounts. The letters at the start describe permissions for the owner, the group, and everyone else. - Regular file rw- Owner: read and write r-- Group: read r-- Others: read r permits reading, w permits writing, and x permits executing a file as a program. A dash in one of those positions means that permission is absent. The initial character describes the file type: - for a regular file, d for a directory, or l for a symbolic link. The owner is not necessarily you. Use whoami to check your account and id to see its groups. A process—including an AI agent—usually acts with the account that started it. Merely calling a program an “agent” does not give it a separate restricted account. Directories use the letters differently Permission On a directory Read (r) List the names inside. Execute (x) Traverse the directory to access a named entry; cd needs this."
 	},
 	{
 		"id": "section-5-1",
@@ -495,7 +495,7 @@
 		"id": "section-7-4",
 		"part": 7,
 		"title": "7.4 Columns & awk",
-		"text": "A plain text table might separate its values with spaces. For example: basil 3 sunny mint 5 shade thyme 2 sunny Example plants.txt · name, quantity, location awk normally separates each line into fields at runs of whitespace. $1 is the first field, $2 the second, and $0 the whole line. awk '{print $1}' plants.txt basil mint thyme awk '{print $1, $3}' plants.txt basil sunny mint shade thyme sunny The braces contain an action. print prints the fields you name; the comma between fields inserts an output separator, a space by default. The shell’s single quotes keep the awk program intact. The $1 here belongs to awk , not to the shell script argument from Part 6. Double-quoting this program can let the shell replace $1 before awk sees it. Keep these awk programs in single quotes. Select rows as well as fields awk '/sunny/ {print $1}' plants.txt basil thyme The pattern before the braces selects matching lines; the action only runs for those lines. This pattern matches sunny anywhere on the line. It is not yet a condition saying “the third field is exactly sunny.” Choose a different separator -F, tells awk to split fields at commas."
+		"text": "A plain text table might separate its values with spaces. For example: basil 3 sunny mint 5 shade thyme 2 sunny Example plants.txt · name, quantity, location awk normally separates each line into fields at runs of whitespace. $1 is the first field, $2 the second, and $0 the whole line. awk '{print $1}' plants.txt basil mint thyme awk '{print $1, $3}' plants.txt basil sunny mint shade thyme sunny The braces contain an action. print prints the fields you name; the comma between fields inserts an output separator, a space by default. The shell’s single quotes keep the awk program intact. The $1 here belongs to awk , not to the shell script argument from Scripts & Automation . Double-quoting this program can let the shell replace $1 before awk sees it. Keep these awk programs in single quotes. Select rows as well as fields awk '/sunny/ {print $1}' plants.txt basil thyme The pattern before the braces selects matching lines; the action only runs for those lines. This pattern matches sunny anywhere on the line. It is not yet a condition saying “the third field is exactly sunny.” Choose a different separator -F, tells awk to split fields at commas."
 	},
 	{
 		"id": "section-7-4",
@@ -555,7 +555,7 @@
 		"id": "section-8-4",
 		"part": 8,
 		"title": "8.4 Background & Foreground",
-		"text": "A foreground job owns your terminal while it runs. A background job lets the shell accept another command. Add & to start a job in the background; use jobs to see jobs tracked by this shell. Try in your terminal: run sleep 60 & , then jobs . You may see a job number such as [1] and a PID. They are different identifiers. The job number belongs to this shell; the PID belongs to the operating system. fg %1 brings job 1 to the foreground. Press Ctrl+C to stop the sleep. If your shell listed a different job number, use that number. Ctrl+Z suspends a foreground job; it does not finish it. bg %1 resumes a suspended job in the background. Background output can still appear over your prompt. Background jobs may also be affected when the shell exits. The ampersand is not a reliable way to make an unattended service. For everyday development, a second terminal tab is often easier. Part 12 introduces tmux for sessions you can detach and revisit. Try it: Two things at once Try one change after the guided activity: bring a different job forward, identify what owns the terminal, then return to a prompt. You are learning to account for running work, not merely hide it."
+		"text": "A foreground job owns your terminal while it runs. A background job lets the shell accept another command. Add & to start a job in the background; use jobs to see jobs tracked by this shell. Try in your terminal: run sleep 60 & , then jobs . You may see a job number such as [1] and a PID. They are different identifiers. The job number belongs to this shell; the PID belongs to the operating system. fg %1 brings job 1 to the foreground. Press Ctrl+C to stop the sleep. If your shell listed a different job number, use that number. Ctrl+Z suspends a foreground job; it does not finish it. bg %1 resumes a suspended job in the background. Background output can still appear over your prompt. Background jobs may also be affected when the shell exits. The ampersand is not a reliable way to make an unattended service. For everyday development, a second terminal tab is often easier. Your Cockpit introduces tmux for sessions you can detach and revisit. Try it: Two things at once Try one change after the guided activity: bring a different job forward, identify what owns the terminal, then return to a prompt. You are learning to account for running work, not merely hide it."
 	},
 	{
 		"id": "section-8-4",
@@ -573,7 +573,7 @@
 		"id": "section-9-1",
 		"part": 9,
 		"title": "9.1 What Is localhost?",
-		"text": "Read http://localhost:3000/health in pieces. http names the protocol. localhost refers to the machine making the request. 3000 is the port. /health is the path requested from that server. A server must be running before it can answer. Typing an address does not start it. If nothing is listening at the requested address and port, the request may fail with “connection refused.” A wrong path can produce a different result: the server answers, but says that resource was not found. A development tool printing a localhost link does not prove the server is reachable only from your computer. Its listening configuration matters. Binding to 127.0.0.1 or ::1 is loopback-only. Binding to 0.0.0.0 or :: can accept connections through other interfaces, subject to network and firewall rules. For a local practice server, choose the tool's loopback binding option and verify its listener as in Part 8. Do not rely on the friendliness of the link it prints."
+		"text": "Read http://localhost:3000/health in pieces. http names the protocol. localhost refers to the machine making the request. 3000 is the port. /health is the path requested from that server. A server must be running before it can answer. Typing an address does not start it. If nothing is listening at the requested address and port, the request may fail with “connection refused.” A wrong path can produce a different result: the server answers, but says that resource was not found. A development tool printing a localhost link does not prove the server is reachable only from your computer. Its listening configuration matters. Binding to 127.0.0.1 or ::1 is loopback-only. Binding to 0.0.0.0 or :: can accept connections through other interfaces, subject to network and firewall rules. For a local practice server, choose the tool's loopback binding option and verify its listener as in Processes & Ports . Do not rely on the friendliness of the link it prints."
 	},
 	{
 		"id": "section-9-2",
@@ -867,7 +867,7 @@
 		"id": "section-14-4",
 		"part": 14,
 		"title": "14.4 Keep Learning",
-		"text": "Begin in a fresh practice folder on your own machine. Make a notebook, find a sentence in it, copy it, and compare the two copies. Practise one keyboard repair. Keep valuable files outside the experiment until the steps feel familiar. The native terminal will expose differences the simulation keeps small: your actual shell, real permissions, installed tools, other processes, and the network. When something differs, write down the command, its output, and the environment. That is a useful question to investigate, not evidence that you failed the course. Choose a direction that solves a problem you have Find things faster: try one of the rg, fd, fzf, or zoxide tasks in Part 10 on a familiar folder. Keep long work organized: use named tabs or practise detaching a tmux session in Part 12. Repeat a chore: build a small script from Part 13 and test what happens when an input is missing. Work remotely: practise SSH only with an account you are authorized to use; keep local and remote identities clear. Track changes over time: learn Git so you can inspect history, compare revisions, and make deliberate recoveries. The sister course GitVibes follows that path."
+		"text": "Begin in a fresh practice folder on your own machine. Make a notebook, find a sentence in it, copy it, and compare the two copies. Practise one keyboard repair. Keep valuable files outside the experiment until the steps feel familiar. The native terminal will expose differences the simulation keeps small: your actual shell, real permissions, installed tools, other processes, and the network. When something differs, write down the command, its output, and the environment. That is a useful question to investigate, not evidence that you failed the course. Choose a direction that solves a problem you have Find things faster: try one of the rg, fd, fzf, or zoxide tasks in The Toolshed on a familiar folder. Keep long work organized: use named tabs or practise detaching a tmux session in Your Cockpit . Repeat a chore: build a small script from Under the Hood and test what happens when an input is missing. Work remotely: practise SSH only with an account you are authorized to use; keep local and remote identities clear. Track changes over time: learn Git so you can inspect history, compare revisions, and make deliberate recoveries. The sister course GitVibes follows that path."
 	},
 	{
 		"id": "section-14-4",

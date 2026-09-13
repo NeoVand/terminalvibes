@@ -2,6 +2,7 @@
 	import { Compass, MapPin, Route, MoveRight, FolderPlus, Eye } from 'lucide-svelte';
 	import { base, resolve } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -82,8 +83,8 @@
 						Start at the right: the name, then the date, then the size in bytes. A byte is a unit of
 						stored data; one written character can use more than one byte. The first character is <Code
 							code="-"
-						/> for a regular file or <Code code="d" /> for a directory. Part 5 explains the other permission
-						letters.
+						/> for a regular file or <Code code="d" /> for a directory. <CourseLink to="part-5" /> explains
+						the other permission letters.
 					</p>
 					<p>
 						<Code code="ls -lh" /> formats larger sizes as values such as <Code code="4.2K" />. <Code
@@ -199,7 +200,9 @@
 					<p>
 						Both <Code code="'My Notes'" /> and <Code code="&quot;My Notes&quot;" /> keep the space inside
 						the name. Single quotes preserve their contents literally. Double quotes also allow variable
-						values such as <Code code="$HOME" /> to expand; we will use variables in Part 5.
+						values such as <Code code="$HOME" /> to expand; we will use variables in <CourseLink
+							to="part-5"
+						/>.
 					</p>
 					<p>
 						Keep the home shortcut outside quotes: <Code code="~/&quot;My Notes&quot;" /> works. <Code
@@ -247,7 +250,7 @@
 				If <Code code="cd" /> reports “No such file or directory,” your location has not changed. Check
 				<Code code="pwd" />, list the names, then correct the path. If it says “Not a directory,”
 				you may have chosen a file. If it says “Permission denied,” the folder exists but your
-				account cannot enter it; Part 5 explains that case.
+				account cannot enter it; <CourseLink to="part-5" /> explains that case.
 			</p>
 			<p>
 				Each shell has its own current folder. Moving in one terminal tab does not move another tab.
@@ -417,8 +420,8 @@
 			<p>
 				Make the folders and empty files described in the practice below. Inspect each folder before
 				continuing. These files start empty. Open one with Edit a file if you want to add a note,
-				then read it back with cat. Part 4 will show another way to write files: saving a command’s
-				output.
+				then read it back with cat. <CourseLink to="part-4" /> will show another way to write files: saving
+				a command’s output.
 			</p>
 			<LessonActivity
 				title="Build Your Notebook Workspace"

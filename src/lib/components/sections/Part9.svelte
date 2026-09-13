@@ -2,6 +2,7 @@
 	import { BookOpen } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
@@ -68,7 +69,8 @@
 			</p>
 			<p>
 				For a local practice server, choose the tool's loopback binding option and verify its
-				listener as in Part 8. Do not rely on the friendliness of the link it prints.
+				listener as in <CourseLink to="part-8" />. Do not rely on the friendliness of the link it
+				prints.
 			</p>
 		</div>
 		<div id="section-9-2" class="lesson">

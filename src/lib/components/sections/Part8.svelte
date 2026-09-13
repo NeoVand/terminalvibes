@@ -2,6 +2,7 @@
 	import { BookOpen } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -225,8 +226,8 @@ vibe       437  97.4  spinner.sh --forever`}
 			<p>
 				Background output can still appear over your prompt. Background jobs may also be affected
 				when the shell exits. The ampersand is not a reliable way to make an unattended service. For
-				everyday development, a second terminal tab is often easier. Part 12 introduces tmux for
-				sessions you can detach and revisit.
+				everyday development, a second terminal tab is often easier. <CourseLink to="part-12" /> introduces
+				tmux for sessions you can detach and revisit.
 			</p>
 			<h4 id="backstage-jobs">Try it: Two things at once</h4>
 			<LessonActivity title="Two things at once" scenarioId="backstage-jobs" id="backstage-jobs" />

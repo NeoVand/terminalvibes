@@ -2,6 +2,7 @@
 	import { BookOpen } from 'lucide-svelte';
 	import { base, resolve } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
@@ -319,16 +320,18 @@
 			<h4>Choose a direction that solves a problem you have</h4>
 			<ul>
 				<li>
-					<strong>Find things faster:</strong> try one of the rg, fd, fzf, or zoxide tasks in Part 10
+					<strong>Find things faster:</strong> try one of the rg, fd, fzf, or zoxide tasks in <CourseLink
+						to="part-10"
+					/>
 					on a familiar folder.
 				</li>
 				<li>
-					<strong>Keep long work organized:</strong> use named tabs or practise detaching a tmux session
-					in Part 12.
+					<strong>Keep long work organized:</strong> use named tabs or practise detaching a tmux
+					session in <CourseLink to="part-12" />.
 				</li>
 				<li>
-					<strong>Repeat a chore:</strong> build a small script from Part 13 and test what happens when
-					an input is missing.
+					<strong>Repeat a chore:</strong> build a small script from <CourseLink to="part-13" /> and test
+					what happens when an input is missing.
 				</li>
 				<li>
 					<strong>Work remotely:</strong> practise SSH only with an account you are authorized to use;

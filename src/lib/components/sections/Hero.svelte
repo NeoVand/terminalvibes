@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { Bot, Gamepad2, ArrowRight } from 'lucide-svelte';
+	import { Bot, Gamepad2 } from 'lucide-svelte';
 	import FirstCommand from '../playground/FirstCommand.svelte';
 	import KeyboardWorkshop from '../playground/KeyboardWorkshop.svelte';
 	import Code from '../ui/Code.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import CourseMap from '../ui/CourseMap.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 
 	let {
 		onOpenPlayground,
@@ -18,26 +19,23 @@
 </script>
 
 <section id="hero" class="hero">
+	<h1 class="sr-only">TerminalVibes — The Terminal for Vibe Coders</h1>
 	<div class="opening">
-		<p class="eyebrow">TerminalVibes · learn by doing</p>
-		<h1>Your first command.<br />Right here.</h1>
-		<p class="welcome">
-			A terminal is a place to give your computer written instructions. Let’s try one. No install,
-			account, or experience needed.
-		</p>
-		<div class="opening-grid">
-			<FirstCommand />
-			<figure class="opening-art">
-				<img
-					src="{base}/images/Hero.webp"
-					alt="TerminalVibes: an illustrated garden of terminal tools, with a hermit crab guide."
-					width="2560"
-					height="1440"
-					fetchpriority="high"
-				/>
-				<figcaption>A small instruction. A visible result. We’ll build from there.</figcaption>
-			</figure>
+		<div class="opening-art">
+			<ExpandableImage
+				src="{base}/images/Hero.webp"
+				alt="TerminalVibes — The Terminal for Vibe Coders"
+				class="w-full rounded-xl shadow-2xl"
+				width={2560}
+				height={1440}
+				loading="eager"
+			/>
 		</div>
+		<p class="welcome">
+			<strong>Welcome!</strong> Let’s make the terminal say hello. Type your first command below—there’s
+			nothing to install.
+		</p>
+		<FirstCommand />
 	</div>
 
 	<div class="workshop-wrap">
@@ -45,18 +43,6 @@
 	</div>
 
 	<div class="intro-reference">
-		<div class="continue-row">
-			<div>
-				<p class="eyebrow">Keep going</p>
-				<h2>Small skills, useful things.</h2>
-				<p>
-					Next, get comfortable reading a reply and asking for help. Then we’ll find folders, make a
-					notebook, and work with your files.
-				</p>
-			</div>
-			<a class="continue" href="#part-1">Continue to Part 1 <ArrowRight size={17} /></a>
-		</div>
-
 		<p class="optional-label">
 			Curious about the words and the tools? Open any of these. You can come back later.
 		</p>
@@ -139,7 +125,7 @@
 			<div class="detail-content">
 				<p>
 					Yes. You can also complete the first lessons entirely in this browser. When you want to
-					try a real terminal, <a href="#section-1-1">Part 1 walks through opening yours</a>.
+					try a real terminal, <CourseLink to="section-1-1" /> walks through the setup.
 				</p>
 				<p>
 					<strong>On a Mac,</strong> Terminal is already in Applications → Utilities. It usually
@@ -185,15 +171,15 @@
 		</details>
 
 		<div class="companions">
-			<button type="button" onclick={onOpenPlayground}
+			<button class="playground" type="button" onclick={onOpenPlayground}
 				><Gamepad2 size={17} /><span
-					><strong>Open practice terminal</strong><small>Experiment with simulated files.</small
+					><strong>Open Terminal Playground</strong><small>Experiment with simulated files.</small
 					></span
 				></button
 			>
-			<button type="button" onclick={onOpenAgent}
+			<button class="agent" type="button" onclick={onOpenAgent}
 				><Bot size={17} /><span
-					><strong>Ask the course helper</strong><small>Get a hint or a smaller explanation.</small
+					><strong>Ask the AI tutor</strong><small>Get a hint or a smaller explanation.</small
 					></span
 				></button
 			>
@@ -202,64 +188,30 @@
 			<summary>Explore the course map</summary>
 			<div class="detail-content"><CourseMap /></div>
 		</details>
+		<p class="next-chapter">
+			In <CourseLink to="part-1" />, we’ll try a few more commands and learn how to ask for help.
+		</p>
 	</div>
 </section>
 
 <style>
 	.hero {
-		padding: 2rem 1.5rem 1rem;
+		padding: 1.5rem 1.5rem 1rem;
 	}
 	.opening,
 	.workshop-wrap,
 	.intro-reference {
-		max-width: 1040px;
+		max-width: 896px;
 		margin: 0 auto;
 	}
-	.eyebrow {
-		font-size: 0.7rem;
-		font-weight: 700;
-		letter-spacing: 0.09em;
-		text-transform: uppercase;
-		color: var(--color-primary-text);
-	}
-	h1 {
-		font-family: var(--font-heading);
-		color: var(--color-text);
-		font-size: clamp(2rem, 4vw, 3rem);
-		font-weight: 700;
-		letter-spacing: -0.04em;
-		line-height: 1.07;
-		margin: 0.65rem 0 0.85rem;
-	}
 	.welcome {
-		max-width: 610px;
-		font-size: 1rem;
+		font-size: 0.90625rem;
 		color: var(--color-text-secondary);
 		line-height: 1.65;
-		margin-bottom: 1.3rem;
-	}
-	.opening-grid {
-		display: grid;
-		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-		gap: 1.3rem;
-		align-items: start;
+		margin-bottom: 1.25rem;
 	}
 	.opening-art {
-		margin: 0;
-	}
-	.opening-art img {
-		display: block;
-		width: 100%;
-		height: auto;
-		aspect-ratio: 16 / 9;
-		object-fit: contain;
-		border-radius: 1rem;
-	}
-	figcaption {
-		font-size: 0.75rem;
-		color: var(--color-text-muted);
-		line-height: 1.5;
-		margin-top: 0.65rem;
+		margin-bottom: 1.5rem;
 	}
 	.workshop-wrap {
 		margin-top: 3rem;
@@ -267,38 +219,10 @@
 	.intro-reference {
 		padding-top: 2rem;
 	}
-	.continue-row {
-		display: flex;
-		align-items: center;
-		gap: 1.5rem;
-		justify-content: space-between;
-		padding: 1.5rem 0;
-	}
-	h2 {
-		font: 650 1.5rem/1.3 var(--font-heading);
-		color: var(--color-text);
-		margin: 0.4rem 0 0.6rem;
-	}
 	p {
 		color: var(--color-text-secondary);
 		font-size: 0.93rem;
 		line-height: 1.75;
-	}
-	.continue-row p:not(.eyebrow) {
-		max-width: 600px;
-	}
-	.continue {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		flex-shrink: 0;
-		border-radius: 0.65rem;
-		padding: 0.85rem 1rem;
-		background: var(--color-primary);
-		color: var(--color-bg);
-		font-size: 0.85rem;
-		font-weight: 700;
 	}
 	.optional-label {
 		margin: 1rem 0;
@@ -323,7 +247,7 @@
 	.detail-content p {
 		margin-bottom: 0.9rem;
 	}
-	a:not(.continue) {
+	a {
 		color: var(--color-primary-text);
 		text-decoration: underline;
 		text-underline-offset: 3px;
@@ -361,6 +285,17 @@
 		text-align: left;
 		cursor: pointer;
 	}
+	.companions .playground {
+		color: var(--color-btn-playground);
+		background: color-mix(in srgb, var(--color-btn-playground) 12%, transparent);
+	}
+	.companions .agent {
+		color: var(--color-btn-agent);
+		background: color-mix(in srgb, var(--color-btn-agent) 12%, transparent);
+	}
+	.next-chapter {
+		margin-top: 1.5rem;
+	}
 	.companions strong {
 		display: block;
 		font-size: 0.82rem;
@@ -376,23 +311,9 @@
 		.hero {
 			padding: 1.25rem 1rem 1rem;
 		}
-		.opening-grid {
-			grid-template-columns: 1fr;
-		}
-		.opening-art {
-			max-width: 520px;
-		}
-		.opening-art img {
-			max-height: 240px;
-		}
 		.welcome {
 			font-size: 0.9rem;
 			margin-bottom: 1rem;
-		}
-		.continue-row {
-			align-items: flex-start;
-			flex-direction: column;
-			gap: 1rem;
 		}
 		.companions {
 			grid-template-columns: 1fr;

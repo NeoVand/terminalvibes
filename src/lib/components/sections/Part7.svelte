@@ -2,6 +2,7 @@
 	import { Scissors, Replace, PenLine, Columns3 } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -277,8 +278,8 @@
 			/>
 			<p>
 				The <Code code="$1" /> here belongs to <strong>awk</strong>, not to the shell script
-				argument from Part 6. Double-quoting this program can let the shell replace $1 before awk
-				sees it. Keep these awk programs in single quotes.
+				argument from <CourseLink to="part-6" />. Double-quoting this program can let the shell
+				replace $1 before awk sees it. Keep these awk programs in single quotes.
 			</p>
 			<h4>Select rows as well as fields</h4>
 			<CommandTranscript command={"awk '/sunny/ {print $1}' plants.txt"} output={'basil\nthyme'} />

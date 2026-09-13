@@ -75,6 +75,12 @@ function stripMarkup(src) {
 	s = s.replace(/^[^<>]*>/, ' ');
 	s = s.replace(/<[^<>]*$/, ' ');
 	s = s.replace(/<!--[\s\S]*?-->/g, ' ');
+	// Cross-references display the sidebar's chapter/section name in the course.
+	// Keep that name in retrieval text instead of leaving a gap in the sentence.
+	s = s.replace(/<CourseLink\b[^>]*\/>/g, (tag) => {
+		const to = tag.match(/\bto="([^"]+)"/)?.[1];
+		return ` ${tag.match(/\blabel="([^"]+)"/)?.[1] ?? labels.get(to) ?? ''} `;
+	});
 	// code="…" string attributes (<Code code="sort" />) hold the other half of
 	// the shell commands. Hoist each tag's code value out as plain text before
 	// tag-stripping eats the whole tag — same for already-stashed {`…`} values.

@@ -2,6 +2,7 @@
 	import { Terminal, Monitor, Sparkles, HelpCircle } from 'lucide-svelte';
 	import { base, resolve } from '$app/paths';
 	import Code from '../ui/Code.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
@@ -153,8 +154,8 @@
 			<p>
 				One more question will matter throughout the course: <strong>where am I working?</strong>
 				Type <Code code="pwd" />. It prints your current folder’s location. In this sandbox it
-				begins as <Code code="/home/vibe" />. Part 2 will make that location concrete with a folder
-				map.
+				begins as <Code code="/home/vibe" />. <CourseLink to="part-2" /> will make that location concrete
+				with a folder map.
 			</p>
 			<h4 id="first-steps">Try it: a short conversation</h4>
 			<p>
