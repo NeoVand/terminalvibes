@@ -175,14 +175,14 @@ export function promptFor(catalog, concept, variant) {
 				]
 			: []),
 		`Create ONE standalone illustration. Follow this alternative's specific medium, camera angle, and palette: ${catalog.variantDirections.find((direction) => direction.id === variant.id).brief}`,
-		'No lettering anywhere: no words, motivational signs, book titles, labels, numbers, code, keyboard legends, or watermarks. All signs, pages and screens should use blank surfaces or simple non-text shapes. The website will supply the real explanatory text separately.',
+		'Use integrated, legible teaching text where the concept calls for it: real command examples, path names, keyboard shortcuts, captions, and before/after states. The brief must supply exact wording grounded in the lesson. Do not substitute blank cards, empty screens, or decorative pseudo-text for the explanation.',
 		`TerminalVibes artwork candidate ${concept.id}/${variant.id}. ${concept.title}.`,
 		`Teaching purpose: ${concept.purpose}`,
 		`Scene: ${concept.visualBrief}`,
 		`Concept-specific details: ${concept.visualChecks.join(' ')}`,
 		`Format: ${concept.aspectRatio}. ${catalog.artDirection}`,
 		`Accuracy guardrails: ${catalog.guardrails.join(' ')}`,
-		'The requested camera angle and medium take priority over earlier images in this conversation. Create a fresh composition. Leave all decorative surfaces free of lettering.'
+		'Study the original course illustration before generation. Preserve its instructional substance and intricate craftsmanship while improving its composition, clarity, and color range. Render the specified teaching text as part of the artwork.'
 	].join('\n\n');
 }
 

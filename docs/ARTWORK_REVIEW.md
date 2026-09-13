@@ -1,5 +1,7 @@
 # Local artwork review
 
+**Generation stopped — direction rejected by the owner.** The interrupted batch used an assistant-imposed text ban and an overly juvenile visual style. Do not resume its generation plan. The original images combine intricate illustration with commands, labels, diagrams, and before/after examples; future briefs must preserve that teaching substance and expand the palette. Calibrate five alternatives for one concept with the owner before scaling across the course. Existing drafts and exact prompts are retained as historical evidence, with no selections or replacements.
+
 The consolidated inventory has **64 illustration concepts and 320 candidate slots**. It covers all 56 active raster usages in the opening, Parts 1–14, keyboard workshop, and header. The two header logo usages share one logo concept. The keyboard workshop and later history lesson get separate concepts, even though they currently share an old image.
 
 Nine new explanations cover saving an editor draft, script arguments, conditions, loops, checked copying, and modern tools for finding, choosing, revisiting, and reading files. These have explicit lesson placements. No candidate is selected initially, and no course image is replaced by the review UI.
@@ -19,7 +21,7 @@ node scripts/art-inventory.mjs --scan
 node scripts/art-inventory.mjs --prompt file-editor-save 01
 ```
 
-Generate five genuinely distinct compositions, not five crops or recolors. The per-alternative direction is combined with the concept's specific teaching scene and accuracy checks. The crab and garden provide continuity; materials, lighting, framing, and palettes vary. Exact commands, shortcuts, numeric results, and small labels belong in real text or diagrams beside the artwork, not generated lettering.
+Generate five genuinely distinct compositions, not five crops or recolors. The per-alternative direction is combined with the concept's specific teaching scene and accuracy checks. The crab and garden provide continuity; materials, lighting, framing, and palettes vary. Render exact commands, shortcuts, labels, and results directly in the generated artwork when they help teach the concept. Supply the exact lesson-grounded text in each brief and check its accuracy and legibility. Accessible course prose remains alongside the image. The old concept briefs still need revision; changing a global rule alone does not repair the interrupted batch.
 
 Save candidates at these exact local paths:
 

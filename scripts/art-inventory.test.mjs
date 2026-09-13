@@ -35,7 +35,7 @@ test('each prompt combines its teaching brief with a distinct visual direction',
 	assert.equal(new Set(prompts).size, 5);
 	for (const prompt of prompts) {
 		assert.ok(prompt.includes(concept.visualBrief));
-		assert.ok(prompt.includes('No baked-in command examples'));
+		assert.ok(prompt.includes(`Teaching purpose: ${concept.purpose}`));
 	}
 });
 test('availability accepts real WebP bytes only, preserves dimensions, and rejects unlisted files', async () => {

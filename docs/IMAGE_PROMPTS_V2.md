@@ -1,3 +1,5 @@
+> Superseded: the owner rejected the text-free direction below on September 13, 2026. These are historical prompts, not instructions for further generation. See ARTWORK_REVIEW.md.
+
 > Draft artwork only. These two initial generations are not selected for the site. The owner has since requested that illustration work wait until content consolidation, with at least five alternatives per final concept and owner selection before replacement.
 
 # Illustration prompts — opening refresh, September 2026

@@ -3,9 +3,9 @@
 	"version": "2026-09-content-consolidation-1",
 	"title": "TerminalVibes artwork review",
 	"minimumAlternatives": 5,
-	"artDirection": "Rich, carefully composed educational illustration for an adult beginner. Keep the affectionate hermit crab and garden world, with believable anatomy, tactile materials, and delightful incidental detail. Vary the palette and the visual setting across the course; use corals, cobalt, lilac, warm ivory, terracotta, citrus, jade, and night-sky blue with controlled contrast. Complexity should reward looking without obscuring the one teaching action. Leave room for accurate captions and diagrams to be added as live interface text. No imitation of an existing artist.",
+	"artDirection": "Create richly detailed instructional artwork for adult learners. Preserve the original course’s intricate botanical and mechanical craftsmanship, integrated typography, labeled diagrams, and practical terminal examples. The hermit crab is a guide within the explanation. Expand the color range while retaining visual complexity and readable hierarchy. Render useful teaching text directly in the image, using exact lesson wording and commands supplied in its brief. Simple explanations do not mean juvenile styling or empty props.",
 	"guardrails": [
-		"No baked-in command examples, keyboard labels, dates, numeric output, dense prose, watermarks, or invented interface controls; precise teaching labels belong in HTML/SVG overlays.",
+		"Commands, paths, keyboard shortcuts, labels, and before/after results are welcome and expected when they teach the concept. Supply their exact text in the brief, render it legibly, and verify spelling, syntax, and technical relationships against the lesson. Do not replace meaningful text with blank surfaces or decorative pseudo-writing.",
 		"Rich illustration is supporting evidence, never the only explanation. Match the visual checks for the concept.",
 		"Keep anatomy, light sources, reflections, object counts, folder identities, and transformation direction internally consistent.",
 		"Produce an actual distinct image for each alternative, not five crops or recolors of one composition. Do not select or replace any course illustration without the user choosing it."
@@ -38,9 +38,10 @@
 		}
 	],
 	"reviewNotes": [
+		"Generation stopped after the owner rejected the text-free, juvenile direction on September 13, 2026. Existing candidate prompts remain historical evidence, not approved guidance. Rework the concept briefs around the original instructional artwork and calibrate five alternatives for one concept with the owner before another course-wide run. No generated candidate is approved.",
 		"No alternative is selected initially. Choices are local to the review browser until exported.",
 		"Existing alt text is preserved as inventory evidence; proposed alt text must be revised against the actual selected image.",
-		"The two earlier v2 illustration drafts remain unapproved. Import them deliberately into a chosen candidate slot only if they fit its concept and format.",
+		"The two earlier v2 drafts and the interrupted text-free batch remain unapproved. Preserve their original prompts as evidence; do not reuse them as the direction for a new generation run.",
 		"The current og-image.png is a branded social preview; its replacement is derived from the approved hero. Favicons are derived from the approved logo. UI screenshots and generated timeline crops are derived assets, not independent illustration concepts."
 	],
 	"concepts": [
