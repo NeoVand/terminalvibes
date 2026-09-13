@@ -56,6 +56,8 @@ The gallery preserves the whole frame. A 1536 × 1024 generation stays that size
 
 Filter by concept, chapter, or review state. **Choose** records an explicit choice, **Request changes** records the note without approving an image, and **Clear choice & notes** removes that concept's decision. Notes save while typing. A missing or changed file invalidates its previous choice until the reviewer explicitly chooses again.
 
+Inside the full-size preview, **Choose this image and move to the next** saves the displayed alternative and its existing notes, then opens the next available concept within the current filters. Empty batches are skipped. A previously chosen next batch opens at its chosen alternative; otherwise it starts at the first available image. The dialog stays open. The last batch offers **Choose this image and finish**, followed by a completion message and **Export choices**. Escape returns focus to the original opener, or the concept picker/search when that opener has disappeared after advancing or filtering.
+
 Choices remain in this browser's local storage (`tv-art-review-selections-v1`). **Export choices** downloads a JSON record with notes, candidate paths, original references, and hashes. It distinguishes choices that match the current file from stale decisions. Export before changing browsers or clearing browser data. The gallery does not upload decisions or change lesson source files.
 
 ## Production isolation
@@ -72,4 +74,4 @@ npx vitest run src/lib/components/art/art-review.test.ts
 npx playwright test --config playwright.art-review.config.ts
 ```
 
-`src/routes/art-review/art-review.e2e.ts` includes a normal production assertion plus five development-only browser checks, including preview navigation, wraparound, missing images, focus restoration, and unchanged owner choices. The dedicated Playwright configuration starts a Vite development server and enables those checks. Tests mock existing artwork in memory; they never write pretend generations into the candidate directory.
+`src/routes/art-review/art-review.e2e.ts` includes a normal production assertion plus six development-only browser checks, including preview navigation, wraparound, missing images, focus restoration, and choosing successive batches without closing. The batch-choice test verifies filtering, exact image hashes, retained notes, export, and persistence after reload. The dedicated Playwright configuration starts a Vite development server and enables those checks. Tests mock existing artwork in memory; they never write pretend generations into the candidate directory.

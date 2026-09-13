@@ -7,20 +7,22 @@ const devReview = !!process.env.ART_REVIEW_DEV;
 const originalImage = readFileSync('static/images/Hero.webp');
 const hash = createHash('sha256').update(originalImage).digest('hex');
 
-async function candidates(page: Page) {
+async function candidates(page: Page, conceptIds = ['keyboard-line-editing']) {
 	const metadata = await sharp(originalImage).metadata();
-	const files = Array.from({ length: 5 }, (_, index) => ({
-		path: `art-candidates/keyboard-line-editing/0${index + 1}.webp`,
-		sha256: hash,
-		bytes: originalImage.length,
-		width: metadata.width,
-		height: metadata.height
-	}));
+	const files = conceptIds.flatMap((conceptId) =>
+		Array.from({ length: 5 }, (_, index) => ({
+			path: `art-candidates/${conceptId}/0${index + 1}.webp`,
+			sha256: hash,
+			bytes: originalImage.length,
+			width: metadata.width,
+			height: metadata.height
+		}))
+	);
 	await page.route('**/art-candidates/availability.json', (route) =>
 		route.fulfill({ json: { schemaVersion: 1, files } })
 	);
 	// Existing art is a test fixture only. No fake candidate is written to the project.
-	await page.route('**/art-candidates/keyboard-line-editing/*.webp?*', (route) =>
+	await page.route('**/art-candidates/*/*.webp?*', (route) =>
 		route.fulfill({ contentType: 'image/webp', body: originalImage })
 	);
 	return files;
@@ -178,5 +180,57 @@ test.describe('local artwork review', () => {
 		await page.keyboard.press('ArrowRight');
 		await expect(image).toHaveAttribute('src', originalSrc!);
 		await expect(dialog.getByRole('navigation')).toHaveCount(0);
+		await expect(dialog.getByRole('button', { name: 'Choose this image' })).toHaveCount(0);
+	});
+	test('choose and advance keeps the preview open, saves exact choices, and finishes with export', async ({
+		page
+	}) => {
+		// Leave the editor batch unavailable to verify that it is skipped.
+		await candidates(page, ['keyboard-line-editing', 'script-arguments', 'script-conditions']);
+		await page.goto('/art-review');
+		await page.getByRole('textbox', { name: 'Your notes' }).fill('Keep the cursor labels.');
+		await page
+			.getByRole('combobox', { name: 'Review status', exact: true })
+			.selectOption('unreviewed');
+		await page
+			.getByRole('button', {
+				name: 'Preview Alternative 1: Fix a line without starting over'
+			})
+			.click();
+		const dialog = page.getByRole('dialog');
+		await page.keyboard.press('ArrowRight');
+		await dialog
+			.getByRole('button', { name: 'Choose this image and move to the next', exact: true })
+			.click();
+		await expect(dialog).toBeVisible();
+		await expect(dialog.locator('img')).toHaveAttribute('src', /script-arguments\/01\.webp\?/);
+		await expect(dialog.getByRole('heading')).toBeFocused();
+		await page.keyboard.press('ArrowLeft');
+		await dialog
+			.getByRole('button', { name: 'Choose this image and move to the next', exact: true })
+			.click();
+		await expect(dialog.locator('img')).toHaveAttribute('src', /script-conditions\/01\.webp\?/);
+		await dialog.getByRole('button', { name: 'Choose this image and finish', exact: true }).click();
+		await expect(dialog.getByRole('heading', { name: 'End of this review' })).toBeFocused();
+		await page.keyboard.press('ArrowRight');
+		await expect(dialog.getByRole('heading', { name: 'End of this review' })).toBeVisible();
+		const download = page.waitForEvent('download');
+		await dialog.getByRole('button', { name: 'Export choices' }).click();
+		const exported = JSON.parse(readFileSync((await (await download).path())!, 'utf8'));
+		expect(exported.selections).toHaveLength(3);
+		expect(exported.selections[0]).toMatchObject({
+			candidatePath: 'art-candidates/keyboard-line-editing/02.webp',
+			variant: '02',
+			sha256: hash,
+			note: 'Keep the cursor labels.',
+			verifiedAgainstCurrentFile: true
+		});
+		expect(exported.selections[1].candidatePath).toBe('art-candidates/script-arguments/05.webp');
+		expect(exported.selections[2].candidatePath).toBe('art-candidates/script-conditions/01.webp');
+		await page.keyboard.press('Escape');
+		await expect(dialog).not.toBeVisible();
+		await expect(page.locator('#art-concept-picker')).toBeFocused();
+		await page.reload();
+		await expect(page.getByLabel('Review progress')).toContainText('3 chosen');
 	});
 });

@@ -41,6 +41,8 @@
 		conceptId?: string;
 		variantId?: string;
 	} | null>(null);
+	let previewFinished = $state(false);
+	let previewOpener: HTMLElement | null = null;
 	let previewDialog: HTMLDialogElement;
 	let feedback = $state<HTMLTextAreaElement>();
 	const usableFiles = $derived(files.filter((file) => !failedPaths.includes(file.path)));
@@ -84,6 +86,12 @@
 	const previewIndex = $derived(
 		previewVariants.findIndex((variant) => variant.id === preview?.variantId)
 	);
+	const nextPreviewConcept = $derived.by(() => {
+		const index = filtered.findIndex((concept) => concept.id === previewConcept?.id);
+		return index < 0
+			? undefined
+			: filtered.slice(index + 1).find((concept) => concept.variants.some(available));
+	});
 
 	onMount(() => {
 		try {
@@ -207,25 +215,64 @@
 		title: string,
 		candidate?: { conceptId: string; variantId: string }
 	) {
+		previewOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+		previewFinished = false;
 		preview = { src, alt, title, ...candidate };
 		await tick();
 		previewDialog.showModal();
 	}
 	function movePreview(direction: number) {
-		if (!previewConcept || previewIndex < 0 || previewVariants.length < 2) return;
+		if (previewFinished || !previewConcept || previewIndex < 0 || previewVariants.length < 2)
+			return;
 		const variant =
 			previewVariants[(previewIndex + direction + previewVariants.length) % previewVariants.length];
+		setCandidatePreview(previewConcept, variant);
+	}
+	function setCandidatePreview(concept: ArtConcept, variant: ArtVariant) {
 		preview = {
 			src: imagePath(variant),
-			alt: `${previewConcept.title}, unapproved ${variant.label.toLowerCase()}`,
-			title: `${previewConcept.title} · ${variant.label}`,
-			conceptId: previewConcept.id,
+			alt: `${concept.title}, unapproved ${variant.label.toLowerCase()}`,
+			title: `${concept.title} · ${variant.label}`,
+			conceptId: concept.id,
 			variantId: variant.id
 		};
+	}
+	async function choosePreviewAndAdvance() {
+		const concept = previewConcept;
+		const variant = previewVariants[previewIndex];
+		if (previewFinished || !concept || !variant || !available(variant)) return;
+		// Capture the next batch before choosing removes this one from an unreviewed filter.
+		const next = nextPreviewConcept;
+		choose(concept, variant);
+		if (next) {
+			activeId = next.id;
+			const previousChoice = decisions[next.id];
+			const nextVariant =
+				(choiceIsCurrent(next, previousChoice, usableFiles) &&
+					next.variants.find((candidate) => candidate.id === previousChoice?.variant)) ||
+				next.variants.find(available);
+			if (nextVariant) setCandidatePreview(next, nextVariant);
+		} else {
+			previewFinished = true;
+		}
+		await tick();
+		document.getElementById('preview-title')?.focus();
+		previewDialog.scrollTop = 0;
+	}
+	async function closePreview() {
+		preview = null;
+		previewFinished = false;
+		await tick();
+		const target = previewOpener?.isConnected
+			? previewOpener
+			: (document.getElementById('art-concept-picker') ?? document.getElementById('art-search'));
+		target?.focus();
+		previewOpener = null;
 	}
 	function handlePreviewKeydown(event: KeyboardEvent) {
 		if (
 			!previewDialog?.open ||
+			previewFinished ||
 			!previewConcept ||
 			event.defaultPrevented ||
 			event.altKey ||
@@ -303,6 +350,7 @@
 	>
 		<label
 			>Find a concept<input
+				id="art-search"
 				type="search"
 				bind:value={search}
 				placeholder="Try “editor”, “paths”, or “scripts”"
@@ -334,6 +382,7 @@
 			>
 			<label class="concept-picker"
 				><span>Concept {currentIndex + 1} of {filtered.length}</span><select
+					id="art-concept-picker"
 					value={current.id}
 					onchange={(event) => {
 						activeId = event.currentTarget.value;
@@ -575,42 +624,62 @@
 
 <dialog
 	bind:this={previewDialog}
-	onclose={() => {
-		preview = null;
-	}}
+	onclose={closePreview}
 	aria-labelledby="preview-title"
 	class="preview-dialog"
 >
 	{#if preview}
 		<div class="preview-heading">
-			<h2 id="preview-title">{preview.title}</h2>
-			<button type="button" onclick={() => previewDialog.close()}>Close preview</button>
+			<h2 id="preview-title" tabindex="-1">
+				{previewFinished ? 'End of this review' : preview.title}
+			</h2>
+			<div class="preview-actions">
+				{#if previewConcept && !previewFinished}
+					<button type="button" disabled={previewIndex < 0} onclick={choosePreviewAndAdvance}>
+						{nextPreviewConcept
+							? 'Choose this image and move to the next'
+							: 'Choose this image and finish'}
+					</button>
+				{/if}
+				<button type="button" class="quiet" onclick={() => previewDialog.close()}
+					>Close preview</button
+				>
+			</div>
 		</div>
-		{#if previewConcept}
-			<nav class="preview-navigation" aria-label="Preview alternatives">
-				<button
-					type="button"
-					disabled={previewVariants.length < 2}
-					onclick={() => movePreview(-1)}
-					aria-keyshortcuts="ArrowLeft">← Previous image</button
-				>
-				<p role="status" aria-atomic="true">
-					{previewVariants[previewIndex]?.label} · {previewIndex + 1} of {previewVariants.length}
-					available
-				</p>
-				<button
-					type="button"
-					disabled={previewVariants.length < 2}
-					onclick={() => movePreview(1)}
-					aria-keyshortcuts="ArrowRight">Next image →</button
-				>
-			</nav>
+		{#if previewFinished}
+			<p role="status">
+				{preview.title} chosen. You’ve reached the end of the available batches in these filters.
+			</p>
+			<button type="button" onclick={exportChoices}>Export choices</button>
+		{:else}
+			{#if previewConcept}
+				<nav class="preview-navigation" aria-label="Preview alternatives">
+					<button
+						type="button"
+						disabled={previewVariants.length < 2}
+						onclick={() => movePreview(-1)}
+						aria-keyshortcuts="ArrowLeft">← Previous image</button
+					>
+					<p role="status" aria-atomic="true">
+						{previewVariants[previewIndex]?.label} · {previewIndex + 1} of {previewVariants.length}
+						available
+					</p>
+					<button
+						type="button"
+						disabled={previewVariants.length < 2}
+						onclick={() => movePreview(1)}
+						aria-keyshortcuts="ArrowRight">Next image →</button
+					>
+				</nav>
+			{/if}
+			<img src={preview.src} alt={preview.alt} />
+			<p>
+				{#if previewConcept}Use ← and → to cycle through this concept’s available alternatives.{/if}
+				Press Escape or Close preview to return.
+			</p>
+			{#if nextPreviewConcept}<p>Next batch: {nextPreviewConcept.title}</p>{/if}
 		{/if}
-		<img src={preview.src} alt={preview.alt} />
-		<p>
-			{#if previewConcept}Use ← and → to cycle through this concept’s available alternatives.{/if}
-			Press Escape or Close preview to return.
-		</p>
+		{#if storageNotice}<p class="warning" role="alert">{storageNotice}</p>{/if}
 	{/if}
 </dialog>
 
@@ -1062,6 +1131,12 @@
 		font-size: 0.8rem;
 		flex: 1 1 12rem;
 		text-align: center;
+	}
+	.preview-actions {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.65rem;
 	}
 	.preview-dialog > img {
 		width: 100%;
