@@ -6,6 +6,8 @@ export interface PlaygroundScenario {
 	description: string;
 	hint: string;
 	suggestedCommands: string[];
+	/** Example to type or copy into the practice editor; never saved automatically. */
+	editorExample?: { path: string; content: string };
 	seed?: FsSeed;
 	/** One line naming the goal state, shown when the check passes. */
 	goal?: string;
@@ -38,7 +40,7 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		description:
 			'A fresh terminal, a blinking cursor, and nothing to break — commands only act when you press Enter. Ask the machine who you are, where you are, and what time it is, then make it say something back.',
 		hint: 'Type a command and press Enter. `whoami` prints your username, `pwd` prints where you are, `date` prints the time, and `echo` repeats whatever you hand it. Press the up arrow to recall what you typed before.',
-		suggestedCommands: ['whoami', 'pwd', 'date', 'echo "hello, terminal"', 'echo $HOME'],
+		suggestedCommands: ['whoami', 'pwd', 'date', 'echo "hello, terminal"', 'clear'],
 		seed: {
 			files: {
 				'~/README.txt':
@@ -54,70 +56,62 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 	},
 	{
 		id: 'navigation',
-		title: 'Find the lost API key',
+		title: 'Find the hidden garden note',
 		description:
-			'Your AI assistant swears it saved the chatbot\'s API key "somewhere under projects/" — then lost the path. Walk down the directory tree, use ls -a to reveal what plain ls hides, and read the key out loud.',
-		hint: '`ls` shows what is here, `cd <dir>` steps into a directory, `cd ..` steps back out. Directories starting with a dot are hidden — `ls -a` reveals them. When you find the key file, `cat` it.',
-		suggestedCommands: [
-			'pwd',
-			'ls',
-			'cd projects',
-			'cd chatbot/config',
-			'ls -a',
-			'cd .secrets',
-			'cat api-key.txt'
-		],
+			'A planting note is tucked inside the garden folder. Look around, reveal the hidden folder, and read the note.',
+		hint: '`pwd` shows where you are. Use `cd garden`, then `ls -a` to reveal .notes. Enter it with `cd .notes` and read planting.txt with `cat planting.txt`.',
+		suggestedCommands: ['pwd', 'ls', 'cd garden', 'ls -a', 'cd .notes', 'cat planting.txt'],
 		seed: {
 			files: {
-				'~/README.txt':
-					'The agent hid the chatbot API key somewhere under projects/. Go find it.\n',
-				'~/projects/chatbot/README.md': '# chatbot\nA weekend chatbot. Config lives in config/.\n',
-				'~/projects/chatbot/src/main.py':
-					'from config import load_settings\n\nprint("bot online")\n',
-				'~/projects/chatbot/config/settings.json':
-					'{\n  "model": "small",\n  "temperature": 0.7\n}\n',
-				'~/projects/chatbot/config/.secrets/api-key.txt': 'OPENWEAVE_API_KEY=sk-vibe-7f3a91c2\n',
-				'~/projects/todo-app/notes.md': '# todo-app\nNothing secret in here. Keep looking.\n',
-				'~/downloads/cat-wallpaper.jpg': '<jpeg data>\n'
+				'~/README.txt': 'A planting note is somewhere inside garden/.\n',
+				'~/garden/plan.md': '# A small garden\nLook for a hidden notes folder.\n',
+				'~/garden/.notes/planting.txt': 'Plant the basil beside the sunny window.\n',
+				'~/photos/sunflowers.jpg': '<practice photograph>\n'
 			}
 		},
-		goal: 'You navigated into the hidden .secrets directory and read the key',
-		check: async (engine) => {
-			if (engine.cwd !== engine.resolve('~/projects/chatbot/config/.secrets')) return false;
-			return engine.historyLog.some((line) => line.includes('cat') && line.includes('api-key.txt'));
-		}
+		goal: 'You reached the hidden .notes folder and read the planting note',
+		check: async (engine) =>
+			engine.cwd === engine.resolve('~/garden/.notes') &&
+			engine.historyLog.some((line) => line.includes('cat') && line.includes('planting.txt'))
 	},
 	{
 		id: 'workspace-setup',
-		title: 'Build your project skeleton',
+		title: 'Make a garden notebook',
 		description:
-			'You are starting zine-bot, a bot that assembles weekend zines. Before writing a line of code (or letting an AI write it), lay out the skeleton: a project folder with src, tests and docs, plus the first empty files.',
-		hint: '`mkdir -p` creates a directory and any missing parents in one go. Once inside the project, plain `mkdir` makes the subfolders and `touch` creates empty files. `ls` confirms your work after each step.',
+			'Give your garden notes a home: make garden-notebook with notes, recipes, and photos folders, then create the first three empty notes.',
+		hint: 'Create garden-notebook with mkdir, enter it with cd, and make notes recipes photos. Use touch for plan.md, notes/seeds.txt, and notes/weather.txt. Look with ls after each step.',
 		suggestedCommands: [
-			'mkdir -p projects/zine-bot',
-			'cd projects/zine-bot',
-			'mkdir src tests docs',
-			'touch README.md',
-			'touch src/main.py',
-			'touch tests/test_main.py',
-			'ls'
+			'mkdir garden-notebook',
+			'cd garden-notebook',
+			'mkdir notes recipes photos',
+			'touch plan.md notes/seeds.txt notes/weather.txt',
+			'ls',
+			'ls notes'
 		],
-		seed: {
-			files: {
-				'~/notes.txt':
-					'Project idea: zine-bot — a bot that assembles weekend zines from my notes.\n',
-				'~/downloads/wallpaper.jpg': '<jpeg data>\n'
-			},
-			dirs: ['~/projects']
-		},
-		goal: 'zine-bot has src/, tests/ and docs/ plus its first three files',
+		seed: { files: { '~/idea.txt': 'A place for seeds, weather notes, recipes, and photos.\n' } },
+		goal: 'Your notebook has three folders and three files ready to use',
 		check: async (engine) =>
-			engine.isDir('~/projects/zine-bot/src') &&
-			engine.isDir('~/projects/zine-bot/tests') &&
-			engine.isDir('~/projects/zine-bot/docs') &&
-			engine.isFile('~/projects/zine-bot/README.md') &&
-			engine.isFile('~/projects/zine-bot/src/main.py') &&
-			engine.isFile('~/projects/zine-bot/tests/test_main.py')
+			['notes', 'recipes', 'photos'].every((name) => engine.isDir('~/garden-notebook/' + name)) &&
+			['plan.md', 'notes/seeds.txt', 'notes/weather.txt'].every((name) =>
+				engine.isFile('~/garden-notebook/' + name)
+			)
+	},
+	{
+		id: 'edit-notes',
+		title: 'Edit, save, and read your note',
+		description:
+			'Open Edit a file, load notes/seeds.txt, and add thyme on a new line after mint. Save and close the editor. Then read the file in the terminal to check your change.',
+		hint: 'The editor changes the same practice files as the terminal. Add one line, choose Save, close it, then run cat notes/seeds.txt. Closing without saving does not change the file.',
+		editorExample: { path: 'notes/seeds.txt', content: 'basil\nmint\nthyme\n' },
+		suggestedCommands: ['cat notes/seeds.txt'],
+		seed: {
+			cwd: '~/garden-notebook',
+			files: { '~/garden-notebook/notes/seeds.txt': 'basil\nmint\n' }
+		},
+		goal: 'Your note keeps basil and mint, adds thyme, and you checked the saved file',
+		check: async (engine) =>
+			engine.readFile('~/garden-notebook/notes/seeds.txt')?.trim() === 'basil\nmint\nthyme' &&
+			historyContains(engine, 'cat notes/seeds.txt')
 	},
 	{
 		id: 'tidy-up',
@@ -456,16 +450,18 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		id: 'first-script',
 		title: 'Automate the backup',
 		description:
-			'Every day you copy notes.txt somewhere safe "later" — and forget. A script is a saved command sequence: build backup.sh line by line with echo >>, make it executable, and let it do the remembering.',
-		hint: '`echo` with `>` starts the file (the `#!/usr/bin/env bash` line), `echo` with `>>` appends each command. `cat` it to proof-read — you are auditing your own script now — then `chmod +x` and run it with `./backup.sh`.',
+			'Every day you copy notes.txt somewhere safe "later" — and forget. A script is a saved command sequence: use Edit a file to save the lesson’s three lines as backup.sh, make it executable, and run it.',
+		hint: 'Open Edit a file and save the example as backup.sh. Read it with cat backup.sh, add permission with chmod +x backup.sh, then run ./backup.sh. Check the copied note afterward.',
+		editorExample: {
+			path: 'backup.sh',
+			content:
+				'#!/usr/bin/env bash\nmkdir -p ~/backups\ncp ~/notes.txt ~/backups/notes-backup.txt\n'
+		},
 		suggestedCommands: [
-			"echo '#!/usr/bin/env bash' > backup.sh",
-			"echo 'mkdir -p ~/backups' >> backup.sh",
-			"echo 'cp ~/notes.txt ~/backups/notes-backup.txt' >> backup.sh",
 			'cat backup.sh',
 			'chmod +x backup.sh',
 			'./backup.sh',
-			'ls ~/backups'
+			'cat ~/backups/notes-backup.txt'
 		],
 		seed: {
 			files: {
@@ -515,16 +511,18 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'One messy home folder',
 		description:
 			'The final challenge: a home directory that needs everything you have learned. Sort the downloads with globs, grep the crash out of the app log, then write and run a backup script. Navigate, organize, search, automate.',
-		hint: 'Three jobs, any order: (1) `mkdir -p documents`, glob-move the report PDFs in and `rm` the `.tmp` junk; (2) `grep ERROR logs/app.log` into `logs/error.txt` with `>`; (3) build `backup.sh` with `echo >` and `>>`, `chmod +x` it, run it. `ls` between steps to verify.',
+		hint: 'Three jobs, any order: (1) `mkdir -p documents`, glob-move the report PDFs in and `rm` the `.tmp` junk; (2) `grep ERROR logs/app.log` into `logs/error.txt` with `>`; (3) create `backup.sh` with Edit a file, `chmod +x` it, run it. `ls` between steps to verify.',
+		editorExample: {
+			path: 'backup.sh',
+			content: '#!/usr/bin/env bash\nmkdir -p ~/backups\ncp ~/notes/ideas.md ~/backups/ideas.md\n'
+		},
 		suggestedCommands: [
 			'ls downloads',
 			'mkdir -p documents',
 			'mv downloads/report-*.pdf documents',
 			'rm downloads/*.tmp',
 			'grep ERROR logs/app.log > logs/error.txt',
-			"echo '#!/usr/bin/env bash' > backup.sh",
-			"echo 'mkdir -p ~/backups' >> backup.sh",
-			"echo 'cp ~/notes/ideas.md ~/backups/ideas.md' >> backup.sh",
+			'cat backup.sh',
 			'chmod +x backup.sh',
 			'./backup.sh',
 			'ls ~/backups'
@@ -620,16 +618,12 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'One script, any folder',
 		description:
 			'A script with a hard-coded path only ever backs up one thing. Swap the path for $1 — "the first word after the script\'s name" — and the same backup.sh works on any folder you hand it. Build it, then back up notes/ by running ./backup.sh notes.',
-		hint: 'Inside a script, `$1` becomes whatever you type after its name. Build backup.sh with `echo >`/`>>`: a shebang, `mkdir -p ~/backups`, then `cp -r "$1" ~/backups/`. `chmod +x` it, then run `./backup.sh notes`.',
-		suggestedCommands: [
-			"echo '#!/usr/bin/env bash' > backup.sh",
-			"echo 'mkdir -p ~/backups' >> backup.sh",
-			'echo \'cp -r "$1" ~/backups/\' >> backup.sh',
-			'cat backup.sh',
-			'chmod +x backup.sh',
-			'./backup.sh notes',
-			'ls ~/backups'
-		],
+		hint: 'Inside a script, `$1` becomes whatever you type after its name. Use Edit a file to create backup.sh: a shebang, `mkdir -p ~/backups`, then `cp -r "$1" ~/backups/`. `chmod +x` it, then run `./backup.sh notes`.',
+		editorExample: {
+			path: 'backup.sh',
+			content: '#!/usr/bin/env bash\nmkdir -p ~/backups\ncp -r "$1" ~/backups/\n'
+		},
+		suggestedCommands: ['cat backup.sh', 'chmod +x backup.sh', './backup.sh notes', 'ls ~/backups'],
 		seed: {
 			files: {
 				'~/notes/ideas.md': '- make the backup script reusable\n',
@@ -644,34 +638,21 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 	},
 	{
 		id: 'help-lookup',
-		title: 'Read the manual first',
+		title: 'Find one answer in the manual',
 		description:
-			"You've hit a command you don't recognize yet: head. The habit that carries you through the whole course — and every command an AI hands you — is to look it up before you run it. Read head's built-in manual, then use what it taught you to save the first 3 lines of server.log into top3.txt.",
-		hint: '`man head` opens the built-in manual — read it right here (on a real machine, press q to leave the pager). The SYNOPSIS shows `head [-n N]`, so `head -n 3 server.log` prints the first three lines. Send them to a file with `>`.',
-		suggestedCommands: [
-			'man head',
-			'head -n 3 server.log',
-			'head -n 3 server.log > top3.txt',
-			'cat top3.txt'
-		],
+			'The head command shows the beginning of a file. Read its short practice manual, then display just the first three lines of garden-notes.txt.',
+		hint: 'Run man head. Its -n option chooses a number of lines: head -n 3 garden-notes.txt. In a real manual viewer, q leaves the page.',
+		suggestedCommands: ['man head', 'head -n 3 garden-notes.txt'],
 		seed: {
 			files: {
-				'~/server.log':
-					'boot sequence initiated\nloading configuration\ndatabase connection established\ncache warm-up complete\nlistening on port 8080\nfirst request served\n'
+				'~/garden-notes.txt':
+					'Check the soil.\nWater the basil.\nTurn the seed tray.\nPick the mint.\nWrite a note.\n'
 			}
 		},
-		goal: "You read head's manual, then saved its first 3 lines to top3.txt",
-		check: async (engine) => {
-			const consultedHelp = ranCommand(engine, 'man') || historyContains(engine, 'man head');
-			const out = engine.readFile('~/top3.txt');
-			return (
-				consultedHelp &&
-				!!out &&
-				out.includes('boot sequence initiated') &&
-				out.includes('database connection established') &&
-				!out.includes('cache warm-up')
-			);
-		}
+		goal: 'You looked up head and displayed three lines',
+		check: async (engine) =>
+			historyContains(engine, 'man head') &&
+			engine.historyLog.some((line) => /^head\s+-n\s*3\s+garden-notes\.txt$/.test(line.trim()))
 	},
 	{
 		id: 'count-lines',
@@ -962,12 +943,12 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 		title: 'Question the API',
 		description:
 			'You need the latest released version number, and the API answers in JSON — a nested pile of braces. Ask it with curl, pull out just the version with jq, and leave the answer in version.txt.',
-		hint: 'Pipe the reply into jq: `curl -s api.vibecloud.dev/releases | jq .latest` shows it with quotes; add `-r` for the bare value. Then redirect into the file with `>`.',
+		hint: 'Pipe the reply into jq: `curl -sS api.vibecloud.dev/releases | jq .latest` shows it with quotes; add `-r` for the bare value. Then redirect into the file with `>`.',
 		suggestedCommands: [
-			'curl -s api.vibecloud.dev/releases',
-			'curl -s api.vibecloud.dev/releases | jq .',
-			'curl -s api.vibecloud.dev/releases | jq -r .latest',
-			'curl -s api.vibecloud.dev/releases | jq -r .latest > version.txt',
+			'curl -sS api.vibecloud.dev/releases',
+			"curl -sS api.vibecloud.dev/releases | jq '.'",
+			"curl -sS api.vibecloud.dev/releases | jq -r '.latest'",
+			"curl -sS api.vibecloud.dev/releases | jq -r '.latest' > version.txt",
 			'cat version.txt'
 		],
 		seed: {
@@ -988,41 +969,34 @@ export const playgroundScenarios: PlaygroundScenario[] = [
 	},
 	{
 		id: 'secret-keeper',
-		title: 'Keep the key secret',
+		title: 'Practise a private settings file',
 		description:
-			'deploy.sh has an API key typed straight into it — anyone who reads the file (or the repo) has your key. Move it into a .env file only you can read, lock the permissions down, and point the script at the variable instead.',
-		hint: "Put the key in .env: `echo 'API_KEY=sk-vibe-9c2f10ab' > .env`, then `chmod 600 .env` so only you can read it. Swap the hard-coded key in the script for $API_KEY with sed — and keep a .bak, the Part 7 house rule.",
+			'This lab uses a fake practice value. Copy the supplied example to .env, restrict its permissions, and inspect the script that reads the API_KEY variable. Never paste a real key into this terminal.',
+		hint: 'cp .env.example .env creates the practice settings file without typing a value into command history. chmod 600 .env makes it owner-only. ls -l checks it. The script uses a variable; how an app loads .env depends on that app.',
 		suggestedCommands: [
-			'cat deploy.sh',
-			"echo 'API_KEY=sk-vibe-9c2f10ab' > .env",
+			'cat .env.example',
+			'cp .env.example .env',
 			'chmod 600 .env',
-			"sed -i.bak 's/sk-vibe-9c2f10ab/$API_KEY/' deploy.sh",
-			'cat deploy.sh',
-			'ls -l .env'
+			'ls -l .env',
+			'cat deploy.sh'
 		],
 		seed: {
 			files: {
+				'~/.env.example': 'API_KEY=practice-only-not-a-real-key\n',
+				'~/.gitignore': '.env\n',
 				'~/deploy.sh':
-					'#!/usr/bin/env bash\n# Ship the build to the CDN.\ncurl -H "Authorization: Bearer sk-vibe-9c2f10ab" https://api.vibecloud.dev/deploy\n',
+					'#!/usr/bin/env bash\n# The app must load its environment before this script runs.\ncurl -H "Authorization: Bearer $API_KEY" https://api.vibecloud.dev/deploy\n',
 				'~/README.txt':
-					'The deploy script has the API key typed right into it.\nMove it to .env, lock it down with chmod 600, and use $API_KEY instead.\n'
+					'Only fake credentials belong in this lab. Owner-only mode does not hide a file from other processes running as you.\n'
 			},
 			executables: ['~/deploy.sh']
 		},
-		goal: 'the key lives in a locked-down .env and deploy.sh uses $API_KEY',
-		check: async (engine) => {
-			const env = engine.readFile('~/.env');
-			const script = engine.readFile('~/deploy.sh');
-			const mode = engine.modeOf('~/.env');
-			return (
-				!!env &&
-				env.includes('sk-vibe-9c2f10ab') &&
-				!!script &&
-				!script.includes('sk-vibe-9c2f10ab') &&
-				script.includes('$API_KEY') &&
-				mode === 'rw-------'
-			);
-		}
+		goal: 'The fake settings file is owner-only, and you inspected the script and permissions',
+		check: async (engine) =>
+			engine.readFile('~/.env')?.trim() === 'API_KEY=practice-only-not-a-real-key' &&
+			engine.modeOf('~/.env') === 'rw-------' &&
+			historyContains(engine, 'ls -l .env') &&
+			historyContains(engine, 'cat deploy.sh')
 	},
 	{
 		id: 'open-the-crate',
@@ -1187,6 +1161,7 @@ export const lessonScenarioIds = [
 	'first-steps',
 	'navigation',
 	'workspace-setup',
+	'edit-notes',
 	'tidy-up',
 	'glob-practice',
 	'log-detective',

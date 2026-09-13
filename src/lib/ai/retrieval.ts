@@ -165,7 +165,7 @@ export function retrieve(query: string, k = 3): RetrievalHit[] {
 			// dense keyword lists, so on near-ties the citable section should
 			// win. A cheat hit still tops the list when it is the real answer
 			// (panic-button questions like "how do I quit vim").
-			score: (hit.score + extra) * (hit.id.startsWith('cheat-') ? 0.85 : 1)
+			score: (hit.score + extra) * (hit.id.startsWith('cheat-') ? 0.65 : 1)
 		}))
 		.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))
 		.slice(0, k);

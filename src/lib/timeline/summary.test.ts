@@ -24,12 +24,12 @@ function placed(): PlacedItem[] {
 
 describe('summary denominators', () => {
 	it('counts the manifest, not sectionIds', () => {
-		expect(TOTAL_SECTIONS).toBe(57);
-		expect(TOTAL_PLAYGROUNDS).toBe(35);
-		expect(readableIds.length + playgroundIds.length).toBe(92);
-		// The whole manifest is 121: 92 content anchors, 15 part headers, and the
-		// 14 challenges that close the Parts.
-		expect(items.length).toBe(121);
+		expect(TOTAL_SECTIONS).toBe(59);
+		expect(TOTAL_PLAYGROUNDS).toBe(36);
+		expect(readableIds.length + playgroundIds.length).toBe(95);
+		// The whole manifest is 124: 95 content anchors, 15 part headers, and the
+		// 14 challenges that test the Parts.
+		expect(items.length).toBe(124);
 		expect(items.filter((it) => it.kind === 'challenge')).toHaveLength(14);
 	});
 

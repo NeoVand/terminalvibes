@@ -1,0 +1,249 @@
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { parse } from 'svelte/compiler';
+
+export const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const catalogFile = resolve(root, 'src/lib/data/art-concepts.json');
+const candidateDirectory = resolve(root, 'static/art-candidates');
+const illustrationSources = [
+	'sections/Hero.svelte',
+	...Array.from({ length: 14 }, (_, index) => `sections/Part${index + 1}.svelte`),
+	'playground/KeyboardWorkshop.svelte',
+	'layout/Header.svelte'
+].map((file) => `src/lib/components/${file}`);
+
+function attribute(node, name) {
+	const attribute = node.attributes?.find(
+		(value) => value.type === 'Attribute' && value.name === name
+	);
+	if (!attribute || attribute.value === true) return '';
+	return (Array.isArray(attribute.value) ? attribute.value : [attribute.value])
+		.map((value) => {
+			if (value.type === 'Text') return value.data;
+			if (value.expression?.type === 'TemplateLiteral') {
+				return value.expression.quasis.map((quasi) => quasi.value.cooked).join('');
+			}
+			return '';
+		})
+		.join('');
+}
+
+/** Read actual component nodes so a nearby heading cannot steal an image's section. */
+export function scanIllustrations() {
+	const illustrations = [];
+	for (const file of illustrationSources) {
+		const source = readFileSync(resolve(root, file), 'utf8');
+		const ast = parse(source, { modern: true });
+		function walk(node, ancestors = []) {
+			if (!node || typeof node !== 'object') return;
+			if (node.name === 'img' || node.name === 'ExpandableImage') {
+				const src = attribute(node, 'src');
+				if (/\.(webp|png|jpe?g)$/.test(src)) {
+					const section =
+						[...ancestors]
+							.reverse()
+							.map((parent) => attribute(parent, 'id'))
+							.find(Boolean) || 'hero';
+					illustrations.push({
+						file,
+						section,
+						src: src.replace(/^\//, ''),
+						alt: attribute(node, 'alt'),
+						caption: attribute(node, 'caption')
+					});
+				}
+			}
+			for (const [key, value] of Object.entries(node)) {
+				if (['attributes', 'metadata', 'loc'].includes(key)) continue;
+				if (Array.isArray(value)) value.forEach((child) => walk(child, [...ancestors, node]));
+				else if (value && typeof value === 'object') walk(value, [...ancestors, node]);
+			}
+		}
+		walk(ast.fragment);
+	}
+	return illustrations;
+}
+
+export function loadCatalog() {
+	return JSON.parse(readFileSync(catalogFile, 'utf8'));
+}
+
+export function validateCatalog(catalog, illustrations = scanIllustrations()) {
+	const errors = [];
+	const ids = new Set();
+	for (const concept of catalog.concepts) {
+		if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(concept.id) || ids.has(concept.id))
+			errors.push(`Invalid/duplicate concept: ${concept.id}`);
+		ids.add(concept.id);
+		if (concept.variants.length < 5) errors.push(`${concept.id}: fewer than five alternatives`);
+		const variants = new Set();
+		for (const variant of concept.variants) {
+			if (!/^0[1-9]$/.test(variant.id) || variants.has(variant.id))
+				errors.push(`${concept.id}: invalid/duplicate variant ${variant.id}`);
+			variants.add(variant.id);
+			if (variant.path !== `art-candidates/${concept.id}/${variant.id}.webp`)
+				errors.push(`${concept.id}: unexpected candidate path`);
+		}
+		if (!concept.purpose || !concept.visualBrief || !concept.altSuggestion)
+			errors.push(`${concept.id}: missing teaching/visual brief`);
+		for (const reference of concept.sourceRefs) {
+			if (
+				!illustrations.some(
+					(usage) =>
+						usage.file === reference.file &&
+						usage.section === reference.section &&
+						usage.src === reference.src &&
+						usage.alt === reference.alt
+				)
+			) {
+				errors.push(
+					`${concept.id}: stale reference ${reference.file}#${reference.section} (${reference.src})`
+				);
+			}
+		}
+		for (const placement of concept.placements) {
+			const source = readFileSync(resolve(root, placement.file), 'utf8');
+			if (!source.includes(`id="${placement.section}"`))
+				errors.push(`${concept.id}: missing placement ${placement.section}`);
+		}
+	}
+	for (const usage of illustrations) {
+		if (
+			!catalog.concepts.some((concept) =>
+				concept.sourceRefs.some(
+					(reference) =>
+						reference.file === usage.file &&
+						reference.section === usage.section &&
+						reference.src === usage.src &&
+						reference.alt === usage.alt
+				)
+			)
+		) {
+			errors.push(`Uncatalogued illustration: ${usage.file}#${usage.section} (${usage.src})`);
+		}
+	}
+	if (catalog.reviewScope) {
+		if (new Set(catalog.reviewScope).size !== catalog.reviewScope.length)
+			errors.push('Duplicate concept in review scope');
+		for (const id of catalog.reviewScope) {
+			const concept = catalog.concepts.find((entry) => entry.id === id);
+			if (!concept) errors.push(`Unknown review concept: ${id}`);
+			else if (!concept.teachingText || !concept.styleReferences?.length)
+				errors.push(`${id}: missing teaching text or original style references`);
+			for (const path of concept?.styleReferences ?? []) {
+				if (!path.startsWith('static/images/') || !existsSync(resolve(root, path)))
+					errors.push(`${id}: missing original style reference ${path}`);
+			}
+		}
+	}
+	return errors;
+}
+
+export async function scanAvailability(catalog, directory = candidateDirectory) {
+	const { default: sharp } = await import('sharp');
+	const files = [];
+	const errors = [];
+	const expected = new Set();
+	for (const concept of catalog.concepts) {
+		for (const variant of concept.variants) {
+			const suffix = `${concept.id}/${variant.id}.webp`;
+			expected.add(suffix);
+			const absolute = resolve(directory, suffix);
+			if (!existsSync(absolute)) continue;
+			try {
+				const bytes = readFileSync(absolute);
+				const metadata = await sharp(bytes).metadata();
+				if (metadata.format !== 'webp' || !metadata.width || !metadata.height)
+					throw new Error('expected a readable WebP image');
+				files.push({
+					path: variant.path,
+					sha256: createHash('sha256').update(bytes).digest('hex'),
+					bytes: bytes.length,
+					width: metadata.width,
+					height: metadata.height
+				});
+			} catch (error) {
+				errors.push(`${suffix}: ${error.message}`);
+			}
+		}
+	}
+	if (existsSync(directory)) {
+		for (const entry of readdirSync(directory, { recursive: true, withFileTypes: true })) {
+			if (!entry.isFile() || !/\.webp$/i.test(entry.name)) continue;
+			const suffix = relative(directory, resolve(entry.parentPath, entry.name))
+				.split(sep)
+				.join('/');
+			if (!expected.has(suffix)) errors.push(`Uncatalogued candidate: ${suffix}`);
+		}
+	}
+	return { schemaVersion: 1, generatedAt: new Date().toISOString(), files, errors };
+}
+
+export function promptFor(catalog, concept, variant) {
+	if (catalog.reviewScope && !catalog.reviewScope.includes(concept.id)) {
+		throw new Error(`${concept.id}: outside the owner's current artwork scope`);
+	}
+	return [
+		...(concept.id === 'crab-guide-logo'
+			? [
+					'This is a square isolated mascot asset with a real transparent alpha background. Show only the complete hermit crab and its small leaf motif. No scenery, garden backdrop, surface, frame, text, or checkerboard pattern. Apply the alternative’s materials and palette to the mascot itself; its setting must remain transparent.'
+				]
+			: []),
+		`Create ONE standalone illustration. Follow this alternative's specific medium, camera angle, and palette: ${catalog.variantDirections.find((direction) => direction.id === variant.id).brief}`,
+		'Use integrated, legible teaching text where the concept calls for it: real command examples, path names, keyboard shortcuts, captions, and before/after states. The brief must supply exact wording grounded in the lesson. Do not substitute blank cards, empty screens, or decorative pseudo-text for the explanation.',
+		`TerminalVibes artwork candidate ${concept.id}/${variant.id}. ${concept.title}.`,
+		`Teaching purpose: ${concept.purpose}`,
+		`Scene: ${concept.visualBrief}`,
+		...(concept.teachingText
+			? [
+					`Teaching text to render verbatim as integrated typography, diagram labels, and code:\n${concept.teachingText}`
+				]
+			: []),
+		`Concept-specific details: ${concept.visualChecks.join(' ')}`,
+		`Format: ${concept.aspectRatio}. ${catalog.artDirection}`,
+		`Accuracy guardrails: ${catalog.guardrails.join(' ')}`,
+		`Input images are style references, not edit targets. Match their existing illustration style exactly while teaching this new concept. References: ${(concept.styleReferences ?? []).join(', ')}. Render the specified teaching text as part of the artwork; do not copy unrelated text or technical errors from reference images.`
+	].join('\n\n');
+}
+
+async function main() {
+	const [command = '--check', conceptId, variantId] = process.argv.slice(2);
+	if (command === '--scan') {
+		console.log(JSON.stringify(scanIllustrations(), null, 2));
+		return;
+	}
+	const catalog = loadCatalog();
+	const errors = validateCatalog(catalog);
+	if (errors.length) throw new Error(errors.join('\n'));
+	if (command === '--availability') {
+		const result = await scanAvailability(catalog);
+		mkdirSync(candidateDirectory, { recursive: true });
+		writeFileSync(
+			resolve(candidateDirectory, 'availability.json'),
+			`${JSON.stringify(result, null, 2)}\n`
+		);
+		console.log(
+			`${result.files.length}/${catalog.concepts.filter((concept) => !catalog.reviewScope || catalog.reviewScope.includes(concept.id)).reduce((sum, concept) => sum + concept.variants.length, 0)} candidates available in the current review scope. Local index: static/art-candidates/availability.json`
+		);
+		if (result.errors.length) throw new Error(result.errors.join('\n'));
+	} else if (command === '--prompt') {
+		const concept = catalog.concepts.find((entry) => entry.id === conceptId);
+		const variant = concept?.variants.find((entry) => entry.id === variantId);
+		if (!concept || !variant)
+			throw new Error('Usage: node scripts/art-inventory.mjs --prompt CONCEPT_ID 01');
+		console.log(promptFor(catalog, concept, variant));
+	} else if (command === '--check') {
+		console.log(
+			`${catalog.concepts.length} concepts, ${catalog.concepts.reduce((sum, concept) => sum + concept.variants.length, 0)} candidate slots; all ${scanIllustrations().length} active raster usages covered.`
+		);
+	} else throw new Error(`Unknown option: ${command}`);
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+	main().catch((error) => {
+		console.error(error.message);
+		process.exitCode = 1;
+	});
+}

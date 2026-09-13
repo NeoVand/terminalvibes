@@ -128,13 +128,15 @@ export interface NavSection extends NavItem {
 export const sidebarNav: NavSection[] = [
 	{
 		id: 'hero',
-		label: 'Introduction',
+		label: 'Start Here',
 		icon: Rocket,
 		children: [
+			{ id: 'hello-first-command', label: 'Your First Command', icon: Terminal },
+			{ id: 'keyboard-workshop', label: 'Keyboard Workshop', icon: PenLine },
 			{ id: 'section-intro-what', label: 'What Is the Terminal?', icon: HelpCircle },
-			{ id: 'section-intro-history', label: 'A Brief History', icon: History },
+			{ id: 'section-intro-anatomy', label: 'Anatomy of a Prompt', icon: Terminal },
 			{ id: 'section-intro-shells', label: "Your Machine's Terminal", icon: Laptop },
-			{ id: 'section-intro-anatomy', label: 'Anatomy of a Prompt', icon: Terminal }
+			{ id: 'section-intro-history', label: 'Why Written Commands?', icon: History }
 		]
 	},
 	{
@@ -157,12 +159,13 @@ export const sidebarNav: NavSection[] = [
 		children: [
 			{ id: 'section-2-1', label: 'Where Am I?', icon: MapPin },
 			{ id: 'section-2-2', label: 'Paths', icon: Route },
-			{ id: 'quoting', label: 'Mind the Gap', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-2-3', label: 'Changing Directories', icon: MoveRight },
-			{ id: 'navigation', label: 'Find the Lost API Key', icon: Gamepad2, isPlayground: true },
+			{ id: 'navigation', label: 'Find the Garden Note', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-2-4', label: 'Making Things', icon: FolderPlus },
+			{ id: 'quoting', label: 'Mind the Gap', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-2-5', label: 'Looking Inside Files', icon: Eye },
-			{ id: 'workspace-setup', label: 'Build Your Workspace', icon: Gamepad2, isPlayground: true },
+			{ id: 'edit-notes', label: 'Edit a Garden Note', icon: Gamepad2, isPlayground: true },
+			{ id: 'workspace-setup', label: 'Build Your Notebook', icon: Gamepad2, isPlayground: true },
 			{ id: 'ch-2-scaffold', label: 'Scaffold It From Here', icon: Puzzle, isChallenge: true }
 		]
 	},
@@ -236,9 +239,9 @@ export const sidebarNav: NavSection[] = [
 		children: [
 			{ id: 'section-6-1', label: 'Your First Script', icon: FileCode2 },
 			{ id: 'first-script', label: 'Automate the Backup', icon: Gamepad2, isPlayground: true },
-			{ id: 'script-args', label: 'One Script, Any Folder', icon: Gamepad2, isPlayground: true },
 			{ id: 'section-6-2', label: 'Exit Codes & Chaining', icon: Braces },
 			{ id: 'exit-codes', label: 'Deploy Only on Green', icon: Gamepad2, isPlayground: true },
+			{ id: 'script-args', label: 'One Script, Any Folder', icon: Gamepad2, isPlayground: true },
 			{ id: 'ch-6-ship-all-three', label: 'Ship All Three', icon: Puzzle, isChallenge: true }
 		]
 	},
@@ -367,17 +370,14 @@ export const sidebarNav: NavSection[] = [
 			{ id: 'section-14-2', label: 'Quick Reference', icon: Table },
 			{ id: 'section-14-3', label: 'Final Challenge', icon: Trophy },
 			{ id: 'capstone', label: 'One Messy Home Folder', icon: Gamepad2, isPlayground: true },
-			// Sits between the two capstones on the page, and must be listed here:
-			// the sidebar row is the only route to it, so without one the
-			// "n/35 exercises" counter could never reach 35.
 			{ id: 'midnight-deploy', label: 'The Midnight Deploy', icon: Gamepad2, isPlayground: true },
-			{ id: 'section-14-4', label: 'Keep Learning', icon: Library },
 			{
 				id: 'ch-14-desk-clear',
 				label: 'Clear the Desk for the Demo',
 				icon: Puzzle,
 				isChallenge: true
-			}
+			},
+			{ id: 'section-14-4', label: 'Keep Learning', icon: Library }
 		]
 	}
 ];

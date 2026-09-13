@@ -1,9 +1,15 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { SUGGESTION_COUNT } from '$lib/ai/types';
+
+async function openCourse(page: Page, hash = '') {
+	await page.goto('/' + hash);
+	// Header buttons are server rendered; wait until the course is interactive.
+	await expect(page.getByLabel('Your command', { exact: true })).toBeEnabled({ timeout: 15000 });
+}
 
 test.describe('Agent panel', () => {
 	test('opens from the header, answers with a citation chip, closes on ESC', async ({ page }) => {
-		await page.goto('/');
+		await openCourse(page);
 
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
@@ -29,7 +35,7 @@ test.describe('Agent panel', () => {
 	});
 
 	test('is mutually exclusive with the playground panel', async ({ page }) => {
-		await page.goto('/');
+		await openCourse(page);
 
 		const agentPanel = page.locator('aside[aria-label="Agent"]');
 		const playgroundPanel = page.locator('aside[aria-label="Terminal Playground"]');
@@ -47,12 +53,12 @@ test.describe('Agent panel', () => {
 	});
 
 	test('shows starter chips and the honest scripted-guide notice', async ({ page }) => {
-		await page.goto('/');
+		await openCourse(page);
 
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
 
-		await expect(panel.getByText(/scripted guide/i)).toBeVisible();
+		await expect(panel.getByTestId('agent-intro')).toContainText('scripted guide');
 		await expect(panel.getByRole('button', { name: 'How do pipes work?' })).toBeVisible();
 
 		await panel.getByRole('button', { name: 'How do pipes work?' }).click();
@@ -64,7 +70,15 @@ test.describe('Agent panel', () => {
 	test('offers the local model download with the size disclosed (never auto-starts)', async ({
 		page
 	}) => {
-		await page.goto('/');
+		const downloads: string[] = [];
+		await page.route(
+			/https:\/\/(?:huggingface\.co|[^/]*hf\.co|[^/]*huggingface\.co)\//,
+			(route) => {
+				downloads.push(route.request().url());
+				return route.abort();
+			}
+		);
+		await openCourse(page);
 
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
@@ -85,7 +99,8 @@ test.describe('Agent panel', () => {
 		const smallDl = smallCard.getByRole('button', { name: /Download · 760 MB/ });
 		await expect(smallDl).toBeVisible();
 		await expect(bigCard.getByRole('button', { name: /Download · 1\.3 GB/ })).toBeVisible();
-		await expect(panel.getByText('runs entirely in your browser')).toBeVisible();
+		await expect(panel.getByTestId('agent-intro')).toContainText('Download a local model');
+		expect(downloads).toEqual([]);
 
 		// Dismissing keeps the scripted guide working.
 		await panel.getByRole('button', { name: 'Use scripted mode' }).click();
@@ -93,7 +108,7 @@ test.describe('Agent panel', () => {
 	});
 
 	test('header gear opens the settings popover with the model picker', async ({ page }) => {
-		await page.goto('/');
+		await openCourse(page);
 
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
@@ -101,21 +116,23 @@ test.describe('Agent panel', () => {
 		await panel.getByRole('button', { name: 'Agent settings' }).click();
 		const settings = page.getByRole('dialog', { name: 'Agent settings' });
 		await expect(settings).toBeVisible();
-		await expect(settings.getByText('Model')).toBeVisible();
+		await expect(settings.getByRole('combobox', { name: 'Model', exact: true })).toBeVisible();
+		await expect(settings.getByRole('combobox', { name: 'Provider', exact: true })).toBeVisible();
+		await expect(settings.getByLabel('API key', { exact: true })).toBeVisible();
 		await expect(settings.locator('.agent-model-tan')).toContainText('LFM2.5 1.2B');
 		await expect(settings.locator('.agent-model-amber')).toContainText('Qwen3.5 2B');
 		await expect(
 			settings.locator('.agent-model-tan').getByRole('button', { name: /Download · 760 MB/ })
 		).toBeVisible();
 
-		await page.getByRole('button', { name: 'Close settings' }).click();
+		await settings.getByRole('button', { name: 'Close settings', exact: true }).click();
 		await expect(settings).not.toBeVisible();
 	});
 
 	test('gated demo: DENY runs nothing, ALLOW executes into the agent terminal', async ({
 		page
 	}) => {
-		await page.goto('/');
+		await openCourse(page);
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
 		const input = page.getByLabel('Ask the agent');
@@ -159,7 +176,7 @@ test.describe('Agent panel', () => {
 	});
 
 	test('the agent terminal is seeded: ls shows the demo files', async ({ page }) => {
-		await page.goto('/');
+		await openCourse(page);
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
 		const input = page.getByLabel('Ask the agent');
@@ -186,7 +203,7 @@ test.describe('Agent panel', () => {
 		// Test breadcrumb: force the mock backend to serve suggestions (the
 		// product rule is "downloaded + ready local model only").
 		await page.addInitScript(() => localStorage.setItem('tv-agent-suggest-mock', '1'));
-		await page.goto('/#section-5-2');
+		await openCourse(page, '#section-5-2');
 
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
@@ -212,7 +229,7 @@ test.describe('Agent panel', () => {
 	});
 
 	test('no model, no breadcrumb: the static starters stay untouched', async ({ page }) => {
-		await page.goto('/#section-5-2');
+		await openCourse(page, '#section-5-2');
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
 		const chips = panel.locator('[data-testid="agent-chip"]');
@@ -224,7 +241,7 @@ test.describe('Agent panel', () => {
 	});
 
 	test('teaching answers render markdown with a code block and a sources row', async ({ page }) => {
-		await page.goto('/');
+		await openCourse(page);
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
 
@@ -242,7 +259,7 @@ test.describe('Agent panel', () => {
 		page
 	}) => {
 		// First run: the intro banner + model cards ARE the chat area's empty state.
-		await page.goto('/');
+		await openCourse(page);
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		const panel = page.locator('aside[aria-label="Agent"]');
 		await expect(panel.locator('[data-testid="agent-intro"]')).toBeVisible();
@@ -256,6 +273,7 @@ test.describe('Agent panel', () => {
 			)
 		);
 		await page.reload();
+		await expect(page.getByLabel('Your command', { exact: true })).toBeEnabled({ timeout: 15000 });
 		await page.getByRole('button', { name: 'Open Agent' }).click();
 		await expect(panel.locator('[data-testid="agent-intro"]')).toHaveCount(0);
 		await expect(panel.locator('.agent-model-card')).toHaveCount(0);
@@ -273,7 +291,7 @@ test.describe('Agent panel', () => {
 		page
 	}) => {
 		await page.setViewportSize({ width: 1280, height: 900 });
-		await page.goto('/');
+		await openCourse(page);
 		const main = page.locator('main#main-content');
 
 		// Sidebar starts open at desktop widths.

@@ -9,7 +9,7 @@ describe('retrieval routing', () => {
 
 	it('routes "quit vim / frozen terminal" to 1.3 or the panic domain', () => {
 		const hits = retrieve('quit vim / frozen terminal');
-		expect(['section-1-3', 'cheat-panic-button']).toContain(hits[0]?.id);
+		expect(['section-1-3', 'section-12-3', 'cheat-panic-button']).toContain(hits[0]?.id);
 	});
 
 	it('routes "rm -rf safe?" to deleting-carefully or read-before-you-run', () => {

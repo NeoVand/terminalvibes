@@ -1,29 +1,13 @@
 <script lang="ts">
-	import {
-		Bot,
-		Gamepad2,
-		ScrollText,
-		HelpCircle,
-		History,
-		Laptop,
-		Terminal,
-		AppWindow,
-		Shell,
-		Monitor,
-		AtSign,
-		FolderOpen,
-		Play,
-		TextCursor
-	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import { Bot, Gamepad2 } from 'lucide-svelte';
+	import FirstCommand from '../playground/FirstCommand.svelte';
+	import KeyboardWorkshop from '../playground/KeyboardWorkshop.svelte';
 	import Code from '../ui/Code.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
-	import CodeBlock from '../ui/CodeBlock.svelte';
-	import Callout from '../ui/Callout.svelte';
-	import OsIcon from '../ui/OsIcon.svelte';
-	import CourseLink from '../ui/CourseLink.svelte';
+	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import CourseMap from '../ui/CourseMap.svelte';
+	import CourseLink from '../ui/CourseLink.svelte';
 
 	let {
 		onOpenPlayground,
@@ -32,674 +16,307 @@
 		onOpenPlayground?: () => void;
 		onOpenAgent?: () => void;
 	} = $props();
-
-	let activeTab = $state<'mac' | 'windows' | 'linux'>('mac');
-
-	const stats = ['14 parts', '35 playgrounds', '100% free', 'No signup'];
-
-	const shellTimeline = [
-		{
-			year: '1969',
-			text: 'At Bell Labs, Ken Thompson and Dennis Ritchie start building Unix on a spare PDP-7 — and with it, the idea of typing commands at a shell.'
-		},
-		{
-			year: '1971',
-			text: 'The first Unix shell ships: Thompson’s "sh". Pipes arrive two years later, and small tools start composing into big ones.'
-		},
-		{
-			year: '1979',
-			text: 'Stephen Bourne’s shell becomes the Unix standard. Its syntax — the one you’ll learn here — is still what shells speak today.'
-		},
-		{
-			year: '1989',
-			text: 'Brian Fox releases bash, the "Bourne Again SHell", for the GNU project — a decades-long effort to build an operating system anyone is free to use, change and pass on. Linux adopts it, and it spreads everywhere.'
-		},
-		{
-			year: '2019',
-			text: 'macOS Catalina switches the default shell to zsh — a bash-compatible cousin. For everything in this course, they behave the same.'
-		},
-		{
-			year: 'Today',
-			text: 'Servers — computers whose job is answering other computers — all speak bash. So do Docker containers, which wrap a program in a mini-Linux of its own, automated build-and-test runs (CI), and AI coding agents. "Bash-compatible" is the lingua franca of computing.'
-		}
-	];
 </script>
 
-<section id="hero" class="px-6 py-16">
+<section id="hero" class="hero">
 	<h1 class="sr-only">TerminalVibes — The Terminal for Vibe Coders</h1>
-
-	<!-- Hero image -->
-	<div class="mx-auto mb-12 max-w-4xl">
-		<ExpandableImage
-			src="{base}/images/Hero.webp"
-			alt="TerminalVibes — The Terminal for Vibe Coders"
-			class="w-full rounded-xl shadow-2xl"
-			loading="eager"
-		/>
-	</div>
-
-	<!-- Welcome + quick links -->
-	<div class="mx-auto mb-16 max-w-4xl">
-		<p class="mb-5 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-			<strong style="color: var(--color-text);">Welcome!</strong> Your AI assistant keeps proposing
-			shell commands — this guide teaches you to read, verify, and run them with confidence. From
-			your very first
-			<Code code="echo" /> to auditing an agent's script, every concept is explained visually, then practiced
-			hands-on. Three companions will follow you through every part:
-		</p>
-
-		<div class="mb-5 flex flex-wrap gap-2">
-			{#each stats as stat (stat)}
-				<span
-					class="rounded-full px-3.5 py-1.5 text-[12px] font-semibold"
-					style="background: var(--color-surface); color: var(--color-primary-text); border: 1px solid var(--color-border);"
-				>
-					{stat}
-				</span>
-			{/each}
-		</div>
-
-		<div class="space-y-3">
-			<div
-				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
-				style="background: color-mix(in srgb, var(--color-btn-playground) 12%, transparent);"
-			>
-				<Gamepad2
-					size={18}
-					class="mt-0.5 flex-shrink-0"
-					style="color: var(--color-btn-playground);"
-				/>
-				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong style="color: var(--color-text);">Try it now:</strong> Open the
-					<button
-						type="button"
-						onclick={onOpenPlayground}
-						class="cursor-pointer font-medium underline underline-offset-2"
-						style="color: var(--color-btn-playground);">Terminal Playground</button
-					>
-					— a simulated bash sandbox that runs entirely in your browser. Type anything; nothing here can
-					touch your real files. No install required.
-				</p>
-			</div>
-
-			<div
-				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
-				style="background: color-mix(in srgb, var(--color-btn-agent) 12%, transparent);"
-			>
-				<Bot size={18} class="mt-0.5 flex-shrink-0" style="color: var(--color-btn-agent);" />
-				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong style="color: var(--color-text);">Stuck on anything:</strong> this course has its
-					own
-					<button
-						type="button"
-						onclick={onOpenAgent}
-						class="cursor-pointer font-medium underline underline-offset-2"
-						style="color: var(--color-btn-agent);">AI tutor</button
-					>
-					built into the header — it has read every lesson here, answers from them, and links you back
-					to the exact section. It can run commands in its own sandbox terminal to show you, and it asks
-					permission first every time. Which is the whole course in miniature: the agent proposes, you
-					approve.
-				</p>
-			</div>
-
-			<div
-				class="flex items-start gap-3 rounded-lg px-5 py-4 text-left"
-				style="background: color-mix(in srgb, var(--color-btn-cheatsheet) 12%, transparent);"
-			>
-				<ScrollText
-					size={18}
-					class="mt-0.5 flex-shrink-0"
-					style="color: var(--color-btn-cheatsheet);"
-				/>
-				<p class="text-[13px] leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong style="color: var(--color-text);">Quick reference:</strong> Need a command fast?
-					Hit
-					<kbd
-						class="mx-0.5 rounded px-1.5 py-0.5 text-[11px] font-medium"
-						style="background: var(--color-bg-tertiary); color: var(--color-text);">⌘K</kbd
-					>
-					/
-					<kbd
-						class="mx-0.5 rounded px-1.5 py-0.5 text-[11px] font-medium"
-						style="background: var(--color-bg-tertiary); color: var(--color-text);">Ctrl+K</kbd
-					>
-					to search, or open the
-					<strong style="color: var(--color-text);">Terminal Cheat Sheet</strong>
-					from the header for a complete command reference.
-				</p>
-			</div>
-
-			<CourseMap />
-		</div>
-	</div>
-
-	<!-- What is the Terminal? -->
-	<div id="section-intro-what" class="mx-auto mb-16 max-w-4xl">
-		<div class="mb-6 flex items-center gap-2.5">
-			<HelpCircle size={20} style="color: var(--color-primary);" strokeWidth={2.5} />
-			<h2 class="text-xl font-bold" style="color: var(--color-text);">What Is the Terminal?</h2>
-		</div>
-
-		<div class="my-6">
+	<div class="opening">
+		<div class="opening-art">
 			<ExpandableImage
-				src="{base}/images/what-is-terminal.webp"
-				alt="What Is the Terminal? — a text conversation with your computer"
-				caption="No buttons, no menus — you type a command, the machine answers, and everything is possible"
+				src="{base}/images/Hero.webp"
+				alt="TerminalVibes — The Terminal for Vibe Coders"
+				class="w-full rounded-xl shadow-2xl"
+				width={2560}
+				height={1440}
+				loading="eager"
 			/>
 		</div>
-
-		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			The terminal is a <strong style="color: var(--color-text);"
-				>text conversation with your computer</strong
-			>. Instead of clicking icons, you type a command, press Enter, and the machine answers in
-			text. That's the whole interaction model — and it hasn't fundamentally changed in fifty years,
-			because it doesn't need to.
+		<p class="welcome">
+			<strong>Welcome!</strong> Let’s make the terminal say hello. Type your first command below—there’s
+			nothing to install.
 		</p>
-
-		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Three words get used almost interchangeably, but they name different layers:
-		</p>
-
-		<div class="mb-4 grid gap-3 sm:grid-cols-3">
-			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p
-					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text);"
-				>
-					<AppWindow size={14} style="color: var(--color-primary);" />
-					Terminal
-				</p>
-				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-					The <em>window</em> — an app that draws text on screen and sends your keystrokes onward. Terminal.app,
-					iTerm2, and Windows Terminal are all terminals.
-				</p>
-			</div>
-			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p
-					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text);"
-				>
-					<Shell size={14} style="color: var(--color-primary);" />
-					Shell
-				</p>
-				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-					The <em>program inside</em> the window that reads your command, runs it, and prints the
-					result. <strong>bash</strong> and <strong>zsh</strong> are shells — the language this course
-					teaches.
-				</p>
-			</div>
-			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p
-					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text);"
-				>
-					<Monitor size={14} style="color: var(--color-primary);" />
-					Console
-				</p>
-				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-					An older word from the days when the "terminal" was a physical desk of keyboard and
-					screen. Today it's mostly a synonym for terminal.
-				</p>
-			</div>
-		</div>
-
-		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			If you build with AI assistants, the terminal is <em>more</em> relevant to you, not less.
-			Every major AI lab now ships a
-			<strong style="color: var(--color-text);">terminal-native coding agent</strong> — Anthropic's
-			Claude Code, OpenAI's Codex CLI, Google's CLI agents, Block's Goose, Sourcegraph's Amp. The
-			CLI in those names is the <em>command-line interface</em> — the same command line this course is
-			about. It's the execution layer where those agents actually work: install this package, run these
-			tests, move those files. The agents speak fluent bash. With the terminal, you can:
-		</p>
-
-		<ul
-			class="mb-4 space-y-2 pl-5 text-[14px] leading-relaxed"
-			style="color: var(--color-text-secondary);"
-		>
-			<li class="list-disc">
-				<strong style="color: var(--color-text);">Read</strong> every command an AI proposes before it
-				runs — instead of approving blind
-			</li>
-			<li class="list-disc">
-				<strong style="color: var(--color-text);">Verify</strong> what actually happened afterwards, with
-				your own eyes
-			</li>
-			<li class="list-disc">
-				<strong style="color: var(--color-text);">Compose</strong> small tools into pipelines that do
-				exactly what you want
-			</li>
-			<li class="list-disc">
-				<strong style="color: var(--color-text);">Automate</strong> anything you do twice — a saved command
-				is a script
-			</li>
-		</ul>
-
-		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Plenty of developers use AI tools; far fewer trust what those tools actually run. Being able
-			to read a shell command is what closes that gap — and there's even a
-			<a
-				href="https://www.tbench.ai/"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="font-medium underline underline-offset-2"
-				style="color: var(--color-primary);">benchmark</a
-			> for how well agents do real terminal work, if you want the numbers.
-		</p>
-
-		<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Text in, text out is also how language models work — which is why so many coding agents drive
-			a shell. Learning to read that text is how you supervise them instead of hoping for the best.
-			But where did this interface come from? The story is worth two minutes of your time.
-		</p>
+		<FirstCommand />
 	</div>
 
-	<!-- A Brief History -->
-	<div id="section-intro-history" class="mx-auto mb-16 max-w-4xl">
-		<div class="mb-6 flex items-center gap-2.5">
-			<History size={20} style="color: var(--color-primary);" strokeWidth={2.5} />
-			<h2 class="text-xl font-bold" style="color: var(--color-text);">A Brief History</h2>
-		</div>
+	<div class="workshop-wrap">
+		<KeyboardWorkshop />
+	</div>
 
-		<div class="my-6">
-			<ExpandableImage
-				src="{base}/images/terminal-history.webp"
-				alt="A Brief History — from teletypes at Bell Labs to a shell in every machine"
-				caption="From a spare PDP-7 in 1969 to every server, laptop, and AI agent on Earth"
-			/>
-		</div>
+	<div class="intro-reference">
+		<p class="optional-label">
+			Curious about the words and the tools? Open any of these. You can come back later.
+		</p>
 
-		<div class="mb-6 flex flex-col gap-6 sm:flex-row sm:items-start">
-			<div class="min-w-0 flex-1">
-				<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-					In 1969 at <strong style="color: var(--color-text);">Bell Labs</strong>, a giant
-					operating-system project called Multics had just been cancelled. Two researchers —
-					<strong style="color: var(--color-text);">Ken Thompson</strong> and
-					<strong style="color: var(--color-text);">Dennis Ritchie</strong> — salvaged the good
-					ideas and rebuilt them small on a spare PDP-7 minicomputer. They called it
-					<strong style="color: var(--color-text);">Unix</strong>, partly as a joke on Multics.
+		<details id="section-intro-what">
+			<summary>What are the terminal and the shell?</summary>
+			<div class="detail-content">
+				<p>
+					The <strong>terminal</strong> is the window you type in. The <strong>shell</strong> is the program
+					that reads your command and arranges for it to run.
 				</p>
-				<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-					Unix came with a radical idea: the operating system shouldn't decide what you can do.
-					Instead it gives you dozens of small, sharp tools — each doing one thing well — and a <strong
-						style="color: var(--color-text);">shell</strong
-					> to combine them. Type a sentence, press Enter, and the machine obeys. That design won so completely
-					that macOS, Linux, and Android are all Unix descendants.
+				<p>
+					You just used <Code code="echo" /> to print a message. Later, a command might list files, search
+					a notebook, or start a program. Some commands print a reply. Others change something without
+					printing text; we’ll learn how to check what happened.
 				</p>
-				<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-					The shell itself kept evolving: Thompson's original, then <strong
-						style="color: var(--color-text);">Stephen Bourne's</strong
-					>
-					1979 shell whose syntax became the standard, then
-					<strong style="color: var(--color-text);">bash</strong> in 1989 — a free rewrite that
-					conquered the world on the back of Linux. Your Mac's default
-					<strong style="color: var(--color-text);">zsh</strong> is a bash-compatible cousin; everything
-					in this course works the same in both.
-				</p>
-			</div>
-			<div class="mx-auto w-72 flex-shrink-0 sm:mx-0 sm:w-80">
-				<ExpandableImage
-					src="{base}/images/thompson-ritchie.webp"
-					alt="Ken Thompson and Dennis Ritchie at a PDP-11 running Unix at Bell Labs"
-					caption="Ken Thompson (seated) and Dennis Ritchie at Bell Labs, creators of Unix — an illustrated homage"
-					width={1122}
-					height={1402}
-				/>
-			</div>
-		</div>
-
-		<div class="mb-5 rounded-lg p-5" style="background: var(--color-bg-secondary);">
-			{#each shellTimeline as entry (entry.year)}
-				<div class="flex gap-4 py-2">
-					<span
-						class="w-12 flex-shrink-0 text-right text-[12px] font-semibold"
-						style="color: var(--color-primary-text); font-family: var(--font-mono);"
-					>
-						{entry.year}
-					</span>
-					<span
-						class="border-l pl-4 text-[13px] leading-relaxed"
-						style="border-color: var(--color-border); color: var(--color-text-secondary);"
-					>
-						{entry.text}
-					</span>
+				<div
+					class="flow"
+					aria-label="You type a command, the shell runs it, and the terminal shows the result"
+				>
+					<span>You type<br /><strong>A command</strong></span><span aria-hidden="true">→</span
+					><span>The shell runs it<br /><strong>An action</strong></span><span aria-hidden="true"
+						>→</span
+					><span>You see<br /><strong>The result</strong></span>
 				</div>
-			{/each}
-		</div>
-
-		<Callout type="note" title="Why 'bash'?">
-			It stands for <em>Bourne Again SHell</em> — a triple pun. It's a free-software rebirth of Stephen
-			Bourne's classic shell — free as in free to use, change and pass on, not free as in no charge —
-			written by Brian Fox for the GNU project in 1989. Programmers have never been able to resist a good
-			name: Unix itself started as a joke on Multics.
-		</Callout>
-
-		<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Why does this history matter to you? Because the same design from 1969 — small tools, plain
-			text, composable commands — is what AI agents reach for to act on your machine today. The
-			terminal isn't legacy technology you're stuck with; small, sharp tools and plain text are
-			simply still the most direct way to tell a computer what to do — whether the one typing is you
-			or your agent.
-		</p>
-	</div>
-
-	<!-- Your Machine's Terminal -->
-	<div id="section-intro-shells" class="mx-auto mb-16 max-w-4xl">
-		<div class="mb-6 flex items-center gap-2.5">
-			<Laptop size={20} style="color: var(--color-primary);" strokeWidth={2.5} />
-			<h2 class="text-xl font-bold" style="color: var(--color-text);">Your Machine's Terminal</h2>
-		</div>
-
-		<div class="mb-6">
-			<ExpandableImage
-				src="{base}/images/your-machines-terminal.webp"
-				alt="Your Machine's Terminal — every operating system ships one"
-				caption="Whatever machine you're on, a bash-compatible shell is minutes away"
-			/>
-		</div>
-
-		<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			You already own everything you need — every operating system ships a terminal. Pick yours:
-		</p>
-
-		<!-- OS Tabs -->
-		<div class="mb-1 flex gap-1 rounded-lg p-1" style="background: var(--color-bg-tertiary);">
-			<button
-				onclick={() => (activeTab = 'mac')}
-				class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
-				style="color: {activeTab === 'mac'
-					? 'var(--color-text)'
-					: 'var(--color-text-muted)'}; background: {activeTab === 'mac'
-					? 'var(--color-surface)'
-					: 'transparent'};"
-			>
-				<OsIcon os="macos" size={13} />
-				macOS
-			</button>
-			<button
-				onclick={() => (activeTab = 'windows')}
-				class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
-				style="color: {activeTab === 'windows'
-					? 'var(--color-text)'
-					: 'var(--color-text-muted)'}; background: {activeTab === 'windows'
-					? 'var(--color-surface)'
-					: 'transparent'};"
-			>
-				<OsIcon os="windows" size={13} />
-				Windows
-			</button>
-			<button
-				onclick={() => (activeTab = 'linux')}
-				class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-medium transition-colors"
-				style="color: {activeTab === 'linux'
-					? 'var(--color-text)'
-					: 'var(--color-text-muted)'}; background: {activeTab === 'linux'
-					? 'var(--color-surface)'
-					: 'transparent'};"
-			>
-				<OsIcon os="linux" size={13} />
-				Linux
-			</button>
-		</div>
-
-		<!-- Tab content -->
-		<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-			{#if activeTab === 'mac'}
-				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-					You're in the best position: macOS <em>is</em> Unix. The built-in
-					<strong style="color: var(--color-text);">Terminal.app</strong> (in
-					Applications&nbsp;→&nbsp;Utilities) is all you need — and it's better than its reputation:
-					macOS 26 "Tahoe" (2025) gave it its first real modernization in about 24 years, with
-					24-bit true color (roughly 16.7 million shades, where older terminals were stuck with 16
-					or 256), Powerline font support, and new themes. There's nothing to install on day one.
-					Many developers later upgrade to
-					<strong style="color: var(--color-text);">iTerm2</strong> for extra comfort — same shell inside,
-					nicer window around it.
+				<p>
+					<strong>Bash</strong> and <strong>zsh</strong> are two common shells. They share many commands,
+					but some rules and shortcuts differ. This site’s practice terminals simulate part of Bash. They
+					don’t run programs on your computer.
 				</p>
-				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-					Since macOS Catalina (2019), the shell your terminal launches for you — its default, until
-					you go and change it — is <strong style="color: var(--color-text);">zsh</strong>. For this
-					entire course, zsh and bash behave identically; every command works in both. You can check
-					what you're running: the <Code code="$" /> makes the shell swap in the <em>value</em> of
-					<Code code="SHELL" />, which is why a path comes back and not the word (<CourseLink
-						to="section-5-4"
-					/>):
+				<p>
+					You may also hear <strong>command line</strong>, meaning this way of working by typing
+					instructions, or <strong>CLI</strong>, short for command-line interface. You do not need
+					to memorize the labels to keep going.
 				</p>
-				<CodeBlock
-					code={`echo $SHELL
-# /bin/zsh`}
-					title="Which shell am I in?"
+				<ExpandableImage
+					src="{base}/images/what-is-terminal.webp"
+					alt="An illustrated view of the terminal window and the shell that reads commands."
+					caption="The window, the program inside it, and the words you type have different jobs."
 				/>
-			{:else if activeTab === 'windows'}
-				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-					Windows needs one extra step, because its native shells don't speak bash. The recommended
-					path is <strong style="color: var(--color-text);">WSL</strong> (Windows Subsystem for
-					Linux) — a real Ubuntu running inside Windows, and open source since May 2025. Ubuntu is a
-					<em>distribution</em> of Linux: one packaged version of that free, Unix-descended
-					operating system, with its own defaults. It's the most common one, which is why
-					<Code code="wsl --install" /> picks it for you. Open
-					<strong style="color: var(--color-text);">PowerShell as Administrator</strong> —
-					right-click it in the Start menu and choose <em>Run as administrator</em>, which is how
-					you let it change the system itself (<CourseLink to="section-5-3" />) — then run one
-					command and restart:
+			</div>
+		</details>
+
+		<details id="section-intro-anatomy">
+			<summary>What is a prompt? Which text do I type?</summary>
+			<div class="detail-content">
+				<p>
+					The <strong>prompt</strong> marks the place where you can type your next command. In the
+					practice terminal, it is the small arrow beside the input. Your own terminal may show your
+					name, a folder, and a symbol such as <Code code="$" /> or <Code code="%" />.
 				</p>
-				<CodeBlock code="wsl --install" title="Install WSL (one time)" />
-				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-					A lighter alternative is <strong style="color: var(--color-text);">Git Bash</strong>,
-					which comes free with
-					<a
-						href="https://git-scm.com/download/win"
-						target="_blank"
-						rel="noopener noreferrer"
-						class="font-medium underline underline-offset-2"
-						style="color: var(--color-primary);">Git for Windows</a
-					> — a bash shell without the full Linux system. Great for this course, and it earns its keep
-					in the AI era too: coding agents like Claude Code use Git Bash as their bash on native Windows,
-					so if you skip WSL, installing Git for Windows is the prerequisite instead.
+				<p>
+					The prompt is already there. You do not type or copy it. In this course, command examples
+					and results are labeled separately:
 				</p>
-				<p class="text-[14px]" style="color: var(--color-text-secondary);">
-					The window around it is already sorted: <strong style="color: var(--color-text);"
-						>Windows Terminal</strong
-					> has been the default console since Windows 11 22H2 (2022) — opening PowerShell or WSL lands
-					in it automatically, with tabs, panes, and a saved profile — font, colors, and which shell to
-					launch — for every shell on your machine. Nothing to install.
+				<CommandTranscript command="echo &quot;Hello, world!&quot;" output="Hello, world!" />
+				<p>
+					The Copy button copies only the command in this example. The text beneath it is the result
+					to look for, not another instruction.
 				</p>
-			{:else}
-				<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-					You're home — Linux and the terminal grew up together. Press <kbd
-						class="rounded border px-1 py-0.5 text-[11px]"
-						style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-						>Ctrl+Alt+T</kbd
-					>
-					on most desktops (GNOME Terminal, Konsole, and friends), and the shell it launches for you —
-					your default, until you go and change it — is almost certainly
-					<strong style="color: var(--color-text);">bash</strong>. The
-					<Code code="$" /> below makes the shell swap in the <em>value</em> of
-					<Code code="SHELL" />, so a path comes back and not the word (<CourseLink
-						to="section-5-4"
-					/>):
+				<div
+					id="prompt-loop"
+					class="flow"
+					aria-label="The command loop: type, run, read the result, try again"
+				>
+					<span>Type</span><span aria-hidden="true">→</span><span>Press Enter</span><span
+						aria-hidden="true">→</span
+					><span>Read the result</span><span aria-hidden="true">→</span><span>Try again</span>
+				</div>
+				<p>
+					A <Code code="#" /> inside a shell example can introduce a <strong>comment</strong>: a
+					note for the reader that the shell ignores. It does not mean “the computer’s reply.” We
+					will introduce other symbols when you need them.
 				</p>
-				<CodeBlock
-					code={`echo $SHELL
-# /bin/bash`}
-					title="Confirm your shell"
+			</div>
+		</details>
+
+		<details id="section-intro-shells">
+			<summary>Can I use the terminal on my own computer?</summary>
+			<div class="detail-content">
+				<p>
+					Yes. You can also complete the first lessons entirely in this browser. When you want to
+					try a real terminal, <CourseLink to="section-1-1" /> walks through the setup.
+				</p>
+				<p>
+					<strong>On a Mac,</strong> Terminal is already in Applications → Utilities. It usually
+					starts zsh. <strong>On Linux,</strong> look for Terminal in your application menu; the shell
+					depends on your setup.
+				</p>
+				<p>
+					<strong>On Windows,</strong> this course’s commands need a Bash environment such as WSL or Git
+					Bash. Windows Terminal is the window; its PowerShell tab uses a different command language.
+					You can postpone setup and keep practising here.
+				</p>
+				<p>
+					The browser playground is a learning model, not a complete operating system. Commands such
+					as package installs and network requests use simulated data here. Later lessons identify
+					the steps to repeat on your own computer.
+				</p>
+			</div>
+		</details>
+
+		<details id="section-intro-history">
+			<summary>Why do people still type commands?</summary>
+			<div class="detail-content">
+				<p>
+					A written instruction can be repeated, changed, shared, or connected to another
+					instruction. That is useful when you need to rename many files, find one line in a large
+					log, or repeat a task tomorrow.
+				</p>
+				<p>
+					Modern shells grew out of Unix, developed at Bell Labs starting in 1969. People connected
+					small programs so that the result from one became the input to the next. You will try this
+					idea yourself when we reach <a href="#part-4">pipes</a>.
+				</p>
+				<p>
+					You do not have to replace your everyday apps. Use the terminal when it makes a task
+					easier. The aim is to gain another useful way to work.
+				</p>
+				<ExpandableImage
+					src="{base}/images/terminal-history.webp"
+					alt="An illustrated timeline showing how text terminals and shells developed."
+					caption="The tools changed, but small, repeatable instructions remain useful."
 				/>
-				<p class="text-[14px]" style="color: var(--color-text-secondary);">
-					Everything in this course runs unmodified on your machine.
-				</p>
-			{/if}
-		</div>
-
-		<Callout type="warning" title="PowerShell is a different language">
-			Windows also ships <strong>PowerShell</strong> and the older <strong>cmd</strong> — Command
-			Prompt,
-			<Code code="cmd.exe" />. They are real shells — but they speak a
-			<em>different language</em> (<Code code="dir" />
-			instead of
-			<Code code="ls" />,
-			<Code code="Remove-Item" />
-			instead of
-			<Code code="rm" />). This course teaches <strong>bash</strong>, the language of macOS, Linux,
-			servers, and AI agents. On Windows, always make sure you're in a WSL or Git Bash window before
-			following along.
-		</Callout>
-
-		<p class="mt-4 text-[14px]" style="color: var(--color-text-secondary);">
-			And for now, you don't even need that: the <button
-				type="button"
-				onclick={onOpenPlayground}
-				class="cursor-pointer font-medium underline underline-offset-2"
-				style="color: var(--color-important);">Terminal Playground</button
-			> built into this site is a simulated bash sandbox that runs in your browser — identical commands,
-			zero risk.
-		</p>
-	</div>
-
-	<!-- Anatomy of a Prompt -->
-	<div id="section-intro-anatomy" class="mx-auto mb-16 max-w-4xl">
-		<div class="mb-6 flex items-center gap-2.5">
-			<Terminal size={20} style="color: var(--color-primary);" strokeWidth={2.5} />
-			<h2 class="text-xl font-bold" style="color: var(--color-text);">Anatomy of a Prompt</h2>
-		</div>
-
-		<div class="my-6">
-			<ExpandableImage
-				src="{base}/images/prompt-anatomy.webp"
-				alt="Anatomy of a Prompt — who you are, where you are, and whose turn it is"
-				caption="The prompt answers three questions before you type a single letter: who, where, and whose turn"
-			/>
-		</div>
-
-		<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Open a terminal and you're greeted by a line of cryptic text ending in a blinking cursor. That
-			line is the <strong style="color: var(--color-text);">prompt</strong> — the shell saying "your turn."
-			It looks intimidating, but it's just three answers packed into one line:
-		</p>
-
-		<div
-			class="mb-4 overflow-x-auto rounded-lg p-5"
-			style="background: var(--color-terminal-bg); border: 1px solid var(--color-terminal-border);"
-		>
-			<p class="text-[15px] whitespace-nowrap" style="font-family: var(--font-mono);">
-				<span style="color: var(--color-terminal-prompt);">vibe</span><span
-					style="color: var(--color-terminal-output);">@</span
-				><span style="color: var(--color-terminal-prompt);">sandbox</span><span
-					style="color: var(--color-terminal-output);">:</span
-				><span style="color: var(--color-primary-text);">~/projects</span><span
-					style="color: var(--color-terminal-command);">$</span
-				>
-				<span
-					class="inline-block h-[1.1em] w-[0.55em] translate-y-[0.2em] animate-pulse"
-					style="background: var(--color-terminal-text);"
-				></span>
-			</p>
-		</div>
-
-		<div class="mb-4 grid gap-3 sm:grid-cols-2">
-			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p
-					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text);"
-				>
-					<AtSign size={14} style="color: var(--color-primary);" />
-					<Code code="vibe@sandbox" />
-				</p>
-				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong>Who and where:</strong> you're logged in as user <em>vibe</em> on a machine named
-					<em>sandbox</em>. Mostly ignorable — until you're SSH'd into a server, secure shell, where
-					your keystrokes land on a computer somewhere else (<CourseLink to="section-9-5" />), and
-					the name is what saves you from running a command on the wrong machine.
-				</p>
 			</div>
-			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p
-					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text);"
-				>
-					<FolderOpen size={14} style="color: var(--color-primary);" />
-					<Code code="~/projects" />
-				</p>
-				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong>Your current directory</strong> — where commands will act. The
-					<Code code="~" /> is shorthand for your home folder.
-					<CourseLink to="part-2" /> is all about moving this around.
-				</p>
-			</div>
-			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p
-					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text);"
-				>
-					<Play size={14} style="color: var(--color-primary);" />
-					<Code code="$" />
-				</p>
-				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong>"Your turn":</strong> the shell is ready for a command. A
-					<Code code="$" /> here means you're a normal user; a
-					<Code code="#" /> in someone else's screenshot means they're running as root — the administrator
-					account (<CourseLink to="section-5-3" />).
-				</p>
-			</div>
-			<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-				<p
-					class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-					style="color: var(--color-text);"
-				>
-					<TextCursor size={14} style="color: var(--color-primary);" />
-					The blinking cursor
-				</p>
-				<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-					<strong>Where your typing goes.</strong> Nothing runs until you press
-					<strong>Enter</strong> — you can type, stare, and edit as long as you like. Press the
-					<strong>up arrow</strong> to recall previous commands instead of retyping them. And when
-					this course writes <Code code="Ctrl+C" />, that's one motion — hold Control, press C. The
-					capital letter is for legibility; you never add Shift. On a Mac, ⌘ is Command and ⌃ is
-					Control, the glyphs printed on the keys.
-				</p>
-			</div>
+		</details>
+
+		<div class="companions">
+			<button class="playground" type="button" onclick={onOpenPlayground}
+				><Gamepad2 size={17} /><span
+					><strong>Open Terminal Playground</strong><small>Experiment with simulated files.</small
+					></span
+				></button
+			>
+			<button class="agent" type="button" onclick={onOpenAgent}
+				><Bot size={17} /><span
+					><strong>Ask the AI tutor</strong><small>Get a hint or a smaller explanation.</small
+					></span
+				></button
+			>
 		</div>
-
-		<p class="mt-4 mb-3 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Two characters do more than one job, and both are worth pinning down now. A <Code code="#" /> at
-			the start of a line in this course's code blocks is the machine's reply, not something you type
-			— command and answer share one pane. On a real command line, a <Code code="#" /> tells the shell
-			to ignore the rest of the line, which is how people leave notes in scripts. And you've already met
-			the third sense a few inches up: as a prompt symbol, it means root.
+		<details>
+			<summary>Explore the course map</summary>
+			<div class="detail-content"><CourseMap /></div>
+		</details>
+		<p class="next-chapter">
+			In <CourseLink to="part-1" />, we’ll try a few more commands and learn how to ask for help.
 		</p>
-
-		<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			The dollar sign is the other one, and its two jobs are unrelated. Other people's docs print a
-			leading <Code code="$" /> to mean "this is a line you type" — that one you never type. But a
-			<Code code="$" /> stuck to a name, like the one in <Code code="echo $SHELL" />, is real
-			syntax: the shell replaces the name with its value before the command ever runs (<CourseLink
-				to="section-5-4"
-			/>). That one you do type. This course never prints a bare <Code code="$" /> prompt, so every
-			<Code code="$" /> you meet here is the second kind.
-		</p>
-
-		<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Every interaction with the shell follows the same loop — you'll run it thousands of times, and
-			your AI agents run exactly the same one:
-		</p>
-
-		<MermaidDiagram
-			definition={`flowchart LR
-  A(["Prompt appears"]) -->|"you type"| B(["Command"])
-  B -->|"Enter"| C(["Shell runs it"])
-  C -->|"prints"| D(["Output"])
-  D --> A`}
-			id="prompt-loop"
-		/>
-		<p class="mt-2 px-1 text-xs" style="color: var(--color-text-muted);">
-			Prompt, command, Enter, output, new prompt. Master this loop and the rest of the course is
-			just vocabulary.
-		</p>
-
-		<Callout type="tip">
-			Prompts vary from machine to machine — yours might show a different name, extra colors, or
-			even a git branch. The parts are always the same: <Code code="who@where:directory$" />. In
-			<CourseLink to="section-12-1" /> you'll learn to customize it yourself.
-		</Callout>
 	</div>
 </section>
+
+<style>
+	.hero {
+		padding: 1.5rem 1.5rem 1rem;
+	}
+	.opening,
+	.workshop-wrap,
+	.intro-reference {
+		max-width: 896px;
+		margin: 0 auto;
+	}
+	.welcome {
+		font-size: 0.90625rem;
+		color: var(--color-text-secondary);
+		line-height: 1.65;
+		margin-bottom: 1.25rem;
+	}
+	.opening-art {
+		margin-bottom: 1.5rem;
+	}
+	.workshop-wrap {
+		margin-top: 3rem;
+	}
+	.intro-reference {
+		padding-top: 2rem;
+	}
+	p {
+		color: var(--color-text-secondary);
+		font-size: 0.93rem;
+		line-height: 1.75;
+	}
+	.optional-label {
+		margin: 1rem 0;
+		font-size: 0.8rem;
+		color: var(--color-text-muted);
+	}
+	details {
+		border-top: 1px solid var(--color-border);
+		scroll-margin-top: 90px;
+	}
+	summary {
+		cursor: pointer;
+		font-size: 0.93rem;
+		font-weight: 600;
+		padding: 1rem 0.15rem;
+		color: var(--color-text);
+	}
+	.detail-content {
+		padding: 0 0.15rem 1.2rem;
+		max-width: 850px;
+	}
+	.detail-content p {
+		margin-bottom: 0.9rem;
+	}
+	a {
+		color: var(--color-primary-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.flow {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.7rem;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1.2rem;
+		border-radius: 0.7rem;
+		background: var(--color-bg-tertiary);
+		margin: 1rem 0;
+		color: var(--color-text-secondary);
+		font-size: 0.8rem;
+	}
+	.flow strong {
+		color: var(--color-text);
+	}
+	.companions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.8rem;
+		margin: 1.5rem 0;
+	}
+	.companions button {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		padding: 1rem;
+		border: 1px solid var(--color-border);
+		border-radius: 0.65rem;
+		color: var(--color-primary-text);
+		text-align: left;
+		cursor: pointer;
+	}
+	.companions .playground {
+		color: var(--color-btn-playground);
+		background: color-mix(in srgb, var(--color-btn-playground) 12%, transparent);
+	}
+	.companions .agent {
+		color: var(--color-btn-agent);
+		background: color-mix(in srgb, var(--color-btn-agent) 12%, transparent);
+	}
+	.next-chapter {
+		margin-top: 1.5rem;
+	}
+	.companions strong {
+		display: block;
+		font-size: 0.82rem;
+		font-weight: 600;
+	}
+	.companions small {
+		display: block;
+		margin-top: 0.2rem;
+		color: var(--color-text-muted);
+		font-size: 0.75rem;
+	}
+	@media (max-width: 700px) {
+		.hero {
+			padding: 1.25rem 1rem 1rem;
+		}
+		.welcome {
+			font-size: 0.9rem;
+			margin-bottom: 1rem;
+		}
+		.companions {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

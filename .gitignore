@@ -23,6 +23,13 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 # Playwright
 test-results
+.playwright-mcp/
 
 # Real-model smoke test browser profile (weights cache)
 .smoke-cache
+
+# Unapproved generated artwork and local review metadata
+/static/art-candidates/
+
+# Preserved artwork from a rejected direction; never deployed
+/output/artwork-rejected/

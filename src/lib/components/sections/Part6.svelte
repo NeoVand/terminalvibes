@@ -1,543 +1,465 @@
 <script lang="ts">
-	import {
-		FileCode2,
-		Braces,
-		DollarSign,
-		Quote,
-		CircleCheck,
-		CircleX,
-		CircleEqual
-	} from 'lucide-svelte';
+	import { FileCode2, Braces } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
-	import CourseLink from '../ui/CourseLink.svelte';
-	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
+	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
-	import VibeBox from '../ui/VibeBox.svelte';
+
+	const firstBackup = `#!/usr/bin/env bash
+mkdir -p "$HOME/backups"
+cp "$HOME/notes.txt" "$HOME/backups/notes-backup.txt"`;
+	const argumentBackup = `#!/usr/bin/env bash
+mkdir -p "$HOME/backups" && cp -R "$1" "$HOME/backups/"`;
+	const safeBackup = `#!/usr/bin/env bash
+# Usage: ./backup-safe.sh SOURCE_FOLDER NEW_DESTINATION
+
+if [ "$#" -ne 2 ]; then
+  printf 'Usage: %s SOURCE_FOLDER NEW_DESTINATION\\n' "$0" >&2
+  exit 2
+fi
+
+source_folder="$1"
+destination="$2"
+
+if [ ! -d "$source_folder" ]; then
+  printf 'Source is not a directory: %s\\n' "$source_folder" >&2
+  exit 1
+fi
+
+if [ -e "$destination" ] || [ -L "$destination" ]; then
+  printf 'Destination already exists: %s\\n' "$destination" >&2
+  exit 1
+fi
+
+if ! cp -R -- "$source_folder" "$destination"; then
+  printf 'Copy failed. Inspect the destination before retrying.\\n' >&2
+  exit 1
+fi
+
+printf 'Copied %s to %s\\n' "$source_folder" "$destination"`;
 </script>
 
 <section id="part-6" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={FileCode2}
 			partLabel="Part 6"
-			title="Scripts &amp; Automation: Teach the Machine Your Routine"
-			color="var(--color-primary)"
+			title="Scripts: Save a Routine You Understand"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"Anything you have typed twice is something the machine should be doing for you."
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			You have been writing one-line programs since <CourseLink to="part-4" /> without calling them that.
-			A script is only the next step: those same commands, saved in a file, run whenever you like. This
-			part turns you from someone who <em>types</em> commands into someone who
-			<em>keeps</em>
-			them — and teaches the exit-code logic that decides whether the next command runs at all. It is
-			also the part that makes agent-written scripts stop being mysterious, because you will have written
-			the same shapes yourself.
+		<p class="lead">
+			You have commands that work. A script lets you save them in a file and run them again. The
+			next step is deciding what should happen when one of those commands fails.
+		</p>
+		<p>
+			We’ll begin with a tiny script in the browser, add arguments and success checks, then practise
+			conditions and loops in real Bash. The browser sandbox runs the simple command sequences shown
+			in its activities; the longer Bash examples are labeled as real-terminal practice.
 		</p>
 
-		<Callout type="note">
-			This is the last piece of ordinary bash you need. Everything after it is a specific toolkit —
-			text surgery, processes, the network — and every one of those parts assumes you can read a
-			small script and follow a <Code code="&amp;&amp;" /> chain.
-		</Callout>
-
-		<!-- 6.1 Your First Script -->
-		<div id="section-6-1" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={FileCode2}
-				title="6.1 Your First Script"
-				color="var(--color-primary)"
-			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/first-script.webp"
-					alt="Your First Script — commands saved into a file, made executable, and run with ./"
-					caption="A script is just commands you saved — teach the file once, run it forever"
-				/>
-			</div>
-
-			<Callout type="note">
-				<strong>The chore:</strong> You keep typing the same three commands to back up your notes.
-				And your AI agents keep leaving mysterious <Code code=".sh" /> files in your projects. Both problems
-				have the same answer: a shell script is nothing more than commands saved in a file.
-			</Callout>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				That's the idea. Everything you've typed at the prompt this entire course could be pasted
-				into a file and replayed. Let's build one — a tiny backup script — and hit every ingredient
-				along the way.
+		<div id="section-6-1" class="lesson-section">
+			<SectionHeader level="section" icon={FileCode2} title="6.1 Your First Script" />
+			<p>
+				Create a file named <Code code="hello.sh" /> with the playground’s
+				<strong>Edit a file</strong>
+				button, or use <Code code="nano hello.sh" /> on your own computer. Put these two lines in it and
+				save:
 			</p>
-
 			<CodeBlock
-				title="backup.sh"
-				code={`#!/usr/bin/env bash
-# Back up the notes folder with today's date in the name.
-
-BACKUP_NAME="notes-backup-$(date +%F)"
-
-mkdir -p backups
-cp -r notes "backups/$BACKUP_NAME"
-echo "Backed up notes to backups/$BACKUP_NAME"`}
+				code={'#!/usr/bin/env bash\necho "The garden notebook is ready"'}
+				title="Contents of hello.sh · paste into the file editor"
 			/>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Three new things in eight lines:
+			<p>
+				The second line is the echo command you already know. The first line, beginning <Code
+					code="#!"
+				/>, is called a <strong>shebang</strong>. It tells the system to use Bash when this file is
+				launched directly. <Code code="/usr/bin/env" /> finds Bash using PATH.
 			</p>
-
-			<div class="mb-6 space-y-3">
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<FileCode2 size={14} style="color: var(--color-primary);" />
-						<span>The shebang: <Code code="#!/usr/bin/env bash" /></span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						The first line of every script tells the system which program should interpret the rest
-						of the file. <Code code="#!/usr/bin/env bash" />
-						means "run this with bash, wherever bash lives on this machine" — which is why it's preferred
-						over hard-coding a path like
-						<Code code="/bin/bash" />. There's no magic in it:
-						<Code code="env" /> is itself a program — the one that printed your variables in
-						<CourseLink to="section-5-4" /> — and handed a name, it looks that name up on
-						<Code code="PATH" /> and runs it. Everything after that first line is what you'd type at the
-						prompt, and the
-						<Code code="#" /> lines are notes to yourself, using the comment character from
-						<CourseLink to="hero" />.
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<DollarSign size={14} style="color: var(--color-primary);" />
-						Variables
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<Code code="BACKUP_NAME=&quot;...&quot;" />
-						creates a variable (no spaces around the
-						<Code code="=" />
-						— bash is strict about that), and
-						<Code code="$BACKUP_NAME" /> uses it — the same dollar-sign expansion you met with environment
-						variables in <CourseLink to="section-5-4" />. There's no
-						<Code code="export" /> in front of it, so this one stays inside the script and no program
-						the script launches will ever see it.
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Quote size={14} style="color: var(--color-primary);" />
-						Quoted paths
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<Code code="&quot;backups/$BACKUP_NAME&quot;" />
-						— double quotes, by the rule in <CourseLink to="section-2-2" />: the variable still
-						expands, and any spaces stay put. Quoting variables is the habit that separates scripts
-						that work from scripts that work
-						<em>until</em> a filename has a space in it.
-					</p>
-				</div>
-			</div>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Now make it runnable. Two steps, both from <CourseLink to="section-5-2" />: give the file
-				execute permission, then run it with the explicit <Code code="./" /> path. The
-				<Code code=".sh" /> on the end is convention for humans and editors — the execute bit and that
-				first line are what actually run it.
-			</p>
-
+			<p>Read the saved file before running it, then run it explicitly with Bash:</p>
 			<CodeBlock
-				title="Make it executable, then run it"
-				code={`chmod +x backup.sh
-./backup.sh
-# Backed up notes to backups/notes-backup-2026-07-12`}
+				code={'cat hello.sh\nbash hello.sh'}
+				title="Check the file, then ask Bash to run its commands"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The <Code code="./" /> is there for the reason that section gave: a bare
-				<Code code="backup.sh" /> sends the shell hunting through <Code code="PATH" />, and this
-				folder deliberately isn't on it. Running it this way also starts a child shell, so the
-				script's variables and any
-				<Code code="cd" /> inside it are gone the moment it exits — exactly the distinction
-				<CourseLink to="section-5-5" /> drew.
+			<p>
+				You should see The garden notebook is ready. To run the file directly with <Code
+					code="./hello.sh"
+				/>, first add its owner execute permission:
 			</p>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				Arguments: <Code code="$1" /> makes it reusable
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Inside a script, <Code code="$1" />
-				is the first argument the script was handed — the words after its name (<CourseLink
-					to="section-1-3"
-				/>), numbered in the order they arrived, so
-				<Code code="$2" /> is the second. One change turns our notes-only script into a back-up-anything
-				script:
+			<CodeBlock code={'chmod u+x hello.sh\n./hello.sh'} title="Run the same script directly" />
+			<p>
+				The <Code code=".sh" /> ending is a helpful filename convention, not what makes it run. Bash can
+				read a script without its execute bit when you explicitly use <Code code="bash hello.sh" />;
+				launching <Code code="./hello.sh" /> requires execution permission.
 			</p>
-
-			<CodeBlock
-				title="backup.sh, take two — back up anything"
-				code={`#!/usr/bin/env bash
-# Usage: ./backup.sh <folder>
-
-TARGET="$1"
-BACKUP_NAME="$TARGET-backup-$(date +%F)"
-
-mkdir -p backups
-cp -r "$TARGET" "backups/$BACKUP_NAME"
-echo "Backed up $TARGET to backups/$BACKUP_NAME"`}
+			<ExpandableImage
+				src="{base}/images/first-script.webp"
+				alt="A small group of commands saved as a script and run again."
+				caption="Write a file, read it back, run it, and check the result."
 			/>
-
-			<CodeBlock
-				title="Same script, any folder"
-				code={`./backup.sh notes
-# Backed up notes to backups/notes-backup-2026-07-12
-
-./backup.sh recipes
-# Backed up recipes to backups/recipes-backup-2026-07-12`}
-			/>
-
-			<Callout type="note">
-				<strong>What's <Code code="$(date +%F)" />?</strong> The
-				<Code code="$( ... )" /> around a command means "run this, and drop its output right here" — command
-				substitution. So
-				<Code code="$(date +%F)" /> becomes today's date, and the backup name carries it. Agents lean
-				on this constantly, so it's worth recognizing on sight. One caveat for the sandbox just below:
-				this in-browser playground doesn't run <Code code="$( ... )" /> yet, so build your
-				<Code code="backup.sh" /> there with a plain fixed name (the audit habit is the point). On your
-				real machine, the dated version works exactly as shown.
-			</Callout>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				How agents deliver a file: the here-doc
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Watch a coding agent create a file and you'll see one shape over and over — a whole file,
-				delivered in a single command:
+			<h4 id="first-script">Try it: save a small copying routine</h4>
+			<p>
+				The activity contains notes.txt. Create backup.sh with <strong>Edit a file</strong>, paste
+				the following contents, and save. This first version copies one fixed file; it can replace
+				the same destination on a later run. We will improve that behavior below.
 			</p>
-
-			<CodeBlock
-				title="A file in one command"
-				code={`cat <<'EOF' > backup.sh
-#!/usr/bin/env bash
-mkdir -p backups
-cp -r notes "backups/notes-$(date +%F)"
-EOF`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Read the first line in three parts. <Code code="cat" /> you know. <Code code="<<'EOF'" />
-				is a <strong style="color: var(--color-text);">here-document</strong>: "feed the lines that
-				follow straight in as input, until a line that says exactly
-				<Code code="EOF" />." And <Code code="> backup.sh" /> is the redirection from
-				<CourseLink to="part-4" />, catching all of it in a file. The delimiter is any word you like
-				— <Code code="EOF" /> ("end of file") is convention, not a keyword. The quotes around it are the
-				single-quote rule from <CourseLink to="section-2-2" /> in a new costume: quoted, every <Code
-					code="$"
-				/> between the markers travels into the file
-				<em>literally</em> — which is what you want when the script's own
-				<Code code="$(date +%F)" /> should run later, not now. Unquoted, the shell expands them all before
-				the file is even written. One habit to take from this: the lines between the markers
-				<em>are</em> the file — audit them exactly the way you'd audit the script they're about to become.
-				(The playground doesn't speak here-docs; this one is for reading agent transcripts, and for your
-				real machine.)
+			<CodeBlock code={firstBackup} title="Contents of backup.sh · first small version" />
+			<p>
+				Read backup.sh, add owner execution, and run it. Then read <Code
+					code="~/backups/notes-backup.txt"
+				/> and compare it with <Code code="~/notes.txt" />. A success message alone would be weaker
+				evidence than seeing the right contents in the right place.
 			</p>
-
-			<Callout type="important">
-				<strong>Agents write scripts constantly.</strong> Ask an AI to "set up the project" or
-				"automate the deploy" and odds are it produces a
-				<Code code=".sh" />
-				file. Until today that file was a black box you ran on trust. Now it's a short text file you can
-				<Code code="cat" />, read line by line, and audit the way you would any command: name it,
-				read every flag, check what it touches, ask whether it's reversible. That routine gets its
-				own section in <CourseLink to="section-11-1" /> — because a script is just commands, and you read
-				commands now.
-			</Callout>
-
-			<Callout type="tip">
-				<strong>A script has a shape, and it reads in that order.</strong> The shebang tells you the
-				language, the variables tell you the moving parts, and the verbs tell you the risk —
-				<Code code="cp" /> copies,
-				<Code code="rm" /> deletes, and
-				<Code code="curl" /> fetches something off the network to run on your machine.
-			</Callout>
-
-			<h4
-				id="first-script"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Automate the Backup
-			</h4>
-			<PlaygroundNote>
-				Build <Code code="backup.sh" />
-				right in the sandbox — write it line by line with
-				<Code code="echo >>" />
-				(this playground has no full-screen editor), then
-				<Code code="chmod +x" />
-				it and run it with
-				<Code code="./backup.sh" />. Check your work with
-				<Code code="cat" />
-				and
-				<Code code="ls backups" />.
-			</PlaygroundNote>
 			<LessonActivity title="Automate the Backup" scenarioId="first-script" id="first-script" />
-
-			<p class="mt-6 mb-3 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Now make it reusable. A hard-coded path backs up one folder; <Code code="$1" /> backs up whatever
-				you name. Same audit habit applies — read the script before you run it.
+			<p>
+				<strong>Try a variation:</strong> change the source note in the file editor, run the script again,
+				and inspect the copied note. This is an update to one copy, not a history of older versions.
 			</p>
-			<h4
-				id="script-args"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: One Script, Any Folder
-			</h4>
-			<LessonActivity title="One Script, Any Folder" scenarioId="script-args" id="script-args" />
-
-			<VibeBox
-				prompts={[
-					'Write a bash script that backs up a folder I pass as $1, and explain every line before I run it',
-					'Here is a script an agent generated — walk me through what each line does and flag anything risky'
-				]}
-			/>
+			<p>
+				Running a script starts a child shell. Its local variables and directory changes do not move
+				your parent shell. Files it writes remain changed after the script exits. A script is saved
+				work, not an automatic safety boundary.
+			</p>
 		</div>
 
-		<!-- 6.2 Exit Codes & Chaining -->
-		<div id="section-6-2" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={Braces}
-				title="6.2 Exit Codes &amp; Chaining"
-				color="var(--color-primary)"
+		<div id="section-6-2" class="lesson-section">
+			<SectionHeader level="section" icon={Braces} title="6.2 Know Whether the Work Succeeded" />
+			<p>
+				A finished command returns a number called its <strong>exit status</strong> or exit code. Zero
+				means success according to that command’s rules. A nonzero value means another outcome, often
+				failure.
+			</p>
+			<CodeBlock
+				code={'false\necho "$?"\ntrue\necho "$?"'}
+				title="Run one line at a time · expect 1, then 0"
 			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/exit-codes.webp"
-					alt="Exit Codes & Chaining — every command reports success or failure, and && listens"
-					caption="Every command files a report when it finishes — 0 means success, anything else means trouble"
-				/>
+			<p>
+				<Code code="false" /> deliberately returns 1, and <Code code="true" /> returns 0. Neither prints
+				a message. The special value <Code code="$?" /> gives the status of the command that just finished.
+				Ask immediately: running another command replaces that status.
+			</p>
+			<ExpandableImage
+				src="{base}/images/exit-codes.webp"
+				alt="A command reporting success or failure before the next step is chosen."
+				caption="A quiet command still reports a status."
+			/>
+			<p>
+				Nonzero does not always mean a crash. For example, grep uses 1 when no lines match and a
+				different status for an error. Read the command’s documented meanings when that distinction
+				matters.
+			</p>
+			<h4>Choose whether the next command runs</h4>
+			<CommandTranscript
+				command="true && echo &quot;That succeeded&quot;"
+				output="That succeeded"
+			/>
+			<CommandTranscript command="false && echo &quot;That succeeded&quot;" output="" />
+			<CommandTranscript
+				command="false || echo &quot;That did not succeed&quot;"
+				output="That did not succeed"
+			/>
+			<div id="exit-code-chaining" class="steps">
+				<span><code>a && b</code><small>Run b only if a succeeds</small></span><span
+					><code>a || b</code><small>Run b only if a does not succeed</small></span
+				><span><code>a ; b</code><small>Run b regardless of a’s status</small></span>
 			</div>
-
-			<Callout type="note">
-				<strong>The goal:</strong> You want "run the tests, and deploy
-				<em>only if they pass</em>" — but you've been eyeballing the output and deciding by hand.
-				The shell has a built-in way for commands to report success or failure, and a grammar for
-				acting on it.
-			</Callout>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				Every command, when it finishes, hands the shell a number called its <strong
-					style="color: var(--color-text);">exit code</strong
-				>: <strong style="color: var(--color-text);">0 means success</strong>, and anything else (1
-				to 255) means some flavor of failure. Which number it picks is each command's own business
-				and means nothing outside that command, so there's no master table to go hunting for — only
-				zero-or-not-zero travels between commands. You never see it unless you ask — the special
-				variable
-				<Code code="$?" /> holds the exit code of the last command:
+			<p>
+				A newline usually behaves like the semicolon here: the next command still runs after an
+				earlier failure. That is why a script ending with <Code code="echo 'Done'" /> can print a reassuring
+				message after a failed copy.
 			</p>
-
 			<CodeBlock
-				title="Asking how the last command went"
-				code={`ls notes
-# recipes.md  todo.md
-echo $?
-# 0            <- found it, success
-
-ls no-such-folder
-# ls: cannot access 'no-such-folder': No such file or directory
-echo $?
-# 2            <- non-zero: it failed, and it said so`}
+				code="mkdir new-folder && cd new-folder"
+				title="Only enter the folder if creating it succeeded"
 			/>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				On its own that's a curiosity. It earns its keep with the three <strong
-					style="color: var(--color-text);">chaining operators</strong
-				>, which decide whether the next command runs based on the last one's exit code:
+			<p>
+				If mkdir fails because the name already exists, this form will not enter it. That may be
+				exactly what you want for a fresh workspace. If existing directories are acceptable, <Code
+					code="mkdir -p"
+				/> expresses that different intention.
 			</p>
-
-			<div class="mb-6 space-y-3">
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<CircleCheck size={14} style="color: var(--color-tip);" />
-						<span><Code code="a && b" /> — "and then" (only on success)</span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Run <Code code="b" />
-						only if
-						<Code code="a" /> exited 0. The workhorse: "do this, and if it worked, do that."
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<CircleX size={14} style="color: var(--color-warning);" />
-						<span><Code code="a || b" /> — "or else" (only on failure)</span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Run <Code code="b" />
-						only if
-						<Code code="a" /> failed. The fallback: "try this, or else do that."
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<CircleEqual size={14} style="color: var(--color-text-muted);" />
-						<span><Code code="a ; b" /> — "and regardless"</span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Run <Code code="b" />
-						no matter what happened to
-						<Code code="a" />. Just two commands on one line — no safety logic at all.
-					</p>
-				</div>
-			</div>
-
-			<CodeBlock
-				title="The truth table, live"
-				code={`true && echo "ran"        # ran        (true exits 0)
-false && echo "ran"       #            (nothing - && skips after failure)
-true || echo "ran"        #            (nothing - || skips after success)
-false || echo "ran"       # ran
-
-# The pattern you'll use every day:
-npm test && npm run deploy
-# tests pass  -> deploy runs
-# tests fail  -> deploy never happens
-
-# And the three-operator shape, read left to right:
-npm test && npm run deploy || echo "something failed"`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code="true" /> and <Code code="false" /> in the first four lines are real little programs
-				whose entire job is to exit 0 and 1 — which is what makes that truth table runnable rather than
-				illustrative. The last line has a catch. The chain runs left to right and neither operator outranks
-				the other, so the <Code code="||" /> is not paired off against the
-				<Code code="&amp;&amp;" /> — it fires whenever the command immediately before it failed. Tests
-				pass, deploy fails, and the message prints anyway. Useful here, but it is not the one-branch-or-the-other
-				shape it looks like. (<CourseLink to="section-10-1" /> covers what
-				<Code code="npm run deploy" /> is running.)
+			<p>
+				<Code code="a && b || c" /> is not a general if/else statement. The fallback can run when either
+				a fails <em>or b fails</em>. It can also hide an earlier failure if c succeeds. For more
+				than a small chain, an explicit condition is easier to read.
 			</p>
-
-			<MermaidDiagram
-				definition={`flowchart TD
-  A(["npm test"]) --> B{"exit code?"}
-  B -->|"0 — success"| C(["npm run deploy"])
-  B -->|"non-zero — failure"| D(["echo 'something failed'"])
-  classDef success stroke:#67b177,stroke-width:2px;
-  classDef danger stroke:#9a3412,stroke-width:2px;
-  class C success;
-  class D danger;`}
-				id="exit-code-chaining"
-			/>
-			<p class="mt-2 px-1 text-xs" style="color: var(--color-text-muted);">
-				One number decides which branch runs — the same mechanism behind every CI pipeline
-				(continuous integration: servers that build and test your code for you, automatically).
+			<h4 id="exit-codes">Try it: run the check before the next step</h4>
+			<p>
+				Start with <Code code="false && ./deploy.sh" />: the simulated deploy should not run. Then
+				inspect the supplied scripts and use <Code code="./tests.sh && ./deploy.sh" />. The supplied
+				tests succeed. Here “deploy” creates a marker file in the sandbox; it does not upload a
+				site.
 			</p>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The classic horror story: <Code code=";" />
-				where
-				<Code code="&&" /> belonged
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Why does the choice of connector matter so much? Because of lines like this one, which has
-				genuinely destroyed home directories. The target sits in <Code code="/tmp" />, the machine's
-				shared scratch space (<CourseLink to="section-2-2" />), so emptying a folder inside it is a
-				perfectly ordinary thing to want:
-			</p>
-
-			<CodeBlock
-				title="Two characters between routine and disaster"
-				code={`# THE TRAP - a semicolon runs the rm NO MATTER WHAT:
-cd /tmp/build ; rm -rf *
-# If /tmp/build doesn't exist, cd FAILS... and rm -rf * runs
-# anyway - in whatever directory you were standing in. Maybe ~.
-
-# THE SAFE VERSION - && only deletes if the cd succeeded:
-cd /tmp/build && rm -rf *
-# cd fails -> the chain stops -> nothing is deleted.`}
-			/>
-
-			<Callout type="caution">
-				<strong>Audit the connectors, not just the commands.</strong> When an AI proposes a chained
-				one-liner, add a fifth question to those four:
-				<em>what happens if the first command fails?</em>
-				A
-				<Code code=";" /> says "I don't care" — which is almost never true when the next command is destructive.
-				If you see
-				<Code code="cd <anywhere> ; rm" />, send it back and ask for <Code code="&&" />.
-			</Callout>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				And here's why this little number matters beyond one-liners: <strong
-					style="color: var(--color-text);">the entire automated world runs on exit codes</strong
-				>. CI pipelines decide pass-or-fail by the exit code of your test command — and GitHub,
-				which stores projects and runs those tests every time someone sends up new code, draws its
-				green checkmark to mean "everything exited 0." Coding agents watch exit codes the same way:
-				run a command, read
-				<Code code="$?" />, and decide whether to continue, retry, or fix. When your agent says "the
-				tests failed, let me look" — it didn't read your mind. It read an exit code. Scripts join
-				the same game: a script's own exit code is that of its last command, so scripts can chain
-				scripts, and the whole tower stands on one convention. Zero means go.
-			</p>
-
-			<h4
-				id="exit-codes"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Deploy Only on Green
-			</h4>
-			<PlaygroundNote>
-				The tests here fail on the first run. Use <Code code="$?" />,
-				<Code code="&&" />, and
-				<Code code="||" /> to build a one-liner that deploys only when the tests pass — then fix the failing
-				check and watch the same line take the other branch.
-			</PlaygroundNote>
 			<LessonActivity title="Deploy Only on Green" scenarioId="exit-codes" id="exit-codes" />
 
-			<VibeBox
-				prompts={[
-					'Rewrite this chained command so the destructive step only runs if everything before it succeeded',
-					'Explain what this one-liner does if the first command fails — trace it connector by connector'
-				]}
+			<h4 id="script-arguments">Arguments: use the same script on another folder</h4>
+			<p>
+				In <Code code="./backup.sh notes" />, the word notes is an <strong>argument</strong>. Inside
+				the script, <Code code="$1" /> holds the first argument. <Code code="$2" /> holds the second.
+				Quotes keep an argument with spaces together.
+			</p>
+			<ExpandableImage
+				src="{base}/images/script-arguments.webp"
+				srcset="{base}/images/script-arguments-768.webp 768w, {base}/images/script-arguments.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="An arrow carries the quoted My Notes argument from ./backup.sh into the script’s $1 value as one folder name."
+				caption="Quotes keep My Notes together. The quote characters themselves are not part of the argument."
 			/>
-		</div>
+			<CodeBlock code={argumentBackup} title="Contents of backup.sh · a small argument exercise" />
+			<p>
+				This version creates the backup folder and only copies if that step succeeds. The quoted <Code
+					code="&quot;$1&quot;"
+				/> is the source folder. Try it as <Code code="./backup.sh notes" />; a folder named My
+				Notes would be passed as <Code code="./backup.sh &quot;My Notes&quot;" />.
+			</p>
+			<p>
+				This short teaching version assumes one existing source and an appropriate destination. It
+				does not check missing arguments or preserve an earlier copy under a new name. Those are the
+				next improvements—not details to leave to luck in a reusable script.
+			</p>
+			<h4 id="script-args">Try it: choose the source when you run the script</h4>
+			<p>
+				Use the file editor to create backup.sh with the argument version above. Save, read, add
+				owner execution, run it on notes, and verify the copied files under backups/notes.
+			</p>
+			<LessonActivity title="One Script, Any Folder" scenarioId="script-args" id="script-args" />
 
-		<ChallengeActivity title="Ship All Three" part={6} id="ch-6-ship-all-three" />
+			<h4 id="script-conditions">Real Bash: make a decision with if</h4>
+			<p>
+				The following examples use Bash features beyond the browser simulator. Practise them in a
+				new folder on your own computer, using only files you created for this exercise.
+			</p>
+			<CodeBlock
+				code={'if [ -f notes.txt ]; then\n  echo "The note exists"\nelse\n  echo "Create notes.txt first"\nfi'}
+				title="Real Bash · run one branch according to a file check"
+			/>
+			<p>
+				<Code code="if" /> runs a test command. If it succeeds, Bash runs the commands after then; otherwise
+				it runs the else branch. <Code code="fi" /> ends the condition. The spaces inside <Code
+					code="[ -f notes.txt ]"
+				/> are required: the brackets and their arguments are separate words.
+			</p>
+			<ExpandableImage
+				src="{base}/images/script-conditions.webp"
+				srcset="{base}/images/script-conditions-768.webp 768w, {base}/images/script-conditions.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="A file test, [ -f notes.txt ], splits into Yes and No branches. Yes prints The note exists; No prints Create notes.txt first."
+				caption="Predict the branch, then try the check with and without notes.txt. Only one branch runs."
+			/>
+			<p>
+				<Code code="-f" /> checks for a regular file. <Code code="-d" /> checks for a directory. <Code
+					code="!"
+				/> negates a result. These tests establish a particular fact; file existence alone does not prove
+				that its contents are correct.
+			</p>
+			<p>
+				<strong>Try both branches:</strong> run the example with no notes.txt, create it with touch, then
+				run the example again. You should know which branch will run before pressing Enter.
+			</p>
+
+			<h4 id="script-loops">Real Bash: repeat a small task with a loop</h4>
+			<CodeBlock
+				code={'for plant in basil mint thyme; do\n  printf \'Remember to water %s\\n\' "$plant"\ndone'}
+				title="Real Bash · one message for each plant"
+			/>
+			<p>
+				<Code code="for" /> takes the values after in one at a time. On each pass, plant holds the next
+				value. The commands between do and done run once for that value. The quoted variable remains one
+				argument even when the value contains spaces.
+			</p>
+			<ExpandableImage
+				src="{base}/images/script-loops.webp"
+				srcset="{base}/images/script-loops-768.webp 768w, {base}/images/script-loops.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="A loop visits basil, mint, and thyme. Three arrows lead to three output lines: Remember to water basil, mint, and thyme, one plant per line."
+				caption="Each item gets one turn. The same printf command runs with a different value of plant."
+			/>
+			<p>
+				Add <Code code="&quot;lemon balm&quot;" /> to the list and predict how many lines will print.
+				It should produce one line for that two-word plant, not two separate plants.
+			</p>
+			<p>
+				Inside a script, <Code code="&quot;$@&quot;" /> means all its arguments, preserving each one as
+				a separate word. This is useful when repeating work over filenames:
+			</p>
+			<CodeBlock
+				code={'#!/usr/bin/env bash\nfor path in "$@"; do\n  printf \'You supplied: %s\\n\' "$path"\ndone'}
+				title="Real Bash · contents of show-paths.sh"
+			/>
+			<p>
+				Save the file, then try <Code
+					code="bash show-paths.sh notes.txt &quot;My Notes.txt&quot;"
+				/>. It should print two supplied paths. This demonstration only prints names; add
+				file-changing work after you have verified the selection.
+			</p>
+
+			<h4 id="script-safe-backup">Real Bash: a copy script that checks its assumptions</h4>
+			<p>
+				Now combine the pieces into one useful routine. This script accepts a source folder and a <em
+					>new</em
+				> destination name. It refuses to overwrite an existing destination and only announces completion
+				after the copy succeeds.
+			</p>
+			<ExpandableImage
+				src="{base}/images/script-safe-copy.webp"
+				srcset="{base}/images/script-safe-copy-768.webp 768w, {base}/images/script-safe-copy.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="Check two arguments, an existing source folder, and a new destination; copy with quoted paths; then read the copied seeds.txt and confirm basil."
+				caption="Check the inputs, check whether copying succeeded, then inspect the result. The source folder can have any name."
+			/>
+			<CodeBlock code={safeBackup} title="Real Bash · save as backup-safe.sh" />
+			<ol>
+				<li>
+					<Code code="$#" /> counts arguments. The first condition requires exactly two before reading
+					them. <Code code="$0" /> is the script’s name, used in the usage message.
+				</li>
+				<li>
+					The next condition checks that the source is a directory. The destination check rejects
+					existing files, folders, and symbolic links.
+				</li>
+				<li>
+					<Code code="exit 1" /> stops with failure; <Code code="exit 2" /> reports incorrect usage in
+					this script. <Code code=">&2" /> sends the explanation to the error channel.
+				</li>
+				<li>
+					The final condition checks the copy itself. <Code code="--" /> ends cp’s options so a supplied
+					name beginning with a dash is treated as a name.
+				</li>
+			</ol>
+			<p>
+				Use a few disposable files to verify its behavior. First read the script, check its syntax,
+				then run it with explicit paths:
+			</p>
+			<CodeBlock
+				code={'bash -n backup-safe.sh\nmkdir practice-notes\necho "basil" > practice-notes/seeds.txt\nbash backup-safe.sh practice-notes "practice copy"\ncat "practice copy/seeds.txt"'}
+				title="Real terminal · expect the copied file to contain basil"
+			/>
+			<p>
+				<Code code="bash -n" /> checks syntax without executing the script. It does not prove the logic
+				is right. Run the same copy again: it should refuse the existing destination. Try a missing source,
+				then no arguments: both should return a nonzero status and a helpful message. Check <Code
+					code="$?"
+				/> immediately after each run.
+			</p>
+			<p>
+				A failed copy can leave a partial destination. Inspect it before retrying; the script
+				deliberately does not remove it automatically. Keep the destination outside the source
+				folder. For important backups, also consider retained versions, metadata, separate storage,
+				and a tested restore process.
+			</p>
+			<details>
+				<summary>Two other script forms you will encounter</summary>
+				<div class="detail-content">
+					<p>
+						<strong>Command substitution:</strong>
+						<Code code="TODAY=$(date +%F)" /> runs date and stores its printed date in TODAY. It is useful
+						for names, but a date alone is not unique if you run the script twice in one day. Choose and
+						check a destination deliberately.
+					</p>
+					<p>
+						<strong>A here-document:</strong> an agent may create a whole file by feeding several lines
+						into cat. The quoted delimiter below prevents variables in the body from expanding while the
+						file is being written:
+					</p>
+					<CodeBlock
+						code={'cat <<\'EOF\' > greeting.sh\n#!/usr/bin/env bash\necho "Hello from the garden"\nEOF'}
+						title="Real Bash · creates greeting.sh, replacing it if it exists"
+					/>
+					<p>
+						The final EOF is the delimiter, not part of the saved file. The body is still code to
+						read before running. The sandbox does not implement here-documents or command
+						substitution.
+					</p>
+				</div>
+			</details>
+			<ChallengeActivity title="Ship All Three" part={6} id="ch-6-ship-all-three" />
+			<p class="next-lesson">
+				A useful script has a clear input, a clear result, and a clear response to failure. You do
+				not need to make it short. Make it understandable enough that tomorrow you can explain each
+				step.
+			</p>
+		</div>
 	</div>
 </section>
+
+<style>
+	.chapter p {
+		max-width: 76ch;
+		color: var(--color-text-secondary);
+		font-size: 0.94rem;
+		line-height: 1.8;
+		margin: 0 0 1rem;
+	}
+	.chapter .lead {
+		color: var(--color-text);
+		font-size: 1.06rem;
+	}
+	.lesson-section {
+		margin-top: 3rem;
+		scroll-margin-top: 90px;
+	}
+	h4 {
+		color: var(--color-text);
+		font-size: 1.06rem;
+		font-weight: 650;
+		line-height: 1.5;
+		margin: 1.7rem 0 0.7rem;
+		scroll-margin-top: 90px;
+	}
+	details {
+		border-top: 1px solid var(--color-border);
+		margin: 1.1rem 0;
+	}
+	summary {
+		padding: 0.9rem 0;
+		cursor: pointer;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.detail-content {
+		padding: 0.2rem 0.3rem 0.7rem;
+	}
+	.steps {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8rem;
+		margin: 1.5rem 0;
+	}
+	.steps span {
+		flex: 1;
+		padding: 0.9rem;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 0.6rem;
+		color: var(--color-text);
+	}
+	.steps code {
+		font: 1rem var(--font-mono);
+	}
+	.steps small {
+		display: block;
+		margin-top: 0.4rem;
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+	}
+	ol {
+		list-style: decimal;
+		padding-left: 1.4rem;
+		color: var(--color-text-secondary);
+		font-size: 0.93rem;
+		line-height: 1.8;
+		margin-bottom: 1rem;
+	}
+	li {
+		margin-bottom: 0.5rem;
+		padding-left: 0.15rem;
+	}
+	.next-lesson {
+		padding: 1.1rem;
+		border-radius: 0.7rem;
+		background: var(--color-bg-secondary);
+	}
+</style>

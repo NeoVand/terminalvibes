@@ -30,9 +30,7 @@
 		<div>
 			<h1>Terminal Cheat Sheet</h1>
 			<p class="sub">
-				TerminalVibes — The Terminal for Vibe Coders · <span class="url"
-					>neovand.github.io/terminalvibes</span
-				>
+				TerminalVibes — Learn by doing · <span class="url">neovand.github.io/terminalvibes</span>
 			</p>
 		</div>
 	</div>
@@ -116,7 +114,7 @@
 	.sub {
 		margin: 2px 0 0;
 		font-size: 10.5px;
-		color: #64748b;
+		color: #475569;
 	}
 
 	.url {
@@ -135,7 +133,7 @@
 
 	.legend-lead {
 		margin: 0 0 3px;
-		font-size: 8.75px;
+		font-size: 12px;
 		font-weight: 600;
 		color: #334155;
 	}
@@ -148,16 +146,16 @@
 
 	.legend li {
 		margin: 0 0 1.5px;
-		font-size: 8px;
+		font-size: 11.33px;
 		line-height: 1.4;
-		color: #64748b;
+		color: #475569;
 	}
 
 	/* Inline, unlike the block command chips below */
 	.legend code {
 		display: inline;
 		padding: 0 3px;
-		font-size: 8px;
+		font-size: 11.33px;
 		color: #b45309;
 		font-style: italic;
 		border: none;
@@ -183,7 +181,7 @@
 
 	h2 {
 		font-family: var(--font-heading);
-		font-size: 12.5px;
+		font-size: 14px;
 		font-weight: 700;
 		color: #4338ca;
 		margin: 0 0 5px;
@@ -208,7 +206,7 @@
 	code {
 		display: block;
 		font-family: var(--font-mono);
-		font-size: 9.5px;
+		font-size: 12px;
 		line-height: 1.45;
 		background: #f8fafc;
 		border: 1px solid #e2e8f0;
@@ -219,14 +217,14 @@
 
 	li p {
 		margin: 1.5px 0 0 2px;
-		font-size: 8.75px;
+		font-size: 12px;
 		line-height: 1.4;
-		color: #64748b;
+		color: #475569;
 	}
 
 	li p.detail {
-		font-size: 8px;
-		color: #94a3b8;
+		font-size: 11.33px;
+		color: #475569;
 	}
 
 	/* Inline command mention inside a description — chip look at body size,
@@ -269,6 +267,6 @@
 		color: #334155;
 	}
 	.sheet :global(.tok-comment) {
-		color: #94a3b8;
+		color: #475569;
 	}
 </style>

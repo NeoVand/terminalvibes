@@ -1,663 +1,381 @@
 <script lang="ts">
-	import { Cog, Sprout, Wrench, AppWindow, Cable, Shell, CookingPot, Zap } from 'lucide-svelte';
-	import Code from '../ui/Code.svelte';
-	import CourseLink from '../ui/CourseLink.svelte';
+	import { BookOpen } from 'lucide-svelte';
 	import { base } from '$app/paths';
-	import Callout from '../ui/Callout.svelte';
+	import Code from '../ui/Code.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
-	import SectionHeader from '../ui/SectionHeader.svelte';
-	import VibeBox from '../ui/VibeBox.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
+	import SectionHeader from '../ui/SectionHeader.svelte';
+	import WorkflowSteps from '../ui/WorkflowSteps.svelte';
 </script>
 
 <section id="part-13" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter-copy mx-auto max-w-4xl px-6">
 		<SectionHeader
-			icon={Cog}
+			icon={BookOpen}
 			partLabel="Part 13"
-			title="Under the Hood: The Machine You've Been Driving"
-			color="var(--color-primary)"
+			title="Useful machinery, dependable scripts"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"Every key you press is a byte on a wire. This is where you meet the wire."
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			For twelve parts you've driven this machine without once opening the hood. Now you've earned
-			the wrench. This part is the optional deep dive: first <em>how the terminal actually works</em
-			>
-			— ttys, PTYs, escape sequences, and what <Code code="Ctrl+C" /> really does — and then what that
-			machinery is becoming in the AI era, and the genuinely advanced things you can build now that you
-			understand it. Nothing here is required to use the terminal. All of it makes the everyday mysteries
-			— <Code code="tty" />, <Code code="^[[A" />, <Code code="Ctrl+C" /> — feel ordinary.
+		<p class="lead">
+			You can use a terminal well without knowing every part inside it. A little of the machinery is
+			useful when something behaves strangely. After that optional tour, we will make scripts easier
+			to trust by teaching them to check their work.
 		</p>
-
-		<!-- 13.1 How the Terminal Works -->
-		<div id="section-13-1" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Wrench}
-				title="13.1 How the Terminal Works"
-				color="var(--color-primary)"
+		<p>
+			If you want to keep building practical skills, jump to <a href="#section-13-2"
+				>scripts that make decisions</a
+			>. Come back to the machinery when you are curious. Both paths build on what you have already
+			done.
+		</p>
+		<div id="section-13-1" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="13.1 A small map of the machinery" />
+			<ExpandableImage
+				src="{base}/images/under-the-hood.webp"
+				alt="A cutaway diagram connects the keyboard, terminal, shell, and operating system."
+				caption="Several cooperating parts turn a keypress into a command and a reply."
 			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/under-the-hood.webp"
-					alt="How the Terminal Works — the machinery behind every prompt"
-					caption="Keyboard to PTY to shell to kernel and back — the machinery behind every prompt"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You've used every piece of this machine for twelve parts — typed at prompts, piped bytes,
-				interrupted stuck commands, read exit codes. Time to see inside. If you've ever wondered why
-				it's called a
-				<Code code="tty" />, why arrow keys sometimes print
-				<Code code="^[[A" />
-				instead of moving, or what <Code code="Ctrl+C" /> <em>actually</em> does, this is where those
-				mysteries get solved. It's deliberately the most technical section of the course — and it repays
-				the effort with a working mental model of the machine you've been driving all along.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				In the beginning, the terminal was furniture. A <strong style="color: var(--color-text);"
-					>teletypewriter</strong
-				>
-				— a keyboard fused to a printer — sat at the end of a serial cable, and the computer at the other
-				end typed its replies onto rolling paper. Unix, born in that world, abbreviated the device to
-				<strong style="color: var(--color-text);">tty</strong>, and the abbreviation outlived the
-				hardware by half a century. The paper is gone, the cables are gone, but every terminal
-				window on your machine still checks in with the kernel (<CourseLink to="section-8-2" />) as
-				a tty device — ask it yourself:
-			</p>
-
-			<CodeBlock
-				code={`tty
-# /dev/ttys004        (macOS)
-# /dev/pts/0          (Linux)`}
-				title="Your window's device name"
-			/>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				No real teletype has been wired to a computer in decades — so today, software impersonates
-				one. Three players stand in for that vanished machine:
-			</p>
-
-			<div class="mb-4 grid gap-3 sm:grid-cols-3">
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<AppWindow size={14} style="color: var(--color-primary);" />
-						Terminal emulator
-					</p>
-					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-						The app you actually open — Terminal.app, iTerm2, Windows Terminal. It draws a grid of
-						character cells, turns your keystrokes into bytes, and paints the bytes that come back.
-						It
-						<em>emulates</em> the old hardware — hence the name.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Cable size={14} style="color: var(--color-primary);" />
-						The PTY pair
-					</p>
-					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-						A <strong>pseudo-terminal</strong>: two connected endpoints the kernel provides on
-						request. The emulator holds the <em>master</em> end; whatever runs inside the window is
-						attached to the <em>slave</em> end (newer docs say <em>primary/secondary</em>). It's a
-						pipe wearing a teletype costume.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Shell size={14} style="color: var(--color-primary);" />
-						The shell
-					</p>
-					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-						Just a process. bash reads bytes from the slave end and writes bytes back — it can't
-						tell whether a human, a 1970s teletype, or an AI agent sits on the other side. That
-						indifference is why the same shell works everywhere.
-					</p>
-				</div>
-			</div>
-
-			<MermaidDiagram
-				definition={`flowchart TD
-  A(["Terminal emulator"]) <-->|"bytes"| B(["PTY master"])
-  B <-->|"line discipline"| C(["PTY slave"])
-  C <-->|"read / write"| D(["Shell"])
-  D -->|"fork + exec"| E(["Your command"])
-  E -->|"output"| C`}
-				id="under-the-hood-chain"
-			/>
-			<p class="mt-2 mb-6 px-1 text-xs" style="color: var(--color-text-muted);">
-				Keystrokes travel down the chain, output travels back up — and every hop is plain bytes.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				One hop in that diagram does more than ferry bytes. Between the two ends of the PTY lives a
-				slice of kernel code called the <strong style="color: var(--color-text);"
-					>line discipline</strong
-				> — a tiny line editor that decides how much of your typing to hold back and when to hand it over.
-				It has two personalities:
-			</p>
-
-			<div class="mb-4 grid gap-3 sm:grid-cols-2">
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<CookingPot size={14} style="color: var(--color-primary);" />
-						Cooked mode (canonical)
-					</p>
-					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-						The default. The kernel buffers your keystrokes, handles Backspace itself, and delivers
-						nothing until you press Enter — then the program receives one finished line. This is why
-						the shell never sees your typos: you edit the line before it exists.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Zap size={14} style="color: var(--color-primary);" />
-						Raw mode
-					</p>
-					<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-						Every keystroke is delivered immediately, unedited. Programs that react key by key —
-						<Code code="vim" />,
-						<Code code="less" />, the arrow-key line editor inside bash itself — switch the terminal
-						into raw mode while they run, and back on exit. (A crash that skips the "back" is how
-						terminals end up garbled —
-						<Code code="reset" /> fixes it.)
-					</p>
-				</div>
-			</div>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				That split personality explains a small mystery. Arrow keys don't send a character — there
-				is no "up" letter — they send a short byte sequence beginning with the Escape character: up
-				arrow is
-				<Code code="ESC [ A" />. A raw-mode program recognizes the sequence and moves the cursor.
-				Hand it to a program reading cooked input — press up while
-				<Code code="cat" />
-				is waiting — and it echoes as the literal
-				<Code code="^[[A" />. That gibberish is readable once you know the convention: a caret is
-				how a terminal writes a control character on paper, so
-				<Code code="^[" /> is <Code code="Ctrl+[" />, which <em>is</em> Escape, followed by the
-				plain characters
-				<Code code="[" /> and <Code code="A" />. The terminal spoke arrow, and nobody translated.
-				You can inspect your own line discipline's settings any time:
-			</p>
-
-			<CodeBlock
-				code={`stty -a
-# speed 38400 baud; rows 24; columns 80;
-# intr = ^C; erase = ^?; kill = ^U; eof = ^D;
-# icanon iexten echo echoe echok ...`}
-				title="Peek at the line discipline"
-			/>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				The <Code code="-a" /> earns its place: a bare <Code code="stty" /> reports a couple of lines,
-				<Code code="-a" /> reports everything — that's the Linux layout above, and macOS groups the same
-				settings under different headings.
-				<Code code="icanon" />
-				is cooked mode's official name.
-				<Code code="erase = ^?" />
-				is the kernel handling your Backspace, and <Code code="^?" /> is the one token that breaks the
-				caret rule: it's Delete, not <Code code="Ctrl+?" />.
-				<Code code="kill = ^U" /> wipes the line you're part-way through typing — the
-				<Code code="Ctrl+U" /> from <CourseLink to="section-12-2" />, meeting its kernel name —
-				<Code code="eof = ^D" /> on an empty line ends it — and neither has anything to do with the
-				<Code code="kill" /> command from <CourseLink to="section-8-2" />, which talks to other
-				processes entirely. The <Code code="38400 baud" /> is a speed for a serial wire this PTY doesn't
-				have, vestigial like the name <Code code="tty" />. And
-				<Code code="intr = ^C" /> is a promise we'll cash in a moment.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Escape sequences run in the other direction too — they're how programs <em>draw</em>. A
-				program attached to a tty can only send bytes, so color, bold, and cursor movement travel
-				<strong style="color: var(--color-text);">in-band</strong>, mixed right into the text.
-				Characters have numeric codes underneath (<CourseLink to="section-2-5" />), and byte 27 —
-				<Code code="ESC" />, written
-				<Code code="\e" /> — announces "the next few bytes are instructions, not text", so the emulator
-				obeys them instead of printing them. The vocabulary was standardized in 1978 around the VT100,
-				a physical terminal you could put on a desk, sold by Digital Equipment Corporation (DEC) — your
-				gleaming modern emulator is still, at heart, impersonating it. Watch it obey:
-			</p>
-
-			<CodeBlock
-				code={`printf '\\e[32mgreen\\e[0m\\n'
-# green        (printed in actual green)`}
-				title="Color is just bytes"
-			/>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<Code code="\e[32m" />
-				means "switch the pen to green";
-				<Code code="\e[0m" />
-				means "back to normal". That's <Code code="printf" /> and not the
-				<Code code="echo" /> you've used all course for one reason: <Code code="echo" />'s handling
-				of backslashes differs from shell to shell, so <Code code="\e" /> can arrive at the terminal as
-				a backslash and an e.
-				<Code code="printf" /> behaves the same everywhere, at the price of writing the trailing newline
-				<Code code="\n" /> yourself. Every colorful
-				<Code code="ls" />, every fancy prompt, every full-screen dashboard is built from sequences
-				like these — and the colored output in this site's playground works the same way in spirit:
-				the text carries its own formatting, and whatever paints the glyphs interprets it.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				One last piece of magic to demystify: <Code code="Ctrl+C" />. It feels like input, but it
-				never reaches the program as text. When <Code code="Ctrl+C" />'s byte arrives at the line
-				discipline, the kernel intercepts it — that's the
-				<Code code="intr = ^C" />
-				setting you just saw — and instead of passing it along, sends the foreground program a
-				<strong style="color: var(--color-text);">signal</strong> (<CourseLink to="section-8-2" />)
-				called
-				<Code code="SIGINT" />
-				("interrupt"). The program can catch it and tidy up, or die on the spot. Either way, you get your
-				prompt back.
-			</p>
-
-			<Callout type="note" title="Why the panic button works">
-				The cheat sheet's panic row promises <Code code="Ctrl+C" /> will interrupt a stuck command, and
-				now you know why it's reliable: it isn't input the program must get around to reading — it's the
-				kernel tapping the program on the shoulder. That's why it works even when a program is too busy
-				to look at the keyboard. (A few programs catch <Code code="SIGINT" /> and ask questions first
-				— that's them trapping the signal, not you failing to send it.)
-			</Callout>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You've already felt this from the other side. In <CourseLink to="part-8" /> you sent
-				<Code code="SIGTERM" /> with <Code code="kill" /> and watched a stubborn process shrug it off,
-				then sent <Code code="SIGKILL" /> with <Code code="kill -9" />, which it could not refuse.
-				Same machinery, three doors: <Code code="Ctrl+C" /> is <Code code="SIGINT" /> to whatever is in
-				the foreground,
-				<Code code="kill" /> is <Code code="SIGTERM" /> to any PID you name, and
-				<Code code="kill -9" /> is the one signal no program is allowed to catch. What looked like three
-				unrelated tricks is one mechanism you now understand end to end.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Put the whole chain together, and you can narrate the few milliseconds after you press Enter
-				on
-				<Code code="ls" />:
-			</p>
-
-			<ol
-				class="mb-4 space-y-2 pl-5 text-[14px] leading-relaxed"
-				style="color: var(--color-text-secondary);"
-			>
-				<li class="list-decimal">
-					The <strong style="color: var(--color-text);">emulator</strong> turns Enter into a carriage-return
-					byte — the teletype's "slam the print head back to the left margin", a different byte from the
-					newline that rolls the paper up a line — and writes it to the PTY master, same as any other
-					key.
-				</li>
-				<li class="list-decimal">
-					The <strong style="color: var(--color-text);">line discipline</strong> recognizes the end of
-					a line, converts it to a newline, and releases the whole buffered line to the slave end.
-				</li>
-				<li class="list-decimal">
-					The <strong style="color: var(--color-text);">shell</strong>, which has been
-					<em>blocked</em> reading the slave — parked by the kernel, using no CPU at all while it
-					waits, which is why a prompt can sit open all day for free — wakes up holding
-					<Code code="ls" /> and parses it, expanding any <Code code="$VARIABLES" />, <Code
-						code="~"
-					/>, and globs first.
-				</li>
-				<li class="list-decimal">
-					It <strong style="color: var(--color-text);">forks</strong> — makes a copy of itself — and
-					inside that copy runs <strong style="color: var(--color-text);">exec</strong>, which
-					throws out the shell's program and loads <Code code="ls" /> in its place. That's why the two
-					always travel together: fork makes the process, exec decides what it becomes. The copy's input
-					and output are still wired to the same tty.
-				</li>
-				<li class="list-decimal">
-					<Code code="ls" /> does its work and writes its results — text plus color escape sequences —
-					to the slave end.
-				</li>
-				<li class="list-decimal">
-					The bytes flow back through the PTY to the master; the <strong
-						style="color: var(--color-text);">emulator</strong
-					> reads them, obeys the escapes, and paints glyphs into its character grid.
-				</li>
-				<li class="list-decimal">
-					<Code code="ls" /> exits; the shell collects its exit code (the <Code code="$?" /> you met in
-					<CourseLink to="part-6" />) and prints a fresh prompt. Your turn.
-				</li>
-			</ol>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				That's the entire machine: an app impersonating 1970s furniture, a kernel pipe in costume, a
-				tiny in-kernel line editor, and a shell that just reads and writes bytes. From here on,
-				nothing the terminal does will look like magic — every key press is a byte with a place to
-				go, and now you can name every stop on the way.
-			</p>
-
-			<p class="text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				And here's the part the museum plaque leaves out: the byte protocol didn't stop evolving in
-				1978. Modern terminals are still quietly minting new escape sequences. <strong
-					style="color: var(--color-text);">OSC 8</strong
-				>
-				— an Operating System Command, the numbered family of escapes for things that aren't drawing,
-				and despite the name nothing to do with
-				<em>your</em> operating system — makes text in a terminal a real clickable hyperlink, and a
-				family of
-				<strong style="color: var(--color-text);">shell-integration markers</strong> lets the shell whisper
-				structure into the byte stream itself. That second one turns out to be the quiet foundation of
-				the whole AI-terminal era — and it's exactly where we're headed next.
-			</p>
-		</div>
-
-		<!-- 13.2 The Terminal, Evolving -->
-		<div id="section-13-2" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={Sprout}
-				title="13.2 The Terminal, Evolving"
-				color="var(--color-primary)"
-			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/terminal-evolving.webp"
-					alt="The Terminal, Evolving — fifty years old and just getting started"
-					caption="Fifty years old — and just getting started: new protocols, agent-aware terminals, and intelligence in the pipeline"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Knowing how the machine works is satisfying. Knowing what people are <em
-					>building on it right now</em
-				> is useful — because the terminal is in the middle of its biggest growth spurt since the VT100,
-				and everything driving it is a payoff of something you just learned. This section is the tour:
-				the invisible protocol that lets editors and agents read the terminal, the new generation of terminals
-				built around agents, and the advanced automation you can write yourself now that pipes, signals,
-				and exit codes are yours.
-			</p>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The shell and the terminal are talking behind your back
-			</h4>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Remember the trick from <CourseLink to="section-13-1" /> — instructions traveling
-				<em>in-band</em>, mixed into the text? Modern shells and terminals use the same trick to
-				talk
-				<em>about the conversation itself</em>. A standard called
-				<strong style="color: var(--color-text);">OSC 133</strong>
-				(born in the FinalTerm terminal, now adopted almost everywhere) has the shell emit invisible escape
-				sequences that mark the seams of every command: <em>here the prompt starts</em>,
-				<em>here the command starts</em>, <em>here the output begins</em>,
-				<em>here it ended — with this exit code</em>. VS Code's terminal adds its own richer
-				dialect,
-				<strong style="color: var(--color-text);">OSC 633</strong>, which also carries the command
-				line itself. You never see any of it — the emulator swallows the markers like it swallows
-				<Code code="\e[32m" /> — but the byte stream is now structured:
-			</p>
-
-			<MermaidDiagram
-				definition={`flowchart TD
-  A(["133;A · prompt starts"]) --> B(["133;B · command starts"])
-  B -->|"you press Enter"| C(["133;C · output begins"])
-  C --> D(["command output"])
-  D --> E(["133;D;0 · exit code"])
-  classDef success stroke:#67b177,stroke-width:2px;
-  class E success;`}
-				id="osc-markers"
-			/>
-			<p class="mt-2 mb-6 px-1 text-xs" style="color: var(--color-text-muted);">
-				Invisible bookmarks in the byte stream: every command arrives pre-labeled with where it
-				began, what it was, and how it went.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Those bookmarks are why VS Code's integrated terminal (<CourseLink to="section-12-3" />) can
-				paint a little
-				<strong style="color: var(--color-text);">success or failure dot</strong> next to every
-				command you run, let you jump between commands with a keystroke, and pin the running command
-				to the top of the panel while output scrolls. And they matter double in the AI era: an agent
-				watching a terminal through OSC markers doesn't have to <em>guess</em> where your prompt
-				ends and the output begins, or <Code code="grep" /> the scrollback for the word "error" — it knows
-				the exact command, the exact output, and the exact exit code, machine-readably. The read-before-you-run
-				contract from <CourseLink to="part-11" /> works in both directions now: you can read what the
-				agent runs, and the agent can reliably read what happened.
-			</p>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The terminals being built around agents
-			</h4>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				In <CourseLink to="section-12-1" /> you picked a window to live in. Step back and you can see
-				the whole landscape splitting in two. On one side, the classic emulators keep competing on speed
-				and standards:
-				<strong style="color: var(--color-text);">Ghostty</strong> 1.3 (March 2026) restructured
-				itself so its entire terminal core is a reusable
-				<strong style="color: var(--color-text);">library</strong>
-				— code packaged for other programs to call rather than to run, which is what the
-				<Code code="lib" /> in <Code code="libghostty" /> marks. It's the machinery of
-				<CourseLink to="section-13-1" />, ready for any app that wants to embed a real terminal. On
-				the other side, a new generation is being designed
-				<em>around</em> agents:
-				<strong style="color: var(--color-text);">Warp</strong> now calls itself an "agentic
-				development environment" and open-sourced its core — its pitch is orchestrating whole fleets
-				of local and cloud agents from one window, the split-pane fleet from
-				<CourseLink to="section-12-4" /> promoted to a first-class product. And
-				<strong style="color: var(--color-text);">cmux</strong> builds terminal panes that agents
-				can drive <em>programmatically</em>, through a Unix socket — a file-like endpoint two
-				programs on one machine use to talk. Panes as an API, not just a view.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Here's the through-line, and it's the whole reason <CourseLink to="section-13-1" /> was worth
-				your time: every one of these — the speed demons, the agent fleets, the socket-driven panes —
-				still speaks the same protocol. Bytes through a PTY, escape sequences in-band, signals from the
-				line discipline. A fifty-year-old interface turned out to be so simple, so universal, and so automation-friendly
-				that when AI agents needed a body, they moved into the terminal. The machinery didn't get replaced
-				by the AI era; it got <em>adopted</em> by it.
-			</p>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The agent is a shell command now
-			</h4>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				The adoption runs deeper than windows and panes. Headless agent CLIs make the agent itself a
-				<strong style="color: var(--color-text);">composable Unix tool</strong>: run
-				<Code code="claude -p" />
-				("print mode") and the agent reads stdin and writes stdout — the numbered streams from
-				<CourseLink to="section-4-1" /> — and sets an exit code, the exact contract
-				<Code code="grep" />
-				and
-				<Code code="sort" /> have honored since 1973. Which means everything you learned in <CourseLink
-					to="part-4"
-				/> and
-				<CourseLink to="part-5" /> applies, unchanged, to intelligence itself:
-			</p>
-
-			<CodeBlock
-				title="An AI agent in a pipeline — the same rules as any pipe"
-				code={`# Pipe a diff in, get a review out — stdin to stdout, like any tool
-git diff main | claude -p "review this diff; list issues as filename:line"
-
-# JSON output makes it pipeline-friendly: hand it to jq like anything else
-# --oneline = one commit per line; -20 = only the last 20 of them
-git log --oneline -20 \\
-  | claude -p "summarize this week's work in one paragraph" --output-format json \\
-  | jq -r '.result'`}
-			/>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Read that first line again with <CourseLink to="part-4" /> eyes: a program's output flowing through
-				<Code code="|" />
-				into another program's input. The second program just happens to be a language model. It sorts
-				into pipelines, redirects into files, chains with
-				<Code code="&&" />, and reports success through
-				<Code code="$?" /> — the Unix philosophy, now with a very well-read tool in the toolbox. (The
-				second block is one command typed across three lines: a trailing backslash tells the shell the
-				line isn't finished, so it keeps reading instead of running what it has. Type that backslash and
-				press Enter yourself and the
-				<Code code=">" /> that comes back is bash saying "go on, I'm still listening" — not an error.)
-			</p>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				Writing scripts that deserve the word "automation"
-			</h4>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				And that unlocks the last upgrade: scripts that orchestrate agents need to be sturdier than
-				the five-liners from <CourseLink to="part-6" />, and you finally know enough to write the
-				grown-up kind. Every robust bash script starts with the same three lines of armor — each one
-				cashing in a lesson from this part. <Code code="set" /> does nothing on its own: it flips switches
-				that stay flipped for the rest of the script, and this particular combination is common enough
-				to have a name —
-				<strong style="color: var(--color-text);">strict mode</strong>.
-			</p>
-
-			<CodeBlock
-				title="The grown-up script preamble"
-				code={`#!/usr/bin/env bash
-set -euo pipefail
-# -e  stop at the first failing command (no barreling on after an error)
-# -u  treat unset variables as errors (catches $TYPO before it deletes ~)
-# -o pipefail  a pipeline fails if ANY stage fails, not just the last
-
-scratch=$(mktemp -d)             # -d = a directory, not a file: a fresh empty one in
-                                 # the system temp dir (/tmp on Linux), new name each run
-cleanup() { rm -rf "$scratch"; }
-trap cleanup EXIT INT            # runs on normal exit AND on Ctrl+C`}
-			/>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				The line above the trap defines a <strong style="color: var(--color-text);">function</strong
-				>:
-				<Code code="cleanup()" /> names a block of commands, the braces hold the body, and the
-				<Code code=";" /> before the closing brace is required. Defining it runs nothing — which is the
-				whole point, because the next line hands the <em>name</em> to something that will run it later.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				That something is <Code code="trap" />, and it's the <Code code="SIGINT" /> lesson from
-				<CourseLink to="section-13-1" /> cashed in: <Code code="Ctrl+C" /> sends a signal, signals can
-				be caught, and <Code code="trap" /> is how a script catches one. Its first argument is the handler;
-				the rest are signal names with the
-				<Code code="SIG" /> dropped, so <Code code="INT" /> is <Code code="SIGINT" />.
-				<Code code="EXIT" /> isn't a signal at all — it's bash's own invention meaning "on the way out,
-				however that happens", which is what makes the cleanup run on the ordinary path too. Put the armor
-				on a real job and you get something like this: a script that runs an agent review over every file
-				you've changed and collects the results —
-			</p>
-
-			<CodeBlock
-				title="review-changes.sh — an agent over every changed file"
-				code={`#!/usr/bin/env bash
-set -euo pipefail
-
-scratch=$(mktemp -d)
-cleanup() { rm -rf "$scratch"; }
-trap cleanup EXIT INT
-
-git diff --name-only main > "$scratch/changed.txt"
-
-while read -r file; do
-  echo "reviewing $file ..."
-  claude -p "review this file; list issues as line: problem" \\
-    < "$file" > "$scratch/$(basename "$file").review"
-done < "$scratch/changed.txt"
-
-cat "$scratch"/*.review > review-report.txt
-echo "done: $(wc -l < "$scratch/changed.txt") files reviewed -> review-report.txt"`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				The loop is the one piece of shell grammar this course hasn't handed you yet.
-				<Code code="while read -r file; do … done" /> runs its body once per line:
-				<Code code="read" /> takes the next line and drops it into
-				<Code code="$file" />, and <Code code="-r" /> tells it to leave any backslashes in that line alone
-				rather than reading them as special. When the lines run out, <Code code="read" /> reports failure
-				— and that failure is what stops the loop. The redirect hangs off
-				<Code code="done" /> rather than off a command, which is what makes it feed the whole loop:
-				<Code code="read" /> draws from the file instead of your keyboard. Inside,
-				<Code code="basename" /> strips the folders off
-				<Code code="src/lib/foo.ts" />, because
-				<Code code="$file" /> arrives as a path and a path can't be a flat filename inside
-				<Code code="$scratch" />.
-			</p>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				The loop's sibling turns up in agent transcripts even more often:
-				<Code code="for" /> walks a list instead of a file.
-				<Code code="for f in *.txt; do wc -l &quot;$f&quot;; done" /> reads: expand the glob (<CourseLink
-					to="section-3-4"
-				/> — the shell does it before the loop starts), park each name in <Code code="$f" /> in turn,
-				run the body. Same skeleton —
-				<Code code="do" /> … <Code code="done" /> — and the same quoting habit around
-				<Code code="&quot;$f&quot;" />, for the same spaces-in-filenames reason as ever. You now
-				read both of the loops the shell knows, which is most of the loop-shaped code an agent will
-				ever ask you to approve.
-			</p>
-
-			<Callout type="note" title="When 'every night at nine' enters the picture">
-				The missing piece between "a script I run" and "a script that runs itself" is
-				<Code code="cron" />, the scheduler that has shipped with every Unix since before screens. <Code
-					code="crontab -e"
-				/> opens your personal schedule in an editor; each line is five time fields, then a command —
-				<Code code="0 9 * * 1-5 ~/backup.sh notes" /> means minute 0, hour 9, any day of the month, any
-				month, Monday through Friday. You met its manual pages back in
-				<CourseLink to="section-1-3" />: <Code code="man 5 crontab" /> is the field-format page, and this
-				is where that early example finally pays off. A real-machine tool — the sandbox has no clock ticking
-				overnight — and the reason a server can feel staffed at 3 a.m.
-			</Callout>
-
-			<p class="mb-4 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Count the course in that script: redirection and pipes (<CourseLink to="part-4" />), a loop
-				feeding on a file, scripting and variables (<CourseLink to="part-6" />), signals and cleanup
-				(this part), and an AI agent doing the reading — supervised by a script <em>you</em>
-				can read line by line. If it fails halfway,
-				<Code code="set -e" />
-				stops it; if you <Code code="Ctrl+C" /> it, the trap tidies up. This is what "advanced automation"
-				actually looks like: not longer commands — stronger habits.
-			</p>
-
-			<VibeBox
-				prompts={[
-					'Write me a bash script that runs claude -p over every file changed since main and collects the output into one report — with set -euo pipefail and a cleanup trap',
-					'Take my deploy script and harden it: strict mode, a trap that cleans up temp files on Ctrl+C, and mktemp instead of fixed /tmp paths — explain each change'
+			<WorkflowSteps
+				title="One command, several cooperating parts"
+				steps={[
+					{ label: 'Terminal', detail: 'Displays text and carries your input.' },
+					{ label: 'Shell or program', detail: 'Interprets input and requests work.' },
+					{ label: 'Operating system', detail: 'Provides process, file, and device services.' },
+					{ label: 'Visible reply', detail: 'The program’s output returns to the display.' }
 				]}
 			/>
 
-			<Callout type="tip">
-				<strong>Take stock of where you're standing.</strong> You can narrate a keystroke's journey
-				through the kernel, read the invisible protocol your terminal speaks to your editor, pipe a
-				language model like it's <Code code="grep" />, and write scripts that clean up after
-				themselves when signals fly. That's a working model of the machine most day-to-day use never
-				requires — and the tour is nearly over. One part to go: the send-off.
-			</Callout>
+			<p>
+				The <strong>terminal application</strong> displays text and sends your input. The
+				<strong>shell</strong> reads command language and starts work. A program such as cat reads files
+				using services supplied by the operating system. Its output travels back to the terminal to be
+				displayed.
+			</p>
+			<p>
+				That separation explains a familiar surprise: closing one terminal window is not the same
+				operation as deleting the files you were working on. The window, running processes, and
+				saved files have different lifetimes.
+			</p>
+			<div id="under-the-hood-chain">
+				<p>
+					<strong>The useful chain:</strong> your input → terminal connection → shell or foreground program
+					→ operating-system services → program output → terminal display.
+				</p>
+			</div>
+			<details>
+				<summary>What connects a terminal to a shell?</summary>
+				<p>
+					On Unix-like systems, a pseudoterminal, or PTY, commonly provides the connection. It gives
+					programs a terminal-like interface even though there is no physical teleprinter attached.
+					This is why a shell can run in a desktop terminal, an editor panel, or an SSH session.
+				</p>
+				<p>
+					The operating system's terminal settings can process input, echo typed characters, and
+					turn some control characters into signals. Programs can change those settings. In
+					canonical mode, input is commonly assembled into lines. Full-screen editors and
+					interactive shells often use other modes so they can react to individual keys.
+				</p>
+				<p>
+					There is no universal rule that the shell never sees individual keypresses. Modern
+					line-editing libraries often read them to implement completion and history. The behavior
+					you experience depends on the foreground program and the terminal settings it chose.
+				</p>
+				<p>
+					This also explains why Ctrl+C has context. At a shell prompt it usually discards
+					unfinished input. While a job runs, it commonly produces an interrupt for the foreground
+					process group. Inside another application it may be handled differently. Check which
+					program currently owns your attention.
+				</p>
+			</details>
+			<div id="osc-markers">
+				<details>
+					<summary>Why output can move the cursor or change a title</summary>
+					<p>
+						Some output bytes are control sequences rather than printable letters. A terminal can
+						interpret them as color, cursor movement, or a title change. Full-screen tools use these
+						sequences to redraw a view instead of printing a new line for every update.
+					</p>
+					<p>
+						Some shells and terminals also cooperate through markers that identify the prompt,
+						command start, or command end. Those features depend on integration; they are not
+						supplied by every terminal or every remote shell.
+					</p>
+					<p>
+						When a display becomes confusing, first stop or exit the foreground program normally if
+						you can. A fresh terminal window gives you a separate working shell. Native commands
+						such as reset or stty sane can help with some changed terminal settings, but they are
+						repair tools to learn in context, not commands to type blindly into every application.
+					</p>
+				</details>
+			</div>
+			<p class="reflection">
+				If a program prints no text but creates a file, which parts of the chain changed? If a
+				terminal changes color, does that mean a file changed?
+			</p>
 		</div>
+		<div id="section-13-2" class="lesson">
+			<SectionHeader
+				level="section"
+				icon={BookOpen}
+				title="13.2 Write scripts that make decisions"
+			/>
+			<p>
+				A useful script needs more than a list of commands. It must decide what to do when a file is
+				missing, a destination already exists, or a command fails. We will add those decisions one
+				at a time.
+			</p>
+			<ExpandableImage
+				src="{base}/images/terminal-evolving.webp"
+				alt="An old terminal connects to newer tools and branching workflows."
+				caption="The tools change. Clear inputs, observable results, and explicit checks still help."
+			/>
+			<p class="native">
+				<strong>This workshop uses Bash in your own terminal.</strong> The course sandbox supports a limited
+				shell language; it is not a full Bash implementation. Use its Edit a file panel for the earlier
+				first-script and script-args exercises. The conditionals, loops, temporary directories, and traps
+				below belong in a native Bash practice folder.
+			</p>
+			<h4>First make a file you can save and run</h4>
+			<p>
+				Create a new practice folder and a notes.txt containing a sentence. Open <Code
+					code="nano check-notes.sh"
+				/> or your usual editor. Paste the small script below, save the file, and return to the terminal.
+				With nano: Ctrl+O, Enter, then Ctrl+X.
+			</p>
+			<CodeBlock
+				title="Save as check-notes.sh"
+				code={`#!/usr/bin/env bash
+if [ -f notes.txt ]; then
+  printf 'Found notes.txt\\n'
+else
+  printf 'Create notes.txt first.\\n' >&2
+  exit 1
+fi`}
+			/>
+			<p>
+				<Code code="if" /> runs a test and chooses a branch. <Code code="[ -f notes.txt ]" /> tests whether
+				that path is a regular file. The spaces around the brackets matter: this is command syntax, not
+				decorative punctuation. then starts the success branch; else starts the other branch; fi closes
+				the decision.
+			</p>
+			<p>
+				Run <Code code="bash check-notes.sh" />. This explicitly asks Bash to read the file; it does
+				not require execute permission. Rename the practice notes file and run again. You should get
+				the helpful error instead of a misleading success message. Put the file back when finished.
+			</p>
+			<p>
+				<Code code="printf" /> formats output. In this example, backslash-n ends the line. <Code
+					code="&gt;&amp;2"
+				/> sends the message to standard error. <Code code="exit 1" /> reports a failing status to the
+				caller. Inspect <Code code="echo $?" /> immediately afterwards; another command replaces the last
+				status.
+			</p>
+			<h4>Give the script a filename</h4>
+			<p>
+				A script argument lets the caller choose the input. Read <Code code={`\${1:-notes.txt}`} /> as
+				“use the first argument, or notes.txt if it is unset or empty.” Quote the variable when using
+				it as a path so a space stays inside one filename.
+			</p>
+			<CodeBlock
+				title="Replace the contents of check-notes.sh"
+				code={`#!/usr/bin/env bash
+source_file=\${1:-notes.txt}
+if [ -f "$source_file" ]; then
+  printf 'Found: %s\\n' "$source_file"
+else
+  printf 'Missing file: %s\\n' "$source_file" >&2
+  exit 1
+fi`}
+			/>
+			<p>
+				Try <Code code="bash check-notes.sh 'garden notes.txt'" /> with a file of that name. The shell
+				passes one argument, even though its name contains a space. Then try a missing name. Both paths
+				through the script deserve testing.
+			</p>
+			<h4>Report success only after the work succeeds</h4>
+			<p>
+				A file can exist while a copy still fails: the destination may be unwritable, for example.
+				Check the command that performs the work. This version also refuses to replace an existing
+				destination in an ordinary single-user practice run.
+			</p>
+			<CodeBlock
+				title="Save as backup-notes.sh — Bash on macOS/Linux"
+				code={`#!/usr/bin/env bash
+source_file=\${1:-notes.txt}
+destination=\${2:-notes-backup.txt}
 
-		<ChallengeActivity title="What the Transcript Knows" part={13} id="ch-13-exit-codes" />
+if [ ! -f "$source_file" ]; then
+  printf 'Missing file: %s\\n' "$source_file" >&2
+  exit 1
+fi
+if [ -e "$destination" ] || [ -L "$destination" ]; then
+  printf 'Destination already exists: %s\\n' "$destination" >&2
+  exit 1
+fi
+if cp -- "$source_file" "$destination"; then
+  printf 'Saved a copy to %s\\n' "$destination"
+else
+  printf 'Copy failed. The original is still the source.\\n' >&2
+  exit 1
+fi`}
+			/>
+			<p>
+				Run it once, inspect the copy, and run it again. The second run should refuse the existing
+				name. Then try a missing source. This is a small practice script, not a locking system:
+				another process could change a destination between the check and the copy. Work that needs
+				concurrency guarantees requires stronger file-handling design.
+			</p>
+			<h4>Repeat a small operation with a loop</h4>
+			<p>
+				A for loop assigns one value at a time to a variable and repeats its body. Start with a
+				read-only loop so you can see what it selects before adding changes.
+			</p>
+			<CodeBlock
+				title="Save as list-notes.sh"
+				code={`#!/usr/bin/env bash
+for file in ./*.txt; do
+  [ -f "$file" ] || continue
+  printf 'Would inspect: %s\\n' "$file"
+done`}
+			/>
+			<p>
+				<Code code="./*.txt" /> asks the shell for matching entries here. Bash normally leaves an unmatched
+				glob unchanged, so the regular-file check skips it when there are no matches. continue moves to
+				the next iteration. Each quoted value remains one argument, including a filename with spaces.
+				This is why a loop over filenames is preferable to splitting the output of ls.
+			</p>
+			<p>
+				Try a folder with two text files, a filename with a space, and no text files. Explain each
+				result. Once selection is correct, replace the printed preview with the operation you
+				actually need and check that operation's status.
+			</p>
+			<h4>Let ShellCheck review the details</h4>
+			<p>
+				After installing ShellCheck, run <Code code="shellcheck backup-notes.sh" />. It points out
+				common shell mistakes, including quoting and variable problems. Read each explanation; a
+				warning is a chance to understand a rule. <Code code="bash -n backup-notes.sh" /> checks Bash
+				syntax without running the script.
+			</p>
+			<p>
+				Neither check proves that you chose the correct files or that a backup can be restored. Test
+				missing inputs, existing outputs, spaces, and command failures in disposable folders. The <a
+					href="https://www.shellcheck.net/">ShellCheck project</a
+				> provides the tool and its explanations.
+			</p>
+			<details>
+				<summary>Optional depth: strict mode and cleanup</summary>
+				<p>
+					You will see <Code code="set -euo pipefail" /> in Bash scripts. These are useful options when
+					you understand their behavior. They are not required boilerplate for every script, and they
+					do not replace explicit error handling.
+				</p>
+				<ul>
+					<li>
+						<Code code="-e" /> can exit after a failing command, but has exceptions for tests, lists,
+						and other contexts. It does not simply mean “stop at every error.”
+					</li>
+					<li>
+						<Code code="-u" /> reports many uses of unset variables. Use intentional defaults for optional
+						inputs.
+					</li>
+					<li>
+						<Code code="pipefail" /> changes a pipeline's status to the rightmost failing stage's status,
+						if one failed. Without it, the final stage normally determines the status.
+					</li>
+				</ul>
+				<p>
+					When you create temporary work, arrange cleanup around that specific resource. This
+					example creates a fresh directory before registering its cleanup. An EXIT handler covers
+					ordinary exits; separate signal handlers exit intentionally so cleanup follows.
+				</p>
+				<CodeBlock
+					title="Optional Bash example: one owned temporary directory"
+					code={`#!/usr/bin/env bash
+scratch=$(mktemp -d) || exit 1
+cleanup() {
+  rm -rf -- "$scratch"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+printf 'Temporary work lives in %s\\n' "$scratch"`}
+				/>
+				<p>
+					Keep the directory variable private to this job and do not reassign it to valuable work. A
+					cleanup trap cannot handle a power loss or SIGKILL. Test normal completion, failure, and
+					interruption before relying on a script unattended. The <a
+						href="https://tiswww.case.edu/php/chet/bash/bashref.html">Bash reference manual</a
+					> explains the precise rules.
+				</p>
+			</details>
+			<ChallengeActivity title="What the transcript knows" part={13} id="ch-13-exit-codes" />
+			<p class="reflection">
+				<strong>Your next automation:</strong> choose one boring task you already perform correctly by
+				hand. Save those steps, accept a clearly named input, check failure cases, and verify the output.
+				Add scheduling only after you can trust an individual run.
+			</p>
+		</div>
 	</div>
 </section>
+
+<style>
+	.chapter-copy {
+		color: var(--color-text-secondary);
+		font-size: 1rem;
+		line-height: 1.85;
+	}
+	.chapter-copy p {
+		margin: 1rem 0;
+	}
+	.chapter-copy .lead {
+		font-size: 1.1rem;
+	}
+	.lesson {
+		margin: 3rem 0;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy h4 {
+		color: var(--color-text);
+		font: 600 1.1rem/1.5 var(--font-heading);
+		margin: 1.8rem 0 0.7rem;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy strong {
+		color: var(--color-text);
+	}
+	.chapter-copy ul {
+		padding-left: 1.5rem;
+		margin: 1rem 0;
+	}
+	.chapter-copy ul {
+		list-style: disc;
+	}
+	.chapter-copy li {
+		margin: 0.55rem 0;
+	}
+	.chapter-copy a {
+		color: var(--color-primary-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.chapter-copy details {
+		border: 1px solid var(--color-border);
+		border-radius: 0.75rem;
+		padding: 1rem;
+		margin: 1.5rem 0;
+	}
+	.chapter-copy summary {
+		cursor: pointer;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.chapter-copy .native {
+		border-left: 3px solid var(--color-primary);
+		padding-left: 1rem;
+	}
+	.chapter-copy .reflection {
+		background: var(--color-bg-secondary);
+		padding: 1rem;
+		border-radius: 0.6rem;
+	}
+</style>

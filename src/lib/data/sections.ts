@@ -81,6 +81,7 @@ export const playgroundAnchorIds = [
 	'first-steps',
 	'navigation',
 	'workspace-setup',
+	'edit-notes',
 	'tidy-up',
 	'glob-practice',
 	'log-detective',
@@ -142,7 +143,11 @@ export const challengeAnchorIds = [
 
 /** Sub-anchors for notable interactive tools that aren't full sections but
  *  should be deep-linkable and reachable from the sidebar. */
-export const toolAnchorIds = ['prompt-designer'] as const;
+export const toolAnchorIds = [
+	'hello-first-command',
+	'keyboard-workshop',
+	'prompt-designer'
+] as const;
 
 /** Every id that can appear in the URL hash and the sidebar scroll-spy. */
 export const anchorIds: readonly string[] = [

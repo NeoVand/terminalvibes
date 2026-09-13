@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 /**
- * CLICK-SOLVABILITY INVARIANT: every lesson scenario must be solvable by
+ * GUIDED-WORKFLOW INVARIANT: after explicitly saving any editor example, each scenario is solvable by
  * clicking its suggestedCommands chips top to bottom — the chips fill the
  * terminal input verbatim, so the complete solution has to live inside them.
  * Each test below (1) proves the check is false on the untouched seed, then
@@ -38,9 +38,9 @@ const EXPECTED_CHIP_FAILURES: Record<string, string[]> = {
 	'summon-a-tool': ['cowsay hello', 'which cowsay']
 };
 
-describe('scenario checks — click-only solvability', () => {
+describe('scenario checks — guided workflow solvability', () => {
 	for (const id of lessonScenarioIds) {
-		it(`${id}: check is false on the seed, true after clicking every chip in order`, async () => {
+		it(`${id}: check is false on the seed, true after the example editor save and command walkthrough`, async () => {
 			const scenario = getScenario(id);
 			expect(scenario.id).toBe(id);
 			expect(scenario.check, `${id} must define a check`).toBeDefined();
@@ -48,6 +48,12 @@ describe('scenario checks — click-only solvability', () => {
 			await loadScenarioSeed(engine, scenario);
 			expect(await scenario.check!(engine)).toBe(false);
 
+			if (scenario.editorExample) {
+				engine.writeFile(
+					engine.resolve(scenario.editorExample.path),
+					scenario.editorExample.content
+				);
+			}
 			const tolerated = new Set(EXPECTED_CHIP_FAILURES[id] ?? []);
 			for (const command of scenario.suggestedCommands) {
 				const result = await runShellCommand(engine, command);

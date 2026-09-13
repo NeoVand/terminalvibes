@@ -256,6 +256,8 @@ export class LocalBackend implements AgentBackend {
 		throw lastError ?? new Error('No usable device for the local model.');
 	}
 
+	#learnerContext = '';
+
 	#ensureAgent(onEvent: GenerateOptions['onEvent']): CourseAgent {
 		if (!this.#model) throw new Error('LocalBackend.warm() must succeed before generate().');
 		if (!this.#agent) {
@@ -278,7 +280,8 @@ export class LocalBackend implements AgentBackend {
 				// Rebuilt per model round: the tutor contract plus a live snapshot
 				// of the sandbox files, so demos always target paths that exist —
 				// even after the agent's own commands mutated the VFS mid-turn.
-				systemPrompt: () => tutorSystemPrompt(this.#bash?.listing?.() ?? null),
+				systemPrompt: () =>
+					tutorSystemPrompt(this.#bash?.listing?.() ?? null) + '\n\n' + this.#learnerContext,
 				// Every bash call pauses for a human verdict BEFORE executing.
 				interruptOn: ['bash'],
 				hooks: {
@@ -316,6 +319,7 @@ export class LocalBackend implements AgentBackend {
 		}
 		this.#turnsInThread = userTurns;
 
+		this.#learnerContext = opts.context ?? '';
 		this.#bash = opts.bash ?? null;
 		const agent = this.#ensureAgent(onEvent);
 

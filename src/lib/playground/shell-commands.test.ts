@@ -1069,7 +1069,8 @@ describe('info commands and stubs', () => {
 
 	it('editor, sudo and network stubs teach instead of pretending', async () => {
 		const nano = await run('nano notes.txt');
-		expect(nano.output).toContain('>>');
+		expect(nano.output).toContain('Edit a file');
+		expect(nano.output).toContain('cat notes.txt');
 		const sudo = await run('sudo rm notes.txt');
 		expect(sudo.error).toBe(true);
 		expect(sudo.output).toContain('root');
@@ -1225,5 +1226,22 @@ describe('claims the course makes about output', () => {
 		const viaFile = (await run('cat c.txt')).output;
 		expect(viaFile).toContain('<span');
 		expect(strip(viaFile)).toBe('green');
+	});
+});
+
+describe('flags used by the revised lessons', () => {
+	it('ls -A includes hidden files without the dot directory entries', async () => {
+		const output = strip((await run('ls -A')).output).split(/\s+/);
+		expect(output).toContain('.secret');
+		expect(output).not.toContain('.');
+		expect(output).not.toContain('..');
+		const all = strip((await run('ls -a')).output).split(/\s+/);
+		expect(all).toContain('.');
+		expect(all).toContain('..');
+	});
+	it('grep -F treats regex punctuation literally and -E supports alternatives', async () => {
+		await engine.writeFile('patterns.txt', 'a.b\naxb\nred\nblue\n');
+		expect(strip((await run("grep -F 'a.b' patterns.txt")).output).trim()).toBe('a.b');
+		expect(strip((await run("grep -E 'red|blue' patterns.txt")).output).trim()).toBe('red\nblue');
 	});
 });

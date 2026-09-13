@@ -1,0 +1,3817 @@
+{
+	"schemaVersion": 1,
+	"version": "2026-09-new-sections-original-style",
+	"title": "New-section artwork review",
+	"minimumAlternatives": 5,
+	"artDirection": "Match the supplied ORIGINAL TerminalVibes artwork exactly in visual style: near-black forest and warm brown shadows, aged golden brass, dark green glass, weathered wood, small areas of warm aged parchment, softly luminous green monospaced terminal text, large antique gold serif headings, moss, ferns and tiny fireflies. Use the same richly rendered natural hermit crab with intricately fitted brass shell details. This is a mature, tactile, cinematic botanical workshop, not a cartoon. Match the references\u2019 restrained exposure and warm palette. Keep the explanation spacious and readable. Do not introduce blue-charcoal, cyan, bright white backgrounds, a new palette, or a different illustration medium.",
+	"guardrails": [
+		"Commands, paths, keyboard shortcuts, labels, and before/after results are welcome and expected when they teach the concept. Supply their exact text in the brief, render it legibly, and verify spelling, syntax, and technical relationships against the lesson. Do not replace meaningful text with blank surfaces or decorative pseudo-writing.",
+		"Rich illustration is supporting evidence, never the only explanation. Match the visual checks for the concept.",
+		"Keep anatomy, light sources, reflections, object counts, folder identities, and transformation direction internally consistent.",
+		"Produce an actual distinct image for each alternative, not five crops or recolors of one composition. Do not select or replace any course illustration without the user choosing it."
+	],
+	"variantDirections": [
+		{
+			"id": "01",
+			"name": "Workshop board",
+			"brief": "A large upright brass-framed dark glass teaching board on a weathered wooden garden workbench. Title at upper left; crab near the lower right. Make the explanatory content dominant. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
+		},
+		{
+			"id": "02",
+			"name": "Field notebook",
+			"brief": "A close view of an open aged field notebook beside a brass-framed terminal. Use the notebook and terminal to organize the supplied explanation; keep the parchment warm and subdued, with broad dark surroundings. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
+		},
+		{
+			"id": "03",
+			"name": "Garden display",
+			"brief": "An eye-level brass instrument display among dark ferns. A centered title and balanced teaching areas form one coherent scene; the small crab sits at the edge of the display. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
+		},
+		{
+			"id": "04",
+			"name": "Archivist\u2019s desk",
+			"brief": "A slightly overhead view of a dark wood archivist\u2019s desk. Arrange the teaching content in an intentional reading order on a few brass-edged plates and a small parchment inset, with a detailed crab in a corner. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
+		},
+		{
+			"id": "05",
+			"name": "Conservatory window",
+			"brief": "A single wide antique green-glass display in the shadowed garden conservatory. Fine brass divisions organize the explanation, with the crab beside the display and controlled botanical detail around the perimeter. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
+		}
+	],
+	"reviewNotes": [
+		"Current scope: only the ten new teaching concepts listed in reviewScope. Keep all existing course artwork. The owner ended the replacement-art calibration and requested the exact original course style.",
+		"Generate five actual distinct compositions per concept. The owner chooses; no image is selected automatically.",
+		"Use original course illustrations as direct style references. Preserve their warm brass, green, woodland palette and intricate craftsmanship.",
+		"Previous decorative, overcrowded, bright, and blue-charcoal experiments are archived outside static output. Do not resume those generation plans.",
+		"All candidate images and selection notes remain local and outside the deployed static site."
+	],
+	"concepts": [
+		{
+			"id": "hello-first-command",
+			"title": "Your first small success",
+			"chapter": 0,
+			"kind": "replacement",
+			"purpose": "Connect typing one instruction to seeing a reply immediately.",
+			"visualBrief": "A curious hermit crab at an inviting garden workbench presses one key; a single luminous reply appears on a modest terminal. Early morning flowers, terracotta pots, cobalt tools and coral details create a world worth exploring. Leave the screen simple enough for a live hello-world overlay.",
+			"visualChecks": [
+				"The crab is doing one small action, not admiring a huge mysterious machine. Keep the terminal and visible reply the clear focus."
+			],
+			"altSuggestion": "A curious hermit crab at an inviting garden workbench presses one key; a single luminous reply appears on a modest terminal.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Hero.svelte",
+					"section": "hero",
+					"src": "images/Hero.webp",
+					"alt": "TerminalVibes — The Terminal for Vibe Coders",
+					"caption": ""
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "og-image.png",
+					"purpose": "Compose the approved hero artwork with real, accessible brand typography for the social preview. Do not auto-approve the crop."
+				},
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/hello-first-command/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/hello-first-command/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/hello-first-command/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/hello-first-command/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/hello-first-command/05.webp"
+				}
+			]
+		},
+		{
+			"id": "what-is-terminal",
+			"title": "Window, shell, computer",
+			"chapter": 0,
+			"kind": "replacement",
+			"purpose": "Separate the terminal window from the shell that reads commands and the computer doing the work.",
+			"visualBrief": "An open garden workshop in three visible layers: a window frame receives a small message, a shell-shaped interpreter inside reads it, and practical tools below carry out the work. A reply travels back toward the same window.",
+			"visualChecks": [
+				"These are cooperating layers on one computer, not three internet services. Use consistent directional flow and uncluttered empty label areas."
+			],
+			"altSuggestion": "An open garden workshop in three visible layers: a window frame receives a small message, a shell-shaped interpreter inside reads it, and practical tools below carry out the work.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Hero.svelte",
+					"section": "section-intro-what",
+					"src": "images/what-is-terminal.webp",
+					"alt": "An illustrated view of the terminal window and the shell that reads commands.",
+					"caption": "The window, the program inside it, and the words you type have different jobs."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/what-is-terminal/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/what-is-terminal/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/what-is-terminal/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/what-is-terminal/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/what-is-terminal/05.webp"
+				}
+			]
+		},
+		{
+			"id": "terminal-history",
+			"title": "Why text tools lasted",
+			"chapter": 0,
+			"kind": "replacement",
+			"purpose": "Make historical context an optional curiosity after practical success.",
+			"visualBrief": "A connected garden path passes a paper teletype, a glass text terminal, and a modern laptop; the same simple message ribbon travels through the three stations. Each period has a different season and material palette.",
+			"visualChecks": [
+				"Do not invent dates, historical portraits, or literal command output. Show continuity of interaction rather than an inevitable ranking of better machines."
+			],
+			"altSuggestion": "A connected garden path passes a paper teletype, a glass text terminal, and a modern laptop; the same simple message ribbon travels through the three stations.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Hero.svelte",
+					"section": "section-intro-history",
+					"src": "images/terminal-history.webp",
+					"alt": "An illustrated timeline showing how text terminals and shells developed.",
+					"caption": "The tools changed, but small, repeatable instructions remain useful."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/terminal-history/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/terminal-history/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/terminal-history/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/terminal-history/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/terminal-history/05.webp"
+				}
+			]
+		},
+		{
+			"id": "keyboard-line-editing",
+			"title": "Fix a line without starting over",
+			"chapter": 0,
+			"kind": "new",
+			"purpose": "Show how to jump to either end of a command and clear the whole line from the end.",
+			"visualBrief": "Explain cursor movement with one large command line, beginning and end markers, and directly attached shortcut labels. A small separate brass strip gives the two-key sequence for clearing the whole line. One detailed guide crab observes the line. Do not make a keyboard shortcut encyclopedia.",
+			"visualChecks": [
+				"Show the exact same command once, with a start marker immediately before echo and an end marker immediately after garden. Labels must clearly attach to their respective endpoints. These are two possible cursor destinations, not two simultaneous cursors.",
+				"The clear-line shortcut is a sequence: first move to the end, then cut back to the beginning. Do not imply Ctrl+U always removes an entire line from the middle."
+			],
+			"altSuggestion": "Ctrl+A points before echo hello garden; Ctrl+E points after it. Ctrl+E followed by Ctrl+U clears the whole line.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/playground/KeyboardWorkshop.svelte",
+					"section": "keyboard-workshop",
+					"src": "images/keyboard-line-editing.webp",
+					"alt": "Ctrl+A points before echo hello garden; Ctrl+E points after it. Ctrl+E followed by Ctrl+U clears the whole line.",
+					"caption": "The two markers show possible cursor destinations. Move to the end before clearing the whole line."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/keyboard-line-editing/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/keyboard-line-editing/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/keyboard-line-editing/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/keyboard-line-editing/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/keyboard-line-editing/05.webp"
+				}
+			],
+			"teachingText": "Title: Move around a line\nCommand line: echo hello garden\nAt the beginning, before e: Ctrl+A\nAt the end, after n: Ctrl+E\nBottom strip: Clear the whole line\nCtrl+E, then Ctrl+U",
+			"styleReferences": [
+				"static/images/history-superpowers.webp",
+				"static/images/first-script.webp"
+			],
+			"installedArtwork": {
+				"variantId": "05",
+				"path": "images/keyboard-line-editing.webp",
+				"sha256": "3b1f6594aeb0d9bc537515b3bb961abe6bf9fdac8650c3ed67d678d7a0fb302c",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "first-commands",
+			"title": "Ask, read, decide",
+			"chapter": 1,
+			"kind": "replacement",
+			"purpose": "Teach one command and one observable reply at a time.",
+			"visualBrief": "Three small scenes on a gardener's workbench: a crab asks at a terminal, studies its answer, and chooses a next step. A notebook links the scenes, with ample breathing room around the single active screen.",
+			"visualChecks": [
+				"One input has one corresponding answer. Decorative command walls should not compete with the action."
+			],
+			"altSuggestion": "Three small scenes on a gardener's workbench: a crab asks at a terminal, studies its answer, and chooses a next step.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part1.svelte",
+					"section": "section-1-2",
+					"src": "images/first-commands.webp",
+					"alt": "A hermit crab asks small questions at a terminal and sees their replies.",
+					"caption": "Type one instruction. Read its result. Then decide what to do next."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/first-commands/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/first-commands/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/first-commands/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/first-commands/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/first-commands/05.webp"
+				}
+			]
+		},
+		{
+			"id": "where-am-i",
+			"title": "Where am I?",
+			"chapter": 2,
+			"kind": "replacement",
+			"purpose": "Distinguish the current directory from the files it contains.",
+			"visualBrief": "A garden map opens on a desk beside a real view into one folder-shaped bed. A single location marker on the map matches the bed where the crab stands; several files remain inside that bed.",
+			"visualChecks": [
+				"There must be exactly one current-location marker. The location and contents are visibly different kinds of information."
+			],
+			"altSuggestion": "A garden map opens on a desk beside a real view into one folder-shaped bed.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "section-2-1",
+					"src": "images/where-am-i.webp",
+					"alt": "A folder map and a terminal showing the current location.",
+					"caption": "pwd tells you where you are; ls tells you what is there."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/where-am-i/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/where-am-i/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/where-am-i/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/where-am-i/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/where-am-i/05.webp"
+				}
+			]
+		},
+		{
+			"id": "paths",
+			"title": "Two routes to the same file",
+			"chapter": 2,
+			"kind": "replacement",
+			"purpose": "Show absolute and relative paths as two ways to describe one destination.",
+			"visualBrief": "Teach one idea: an absolute path and a relative path can reach the same file. Create one spacious folder diagram, two directly labeled routes, and one current-location marker. Root / leads through home, vibe, and garden; garden branches to notes.txt and photos. Place both route labels next to the diagram. The title and short subtitle establish the idea. Preserve the original\u2019s intricate craftsmanship in materials and a small guide crab, with restrained botanical framing and ample open space.",
+			"visualChecks": [
+				"Draw the folder hierarchy once: / \u2192 home \u2192 vibe \u2192 garden, then branch to notes.txt and photos. Mark photos as You are here. notes.txt is the single destination.",
+				"Trace the absolute route from / through home, vibe, and garden to notes.txt. Trace the relative route from photos up to garden, then down to that same notes.txt. Carry both route colors all the way to the target, using parallel tracks on the shared final edge. Arrows must agree with these directions.",
+				"Use exactly the supplied teaching text. No extra slogans, decorative writing, repeated diagram, terminal transcript, shortcut legend, or additional explanatory panel in this particular figure.",
+				"Make path strings large and fully legible. Keep two dots and the slash in ../notes.txt. Separate connectors, labels, and decoration so they do not overlap.",
+				"Keep substantial open space around the diagram. Use the original\u2019s mature mechanical hermit crab at a small supporting scale. Avoid crowds of props and ornamental boxes competing with the route comparison.",
+				"Place photos directly below garden and notes.txt to the right of garden. The amber route must visibly touch garden before continuing to notes.txt; no direct shortcut from photos to notes.txt."
+			],
+			"altSuggestion": "One folder diagram shows an absolute route from root and a relative route from the current photos folder reaching the same notes.txt file.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "section-2-2",
+					"src": "images/paths.webp",
+					"alt": "Paths shown as routes through a branching garden.",
+					"caption": "A path can start at the root or at your current folder."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/paths/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/paths/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/paths/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/paths/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/paths/05.webp"
+				}
+			],
+			"teachingText": "Title: Paths\nSubtitle: Two routes to the same file.\n\nDiagram node labels: /, home, vibe, garden, notes.txt, photos\nCurrent-location marker, attached only to photos: You are here\n\nFirst route label:\nAbsolute path\n/home/vibe/garden/notes.txt\nStart at the root.\n\nSecond route label:\nRelative path\n../notes.txt\nStart in photos."
+		},
+		{
+			"id": "changing-directories",
+			"title": "Change your point of view",
+			"chapter": 2,
+			"kind": "replacement",
+			"purpose": "Show that cd changes the current directory without moving its files.",
+			"visualBrief": "Two connected garden rooms hold fixed shelves of files. A crab moves from one room to the next, with a location marker following the crab. Transparent before and after views preserve every shelf.",
+			"visualChecks": ["Files stay put in both views. Only the current-location marker moves."],
+			"altSuggestion": "Two connected garden rooms hold fixed shelves of files.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "section-2-3",
+					"src": "images/changing-directories.webp",
+					"alt": "A crab moving between folders while their contents stay in place.",
+					"caption": "cd changes your point of view; pwd confirms it."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/changing-directories/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/changing-directories/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/changing-directories/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/changing-directories/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/changing-directories/05.webp"
+				}
+			]
+		},
+		{
+			"id": "making-things",
+			"title": "Make a place, then a file",
+			"chapter": 2,
+			"kind": "replacement",
+			"purpose": "Distinguish a directory container from an initially empty text file.",
+			"visualBrief": "At a bright potting table, a crab sets down a new open folder-shaped tray and places a clean blank note inside. Surrounding tools suggest a small practical workspace rather than a warehouse.",
+			"visualChecks": [
+				"An empty file is visibly blank. A directory holds the file; the file does not contain another directory."
+			],
+			"altSuggestion": "At a bright potting table, a crab sets down a new open folder-shaped tray and places a clean blank note inside.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "section-2-4",
+					"src": "images/making-things.webp",
+					"alt": "New folders and empty files appearing in a garden workspace.",
+					"caption": "Create a little, then inspect what you made."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/making-things/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/making-things/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/making-things/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/making-things/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/making-things/05.webp"
+				}
+			]
+		},
+		{
+			"id": "looking-inside",
+			"title": "Read a little or a lot",
+			"chapter": 2,
+			"kind": "replacement",
+			"purpose": "Choose between printing a short file and paging through a long one.",
+			"visualBrief": "A short garden note lies fully visible beside a long scroll in a viewing frame; the crab uses the frame to look at one part of the scroll. Clear end and return cues give the scene a calm sense of control.",
+			"visualChecks": [
+				"Reading does not erase or modify either original. Long text remains accessible outside the visible window."
+			],
+			"altSuggestion": "A short garden note lies fully visible beside a long scroll in a viewing frame; the crab uses the frame to look at one part of the scroll.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "section-2-5",
+					"src": "images/looking-inside.webp",
+					"alt": "Different tools for examining a short note and a longer text file.",
+					"caption": "Choose how much text to read, and know how to return to your prompt."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/looking-inside/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/looking-inside/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/looking-inside/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/looking-inside/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/looking-inside/05.webp"
+				}
+			]
+		},
+		{
+			"id": "file-editor-save",
+			"title": "Edit, save, read it back",
+			"chapter": 2,
+			"kind": "new",
+			"purpose": "Make the difference between an editor draft and the saved sandbox file visible.",
+			"visualBrief": "A three-step explanation with clear left-to-right arrows: an editor draft, a Save action into the same named file, and a terminal reading the saved text. The draft and terminal show the same three short plant names. A small crab compares them; the Save transition is the visual hinge.",
+			"visualChecks": [
+				"Draft text is basil, mint, thyme on separate lines; the readback after Save has exactly the same three lines.",
+				"Do not imply typing alone saves the file. Arrows run Draft to Save to Read. Do not add a misleading command prompt to output lines."
+			],
+			"altSuggestion": "Three panels show a draft of notes/seeds.txt containing basil, mint, and thyme, Ctrl+S to save, and cat printing the saved list.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "section-2-5",
+					"src": "images/file-editor-save.webp",
+					"alt": "Three panels show a draft of notes/seeds.txt containing basil, mint, and thyme, Ctrl+S to save, and cat printing the saved list.",
+					"caption": "In this course\u2019s file editor, Ctrl+S saves the draft. Read it back in the terminal to check."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "edit-notes"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/file-editor-save/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/file-editor-save/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/file-editor-save/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/file-editor-save/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/file-editor-save/05.webp"
+				}
+			],
+			"teachingText": "Title: Edit, save, read it back\nFirst stage: Draft\nnotes/seeds.txt\nbasil\nmint\nthyme\nMiddle action: Save\nLast stage: Read the saved file\ncat notes/seeds.txt\nbasil\nmint\nthyme",
+			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"],
+			"installedArtwork": {
+				"variantId": "05",
+				"path": "images/file-editor-save.webp",
+				"sha256": "52b5a3c93b9dd574cc8a0565fa95c0a13c34422d673ddc0c686dde7f561b4594",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "copying",
+			"title": "Make a second copy",
+			"chapter": 3,
+			"kind": "replacement",
+			"purpose": "Explain that copying leaves the source present and creates a destination copy.",
+			"visualBrief": "Two distinct shelves in a garden workshop show an original note and a matching second note. A crab carries the duplicate between them; matching leaf stamps make the contents recognizable.",
+			"visualChecks": [
+				"Both notes remain visible after the action. The original is not hollowed out or moved away."
+			],
+			"altSuggestion": "Two distinct shelves in a garden workshop show an original note and a matching second note.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part3.svelte",
+					"section": "section-3-1",
+					"src": "images/copying.webp",
+					"alt": "A file copied into a second file while the original remains.",
+					"caption": "A copy gives you a second file; it does not move the first one."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/copying/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/copying/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/copying/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/copying/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/copying/05.webp"
+				}
+			]
+		},
+		{
+			"id": "moving-renaming",
+			"title": "Move it, or give it a new name",
+			"chapter": 3,
+			"kind": "replacement",
+			"purpose": "Connect renaming and moving to the same file identity.",
+			"visualBrief": "Two adjacent vignettes use a distinctive stamped notebook: one changes the label in the same shelf, the other relocates it to another shelf. The stamp persists through both operations.",
+			"visualChecks": [
+				"Each vignette ends with exactly one notebook. No phantom duplicate should remain at the old location after a move."
+			],
+			"altSuggestion": "Two adjacent vignettes use a distinctive stamped notebook: one changes the label in the same shelf, the other relocates it to another shelf.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part3.svelte",
+					"section": "section-3-2",
+					"src": "images/moving-renaming.webp",
+					"alt": "A file changing its label and then moving into another folder.",
+					"caption": "Source first. Destination last. Check both places afterward."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/moving-renaming/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/moving-renaming/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/moving-renaming/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/moving-renaming/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/moving-renaming/05.webp"
+				}
+			]
+		},
+		{
+			"id": "deleting",
+			"title": "Remove only the intended file",
+			"chapter": 3,
+			"kind": "replacement",
+			"purpose": "Teach target inspection and the irreversibility of ordinary rm.",
+			"visualBrief": "A crab closely inspects a single selected loose note on a crowded worktable before removing it. A paired after-view leaves that exact spot empty while neighboring notes remain intact.",
+			"visualChecks": [
+				"No recycle bin or automatic restore promise. Make the selected target distinct without relying only on color."
+			],
+			"altSuggestion": "A crab closely inspects a single selected loose note on a crowded worktable before removing it.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part3.svelte",
+					"section": "section-3-3",
+					"src": "images/deleting.webp",
+					"alt": "A carefully selected file being removed from a folder.",
+					"caption": "Choose the name, inspect it, then remove only that target."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/deleting/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/deleting/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/deleting/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/deleting/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/deleting/05.webp"
+				}
+			]
+		},
+		{
+			"id": "wildcards",
+			"title": "A pattern chooses names",
+			"chapter": 3,
+			"kind": "replacement",
+			"purpose": "Show a glob selecting matching filenames before any action runs.",
+			"visualBrief": "A set of uniquely shaped file cards is arranged on a garden desk. A transparent stencil fits three matching name-ending tags and leaves two different tags untouched; selected cards remain on the desk.",
+			"visualChecks": [
+				"Selection does not delete or move anything. Use shape as well as color to indicate the matching group; exact patterns belong in HTML."
+			],
+			"altSuggestion": "A set of uniquely shaped file cards is arranged on a garden desk.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part3.svelte",
+					"section": "section-3-4",
+					"src": "images/wildcards.webp",
+					"alt": "Several filename patterns selecting different groups of files.",
+					"caption": "A pattern selects names. Preview the selection before acting on it."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/wildcards/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/wildcards/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/wildcards/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/wildcards/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/wildcards/05.webp"
+				}
+			]
+		},
+		{
+			"id": "redirection",
+			"title": "Send the reply to a file",
+			"chapter": 4,
+			"kind": "replacement",
+			"purpose": "Distinguish replacing file contents with output from appending to existing contents.",
+			"visualBrief": "Two small letterpress stations receive a terminal's output ribbon. One replaces a tray's old note with a new page; the other adds a fresh strip beneath preserved lines on a scroll.",
+			"visualChecks": [
+				"The replace and append destinations must be distinct. Do not show redirection as moving the source file or saving every kind of error automatically."
+			],
+			"altSuggestion": "Two small letterpress stations receive a terminal's output ribbon.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part4.svelte",
+					"section": "section-4-1",
+					"src": "images/redirection.webp",
+					"alt": "A command\u2019s output going into a file instead of the terminal display.",
+					"caption": "The destination is the filename after the arrow."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/redirection/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/redirection/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/redirection/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/redirection/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/redirection/05.webp"
+				}
+			]
+		},
+		{
+			"id": "pipes",
+			"title": "One tool's output feeds the next",
+			"chapter": 4,
+			"kind": "replacement",
+			"purpose": "Make a pipeline a sequence of text transformations.",
+			"visualBrief": "A winding tabletop watercourse carries paper text strips through three transparent tool stations. At every joint the outgoing strips visibly become the incoming strips of the next station.",
+			"visualChecks": [
+				"Each connection joins output to input. Do not imply a pipe is a saved file, an electrical power cable, or parallel execution of independent jobs."
+			],
+			"altSuggestion": "A winding tabletop watercourse carries paper text strips through three transparent tool stations.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part4.svelte",
+					"section": "section-4-2",
+					"src": "images/pipes.webp",
+					"alt": "Text moving from one small command to the next through a pipeline.",
+					"caption": "The output of one stage becomes the input of the next."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/pipes/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/pipes/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/pipes/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/pipes/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/pipes/05.webp"
+				}
+			]
+		},
+		{
+			"id": "grep",
+			"title": "Find the lines you need",
+			"chapter": 4,
+			"kind": "replacement",
+			"purpose": "Separate searching file contents from searching filenames.",
+			"visualBrief": "A magnifying window highlights a repeated leaf-shaped mark on a few lines in a long note; copies of only those full lines appear in a results tray. The original note stays complete.",
+			"visualChecks": [
+				"Return whole matching lines in their original order. Unmatched lines remain in the original and are absent only from the result."
+			],
+			"altSuggestion": "A magnifying window highlights a repeated leaf-shaped mark on a few lines in a long note; copies of only those full lines appear in a results tray.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part4.svelte",
+					"section": "section-4-3",
+					"src": "images/grep.webp",
+					"alt": "A search highlighting relevant lines within a larger text file.",
+					"caption": "Search the contents; leave the original file as it is."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/grep/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/grep/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/grep/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/grep/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/grep/05.webp"
+				}
+			]
+		},
+		{
+			"id": "counting-shaping",
+			"title": "Turn text into an answer",
+			"chapter": 4,
+			"kind": "replacement",
+			"purpose": "Connect sorting, grouping, counting, and choosing fields to concrete data.",
+			"visualBrief": "A garden harvest ledger passes through a series of open trays: loose records, sorted records, grouped repeats, and a compact tally. Small colored fruit and consistent row markers let the eye follow the change.",
+			"visualChecks": [
+				"Repeated records must be adjacent before grouped counting. Preserve readable row and column alignment without generated tiny text."
+			],
+			"altSuggestion": "A garden harvest ledger passes through a series of open trays: loose records, sorted records, grouped repeats, and a compact tally.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part4.svelte",
+					"section": "section-4-4",
+					"src": "images/counting-shaping.webp",
+					"alt": "Text lines being counted, sorted, grouped, and separated into columns.",
+					"caption": "Choose a tool by the shape of the text you actually have."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/counting-shaping/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/counting-shaping/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/counting-shaping/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/counting-shaping/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/counting-shaping/05.webp"
+				}
+			]
+		},
+		{
+			"id": "finding-files",
+			"title": "Find a file by its name",
+			"chapter": 4,
+			"kind": "replacement",
+			"purpose": "Show a search starting at one directory and visiting its descendants.",
+			"visualBrief": "A crab explores a branching set of garden shelves with a search lantern. Only the chosen starting branch is illuminated; matching filename-shaped tags appear on a separate map of results.",
+			"visualChecks": [
+				"Do not search neighboring branches outside the chosen start. Search results identify paths, not excerpts from file contents."
+			],
+			"altSuggestion": "A crab explores a branching set of garden shelves with a search lantern.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part4.svelte",
+					"section": "section-4-5",
+					"src": "images/finding-files.webp",
+					"alt": "A search following branches of a folder tree to matching filenames.",
+					"caption": "Choose where to start, then say which names or types you want."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/finding-files/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/finding-files/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/finding-files/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/finding-files/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/finding-files/05.webp"
+				}
+			]
+		},
+		{
+			"id": "reading-ls-l",
+			"title": "Read permissions in groups",
+			"chapter": 5,
+			"kind": "replacement",
+			"purpose": "Explain file type and separate owner, group, and other permissions.",
+			"visualBrief": "A detailed file card sits above three clearly separated gate panels, each with three slots for reading, writing, and executing. The same notebook is accessible in different ways through the three gates.",
+			"visualChecks": [
+				"Maintain three groups of three permission positions plus a separate file-type position. Do not use a single global unlocked symbol for all access."
+			],
+			"altSuggestion": "A detailed file card sits above three clearly separated gate panels, each with three slots for reading, writing, and executing.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part5.svelte",
+					"section": "section-5-1",
+					"src": "images/reading-ls-l.webp",
+					"alt": "A long file listing divided into file type, owner, group, and other permissions.",
+					"caption": "Read the permissions in three groups, not as one mysterious word."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/reading-ls-l/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/reading-ls-l/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/reading-ls-l/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/reading-ls-l/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/reading-ls-l/05.webp"
+				}
+			]
+		},
+		{
+			"id": "chmod",
+			"title": "Change one permission",
+			"chapter": 5,
+			"kind": "replacement",
+			"purpose": "Teach a narrow owner execute change and a visible check afterward.",
+			"visualBrief": "A crab adjusts one small execute lever on the owner's gate for a single script scroll; adjacent write, read, group, and other switches remain unchanged. A magnifier checks the resulting arrangement.",
+			"visualChecks": [
+				"Only one intended permission changes. Execution permission alone does not validate a script or guarantee it succeeds."
+			],
+			"altSuggestion": "A crab adjusts one small execute lever on the owner's gate for a single script scroll; adjacent write, read, group, and other switches remain unchanged.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part5.svelte",
+					"section": "section-5-2",
+					"src": "images/chmod.webp",
+					"alt": "A single execute permission being added to a script.",
+					"caption": "A narrow change is easier to understand and verify."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/chmod/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/chmod/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/chmod/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/chmod/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/chmod/05.webp"
+				}
+			]
+		},
+		{
+			"id": "sudo",
+			"title": "Borrow authority for one task",
+			"chapter": 5,
+			"kind": "replacement",
+			"purpose": "Frame elevated permissions as temporary and specific.",
+			"visualBrief": "A responsible garden keeper lends a clearly marked access token across a counter for one maintenance job. The crab studies the work order before taking it, while ordinary work continues without the token.",
+			"visualChecks": [
+				"No permanent crown or all-purpose magic key. The authority is for a deliberate task, not a generic repair for every error."
+			],
+			"altSuggestion": "A responsible garden keeper lends a clearly marked access token across a counter for one maintenance job.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part5.svelte",
+					"section": "section-5-3",
+					"src": "images/sudo.webp",
+					"alt": "A command temporarily using administrator authority.",
+					"caption": "Understand the specific task before granting it more authority."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/sudo/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/sudo/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/sudo/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/sudo/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/sudo/05.webp"
+				}
+			]
+		},
+		{
+			"id": "env-vars",
+			"title": "Pass a setting to a child program",
+			"chapter": 5,
+			"kind": "replacement",
+			"purpose": "Distinguish a shell's local value from exported child-process environment.",
+			"visualBrief": "A parent workbench has labeled setting cards; one exported card is copied into a smaller child workshop through a one-way hatch. Another local card stays at the parent bench.",
+			"visualChecks": [
+				"The child receives a copy, and editing it does not change the parent card. No implication that every setting is automatically exported."
+			],
+			"altSuggestion": "A parent workbench has labeled setting cards; one exported card is copied into a smaller child workshop through a one-way hatch.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part5.svelte",
+					"section": "section-5-4",
+					"src": "images/env-vars.webp",
+					"alt": "Named settings passed from a shell to the programs it starts.",
+					"caption": "A variable has a name and a value; export passes a setting to child programs."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/env-vars/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/env-vars/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/env-vars/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/env-vars/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/env-vars/05.webp"
+				}
+			]
+		},
+		{
+			"id": "shell-config",
+			"title": "Keep one useful setting",
+			"chapter": 5,
+			"kind": "replacement",
+			"purpose": "Show a saved startup setting being read by a new shell.",
+			"visualBrief": "A crab tests one small workbench adjustment, records it in a settings notebook, then opens a fresh shell-shaped workshop that reads that notebook. The earlier workshop remains beside it.",
+			"visualChecks": [
+				"Saving text is separate from a new shell reading it. Avoid making Bash and zsh configuration files appear interchangeable."
+			],
+			"altSuggestion": "A crab tests one small workbench adjustment, records it in a settings notebook, then opens a fresh shell-shaped workshop that reads that notebook.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part5.svelte",
+					"section": "section-5-5",
+					"src": "images/shell-config.webp",
+					"alt": "A short set of personal shell settings saved in a configuration file.",
+					"caption": "Try one setting, save it deliberately, then verify a new shell."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/shell-config/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/shell-config/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/shell-config/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/shell-config/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/shell-config/05.webp"
+				}
+			]
+		},
+		{
+			"id": "first-script",
+			"title": "Save a routine you understand",
+			"chapter": 6,
+			"kind": "replacement",
+			"purpose": "Connect editing a script file, reading it, running it, and inspecting the result.",
+			"visualBrief": "A four-stage garden desk story shows a few command cards saved into one script scroll, the scroll read under a lamp, a deliberate run at the terminal, and a copied note inspected at its destination.",
+			"visualChecks": [
+				"The same script file persists across stages. A cheerful status light alone is not evidence that the intended copy exists."
+			],
+			"altSuggestion": "A four-stage garden desk story shows a few command cards saved into one script scroll, the scroll read under a lamp, a deliberate run at the terminal, and a copied note inspected at its destination..",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-1",
+					"src": "images/first-script.webp",
+					"alt": "A small group of commands saved as a script and run again.",
+					"caption": "Write a file, read it back, run it, and check the result."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/first-script/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/first-script/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/first-script/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/first-script/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/first-script/05.webp"
+				}
+			]
+		},
+		{
+			"id": "exit-codes",
+			"title": "A quiet command still has a status",
+			"chapter": 6,
+			"kind": "replacement",
+			"purpose": "Teach success/failure status as separate from visible output.",
+			"visualBrief": "A small workshop machine finishes with an empty output tray while handing back a status token. That token controls whether a neighboring gate opens for the next step.",
+			"visualChecks": [
+				"No output can accompany either status. Use different shapes as well as colors, with exact numeric values overlaid in live text."
+			],
+			"altSuggestion": "A small workshop machine finishes with an empty output tray while handing back a status token.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/exit-codes.webp",
+					"alt": "A command reporting success or failure before the next step is chosen.",
+					"caption": "A quiet command still reports a status."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/exit-codes/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/exit-codes/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/exit-codes/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/exit-codes/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/exit-codes/05.webp"
+				}
+			]
+		},
+		{
+			"id": "script-arguments",
+			"title": "One routine, different inputs",
+			"chapter": 6,
+			"kind": "new",
+			"purpose": "Show how one quoted filename argument reaches the script as one value.",
+			"visualBrief": "A single precise mapping from an invocation on a dark terminal panel to the first argument inside a script. Highlight the quoted phrase as one intact value, with one arrow to a labeled script argument slot. The crab holds the matching folder label. No whole backup script is needed.",
+			"visualChecks": [
+				"The command uses straight double quotes around My Notes. The value of $1 is My Notes without literal surrounding quote characters.",
+				"Show one argument, not two. The $1 slot and quoted phrase are directly connected. Do not imply the script is edited by supplying an argument."
+			],
+			"altSuggestion": "An arrow carries the quoted My Notes argument from ./backup.sh into the script\u2019s $1 value as one folder name.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-arguments.webp",
+					"alt": "An arrow carries the quoted My Notes argument from ./backup.sh into the script\u2019s $1 value as one folder name.",
+					"caption": "Quotes keep My Notes together. The quote characters themselves are not part of the argument."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "script-arguments"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/script-arguments/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/script-arguments/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/script-arguments/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/script-arguments/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/script-arguments/05.webp"
+				}
+			],
+			"teachingText": "Title: Arguments\nOne script, different inputs.\nCommand: ./backup.sh \"My Notes\"\nInside the script\n$1\nMy Notes\nQuotes keep one name together.",
+			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"],
+			"installedArtwork": {
+				"variantId": "04",
+				"path": "images/script-arguments.webp",
+				"sha256": "72e74bfa5886a77d13eb16894c84855c03d3d0f158ed3aabff61de13eaedae9c",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "script-conditions",
+			"title": "Check before choosing a branch",
+			"chapter": 6,
+			"kind": "new",
+			"purpose": "Show that a test chooses one branch and the failure path deserves practice too.",
+			"visualBrief": "One spacious branching diagram: the regular-file test at the top splits to two clearly labeled outcomes. The branches end at the corresponding exact echo commands. A small crab examines the test. Keep routes separated and unambiguous.",
+			"visualChecks": [
+				"The yes branch connects only to The note exists; the no branch connects only to Create notes.txt first.",
+				"Required spaces appear between [, -f, notes.txt, and ]. Label the bracket expression as the test, not a complete if program. No route should execute both branches."
+			],
+			"altSuggestion": "A file test, [ -f notes.txt ], splits into Yes and No branches. Yes prints The note exists; No prints Create notes.txt first.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-conditions.webp",
+					"alt": "A file test, [ -f notes.txt ], splits into Yes and No branches. Yes prints The note exists; No prints Create notes.txt first.",
+					"caption": "Predict the branch, then try the check with and without notes.txt. Only one branch runs."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "script-conditions"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/script-conditions/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/script-conditions/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/script-conditions/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/script-conditions/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/script-conditions/05.webp"
+				}
+			],
+			"teachingText": "Title: Make a decision\nTest: [ -f notes.txt ]\nYes\necho \"The note exists\"\nNo\necho \"Create notes.txt first\"\nOne test. One branch runs.",
+			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"],
+			"installedArtwork": {
+				"variantId": "01",
+				"path": "images/script-conditions.webp",
+				"sha256": "3deda984595521f2ffdc5eeac1e37973e735802d91159f05c17af062c6f7b3e8",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "script-loops",
+			"title": "Repeat a small action for each item",
+			"chapter": 6,
+			"kind": "new",
+			"purpose": "Make a loop an understandable series of iterations over a finite set.",
+			"visualBrief": "One short three-line Bash loop sits beside three ordered output lines. Three small botanical labels mark basil, mint, thyme in that order and connect the finite input list to its three outputs. The illustration explains repeated action without an elaborate mechanical machine.",
+			"visualChecks": [
+				"Render printf format with a literal backslash and n inside the single quotes; render \"$plant\" exactly.",
+				"The loop has three values and exactly three output lines in the same order. Code and output must be visibly separate."
+			],
+			"altSuggestion": "A loop visits basil, mint, and thyme. Three arrows lead to three output lines: Remember to water basil, mint, and thyme, one plant per line.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-loops.webp",
+					"alt": "A loop visits basil, mint, and thyme. Three arrows lead to three output lines: Remember to water basil, mint, and thyme, one plant per line.",
+					"caption": "Each item gets one turn. The same printf command runs with a different value of plant."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "script-loops"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/script-loops/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/script-loops/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/script-loops/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/script-loops/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/script-loops/05.webp"
+				}
+			],
+			"teachingText": "Title: One at a time\nBash code:\nfor plant in basil mint thyme; do\n  printf 'Remember to water %s\\n' \"$plant\"\ndone\nOutput:\nRemember to water basil\nRemember to water mint\nRemember to water thyme",
+			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"],
+			"installedArtwork": {
+				"variantId": "03",
+				"path": "images/script-loops.webp",
+				"sha256": "a680584f6405dd5888d0cec61b241dc659450c787be0bc7a76217c51369dd321",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "script-safe-copy",
+			"title": "Check assumptions before copying",
+			"chapter": 6,
+			"kind": "new",
+			"purpose": "Link argument validation, source checks, fresh destination checks, copying, and result evidence.",
+			"visualBrief": "A readable three-stage workflow on one wide brass-framed display: Check, Copy, Verify. The Check area contains three short prerequisite lines. Copy has one command and the qualifier that it must succeed. Verify has a readback command and its one-line result. A quiet crab inspects the copied note. No dense full script or maze of error branches.",
+			"visualChecks": [
+				"Show stage order Check then Copy then Verify. No success label appears before Copy.",
+				"The quoted source and destination must remain intact and ordered correctly. The verify example reads the actual copied seeds.txt file; basil is output, not another command.",
+				"This is a workflow excerpt, not a complete standalone script. Do not suggest copying guarantees verified contents or automatic rollback."
+			],
+			"altSuggestion": "Check two arguments, an existing source folder, and a new destination; copy with quoted paths; then read the copied seeds.txt and confirm basil.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-safe-copy.webp",
+					"alt": "Check two arguments, an existing source folder, and a new destination; copy with quoted paths; then read the copied seeds.txt and confirm basil.",
+					"caption": "Check the inputs, check whether copying succeeded, then inspect the result. The source folder can have any name."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "script-safe-backup"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/script-safe-copy/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/script-safe-copy/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/script-safe-copy/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/script-safe-copy/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/script-safe-copy/05.webp"
+				}
+			],
+			"teachingText": "Title: Copy with checks\n1. Check\nTwo arguments\nSource folder exists\nDestination is new\n2. Copy\ncp -R -- \"$source\" \"$destination\"\nContinue only if copying succeeds.\n3. Verify\ncat \"practice copy/seeds.txt\"\nbasil",
+			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"],
+			"installedArtwork": {
+				"variantId": "02",
+				"path": "images/script-safe-copy.webp",
+				"sha256": "eb03cf9fca24f20bdd8d9004e1bb918100b2dbf023ec986210451c30352dd4fc",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "find-replace",
+			"title": "Preview a changed word",
+			"chapter": 7,
+			"kind": "replacement",
+			"purpose": "Show stream substitution producing changed output while preserving the source.",
+			"visualBrief": "A menu note on a desk contains several mango illustrations; a transparent transformation frame sends a second version to an output tray with kiwi in the chosen positions. The original menu remains intact.",
+			"visualChecks": [
+				"Do not silently change every occurrence if the lesson's first example changes only the first on each line. Keep the exact rule and text outside the generated art."
+			],
+			"altSuggestion": "A menu note on a desk contains several mango illustrations; a transparent transformation frame sends a second version to an output tray with kiwi in the chosen positions.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part7.svelte",
+					"section": "section-7-1",
+					"src": "images/find-replace.webp",
+					"alt": "The word mango becoming kiwi in a menu while the original is preserved.",
+					"caption": "Read the result before choosing where to save it."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/find-replace/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/find-replace/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/find-replace/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/find-replace/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/find-replace/05.webp"
+				}
+			]
+		},
+		{
+			"id": "line-surgery",
+			"title": "Choose lines, then act",
+			"chapter": 7,
+			"kind": "replacement",
+			"purpose": "Make line selection visibly separate from deleting or printing selected output.",
+			"visualBrief": "A vertical paper strip with clearly spaced rows moves through an adjustable selection window. Some complete rows are copied to an output strip; the source strip remains whole at the side.",
+			"visualChecks": [
+				"No cutting characters out of the middle of a selected line. Removing a line from output does not erase the source file."
+			],
+			"altSuggestion": "A vertical paper strip with clearly spaced rows moves through an adjustable selection window.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part7.svelte",
+					"section": "section-7-2",
+					"src": "images/line-surgery.webp",
+					"alt": "Some lines passing through a text filter while selected lines are omitted.",
+					"caption": "A line selection tells sed where to apply its action."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/line-surgery/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/line-surgery/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/line-surgery/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/line-surgery/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/line-surgery/05.webp"
+				}
+			]
+		},
+		{
+			"id": "edit-in-place",
+			"title": "Inspect before replacing the file",
+			"chapter": 7,
+			"kind": "replacement",
+			"purpose": "Teach backups and a visible comparison before accepting an in-place edit.",
+			"visualBrief": "Two versions of a garden configuration notebook sit side by side, with one preserved backup on a separate dry shelf. A crab compares a few highlighted changed rows before shelving the new version.",
+			"visualChecks": [
+				"The backup is a separate file, not an automatic universal undo. Unchanged rows align between versions."
+			],
+			"altSuggestion": "Two versions of a garden configuration notebook sit side by side, with one preserved backup on a separate dry shelf.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part7.svelte",
+					"section": "section-7-3",
+					"src": "images/edit-in-place.webp",
+					"alt": "An edited file beside its earlier version, with their differences compared.",
+					"caption": "A saved original is useful only if you inspect the result and preserve the version you need."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/edit-in-place/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/edit-in-place/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/edit-in-place/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/edit-in-place/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/edit-in-place/05.webp"
+				}
+			]
+		},
+		{
+			"id": "columns-awk",
+			"title": "Pick the fields you need",
+			"chapter": 7,
+			"kind": "replacement",
+			"purpose": "Show records, separators, and numbered fields before extraction.",
+			"visualBrief": "A harvest ledger forms a precise grid on a garden table. A transparent vertical guide isolates two columns, and their values appear together in a smaller output ledger.",
+			"visualChecks": [
+				"The grid must stay aligned. Explain whitespace fields in live text; do not imply this simplistic split parses every CSV file."
+			],
+			"altSuggestion": "A harvest ledger forms a precise grid on a garden table.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part7.svelte",
+					"section": "section-7-4",
+					"src": "images/columns-awk.webp",
+					"alt": "A text table divided into numbered fields and selected output columns.",
+					"caption": "First inspect the table\u2019s separators; then choose the fields."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/columns-awk/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/columns-awk/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/columns-awk/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/columns-awk/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/columns-awk/05.webp"
+				}
+			]
+		},
+		{
+			"id": "everything-is-a-process",
+			"title": "A program running right now",
+			"chapter": 8,
+			"kind": "replacement",
+			"purpose": "Distinguish a running process instance from its program file.",
+			"visualBrief": "A glass garden apiary contains several active workshop cells, with two running instances fed from the same stored blueprint. Each cell has a different blank number plaque and its own activity.",
+			"visualChecks": [
+				"A process is an instance, not the executable file itself. Leave PID numbers to an accessible overlay rather than tiny invented text."
+			],
+			"altSuggestion": "A glass garden apiary contains several active workshop cells, with two running instances fed from the same stored blueprint.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part8.svelte",
+					"section": "section-8-1",
+					"src": "images/everything-is-a-process.webp",
+					"alt": "A glass apiary with a separate numbered cell for each running program.",
+					"caption": "A process is a running program. Its PID identifies that instance."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/everything-is-a-process/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/everything-is-a-process/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/everything-is-a-process/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/everything-is-a-process/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/everything-is-a-process/05.webp"
+				}
+			]
+		},
+		{
+			"id": "stopping-things",
+			"title": "Ask a process to stop",
+			"chapter": 8,
+			"kind": "replacement",
+			"purpose": "Distinguish interrupting the foreground job from sending termination signals to a chosen process.",
+			"visualBrief": "A crab sends a gentle stop request to one busy workshop cell and waits for it to tidy up. A separate sealed emergency stop tool remains unused. A final empty cell shows verification that the job ended.",
+			"visualChecks": [
+				"A stop request may be handled or ignored. Do not depict TERM and KILL as equivalent or suggest KILL permits cleanup."
+			],
+			"altSuggestion": "A crab sends a gentle stop request to one busy workshop cell and waits for it to tidy up.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part8.svelte",
+					"section": "section-8-2",
+					"src": "images/stopping-things.webp",
+					"alt": "A green TERM message beside a sealed red KILL message.",
+					"caption": "Interrupt the foreground job; request termination of another process; verify the result."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/stopping-things/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/stopping-things/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/stopping-things/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/stopping-things/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/stopping-things/05.webp"
+				}
+			]
+		},
+		{
+			"id": "port-3000",
+			"title": "Find who is using the port",
+			"chapter": 8,
+			"kind": "replacement",
+			"purpose": "Connect a local listening port to the particular process owning it.",
+			"visualBrief": "A small harbor gate is occupied by one identifiable service boat, while another waits outside. A harbor register links the gate to that boat; the crab reads it before deciding what to stop.",
+			"visualChecks": [
+				"The number denotes a listening endpoint, not the PID. No automatic eviction or dangerous kill-all message."
+			],
+			"altSuggestion": "A small harbor gate is occupied by one identifiable service boat, while another waits outside.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part8.svelte",
+					"section": "section-8-3",
+					"src": "images/port-3000.webp",
+					"alt": "A harbor with an occupied pier marked 3000 and another boat waiting.",
+					"caption": "A port conflict is a clue: identify the existing listener."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/port-3000/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/port-3000/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/port-3000/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/port-3000/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/port-3000/05.webp"
+				}
+			]
+		},
+		{
+			"id": "background-jobs",
+			"title": "Get your prompt back",
+			"chapter": 8,
+			"kind": "replacement",
+			"purpose": "Show foreground interaction and background work sharing a terminal.",
+			"visualBrief": "A theater-like garden workshop has one foreground desk with the keyboard, a background workbench continuing a job, and a noticeboard tracking that shell's jobs.",
+			"visualChecks": [
+				"Background output can still reach the same screen. Suspension and background execution must look different; tabs are not shell jobs."
+			],
+			"altSuggestion": "A theater-like garden workshop has one foreground desk with the keyboard, a background workbench continuing a job, and a noticeboard tracking that shell's jobs..",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part8.svelte",
+					"section": "section-8-4",
+					"src": "images/background-jobs.webp",
+					"alt": "One program works on a stage while two others work behind the curtain.",
+					"caption": "Foreground and background describe how a job shares this shell\u2019s terminal."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/background-jobs/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/background-jobs/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/background-jobs/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/background-jobs/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/background-jobs/05.webp"
+				}
+			]
+		},
+		{
+			"id": "localhost",
+			"title": "This machine, this port",
+			"chapter": 9,
+			"kind": "replacement",
+			"purpose": "Make localhost relative to the computer where the request runs.",
+			"visualBrief": "Two separate garden islands each have a lighthouse that points inward to its own numbered service doors. A crab on one island directs a request to that island's door, not across the sea.",
+			"visualChecks": [
+				"Both machines have their own localhost. Do not imply a shared global machine or that every numbered port has a running service."
+			],
+			"altSuggestion": "Two separate garden islands each have a lighthouse that points inward to its own numbered service doors.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part9.svelte",
+					"section": "section-9-1",
+					"src": "images/localhost.webp",
+					"alt": "A lighthouse directs its beam inward toward numbered doors on its own island.",
+					"caption": "localhost means the machine where the request runs."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/localhost/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/localhost/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/localhost/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/localhost/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/localhost/05.webp"
+				}
+			]
+		},
+		{
+			"id": "curl",
+			"title": "Ask and inspect the response",
+			"chapter": 9,
+			"kind": "replacement",
+			"purpose": "Show an HTTP request and response as separate observable messages.",
+			"visualBrief": "A garden telegraph station sends a small request envelope to a service door and receives a response envelope with a status seal and content sheet. The crab opens both status and content deliberately.",
+			"visualChecks": [
+				"The reply may be an error even when a connection succeeds. Keep request direction and response direction distinct."
+			],
+			"altSuggestion": "A garden telegraph station sends a small request envelope to a service door and receives a response envelope with a status seal and content sheet.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part9.svelte",
+					"section": "section-9-2",
+					"src": "images/curl.webp",
+					"alt": "A telegraph prints a reply after a cable carries a request to a numbered door.",
+					"caption": "A request is a question. The response is evidence you can inspect."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/curl/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/curl/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/curl/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/curl/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/curl/05.webp"
+				}
+			]
+		},
+		{
+			"id": "reading-json",
+			"title": "Follow the shape of JSON",
+			"chapter": 9,
+			"kind": "replacement",
+			"purpose": "Connect named object members, nested objects, and array positions.",
+			"visualBrief": "Transparent nested jars hold clearly different value shapes; a row of matching small jars represents an array. One colored route follows a named compartment to a selected value.",
+			"visualChecks": [
+				"Objects and arrays must be visually distinct. Do not generate a wall of malformed JSON; exact sample data belongs in live code."
+			],
+			"altSuggestion": "Transparent nested jars hold clearly different value shapes; a row of matching small jars represents an array.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part9.svelte",
+					"section": "section-9-3",
+					"src": "images/reading-json.webp",
+					"alt": "Nested transparent jars represent named values inside a JSON document.",
+					"caption": "Inspect the structure before choosing a path through it."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/reading-json/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/reading-json/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/reading-json/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/reading-json/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/reading-json/05.webp"
+				}
+			]
+		},
+		{
+			"id": "keys-and-secrets",
+			"title": "Keep credentials out of transcripts",
+			"chapter": 9,
+			"kind": "replacement",
+			"purpose": "Explain that a credential can leak through command history and shared output.",
+			"visualBrief": "A credential card is stored inside a secure envelope while a public command-history scroll remains free of its contents. A crab chooses a safe empty placeholder card when showing the work to a friend.",
+			"visualChecks": [
+				"Never draw a realistic API key or imply deleting one history line revokes a leaked credential. No credential is visible on the terminal."
+			],
+			"altSuggestion": "A credential card is stored inside a secure envelope while a public command-history scroll remains free of its contents.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part9.svelte",
+					"section": "section-9-4",
+					"src": "images/keys-and-secrets.webp",
+					"alt": "A safe holds a credential card beside a command-history scroll.",
+					"caption": "Do not put a real credential in a command or a shared transcript."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/keys-and-secrets/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/keys-and-secrets/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/keys-and-secrets/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/keys-and-secrets/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/keys-and-secrets/05.webp"
+				}
+			]
+		},
+		{
+			"id": "ssh",
+			"title": "Know which machine owns this shell",
+			"chapter": 9,
+			"kind": "replacement",
+			"purpose": "Show the context change between local and remote terminal sessions.",
+			"visualBrief": "An open doorway links two clearly different garden workshops. A crab controls a terminal at home, but the active work lamp, current folder, and changed files are inside the remote workshop.",
+			"visualChecks": [
+				"Remote commands affect the remote filesystem. Keep the two locations visibly separate and do not suggest an automatic file copy."
+			],
+			"altSuggestion": "An open doorway links two clearly different garden workshops.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part9.svelte",
+					"section": "section-9-5",
+					"src": "images/ssh.webp",
+					"alt": "A doorway in one garden opens onto a distant server garden.",
+					"caption": "After logging in, the shell, current folder, and running commands belong to the remote machine."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/ssh/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/ssh/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/ssh/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/ssh/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/ssh/05.webp"
+				}
+			]
+		},
+		{
+			"id": "package-managers",
+			"title": "Add a tool for a real job",
+			"chapter": 10,
+			"kind": "replacement",
+			"purpose": "Connect installing software with checking and using the resulting command.",
+			"visualBrief": "A garden storekeeper supplies one labeled tool case for a specific job; the crab tests the actual tool at a nearby bench. Other cases remain on shelves, inviting later learning without pressure.",
+			"visualChecks": [
+				"Installation is separate from shell configuration. Do not depict all operating systems using the same package manager or command name."
+			],
+			"altSuggestion": "A garden storekeeper supplies one labeled tool case for a specific job; the crab tests the actual tool at a nearby bench.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/package-managers.webp",
+					"alt": "A storekeeper selects a labeled tin from a collection of tools.",
+					"caption": "Choose a tool for a job. Check which package and command your system provides."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/package-managers/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/package-managers/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/package-managers/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/package-managers/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/package-managers/05.webp"
+				}
+			]
+		},
+		{
+			"id": "archives",
+			"title": "Inspect, then unpack",
+			"chapter": 10,
+			"kind": "replacement",
+			"purpose": "Distinguish listing an archive from extracting it into a fresh directory.",
+			"visualBrief": "A sealed wooden crate has a transparent inspection view of nested files. Beside it is a clean empty tray chosen for unpacking; a later inset shows the extracted folders in that tray.",
+			"visualChecks": [
+				"The inspection view does not mean extraction already happened. Preserve the archive, and avoid spilling files into existing unrelated work."
+			],
+			"altSuggestion": "A sealed wooden crate has a transparent inspection view of nested files.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-2",
+					"src": "images/archives.webp",
+					"alt": "A wooden archive crate contains several smaller named files.",
+					"caption": "List the contents first. Choose a fresh destination before unpacking."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/archives/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/archives/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/archives/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/archives/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/archives/05.webp"
+				}
+			]
+		},
+		{
+			"id": "symlinks",
+			"title": "A signpost to another path",
+			"chapter": 10,
+			"kind": "replacement",
+			"purpose": "Teach that a symbolic link stores a path and can become dangling.",
+			"visualBrief": "A movable garden signpost points toward a real folder greenhouse. A second small scene shows the greenhouse moved while the unchanged sign points to an empty place.",
+			"visualChecks": [
+				"The link is not a duplicate of the target. The same pointer must be visibly unchanged when its target disappears."
+			],
+			"altSuggestion": "A movable garden signpost points toward a real folder greenhouse.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-3",
+					"src": "images/symlinks.webp",
+					"alt": "A signpost named current points to a lit release folder; another signpost has no destination.",
+					"caption": "A symbolic link stores a path. The target can move or disappear."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/symlinks/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/symlinks/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/symlinks/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/symlinks/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/symlinks/05.webp"
+				}
+			]
+		},
+		{
+			"id": "disk-detective",
+			"title": "Understand what uses space",
+			"chapter": 10,
+			"kind": "replacement",
+			"purpose": "Separate overall filesystem capacity from the size of particular folders.",
+			"visualBrief": "A large storage reservoir with a capacity gauge sits beside nested baskets whose sizes represent particular directories. A crab inspects one large basket before touching its contents.",
+			"visualChecks": [
+				"Capacity and folder usage are related but distinct. No large folder is automatically marked safe to delete."
+			],
+			"altSuggestion": "A large storage reservoir with a capacity gauge sits beside nested baskets whose sizes represent particular directories.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-4",
+					"src": "images/disk-detective.webp",
+					"alt": "A magnifying glass compares barrels labeled with their storage sizes.",
+					"caption": "Find the large folder, then understand what is in it."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/disk-detective/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/disk-detective/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/disk-detective/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/disk-detective/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/disk-detective/05.webp"
+				}
+			]
+		},
+		{
+			"id": "modern-find",
+			"title": "Find text or find a filename",
+			"chapter": 10,
+			"kind": "new",
+			"purpose": "Distinguish ripgrep content search from fd filename search.",
+			"visualBrief": "Two side-by-side search panels compare searching inside files with searching their names. A magnifier over a short note line supports ripgrep; a filename tab supports fd. Each panel has one exact command and a concise explanation. One crab guides the comparison.",
+			"visualChecks": [
+				"ripgrep is paired with file contents and fd with filenames, never reversed.",
+				"The fd command has all four arguments: -e, md, ., notes. Avoid fabricated result lists or implying hidden and ignored files are always searched.",
+				"The example word watering must start with lowercase w: this command is case-sensitive. Do not show uppercase Watering as its match."
+			],
+			"altSuggestion": "ripgrep finds the word watering inside a note, while fd finds Markdown filenames such as garden.md and ideas.md.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-find.webp",
+					"alt": "ripgrep finds the word watering inside a note, while fd finds Markdown filenames such as garden.md and ideas.md.",
+					"caption": "Decide what you are looking for: words inside files, or the names of files."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "modern-find"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/modern-find/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/modern-find/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/modern-find/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/modern-find/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/modern-find/05.webp"
+				}
+			],
+			"teachingText": "Title: Two kinds of search\nripgrep\nFind text inside files\nrg -n -F 'watering' notes\nfd\nFind filenames\nfd -e md . notes\nExample text inside a note: watering keeps plants healthy.",
+			"styleReferences": [
+				"static/images/looking-inside.webp",
+				"static/images/package-managers.webp"
+			],
+			"installedArtwork": {
+				"variantId": "05",
+				"path": "images/modern-find.webp",
+				"sha256": "ee487c2743199489fe8fa6d067a518efe09d79ed427602cf48d34bf293f0e2f1",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "modern-select",
+			"title": "Narrow a list, then choose",
+			"chapter": 10,
+			"kind": "new",
+			"purpose": "Show fzf filtering an existing list and returning a selection without executing it.",
+			"visualBrief": "Show a small supplied list of three filenames entering one fzf selection window and one selected filename returning below it. The chosen row is highlighted; Enter indicates selection. The crab points at the choice, not at an opened document.",
+			"visualChecks": [
+				"Exactly one row is selected: notes/watering.md. That exact filename is the sole returned selection.",
+				"Selection does not open, execute, delete, or modify the file. The pipeline must include the | character."
+			],
+			"altSuggestion": "rg --files notes feeds three filenames into fzf. Selecting notes/watering.md and pressing Enter prints that filename.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-select.webp",
+					"alt": "rg --files notes feeds three filenames into fzf. Selecting notes/watering.md and pressing Enter prints that filename.",
+					"caption": "This pipeline returns the selected name. It does not open, edit, or run the file."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "modern-select"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/modern-select/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/modern-select/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/modern-select/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/modern-select/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/modern-select/05.webp"
+				}
+			],
+			"teachingText": "Title: Choose from a list\nrg --files notes | fzf\nnotes/seeds.txt\nnotes/watering.md\nnotes/plan.md\nEnter\nSelected filename\nnotes/watering.md\nSelecting prints the name.",
+			"styleReferences": [
+				"static/images/looking-inside.webp",
+				"static/images/history-superpowers.webp"
+			],
+			"installedArtwork": {
+				"variantId": "01",
+				"path": "images/modern-select.webp",
+				"sha256": "d70dad1de5665c03d67d423c5ce87ec9f39ebe9b52c4c95853bba55c1ff2b657",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "modern-revisit",
+			"title": "Return to a familiar folder",
+			"chapter": 10,
+			"kind": "new",
+			"purpose": "Show zoxide as remembered navigation followed by a location check.",
+			"visualBrief": "A remembered garden location plaque and a clear terminal transcript explain returning to a previously visited folder, then checking its full path. Use one modest path through moss, a destination labeled notes, and the crab arriving at it. The terminal transcript is the focal explanation, not a complicated filesystem tree.",
+			"visualChecks": [
+				"The result /home/vibe/garden/notes belongs to pwd, not output printed by z notes. Display it immediately below pwd.",
+				"Do not imply zoxide knows all folders before setup or a first visit, or that a short name always identifies the intended destination."
+			],
+			"altSuggestion": "After setup and a previous visit, z notes returns to a remembered folder. pwd confirms /home/vibe/garden/notes beside a garden map and doorway.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-revisit.webp",
+					"alt": "After setup and a previous visit, z notes returns to a remembered folder. pwd confirms /home/vibe/garden/notes beside a garden map and doorway.",
+					"caption": "Let the shortcut take you there, then use pwd to check where you landed."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "modern-revisit"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/modern-revisit/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/modern-revisit/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/modern-revisit/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/modern-revisit/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/modern-revisit/05.webp"
+				}
+			],
+			"teachingText": "Title: Return to a familiar folder\nzoxide\nAfter setup and a previous visit:\nz notes\npwd\n/home/vibe/garden/notes\nCheck where you landed.",
+			"styleReferences": [
+				"static/images/history-superpowers.webp",
+				"static/images/package-managers.webp"
+			],
+			"installedArtwork": {
+				"variantId": "04",
+				"path": "images/modern-revisit.webp",
+				"sha256": "a0b7751c327c00a239a6a3bac15bf9ac1159387407b799a4ad594caf1d4a1d70",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "modern-read",
+			"title": "Read with useful visual help",
+			"chapter": 10,
+			"kind": "new",
+			"purpose": "Show bat as a reader with highlighting and optional paging, separate from editing.",
+			"visualBrief": "A single large brass-framed file reader demonstrates bat with line numbers. Show exactly three numbered garden-note lines and a separate command above the reader. A small crab reads through a magnifier; no editor controls. Keep the notes readable and the background dark.",
+			"visualChecks": [
+				"Line numbers 1, 2, 3 align with basil, mint, thyme respectively. The numbers are reader decoration, not file content.",
+				"No Save button, text cursor, changed contents, or editing operation. The pager note is conditional, since short files may not open one."
+			],
+			"altSuggestion": "bat notes.txt displays basil, mint, and thyme with line numbers 1, 2, and 3. A note says to press q if a pager opens.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-read.webp",
+					"alt": "bat notes.txt displays basil, mint, and thyme with line numbers 1, 2, and 3. A note says to press q if a pager opens.",
+					"caption": "Line numbers help you keep your place. If bat opens a pager, q returns you to the prompt."
+				}
+			],
+			"placements": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "modern-read"
+				}
+			],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/modern-read/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/modern-read/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/modern-read/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/modern-read/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/modern-read/05.webp"
+				}
+			],
+			"teachingText": "Title: Read with bat\nbat notes.txt\nnotes.txt\n1  basil\n2  mint\n3  thyme\nLine numbers help you keep your place.\nIf a pager opens: q to quit",
+			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"],
+			"installedArtwork": {
+				"variantId": "04",
+				"path": "images/modern-read.webp",
+				"sha256": "9cc4ea03f12c90a89a2a6cf60cb888b418a445376d669f8233c280d29c323ec4",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
+		},
+		{
+			"id": "read-before-you-run",
+			"title": "Understand the next step",
+			"chapter": 11,
+			"kind": "replacement",
+			"purpose": "Teach a learner to inspect an agent's proposed command and verify evidence.",
+			"visualBrief": "A crab and a modest assistant device examine a single work card beside a clearly marked practice garden. The crab checks the destination map, acts deliberately, then inspects the actual resulting file.",
+			"visualChecks": [
+				"The agent is a helper, not an authority. Proposed text, running action, and observed evidence must be separate stages."
+			],
+			"altSuggestion": "A crab and a modest assistant device examine a single work card beside a clearly marked practice garden.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part11.svelte",
+					"section": "section-11-1",
+					"src": "images/read-before-you-run.webp",
+					"alt": "A learner inspects a proposed command with a magnifying glass before pressing Enter.",
+					"caption": "Make the action, target, and expected result clear before running a suggestion."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/read-before-you-run/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/read-before-you-run/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/read-before-you-run/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/read-before-you-run/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/read-before-you-run/05.webp"
+				}
+			]
+		},
+		{
+			"id": "make-it-yours",
+			"title": "Make the terminal readable",
+			"chapter": 12,
+			"kind": "replacement",
+			"purpose": "Prioritize readable fonts, contrast, and a useful prompt over decoration.",
+			"visualBrief": "Several tasteful terminal viewing frames sit in daylight on a garden desk, using varied bright and dark accessible surfaces. A crab adjusts the size of one readable line rather than adding clutter.",
+			"visualChecks": [
+				"No tiny ornamental type. Themes must keep cursor and text discernible without relying on neon green alone."
+			],
+			"altSuggestion": "Several tasteful terminal viewing frames sit in daylight on a garden desk, using varied bright and dark accessible surfaces.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part12.svelte",
+					"section": "section-12-1",
+					"src": "images/make-it-yours.webp",
+					"alt": "A terminal window has a carefully chosen font, color theme, and prompt.",
+					"caption": "Readability comes first. Decoration is optional."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/make-it-yours/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/make-it-yours/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/make-it-yours/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/make-it-yours/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/make-it-yours/05.webp"
+				}
+			]
+		},
+		{
+			"id": "history-superpowers",
+			"title": "Recall, inspect, run",
+			"chapter": 12,
+			"kind": "replacement",
+			"purpose": "Make command history a way to reuse work carefully.",
+			"visualBrief": "A crab draws an earlier command card from a ribbon archive, places it at the active prompt for inspection, and changes a path before deciding to run it.",
+			"visualChecks": [
+				"Recalling a command must not depict immediate execution. History belongs to a shell/session setup, not every machine automatically."
+			],
+			"altSuggestion": "A crab draws an earlier command card from a ribbon archive, places it at the active prompt for inspection, and changes a path before deciding to run it..",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part12.svelte",
+					"section": "section-12-2",
+					"src": "images/history-superpowers.webp",
+					"alt": "A crab follows a ribbon of past commands back to a previous task.",
+					"caption": "Recall the command, check it, then decide whether to run it."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/history-superpowers/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/history-superpowers/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/history-superpowers/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/history-superpowers/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/history-superpowers/05.webp"
+				}
+			]
+		},
+		{
+			"id": "vscode-terminal",
+			"title": "Save the file before running it",
+			"chapter": 12,
+			"kind": "replacement",
+			"purpose": "Connect an editor's saved buffer with what a terminal command reads.",
+			"visualBrief": "An uncluttered editor workstation has a note being edited above and a terminal below; a save step visibly transfers the draft to the file that the terminal then reads. A folder marker ties both views to the same project.",
+			"visualChecks": [
+				"Do not imply terminal commands read unsaved editor buffers. Avoid reproducing a specific editor UI inaccurately; live labels can identify the example."
+			],
+			"altSuggestion": "An uncluttered editor workstation has a note being edited above and a terminal below; a save step visibly transfers the draft to the file that the terminal then reads.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part12.svelte",
+					"section": "section-12-3",
+					"src": "images/vscode-terminal.webp",
+					"alt": "An editor shows a file above a terminal pane.",
+					"caption": "Save the file above before running a command below that reads it."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/vscode-terminal/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/vscode-terminal/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/vscode-terminal/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/vscode-terminal/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/vscode-terminal/05.webp"
+				}
+			]
+		},
+		{
+			"id": "many-terminals",
+			"title": "One clear job per pane",
+			"chapter": 12,
+			"kind": "replacement",
+			"purpose": "Give separate terminal panes distinct jobs without confusing their contexts.",
+			"visualBrief": "Three garden workstations share one desk: a server runs, logs are watched, and a free prompt is available for inspection. Small location plaques make each pane's working folder explicit.",
+			"visualChecks": [
+				"A pane with a foreground server should not simultaneously show an idle prompt for new shell commands. More panes are an option, not required productivity."
+			],
+			"altSuggestion": "Three garden workstations share one desk: a server runs, logs are watched, and a free prompt is available for inspection.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part12.svelte",
+					"section": "section-12-4",
+					"src": "images/many-terminals.webp",
+					"alt": "Separate terminal panes hold a server, its logs, and an interactive prompt.",
+					"caption": "One job per pane makes it easier to know what is running."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/many-terminals/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/many-terminals/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/many-terminals/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/many-terminals/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/many-terminals/05.webp"
+				}
+			]
+		},
+		{
+			"id": "under-the-hood",
+			"title": "How the keystroke becomes work",
+			"chapter": 13,
+			"kind": "replacement",
+			"purpose": "Connect the keyboard, terminal, shell, operating system, and returned output.",
+			"visualBrief": "A richly detailed cutaway of a garden computer follows one keypress through the terminal window to a shell interpreter and then a tool process managed by the operating system. A separate return route carries output back.",
+			"visualChecks": [
+				"The terminal and shell are distinct layers. The shell does not literally perform every command internally; external programs also run."
+			],
+			"altSuggestion": "A richly detailed cutaway of a garden computer follows one keypress through the terminal window to a shell interpreter and then a tool process managed by the operating system.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part13.svelte",
+					"section": "section-13-1",
+					"src": "images/under-the-hood.webp",
+					"alt": "A cutaway diagram connects the keyboard, terminal, shell, and operating system.",
+					"caption": "Several cooperating parts turn a keypress into a command and a reply."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/under-the-hood/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/under-the-hood/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/under-the-hood/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/under-the-hood/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/under-the-hood/05.webp"
+				}
+			]
+		},
+		{
+			"id": "terminal-evolving",
+			"title": "Build a reliable routine",
+			"chapter": 13,
+			"kind": "replacement",
+			"purpose": "Show a script checking inputs, choosing a branch, checking the result, and cleaning up.",
+			"visualBrief": "A garden workshop has a sequence of deliberate stations: input inspection, a branching gate, one copying job, result inspection, and a cleanup tray. The crab can stop at a failed check instead of marching to a false success.",
+			"visualChecks": [
+				"This replaces the old generic evolution banner with the actual reliability workshop. Successful and failing routes should both be visually understandable."
+			],
+			"altSuggestion": "A garden workshop has a sequence of deliberate stations: input inspection, a branching gate, one copying job, result inspection, and a cleanup tray.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part13.svelte",
+					"section": "section-13-2",
+					"src": "images/terminal-evolving.webp",
+					"alt": "An old terminal connects to newer tools and branching workflows.",
+					"caption": "The tools change. Clear inputs, observable results, and explicit checks still help."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/terminal-evolving/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/terminal-evolving/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/terminal-evolving/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/terminal-evolving/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/terminal-evolving/05.webp"
+				}
+			]
+		},
+		{
+			"id": "mindset",
+			"title": "Observe, change, check",
+			"chapter": 14,
+			"kind": "replacement",
+			"purpose": "Make practical terminal skill a repeatable reasoning habit.",
+			"visualBrief": "A crab studies a small garden problem, chooses one suitable hand tool, makes one measured change, and returns to inspect the same spot. Four connected scenes keep the context and target constant.",
+			"visualChecks": [
+				"Avoid a trophy wall of commands. The check must examine the intended outcome, not merely a reassuring message."
+			],
+			"altSuggestion": "A crab studies a small garden problem, chooses one suitable hand tool, makes one measured change, and returns to inspect the same spot.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part14.svelte",
+					"section": "section-14-1",
+					"src": "images/mindset.webp",
+					"alt": "Several small tools join into a pipeline beside a careful reader.",
+					"caption": "Observe, make one useful change, then check the result."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/mindset/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/mindset/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/mindset/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/mindset/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/mindset/05.webp"
+				}
+			]
+		},
+		{
+			"id": "quick-reference",
+			"title": "Find the operation you need",
+			"chapter": 14,
+			"kind": "replacement",
+			"purpose": "Teach a reference as a task-oriented aid rather than a memorization test.",
+			"visualBrief": "An inviting index-card stand organizes illustrated tasks such as locating, reading, copying, and searching. A crab selects the relevant card and adapts it beside a real notebook.",
+			"visualChecks": [
+				"Do not generate an illegible cheat sheet. Exact commands and platform-specific notes will remain searchable live text."
+			],
+			"altSuggestion": "An inviting index-card stand organizes illustrated tasks such as locating, reading, copying, and searching.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part14.svelte",
+					"section": "section-14-2",
+					"src": "images/quick-reference.webp",
+					"alt": "A compact reference gathers terminal commands by the jobs they do.",
+					"caption": "Look up the operation you need, then adapt its example to your files."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/quick-reference/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/quick-reference/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/quick-reference/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/quick-reference/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/quick-reference/05.webp"
+				}
+			]
+		},
+		{
+			"id": "final-challenge",
+			"title": "Plan your first verifiable step",
+			"chapter": 14,
+			"kind": "replacement",
+			"purpose": "Frame a messy project as a sequence of small observable improvements.",
+			"visualBrief": "A lived-in garden office contains recognizable notes, reports, logs, and backups in a mildly messy arrangement. A crab uses a small plan card and inspects one file before reorganizing anything.",
+			"visualChecks": [
+				"Show enough order to reason about the scene. Do not imply deleting unknown files is the first step or display a fully solved task."
+			],
+			"altSuggestion": "A lived-in garden office contains recognizable notes, reports, logs, and backups in a mildly messy arrangement.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part14.svelte",
+					"section": "section-14-3",
+					"src": "images/final-challenge.webp",
+					"alt": "A messy home folder contains reports, notes, logs, and a place for backups.",
+					"caption": "Several small jobs, one workspace. Choose a first step you can verify."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/final-challenge/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/final-challenge/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/final-challenge/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/final-challenge/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/final-challenge/05.webp"
+				}
+			]
+		},
+		{
+			"id": "keep-learning",
+			"title": "Let a real task choose the next tool",
+			"chapter": 14,
+			"kind": "replacement",
+			"purpose": "End with a small achievable next project and room to explore.",
+			"visualBrief": "A bright garden path branches toward a few different practical workshops. The crab carries a familiar notebook and one chosen tool toward a small near-term task, with intriguing details in the distance.",
+			"visualChecks": [
+				"The first next step should be close and attainable. No giant mountain of prerequisites or pressure to master every branch."
+			],
+			"altSuggestion": "A bright garden path branches toward a few different practical workshops.",
+			"aspectRatio": "16:9",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part14.svelte",
+					"section": "section-14-4",
+					"src": "images/keep-learning.webp",
+					"alt": "A garden path branches toward several new places to explore.",
+					"caption": "Choose a small task you want to repeat. Let that task choose the next tool."
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "images/thumbs/<section>.webp",
+					"purpose": "Timeline crop is derived only after the corresponding full illustration is approved; verify the small crop still explains its subject."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/keep-learning/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/keep-learning/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/keep-learning/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/keep-learning/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/keep-learning/05.webp"
+				}
+			]
+		},
+		{
+			"id": "crab-guide-logo",
+			"title": "The hermit crab guide",
+			"chapter": "brand",
+			"kind": "brand",
+			"purpose": "Give the course a welcoming recognizable identity that survives small display sizes.",
+			"visualBrief": "A distinctive friendly hermit crab with a graceful spiral shell and a small leaf motif, centered on a transparent background. Rich natural detail on the shell, clear silhouette, expressive but restrained posture, no lettering.",
+			"visualChecks": [
+				"Anatomy must be coherent: paired claws, believable legs, consistent shell opening. The outline must remain readable at 24 pixels; no miniature terminal text."
+			],
+			"altSuggestion": "A distinctive friendly hermit crab with a graceful spiral shell and a small leaf motif, centered on a transparent background.",
+			"aspectRatio": "1:1",
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/layout/Header.svelte",
+					"section": "hero",
+					"src": "images/logo-transparent.webp",
+					"alt": "",
+					"caption": ""
+				},
+				{
+					"file": "src/lib/components/layout/Header.svelte",
+					"section": "hero",
+					"src": "images/logo-transparent.webp",
+					"alt": "TerminalVibes logo",
+					"caption": ""
+				}
+			],
+			"placements": [],
+			"derivedAssets": [
+				{
+					"path": "favicon.png",
+					"purpose": "Derive and inspect after logo approval; not a separate generated concept."
+				},
+				{
+					"path": "favicon-32.png",
+					"purpose": "Derive and inspect after logo approval; not a separate generated concept."
+				},
+				{
+					"path": "apple-touch-icon.png",
+					"purpose": "Derive and inspect after logo approval; not a separate generated concept."
+				}
+			],
+			"variants": [
+				{
+					"id": "01",
+					"label": "Alternative 1",
+					"path": "art-candidates/crab-guide-logo/01.webp"
+				},
+				{
+					"id": "02",
+					"label": "Alternative 2",
+					"path": "art-candidates/crab-guide-logo/02.webp"
+				},
+				{
+					"id": "03",
+					"label": "Alternative 3",
+					"path": "art-candidates/crab-guide-logo/03.webp"
+				},
+				{
+					"id": "04",
+					"label": "Alternative 4",
+					"path": "art-candidates/crab-guide-logo/04.webp"
+				},
+				{
+					"id": "05",
+					"label": "Alternative 5",
+					"path": "art-candidates/crab-guide-logo/05.webp"
+				}
+			]
+		}
+	],
+	"reviewScope": [
+		"keyboard-line-editing",
+		"file-editor-save",
+		"script-arguments",
+		"script-conditions",
+		"script-loops",
+		"script-safe-copy",
+		"modern-find",
+		"modern-select",
+		"modern-revisit",
+		"modern-read"
+	]
+}

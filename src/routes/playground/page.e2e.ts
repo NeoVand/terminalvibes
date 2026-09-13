@@ -110,7 +110,7 @@ test.describe('Tutorial', () => {
 	test('homepage loads with hero', async ({ page }) => {
 		await page.goto('/');
 		await expect(
-			page.getByRole('heading', { name: /TerminalVibes/, level: 1 }).first()
+			page.getByRole('heading', { name: /Your first command/, level: 1 }).first()
 		).toBeVisible();
 	});
 

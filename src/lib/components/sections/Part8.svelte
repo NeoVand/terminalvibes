@@ -1,473 +1,303 @@
 <script lang="ts">
-	import { Cpu, ListTree, Ban, Anchor, Layers } from 'lucide-svelte';
+	import { BookOpen } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
 	import CourseLink from '../ui/CourseLink.svelte';
-	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
+	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
-
-	import VibeBox from '../ui/VibeBox.svelte';
+	import WorkflowSteps from '../ui/WorkflowSteps.svelte';
 </script>
 
 <section id="part-8" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter-copy mx-auto max-w-4xl px-6">
 		<SectionHeader
-			icon={Cpu}
+			icon={BookOpen}
 			partLabel="Part 8"
-			title="Processes &amp; Ports: When Things Won't Stop"
-			color="var(--color-primary)"
+			title="Processes & ports: get your prompt back"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"Port 3000 is already in use." — every web developer, weekly
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			Until now every command you ran started, did its job, and finished. But some programs are
-			meant to <em>keep going</em>: dev servers, watchers, builds — and your AI agent starts them
-			constantly. This part is about the programs that are still running: how to see them, how to
-			stop them, and how to fix the single most common error in modern web development, when
-			yesterday's server is still squatting on the port today's server needs.
+		<p class="lead">
+			A command does not always finish straight away. A server waits for requests. A log viewer
+			waits for new lines. A download may still be working. The useful question is: <strong
+				>what is running, and do I want it to keep running?</strong
+			>
 		</p>
-
-		<Callout type="important">
-			This is the part that turns "I'll just restart my laptop" into a ten-second fix. Every
-			technique here is the same three-beat move: <strong
-				>find the process, get its number, act on that number</strong
-			>.
-		</Callout>
-
-		<!-- 8.1 Everything Is a Process -->
-		<div id="section-8-1" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={ListTree}
-				title="8.1 Everything Is a Process"
-				color="var(--color-primary)"
+		<p>
+			In this chapter you will get your prompt back, identify a running program, and resolve a port
+			conflict without guessing. The practice activities use simulated processes. The short native
+			exercises are for your own terminal.
+		</p>
+		<div id="section-8-1" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="8.1 Meet a running program" />
+			<p>
+				A <strong>process</strong> is a running instance of a program. Opening an editor starts a
+				process. Running a second copy starts another. The operating system gives each one a number
+				called its <strong>process ID</strong>, or PID.
+			</p>
+			<p>
+				A filename tells you where a program is stored. A PID tells you which running instance you
+				are looking at. Deleting a program's file is not the normal way to stop it.
+			</p>
+			<ExpandableImage
+				src="{base}/images/everything-is-a-process.webp"
+				alt="A glass apiary with a separate numbered cell for each running program."
+				caption="A process is a running program. Its PID identifies that instance."
 			/>
 
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Every running program on your machine — the dev server, your editor, the shell you're typing
-				into, the agent itself — is a <strong style="color: var(--color-text);">process</strong>:
-				one copy of some code, loaded into memory and kept alive by the operating system. Open three
-				terminal windows and you have three shell processes, each with its own idea of where it's
-				standing. Each one gets a <strong style="color: var(--color-text);">PID</strong> — short for process
-				ID — the moment it starts, a number unique on this machine for as long as it lives. That number
-				is the handle you use to do anything to it.
+			<p>
+				Run <Code code="ps aux" /> to see a broad process list on macOS or Linux. Its columns vary, so
+				start with only three: the owner, PID, and command. CPU usage is another useful clue when the
+				machine feels busy.
 			</p>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<Code code="ps" /> on its own lists only the processes attached to <em>this</em> terminal —
-				usually two or three, and never the dev server you're hunting. Add
-				<Code code="aux" /> and you get the whole machine:
-			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/everything-is-a-process.webp"
-					alt="A glass apiary of process cells, each with its PID and command nameplate"
-					caption="Every running program is a row with a number"
-				/>
-			</div>
-
-			<CodeBlock
-				title="Reading the census"
-				code={`ps aux
-USER       PID %CPU %MEM START   COMMAND
-vibe      1024  0.0  0.1 09:10   bash
-vibe       400  0.4  1.8 08:41   node server.js
-vibe       437 97.4  0.6 09:07   spinner.sh --forever`}
+			<CommandTranscript
+				command="ps aux"
+				output={`USER       PID  %CPU  COMMAND
+vibe      1024   0.0  bash
+vibe       400   0.4  node server.js
+vibe       437  97.4  spinner.sh --forever`}
+				title="Example: a shortened process list"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The three letters earn their place: <Code code="a" /> widens the list to every user's processes,
-				<Code code="u" /> adds the human-readable columns you're about to read, and
-				<Code code="x" /> includes the ones with no terminal attached — which is precisely where background
-				servers hide. (They carry no dash: <Code code="ps" /> takes its options in an older style that
-				predates the convention, the same reason <Code code="tar cf" /> works without one.) Your real
-				output is wider than this too — macOS and Linux both add memory sizes, a terminal name and a state
-				column. Ignore those; the ones that matter are here.
+			<p>
+				In this example, process 437 is using a lot of CPU. That is a reason to investigate, not
+				proof that it is broken: useful work can be expensive too. Read the command and owner before
+				deciding what to stop. Your machine will have different PIDs, and a number can be reused
+				after its process ends.
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code="USER" /> is the account that owns the process — <Code code="vibe" /> is you, which
-				is why you can stop your own dev server and get <Code code="Operation not permitted" /> on one
-				of the system's. <Code code="PID" /> is the number you'll pass to <Code code="kill" />.
-				<Code code="%CPU" /> is how hard it's working, measured against <em>one</em>
-				<strong style="color: var(--color-text);">core</strong>, and your machine has several:
-				separate workers that genuinely run at the same time, so a process using three of them
-				honestly reads 340%. A runaway of yours sits near 100, and your fans tell you before <Code
-					code="ps"
-				/> does.
-				<Code code="%MEM" /> is the share of the machine's memory it's holding, the column to check when
-				everything goes sluggish rather than hot.
+			<p>
+				To narrow a long list, try <Code code="ps aux | grep server" />. The search command itself
+				may appear in the results. Inspect the whole line instead of copying the first number you
+				see.
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code="START" /> is the wall-clock time it launched, the one column that separates the server
-				you started a minute ago from yesterday's, still running. <Code code="COMMAND" /> is what it actually
-				is — though that's the <em>interpreter's</em> name, not your project's: a JavaScript server
-				shows up as <Code code="node" />, a Python one as <Code code="python" />, and that's what
-				you <Code code="grep" /> for. Notice <Code code="bash" /> in that list too: the shell you're typing
-				into is just another process, no more special than the rest.
-			</p>
-
-			<Callout type="tip">
-				<strong><Code code="ps" /> output is just text</strong> — which means <CourseLink
-					to="part-4"
-				/> and <CourseLink to="part-7" /> already taught you how to search it. <Code
-					code="ps aux | grep node"
-				/> finds a process by name, and
-				<Code code={`awk '{print $2}'`} /> pulls the PID column out of the result. This is why the column-shaped
-				output of old Unix tools is worth putting up with: every tool composes. There's a shortcut for
-				the common case too — <Code code="pgrep node" /> prints matching PIDs directly.
-			</Callout>
-
-			<Callout type="note">
-				<Code code="ps" /> is a photograph. For the movie, <Code code="top" /> repaints the same table
-				live, a few times a second, worst offenders first — and <Code code="q" /> gets you out, the same
-				escape as every pager (<CourseLink to="section-2-5" />). Its nicer cousin is
-				<Code code="htop" />, the very tool <CourseLink to="section-5-3" />'s install example
-				happened to pick. Between them: <Code code="ps" /> answers "what exactly is running?",
-				<Code code="top" /> answers "what is my machine <em>doing</em> right now?"
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					"What's using all my CPU right now? Show me how to check, and explain the columns",
-					'Find the process id of my running dev server without me having to read the whole ps output'
-				]}
-			/>
-		</div>
-
-		<!-- 8.2 Stopping Things -->
-		<div id="section-8-2" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Ban}
-				title="8.2 Stopping Things — Ask Nicely, Then Insist"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<Code code="kill" /> has a violent name and a polite default. Plain
-				<Code code="kill PID" /> sends <strong style="color: var(--color-text);">SIGTERM</strong> —
-				a
-				<strong style="color: var(--color-text);">signal</strong>, which is a short fixed message
-				the operating system delivers to a running process from outside, nothing to do with whatever
-				the program normally reads. They come in a small vocabulary and all share a prefix:
-				<Code code="SIG" /> for signal, then what it asks for, so <Code code="SIGTERM" /> is "terminate"
-				— please finish up and stop. The program gets to react: save its work, close its files, remove
-				its lock, and exit cleanly. It's a letter, not a bullet.
-			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/stopping-things.webp"
-					alt="A green-wax SIGTERM letter on a brass scale beside a red-wax SIGKILL envelope under glass"
-					caption="SIGTERM asks. SIGKILL removes the floor. Ask first."
-				/>
-			</div>
-
-			<CodeBlock
-				title="The escalation, in order"
-				code={`kill 437                 # SIGTERM, signal 15 — "please stop when you can"
-(no response — spinner.sh --forever is still running)
-
-kill -9 437              # SIGKILL, signal 9 — the floor opens, no cleanup
-[killed] spinner.sh --forever (PID 437)`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The <Code code="9" /> is a signal number, not a count: every signal has one,
-				<Code code="kill -N" /> means "send signal N", and a bare <Code code="kill" /> is
-				<Code code="kill -15" />. That's how you read <Code code="kill -HUP" /> or
-				<Code code="kill -2" /> in an agent's command — same verb, different message.
-			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				A program can <em>catch</em>
-				<Code code="SIGTERM" /> and decide to ignore it — that's a feature, not a bug: it's how servers
-				finish serving the request they're mid-way through instead of dropping it. But it also means a
-				polite kill can bounce. <Code code="kill -9" /> sends
-				<strong style="color: var(--color-text);">SIGKILL</strong>, which no program can catch,
-				refuse, or prepare for. The <strong style="color: var(--color-text);">kernel</strong> — the
-				core of the operating system, the part that owns the hardware and creates every process,
-				including your shell — simply removes it. Nothing gets saved and no cleanup runs, so any
-				<strong style="color: var(--color-text);">lock file</strong> it was holding stays behind: the
-				marker a program leaves to say "I'm already running". The next copy finds it, believes it, and
-				refuses to start.
-			</p>
-
-			<Callout type="caution">
-				<strong><Code code="kill -9" /> is a last resort, not a default.</strong> Plenty of guides
-				(and plenty of AI answers) reach for it first because it always works. It always works the
-				way an axe always opens a door. Ask nicely, give it a second, and escalate only if it
-				refuses — and treat <Code code="kill -9" /> as a red flag when an agent reaches for it without
-				trying the polite version first — one more entry for the audit routine in <CourseLink
-					to="part-11"
-				/>.
-			</Callout>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				One thing you already knew, renamed: <Code code="Ctrl+C" /> is a signal too —
-				<strong style="color: var(--color-text);">SIGINT</strong>, "interrupt" — sent to whatever is
-				running in the <strong style="color: var(--color-text);">foreground</strong> — the process
-				attached to this terminal right now, the one your keystrokes reach and the reason your
-				prompt hasn't come back. That's why it stops a stuck command but does nothing to a server
-				running in another window; that one needs its PID. <CourseLink to="section-13-1" /> opens up the
-				machinery underneath all three signals.
-			</p>
-
-			<VibeBox
-				prompts={[
-					'A process is ignoring kill — walk me through what to try, in order, and what each step costs',
-					'What actually happens to unsaved work when I use kill -9 versus a plain kill?'
-				]}
-			/>
-			<h4
-				id="runaway-process"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Stop the Runaway
-			</h4>
-			<PlaygroundNote>
-				Your fans are screaming. Find the process burning 97% of a core with <Code code="ps aux" />,
-				try <Code code="kill" /> first and read what happens — then escalate. Leave the innocent server
-				running.
-			</PlaygroundNote>
-			<LessonActivity title="Stop the Runaway" scenarioId="runaway-process" id="runaway-process" />
-		</div>
-
-		<!-- 8.3 Who's on Port 3000 -->
-		<div id="section-8-3" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Anchor}
-				title="8.3 Who's on Port 3000?"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				A <strong style="color: var(--color-text);">port</strong> is a numbered door on your
-				machine. A server opens one and waits there for visitors; your browser knocks on it when you
-				visit <Code code="localhost:3000" /> — <Code code="localhost" /> being your machine's name for
-				itself (<CourseLink to="section-9-1" />). The numbers themselves are convention rather than
-				law: 3000 and 5173 are what particular tools happen to pick, and everything here works the
-				same for 8080.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				The rule that generates all the pain is simple:
-				<strong style="color: var(--color-text);">one program per port</strong>. Try to open a door
-				someone's already standing in — here with <Code code="serve" />, a tiny dev server you
-				install with <Code code="npm" />, playing the part of whatever starts your project — and you
-				meet the error:
-			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/port-3000.webp"
-					alt="A night harbor: one steamship moored at pier 3000, a second boat flying an EADDRINUSE flag"
-					caption="One ship per pier — that's the whole rule"
-				/>
-			</div>
-
-			<CodeBlock
-				title="The error, and the fix"
-				code={`serve
-Error: listen EADDRINUSE: address already in use :::3000
-
-lsof -i :3000            # who's holding the door?
-COMMAND    PID  USER   TYPE NODE NAME
-node       400  vibe   IPv4 TCP  *:3000 (LISTEN)
-
-kill 400                 # ask yesterday's server to leave
-serve                    # the pier is free
-serve: listening on http://localhost:3000`}
-			/>
-
-			<MermaidDiagram
-				definition={`flowchart LR
-  A["EADDRINUSE"] --> B["lsof -i :3000"]
-  B -->|"PID"| C["kill PID"]
-  C --> D(["start yours"])`}
-				id="port-ritual"
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That's the same three beats from the start of this part, with the error that sent you
-				looking at the front and your own server at the end: read the error, find the PID, stop the
-				squatter, start yours. Memorize it and one of the most common blockers in web development
-				becomes routine.
-				<Code code="lsof" /> stands for "list open files"; the <Code code="-i" /> flag narrows it to network
-				connections. Silence from <Code code="lsof" /> means the port is free.
-			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That one output line is worth reading properly. <Code code="node" /> is the program and
-				<Code code="400" /> is its PID — the only field you actually need. The rest describes the connection
-				it's holding, and a real <Code code="lsof" /> prints a few more of those columns than you see
-				here. <Code code="IPv4 TCP" /> says what kind of connection it is;
-				<Code code="*:3000" /> is the door number with a wildcard host, where <Code code="*" /> means
-				"any address on this machine" rather than the filename glob from <CourseLink
-					to="section-3-4"
-				/> — and the <Code code=":::3000" /> in the error above is that same wildcard, spelled the IPv6
-				way.
-				<Code code="(LISTEN)" /> is the confirmation: that process is sitting at the door waiting for
-				visitors, which is exactly why yours can't have it.
-			</p>
-
-			<Callout type="tip">
-				Where do stale servers come from? Usually an agent that started one in a
-				<strong>background shell</strong> — a whole separate session you never saw, which is not the
-				same thing as the background <em>jobs</em> in <CourseLink to="section-8-4" /> below. When a port
-				is mysteriously busy right after an AI session, that's the first suspect — and
-				<Code code="lsof -i :3000" /> tells you its name.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'My dev server says EADDRINUSE on port 5173 — give me the exact commands to find and stop what is holding it',
-					'How do I start my app on a different port instead of killing what is already there?'
-				]}
-			/>
-			<h4
-				id="free-the-port"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Free Port 3000
-			</h4>
-			<PlaygroundNote>
-				Yesterday's server never died. Run <Code code="serve" /> to meet the error, then work the ritual:
-				<Code code="lsof -i :3000" /> for the PID, <Code code="kill" /> it, and start your own.
-			</PlaygroundNote>
-			<LessonActivity title="Free Port 3000" scenarioId="free-the-port" id="free-the-port" />
-		</div>
-
-		<!-- 8.4 Background & Foreground -->
-		<div id="section-8-4" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={Layers}
-				title="8.4 Background &amp; Foreground"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				A dev server holds your terminal hostage: it runs until you stop it, and the prompt never
-				comes back. One answer is more terminals (the tabs and splits in <CourseLink
-					to="section-12-4"
-				/>). The other is
-				<strong style="color: var(--color-text);">job control</strong> — telling this shell to keep
-				the program running <em>backstage</em> while you get your prompt back.
-			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/background-jobs.webp"
-					alt="A theater stage: one process in the spotlight, two working backstage behind the curtain"
-					caption="& sends it backstage · jobs lists it · fg brings it into the spotlight"
-				/>
-			</div>
-
-			<CodeBlock
-				title="Backstage and back"
-				code={`./slowbuild.sh &         # & = start it, give me my prompt back
-[1] 400                  # job number, then PID
-
-jobs                     # who's backstage?
-[1]  Running    ./slowbuild.sh
-
-fg %1                    # bring job 1 into the spotlight`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Two numbers appear here and they're easy to confuse: the
-				<strong style="color: var(--color-text);">job number</strong> in <Code code="[1]" /> is small
-				and belongs to <em>this shell</em> — you use it as <Code code="%1" />. The
-				<strong style="color: var(--color-text);">PID</strong> is large and belongs to the whole
-				machine. <Code code="kill %1" /> and <Code code="kill 400" /> stop the same program here.
-			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				A <strong style="color: var(--color-text);">background job</strong> is still yours and still
-				tied to this shell: close the window and it goes with it, unless you take extra steps. The
-				step has a name — <Code code="nohup" />, "no hangup," from the days when closing a terminal
-				literally hung up a phone line: <Code code="nohup ./slowbuild.sh &" /> keeps running after the
-				window is gone and parks its output in <Code code="nohup.out" />. It works, but it's a
-				patch; the comfortable answer to work that must outlive your window is a terminal that
-				survives on its own, which is <Code code="tmux" /> in <CourseLink to="section-12-4" />.
-				Either way, backstage is not the same as somewhere safe — don't send a long build back there
-				bare and then walk away from the terminal.
-			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				There's one more move, and it's the rescue you'll actually reach for: you started something
-				long, forgot the <Code code="&" />, and now you're stuck watching it.
-				<Code code="Ctrl+Z" /> <em>suspends</em> it and hands your prompt back — suspended meaning
-				stopped dead, making no progress at all, which is why <Code code="jobs" /> reports it as
-				<Code code="Stopped" /> rather than <Code code="Running" />. <Code code="bg" /> is what resumes
-				it, backstage: the place you'd have been with <Code code="&" />, arrived at the hard way.
-			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Four ampersands, no relation. <Code code="2>&1" /> is a reference to a stream (<CourseLink
-					to="section-4-1"
-				/>). <Code code="&&" /> runs the next thing only if this one worked (<CourseLink
-					to="section-6-2"
-				/>). <Code code="&" /> inside a <Code code="sed" /> replacement means whatever was just matched
-				(<CourseLink to="section-7-1" />). And a bare <Code code="&" /> at the end of a line is the one
-				this section is about — reading <Code code="npm run build &" /> as a half-typed
-				<Code code="&&" /> is a mistake worth not making.
-			</p>
-
-			<Callout type="tip">
-				<strong>Honest advice: use tabs.</strong> Job control is a genuinely useful escape hatch —
-				and mostly a rescue for the terminal you're already in. For an everyday setup (server in one
-				pane, logs in another, a free shell for you), the split terminals in <CourseLink
-					to="section-12-4"
-				/> are nicer to live with than juggling <Code code="%1" /> and <Code code="%2" />.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'I started a long command and forgot the & — how do I get my prompt back without losing the work?',
-					"What's the difference between a job number and a PID, and when does each one matter?"
-				]}
-			/>
-			<h4
-				id="backstage-jobs"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Two Things at Once
-			</h4>
-			<PlaygroundNote>
-				Send the slow build backstage with <Code code="&" />, confirm it's there with
-				<Code code="jobs" />, then bring it forward with <Code code="fg %1" /> and check what it left
-				behind.
-			</PlaygroundNote>
-			<LessonActivity title="Two Things at Once" scenarioId="backstage-jobs" id="backstage-jobs" />
-
-			<p class="mt-10 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You can now see what's running, stop it politely or firmly, and free a port that's been
-				taken hostage — the three moves that unstick a machine. Next: the server you just started is
-				waiting on port 3000. Time to talk to it.
+			<details>
+				<summary>A live view, when a snapshot is not enough</summary>
+				<p>
+					<Code code="top" /> updates a process list while you watch. Press <Code code="q" /> to leave.
+					The layout and sorting keys differ between macOS and Linux; the on-screen help or <Code
+						code="man top"
+					/> explains your version. A changing CPU value shows activity over time. It still does not tell
+					you whether that activity is useful.
+				</p>
+				<p>
+					Optional tools such as htop and btop offer more visual process views. Learn to identify
+					the owner and command before using their stop buttons. A prettier list does not change
+					what stopping a process does.
+				</p>
+			</details>
+			<p class="reflection">
+				Before continuing: in the example above, which number identifies the server? Which text
+				tells you what it is running?
 			</p>
 		</div>
-
-		<ChallengeActivity title="Clear the Agent&#39;s Processes" part={8} id="ch-8-agent-cleanup" />
+		<div id="section-8-2" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="8.2 Get your prompt back" />
+			<p>
+				First try the smallest useful action. If the program is running in the terminal in front of
+				you, press <strong>Ctrl+C</strong>. This sends an interrupt to the foreground process group.
+				Many command-line programs respond by stopping. Some handle it differently, so look for the
+				prompt to return.
+			</p>
+			<p class="native">
+				<strong>Try in your terminal:</strong> run <Code code="sleep 30" />. This program waits for
+				30 seconds and prints nothing. While you wait, press Ctrl+C. Your prompt should return
+				early. You stopped a waiting program; you did not delete a file.
+			</p>
+			<p>
+				If the program lives in another terminal, you can find its PID and send a signal with <Code
+					code="kill"
+				/>. The name sounds harsher than the default action: <Code code="kill 437" /> normally sends TERM,
+				a request to terminate. That gives a cooperating program a chance to finish cleanup.
+			</p>
+			<ExpandableImage
+				src="{base}/images/stopping-things.webp"
+				alt="A green TERM message beside a sealed red KILL message."
+				caption="Interrupt the foreground job; request termination of another process; verify the result."
+			/>
+			<WorkflowSteps
+				title="Get a prompt back"
+				steps={[
+					{ label: 'Find the foreground job', detail: 'Which program is waiting here?' },
+					{ label: 'Interrupt deliberately', detail: 'Ctrl+C often asks it to stop.' },
+					{
+						label: 'Look for the prompt',
+						detail: 'A returned prompt lets the shell accept another command.'
+					}
+				]}
+			/>
+			<p>
+				For the sample list above, you would inspect process 437, send <Code code="kill 437" />, and
+				inspect again. If it is gone, you are done. If you get “No such process,” it may already
+				have finished. If you get “Operation not permitted,” check ownership. Do not immediately add
+				sudo.
+			</p>
+			<p>
+				<Code code="kill -9 437" /> sends KILL. A process cannot catch this signal to clean up, so unsaved
+				work may be lost. Use it only after identifying the process and giving a normal stop a chance.
+				Even KILL is not a guarantee that every entry vanishes instantly; some system states take time
+				to resolve.
+			</p>
+			<h4 id="runaway-process">Try it: Stop the runaway</h4>
+			<LessonActivity title="Stop the runaway" scenarioId="runaway-process" id="runaway-process" />
+			<p>
+				After the activity, explain what evidence made you choose that process. “It had the biggest
+				number” is not enough; a PID is an identifier, not a danger score.
+			</p>
+		</div>
+		<div id="section-8-3" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="8.3 Find who is using a port" />
+			<p>
+				A server listens for connections at an address and a <strong>port</strong>. Think of the
+				address as a building and the port as the place inside it where a particular service
+				answers. Port 3000 is a common development choice; it is not a special kind of server.
+			</p>
+			<p>
+				“Address already in use” often means another process is already listening on the address and
+				port your new server requested. The exact rules include the network protocol, address, and
+				socket settings. For everyday debugging, find the listener before changing anything.
+			</p>
+			<ExpandableImage
+				src="{base}/images/port-3000.webp"
+				alt="A harbor with an occupied pier marked 3000 and another boat waiting."
+				caption="A port conflict is a clue: identify the existing listener."
+			/>
+			<div id="port-ritual">
+				<h4>A repeatable port check</h4>
+				<p>
+					In this course's playground, <Code code="lsof -i :3000" /> identifies a simulated listener.
+					On macOS or Linux with lsof installed, the more specific command below asks for TCP listeners
+					and keeps addresses and port numbers numeric.
+				</p>
+				<CodeBlock
+					title="Your terminal: inspect TCP port 3000"
+					code="lsof -nP -iTCP:3000 -sTCP:LISTEN"
+				/>
+				<ol>
+					<li>Read the command, owner, PID, and listening address.</li>
+					<li>
+						If it is your old server, return to its terminal and press Ctrl+C, or terminate its
+						verified PID.
+					</li>
+					<li>
+						Run the inspection again. An empty result means this check found no matching listener,
+						subject to your permissions.
+					</li>
+					<li>Start the intended server and check its response.</li>
+				</ol>
+			</div>
+			<p>
+				If the existing listener is useful, leave it running and configure the new server to use
+				another port. You are solving a conflict, not collecting processes to kill. If lsof is
+				missing on Linux, <Code code="ss -ltnp" /> is a common alternative; read its local manual and
+				note that process details can require additional permissions.
+			</p>
+			<h4 id="free-the-port">Try it: Free port 3000</h4>
+			<LessonActivity title="Free port 3000" scenarioId="free-the-port" id="free-the-port" />
+			<p class="reflection">
+				Why is “kill whatever uses port 3000” a weaker plan than “identify my old server, then stop
+				it”?
+			</p>
+		</div>
+		<div id="section-8-4" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="8.4 Give each job a place" />
+			<p>
+				A foreground job owns your terminal while it runs. A background job lets the shell accept
+				another command. Add <Code code="&amp;" /> to start a job in the background; use <Code
+					code="jobs"
+				/> to see jobs tracked by this shell.
+			</p>
+			<ExpandableImage
+				src="{base}/images/background-jobs.webp"
+				alt="One program works on a stage while two others work behind the curtain."
+				caption="Foreground and background describe how a job shares this shell’s terminal."
+			/>
+			<p class="native">
+				<strong>Try in your terminal:</strong> run <Code code="sleep 60 &amp;" />, then <Code
+					code="jobs"
+				/>. You may see a job number such as <Code code="[1]" /> and a PID. They are different identifiers.
+				The job number belongs to this shell; the PID belongs to the operating system.
+			</p>
+			<p>
+				<Code code="fg %1" /> brings job 1 to the foreground. Press Ctrl+C to stop the sleep. If your
+				shell listed a different job number, use that number. Ctrl+Z suspends a foreground job; it does
+				not finish it. <Code code="bg %1" /> resumes a suspended job in the background.
+			</p>
+			<p>
+				Background output can still appear over your prompt. Background jobs may also be affected
+				when the shell exits. The ampersand is not a reliable way to make an unattended service. For
+				everyday development, a second terminal tab is often easier. <CourseLink to="part-12" /> introduces
+				tmux for sessions you can detach and revisit.
+			</p>
+			<h4 id="backstage-jobs">Try it: Two things at once</h4>
+			<LessonActivity title="Two things at once" scenarioId="backstage-jobs" id="backstage-jobs" />
+			<p>
+				Try one change after the guided activity: bring a different job forward, identify what owns
+				the terminal, then return to a prompt. You are learning to account for running work, not
+				merely hide it.
+			</p>
+		</div>
+		<ChallengeActivity title="Clear the agent’s processes" part={8} id="ch-8-agent-cleanup" />
+		<p class="reflection">
+			<strong>Takeaway to practise:</strong> identify, stop appropriately, and check again. It works for
+			a waiting command, yesterday's server, and a tool an agent started for you.
+		</p>
 	</div>
 </section>
+
+<style>
+	.chapter-copy {
+		color: var(--color-text-secondary);
+		font-size: 1rem;
+		line-height: 1.85;
+	}
+	.chapter-copy p {
+		margin: 1rem 0;
+	}
+	.chapter-copy .lead {
+		font-size: 1.1rem;
+	}
+	.lesson {
+		margin: 3rem 0;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy h4 {
+		color: var(--color-text);
+		font: 600 1.1rem/1.5 var(--font-heading);
+		margin: 1.8rem 0 0.7rem;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy strong {
+		color: var(--color-text);
+	}
+	.chapter-copy ol {
+		padding-left: 1.5rem;
+		margin: 1rem 0;
+	}
+	.chapter-copy ol {
+		list-style: decimal;
+	}
+	.chapter-copy li {
+		margin: 0.55rem 0;
+	}
+	.chapter-copy details {
+		border: 1px solid var(--color-border);
+		border-radius: 0.75rem;
+		padding: 1rem;
+		margin: 1.5rem 0;
+	}
+	.chapter-copy summary {
+		cursor: pointer;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.chapter-copy .native {
+		border-left: 3px solid var(--color-primary);
+		padding-left: 1rem;
+	}
+	.chapter-copy .reflection {
+		background: var(--color-bg-secondary);
+		padding: 1rem;
+		border-radius: 0.6rem;
+	}
+</style>

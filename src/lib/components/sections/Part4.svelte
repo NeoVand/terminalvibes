@@ -1,867 +1,536 @@
 <script lang="ts">
-	import {
-		Workflow,
-		MoveRight,
-		Search,
-		ListOrdered,
-		FileSearch,
-		CaseSensitive,
-		Hash,
-		FilterX,
-		Sigma,
-		FolderTree,
-		TextSearch
-	} from 'lucide-svelte';
+	import { Workflow, MoveRight, Search, ListOrdered, FileSearch } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
 	import CourseLink from '../ui/CourseLink.svelte';
-	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
+	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
-
-	import VibeBox from '../ui/VibeBox.svelte';
 </script>
 
 <section id="part-4" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={Workflow}
 			partLabel="Part 4"
-			title="Text &amp; Pipes: How Small Tools Combine"
-			color="var(--color-primary)"
+			title="Text and Pipes: Turn a List into an Answer"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"Every command speaks plain text. Pipes let them talk to each other."
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			So far you've run one command at a time and read its output on screen. Here you'll capture
-			output into files, feed one command's output into another, and search, count, and reshape text
-			the way experienced people do. This is where the terminal stops feeling like a museum piece:
-			once output can move into files and into other commands, small tools multiply — and you'll
-			recognize the same style in a lot of AI-suggested one-liners.
+		<p class="lead">
+			A folder full of notes is useful. Being able to ask “which notes mention basil?” or “how many
+			times did this happen?” is more useful still.
+		</p>
+		<p>
+			We’ll start by saving one message into a file. Then we’ll send text through small tools: one
+			finds matching lines, another counts them, another sorts them. Build each step separately so
+			you can see what changes.
 		</p>
 
-		<Callout type="important">
-			The big idea of this whole part: in the terminal, <strong>everything is text</strong>. Logs,
-			file listings, error messages, command output — all plain text. Once you can redirect text and
-			pipe text, every small tool you know multiplies every other one.
-		</Callout>
-
-		<!-- 4.1 Redirection -->
-		<div id="section-4-1" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={MoveRight}
-				title="4.1 Redirection — Point the Output Somewhere Else"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Every command writes its results to something called <strong
-					style="color: var(--color-text);">standard output</strong
-				>
-				— which is normally your screen. Redirection says: "don't print that, put it in a file instead."
-				One character does it:
-				<Code code=">" />.
+		<div id="section-4-1" class="lesson-section">
+			<SectionHeader level="section" icon={MoveRight} title="4.1 Save a Command’s Output" />
+			<p>
+				So far, echo has printed to the terminal. Put <Code code=">" /> and a filename after it to send
+				that text into a file instead:
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/redirection.webp"
-					alt="Redirection — sending a command's output into a file with > and >>"
-					caption="Redirection reroutes a command's output from the screen into a file"
-				/>
-			</div>
-
+			<CommandTranscript command="echo &quot;Water the basil&quot; > garden-tasks.txt" output="" />
+			<p>No message appeared because the text went into garden-tasks.txt. Check the saved file:</p>
+			<CommandTranscript command="cat garden-tasks.txt" output="Water the basil" />
+			<p>
+				This is <strong>redirection</strong>: choosing where output goes. If the named file does not
+				exist, the shell creates it. If it already exists, <Code code=">" /> normally empties it before
+				the command runs. Use a new filename when you want to preserve the earlier contents.
+			</p>
+			<ExpandableImage
+				src="{base}/images/redirection.webp"
+				alt="A command’s output going into a file instead of the terminal display."
+				caption="The destination is the filename after the arrow."
+			/>
+			<h4>Add another line without replacing the first</h4>
 			<CodeBlock
-				title="Write, overwrite, append"
-				code={`echo "hello" > greeting.txt      # Create the file (or OVERWRITE it!)
-cat greeting.txt
-hello
-
-echo "hello again" >> greeting.txt   # >> APPENDS to the end
-cat greeting.txt
-hello
-hello again`}
+				code={'echo "Check the mint" >> garden-tasks.txt\ncat garden-tasks.txt'}
+				title="Append a task, then read both lines"
 			/>
-
-			<Callout type="caution">
-				<strong><Code code=">" /> truncates.</strong>
-				The instant you press Enter, the target file is emptied — <em>before</em> the command even
-				runs. Redirect into an existing file and its old contents are gone, no confirmation, no
-				trash can. When in doubt, use
-				<Code code=">>" />
-				(append) or redirect to a <em>new</em> filename. And when an AI hands you a command
-				containing
-				<Code code=">" />, check what's on the right side of the arrow before you run it.
-			</Callout>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Standard output isn't the only channel — every command is born with three. <strong
-					style="color: var(--color-text);">Standard input</strong
-				>
-				(stdin) is where it reads from, normally your keyboard;
-				<strong style="color: var(--color-text);">standard output</strong>
-				(stdout) is where its results go; and
-				<strong style="color: var(--color-text);">standard error</strong>
-				(stderr) is a separate channel for its complaints, kept apart so a failure never gets mixed in
-				with the results. They're numbered 0, 1 and 2 — which is the whole story of the
-				<Code code="2" />
-				in
-				<Code code="2>" />. A plain
-				<Code code=">" />
-				captures stream 1 only, so errors still land on your screen. To catch those too:
+			<p>
+				The double arrow <Code code=">>" /> appends. You should now see Water the basil followed by Check
+				the mint. Try a third task of your own.
 			</p>
-
+			<p>
+				<strong>Pause and predict:</strong> what would happen if you used a single arrow for the third
+				task? The earlier tasks would be replaced. A longer symbol is not “more powerful” here; it is
+				a different instruction.
+			</p>
+			<h4>Keep normal results and errors separate</h4>
+			<p>
+				A command can print useful results and an error in the same run. Those messages travel
+				through two channels: <strong>standard output</strong> for results and
+				<strong>standard error</strong>
+				for diagnostics. A normal <Code code=">" /> redirects only standard output.
+			</p>
+			<p>
+				The next example names a file that exists and one that does not. First run it without
+				redirection so you can see both kinds of reply:
+			</p>
 			<CodeBlock
-				title="Capturing errors with `2>`"
-				code={`ls reports/ missing/ > listing.txt 2> errors.txt
-
-cat listing.txt      # The successful part
-q1-summary.md
-q2-summary.md
-
-cat errors.txt       # The complaint went to its own file
-ls: missing/: No such file or directory`}
+				code="ls garden-tasks.txt missing.txt"
+				title="One existing file, one deliberately missing file"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				You'll also meet <Code code="> all.log 2>&1" />
-				in AI-generated commands, and it reads left to right: send stream 2 to wherever stream 1 is currently
-				pointing, which the first half of the line has just set to
-				<Code code="all.log" />. The
-				<Code code="&amp;1" />
-				is what makes it a <em>reference</em> to a stream rather than a filename — drop the
-				<Code code="&amp;" /> and you create a file called
-				<Code code="1" />. Finally, the arrow points the other way too:
-				<Code code="<" />
-				feeds a file <em>into</em> a command as its input, as in
-				<Code code="sort < names.txt" />. It's rarer — most commands happily take a filename
-				argument — but it completes the picture:
-				<strong style="color: var(--color-text);">arrows move text in and out of files</strong>.
+			<p>
+				Now keep the replies in different files. <Code code="2>" /> redirects the error channel, numbered
+				2:
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				One member of the family points both ways at once. <Code code="tee" /> — named for the T-shaped
-				pipe fitting, and it is exactly that — sits in the middle of a stream, writes everything flowing
-				through it into a file, and passes the same text along untouched. It's the answer to a want the
-				plain arrow can't satisfy: "show me this <em>and</em> keep a copy."
-			</p>
-
 			<CodeBlock
-				title="`tee` — watch it and save it"
-				code={`npm run build | tee build.log
-# The build scrolls past as usual — AND lands in build.log
-
-npm test 2>&1 | tee test.log     # errors included, still watching live`}
+				code={'ls garden-tasks.txt missing.txt > found.txt 2> errors.txt\ncat found.txt\ncat errors.txt'}
+				title="Separate the listing from the error"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				With a plain <Code code=">" /> you trade the live view for the file; <Code code="tee" />
-				refuses the trade. That makes it the receipt habit for anything long-running — let an agent's
-				build talk to the screen while <Code code="tee" /> keeps the transcript, and "what did it actually
-				say?" always has an answer. (<Code code="tee -a" /> appends instead of overwriting, the same courtesy
-				<Code code=">>" /> extends.)
+			<p>
+				The listing belongs in found.txt; the missing-file message belongs in errors.txt. The error
+				is still a real failure. Saving the message did not fix its cause.
 			</p>
-
-			<VibeBox
-				prompts={[
-					'Run the build and save all output — including errors — to build.log so I can read it later',
-					"Append today's date and a one-line status to my notes.txt without overwriting what's there"
-				]}
-			/>
-			<h4
-				id="capture-errors"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Catch the Red Text
-			</h4>
-			<PlaygroundNote>
-				List one real file and one missing one, then split the streams — the useful listing into
-				<Code code="found.txt" />, the scary error into <Code code="errors.txt" /> — with
-				<Code code=">" /> and <Code code="2>" />.
-			</PlaygroundNote>
+			<h4 id="capture-errors">Try it: capture both replies</h4>
+			<p>
+				In this practice, app.log exists and ghost.log does not. List both, save the normal listing
+				as found.txt and the diagnostic as errors.txt, then read both files.
+			</p>
 			<LessonActivity title="Catch the Red Text" scenarioId="capture-errors" id="capture-errors" />
+			<details>
+				<summary>Input redirection and merging the two output channels</summary>
+				<div class="detail-content">
+					<p>
+						<strong>Standard input</strong>, numbered 0, is where a program reads incoming data. <Code
+							code="sort < names.txt"
+						/> makes a file that input. The other channels are standard output (1) and standard error
+						(2).
+					</p>
+					<p>
+						<Code code="> all.log 2>&1" /> first directs normal output to all.log, then directs errors
+						to the same destination. Order matters: the redirections are applied left to right. <Code
+							code="2>&1 > all.log"
+						/> sends errors to the output’s <em>earlier</em> destination, so it is different.
+					</p>
+					<p>
+						Do not read a file and redirect into that same file in one command. For example, <Code
+							code="sort names.txt > names.txt"
+						/> can empty the source before sort reads it. Write to a different filename, inspect the result,
+						then deliberately replace the original if needed.
+					</p>
+				</div>
+			</details>
 		</div>
 
-		<!-- 4.2 Pipes -->
-		<div id="section-4-2" class="mb-14">
+		<div id="section-4-2" class="lesson-section">
 			<SectionHeader
 				level="section"
 				icon={Workflow}
-				title="4.2 Pipes — Small Tools, Composed"
-				color="var(--color-primary)"
+				title="4.2 Pipes: Give the Text to Another Tool"
 			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Redirection sends output into a <em>file</em>. The pipe —
-				<Code code="|" />
-				— sends it into <em>another command</em>. Whatever the left command prints becomes the right
-				command's input, no temporary file needed. This one character is the reason terminal users
-				never left.
+			<p>
+				An arrow sends output to a file. A <strong>pipe</strong>, written <Code code="|" />, sends
+				one command’s standard output to the next command’s standard input.
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/pipes.webp"
-					alt="Pipes — the output of one command flowing directly into the next"
-					caption="A pipe connects the output of one command to the input of the next"
-				/>
+			<p>Try this small example. printf prints three lines; sort arranges them alphabetically:</p>
+			<CommandTranscript
+				command="printf '%s\n' mint basil thyme | sort"
+				output={'basil\nmint\nthyme'}
+			/>
+			<div id="pipe-flow" class="steps">
+				<span><code>printf</code><small>Produces the lines</small></span><span
+					><code>|</code><small>Passes the text along</small></span
+				><span><code>sort</code><small>Reads and orders the lines</small></span>
 			</div>
-
+			<p>
+				Without the pipe, printf would print to your terminal. With it, sort receives the text and
+				prints the final result. The left command’s output is not automatically also shown on
+				screen.
+			</p>
+			<ExpandableImage
+				src="{base}/images/pipes.webp"
+				alt="Text moving from one small command to the next through a pipeline."
+				caption="The output of one stage becomes the input of the next."
+			/>
+			<p>Add one more stage to ask how many lines remain:</p>
+			<CommandTranscript command="printf '%s\n' mint basil thyme | sort | wc -l" output="3" />
+			<p>
+				<Code code="wc -l" /> counts newline characters. Here each item ends in a newline, so the answer
+				is three lines. A pipe passes text, not the name of a temporary file. That distinction will matter
+				when we combine file-finding tools later.
+			</p>
+			<h4>Watch output and save a copy</h4>
+			<p>
+				<Code code="tee" /> copies its input into a file while also passing it onward. Use it when you
+				want to see the answer and keep it:
+			</p>
 			<CodeBlock
-				title="Your first pipes"
-				code={`ls ~/Downloads | wc -l        # How many things are in Downloads?
-47
-
-history | tail -5             # The last 5 commands you ran
-
-cat server.log | grep "ERROR" | wc -l   # How many errors in the log?
-12`}
+				code="cat garden-tasks.txt | tee saved-tasks.txt"
+				title="Print the tasks and write the same text into another file"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Two small things in there. <Code code="history" /> prints the shell's own record of what you've
-				typed — it keeps one, whether or not you asked, and
-				<CourseLink to="section-12-2" /> puts that record to work. And
-				<Code code="tail -5" />
-				is shorthand for
-				<Code code="tail -n 5" />: for
-				<Code code="head" />
-				and
-				<Code code="tail" />, a bare dash-and-number is a line count. Not every dash-and-number is:
-				the
-				<Code code="9" />
-				in
-				<Code code="kill -9" />
-				is a signal number, which <CourseLink to="section-8-2" /> unpacks.
+			<p>
+				tee replaces an existing destination unless you use <Code code="tee -a" /> to append. Like an
+				ordinary pipe, it receives standard output; errors only join the stream if you explicitly redirect
+				them there.
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Read a pipeline left to right, like an assembly line: the text flows through each station
-				and comes out transformed. Here's the last example as a picture:
+			<p>
+				<strong>Try a variation:</strong> reverse the ordering with <Code code="sort -r" />. The
+				count should remain three. A useful check asks what should change and what should stay the
+				same.
 			</p>
-
-			<MermaidDiagram
-				definition={`flowchart LR
-  A[("server.log")] --> B["grep ERROR"]
-  B -->|"matching lines"| C["wc -l"]
-  C -->|"count"| D(["12"])`}
-				id="pipe-flow"
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				This is the <strong style="color: var(--color-text);">Unix philosophy</strong>, and it's
-				older than most programming languages you know: "Write programs that do one thing and do it
-				well," as Doug McIlroy — the inventor of the pipe — put it.
-				<Code code="grep" />
-				only searches.
-				<Code code="wc" />
-				only counts.
-				<Code code="sort" />
-				only sorts. None of them is impressive alone — but because they all speak plain text, any of them
-				can feed any other, and a handful of tiny tools becomes thousands of combinations.
-			</p>
-
-			<Callout type="tip">
-				<strong>Build pipelines one stage at a time.</strong> Run the first command alone and look
-				at its output. Then add one
-				<Code code="|" />
-				and look again. This isn't just how you <em>write</em> pipelines — it's how you
-				<em>audit</em> the ones your AI writes. A five-stage pipeline you can't follow is really five
-				one-stage commands you haven't run yet.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'Explain this pipeline stage by stage before I run it: cat access.log | grep POST | wc -l',
-					'Write me a pipeline that counts how many files in this folder end in .png'
-				]}
-			/>
 		</div>
 
-		<!-- 4.3 Searching Text -->
-		<div id="section-4-3" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Search}
-				title="4.3 Searching Text — `grep`"
-				color="var(--color-primary)"
+		<div id="section-4-3" class="lesson-section">
+			<SectionHeader level="section" icon={Search} title="4.3 Search Inside Files with grep" />
+			<p>
+				<Code code="grep" /> prints matching lines. To search for text exactly as written, start with
+				<Code code="-F" />, meaning fixed text:
+			</p>
+			<CommandTranscript command="grep -F 'basil' garden-tasks.txt" output="Water the basil" />
+			<p>
+				This finds lines containing basil anywhere. It does not mean “only the word basil,” and it
+				does not include Basil unless you add <Code code="-i" /> to ignore case. No matches normally means
+				no printed lines, not that the file was changed.
+			</p>
+			<ExpandableImage
+				src="{base}/images/grep.webp"
+				alt="A search highlighting relevant lines within a larger text file."
+				caption="Search the contents; leave the original file as it is."
 			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				A server just crashed and the log is 10,000 lines long. Nobody scrolls that. <Code
-					code="grep"
-				/>
-				prints only the lines that match a pattern — it's the terminal's search box, and probably the
-				most-used tool in this course.
-			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/grep.webp"
-					alt="grep — filtering thousands of lines down to just the ones that match"
-					caption="grep keeps only the lines that match — the haystack goes in, the needles come out"
-				/>
-			</div>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That 10,000-line log is a <strong style="color: var(--color-text);">log file</strong> — a
-				plain text file a program keeps appending to as it works, one line per event, oldest at the
-				top. Most programs tag each line with a severity word:
-				<Code code="DEBUG" />
-				for chatter,
-				<Code code="INFO" />
-				for normal,
-				<Code code="WARN" />
-				and
-				<Code code="ERROR" />
-				for trouble. That convention is why searching for the bare word
-				<Code code="ERROR" /> works at all.
-			</p>
-
-			<CodeBlock
-				title="`grep` basics"
-				code={`grep "ERROR" server.log          # Lines containing ERROR
-2026-07-11 14:02:11 ERROR db connection refused
-2026-07-11 14:02:15 ERROR retry limit reached
-
-grep -r "TODO" src/              # Search every file under src/
-src/app.js:14:  // TODO: handle empty cart
-src/utils.js:3: // TODO: remove this hack`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Both patterns above are plain words, which is why nothing surprising happened. The moment
-				you reach for a wildcard, though, you've changed languages.
-				<Code code="grep" />
-				doesn't use globs. It uses
-				<strong style="color: var(--color-text);">regular expressions</strong>
-				— a second, older pattern language that looks deceptively similar and means different things.
-				Here
-				<Code code="*" />
-				means "zero or more of whatever came just before it",
-				<Code code="." />
-				matches any single character, and
-				<Code code="^" />
-				and
-				<Code code="$" />
-				anchor a match to the start and end of a line. The trap isn't hypothetical:
-				<Code code="ERR*" />
-				as a glob means "starts with ERR", but as a regular expression it means "ER followed by any number
-				of Rs" — so it matches
-				<Code code="ER" /> anywhere in any line, and quietly hands you the wrong answer.
-			</p>
-
-			<div class="my-4 overflow-x-auto rounded-lg" style="background: var(--color-bg-secondary);">
-				<table class="w-full text-[13px]">
-					<thead>
-						<tr style="background: var(--color-bg-tertiary);">
-							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
-								>Character</th
-							>
-							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
-								>In a glob (filenames)</th
-							>
-							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
-								>In a regular expression (grep)</th
-							>
-						</tr>
-					</thead>
-					<tbody style="color: var(--color-text-secondary);">
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"><Code code="*" /></td>
-							<td class="px-4 py-2">Any run of characters</td>
-							<td class="px-4 py-2">Zero or more of the character before it</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"><Code code="?" /></td>
-							<td class="px-4 py-2">Exactly one character</td>
-							<td class="px-4 py-2">An ordinary question mark</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"><Code code="." /></td>
-							<td class="px-4 py-2">An ordinary dot</td>
-							<td class="px-4 py-2">Any single character</td>
-						</tr>
+			<div class="table-scroll">
+				<table>
+					<thead><tr><th>Need</th><th>Example</th></tr></thead><tbody>
+						<tr
+							><td>Ignore letter case</td><td><Code code="grep -Fi 'basil' garden-tasks.txt" /></td
+							></tr
+						>
+						<tr
+							><td>Include line numbers</td><td
+								><Code code="grep -Fn 'basil' garden-tasks.txt" /></td
+							></tr
+						>
+						<tr
+							><td>Keep lines without that text</td><td
+								><Code code="grep -Fv 'mint' garden-tasks.txt" /></td
+							></tr
+						>
+						<tr
+							><td>Count matching lines</td><td
+								><Code code="grep -Fc 'basil' garden-tasks.txt" /></td
+							></tr
+						>
+						<tr
+							><td>Search files under a folder</td><td><Code code="grep -Frn 'basil' notes/" /></td
+							></tr
+						>
 					</tbody>
 				</table>
 			</div>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The glob column is the one you drilled in <CourseLink to="section-3-4" />, and it still
-				governs every filename you type. The regex column governs what's inside the quotes you hand
-				to
-				<Code code="grep" />, and later to
-				<Code code="sed" />
-				and
-				<Code code="awk" />. Same characters, different room.
+			<p>
+				A log is a record a program writes as it runs. Many logs label entries INFO, WARN, or ERROR.
+				Searching those words can help you find a problem without reading the whole file.
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Five flags cover 95% of real-world <Code code="grep" />:
-			</p>
-
-			<div class="mb-4 grid gap-3 sm:grid-cols-2">
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-tip);"
-					>
-						<CaseSensitive size={14} />
-						<span><Code code="-i" /> — ignore case</span>
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Matches <Code code="error" />,
-						<Code code="Error" />, and
-						<Code code="ERROR" />. Use it by default when hunting in logs.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-note);"
-					>
-						<Hash size={14} />
-						<span><Code code="-n" /> — line numbers</span>
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Prefixes each match with where it lives — essential when you're about to open the file
-						and fix it.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-warning);"
-					>
-						<FilterX size={14} />
-						<span><Code code="-v" /> — invert</span>
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Keep the lines that <em>don't</em> match. Perfect for filtering noise out:
-						<Code code="grep -v &quot;DEBUG&quot;" />.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-important);"
-					>
-						<Sigma size={14} />
-						<span><Code code="-c" /> — count</span>
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Print how many lines matched instead of the lines themselves — a built-in
-						<Code code="| wc -l" />.
-					</p>
-				</div>
-				<div class="rounded-lg p-4 sm:col-span-2" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-caution);"
-					>
-						<FolderTree size={14} />
-						<span><Code code="-r" /> — recursive</span>
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Search a whole directory tree instead of one file. <Code
-							code="grep -rn &quot;api_key&quot; ."
-						/> is how developers answer "where in this codebase is that used?"
-					</p>
-				</div>
-			</div>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				And because <Code code="grep" /> reads standard input, it slots into any pipeline as a filter.
-				This is the pattern you'll type every single day:
-			</p>
-
 			<CodeBlock
-				title="`grep` as a pipeline filter"
-				code={`history | grep "cd"              # Every cd you've ever run
-tail -50 server.log | grep -i "error"   # Only recent errors
-grep "ERROR" server.log | grep -v "retry"  # Errors, minus the noisy ones`}
+				code={"grep -Fn 'ERROR' server.log\ngrep -F 'ERROR' server.log | grep -Fv 'retry'"}
+				title="Find error lines, then remove a known repeated message"
 			/>
-
-			<h4
-				id="log-detective"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Find the Crash
-			</h4>
-			<PlaygroundNote>
-				A server died last night and <Code code="server.log" />
-				has hundreds of lines. Use
-				<Code code="grep" />
-				— with
-				<Code code="-i" />,
-				<Code code="-n" />, and
-				<Code code="-v" />
-				to cut the noise — and pipes to
-				<Code code="wc -l" /> to pin down exactly when and why it crashed.
-			</PlaygroundNote>
+			<p>
+				The second command keeps error lines that do not contain retry. Inspect what you excluded as
+				well as what you kept; filtering a message out of a report does not make the problem
+				disappear.
+			</p>
+			<h4>When you need a pattern instead of literal text</h4>
+			<p>
+				Without -F, grep uses a <strong>regular expression</strong>. This is a pattern language for
+				text, different from the filename globs in <CourseLink to="part-3" />. Begin with just two
+				anchors:
+			</p>
+			<CodeBlock
+				code={"grep '^Water' garden-tasks.txt\ngrep 'basil$' garden-tasks.txt"}
+				title="First: lines starting with Water. Second: lines ending with basil."
+			/>
+			<p>
+				<Code code="^" /> marks the beginning of a line; <Code code="$" /> marks its end. A dot in a regular
+				expression matches a character. A star repeats the pattern item before it. To search for a literal
+				filename such as <Code code="plan.md" />, <Code code="grep -F 'plan.md' file.txt" /> avoids treating
+				the dot as a wildcard.
+			</p>
+			<p>
+				Keep the pattern in quotes so the shell passes it intact. <Code code="grep '*.txt'" /> is not
+				the way to select text files: grep’s pattern is for <em>contents</em>. A filename glob goes
+				where the filenames go, for example <Code code="grep -F 'basil' ./*.txt" />.
+			</p>
+			<h4 id="log-detective">Try it: read the story of a crash</h4>
+			<p>
+				Search the supplied server.log. Start with one useful word, include line numbers, then
+				narrow the result. Read the nearby text before deciding what caused the failure.
+			</p>
 			<LessonActivity title="Find the Crash" scenarioId="log-detective" id="log-detective" />
-
-			<VibeBox
-				prompts={[
-					'Search server.log for errors, ignoring case, and show me the line numbers',
-					"Find every file in this project that still mentions the old function name 'fetchUser'"
-				]}
-			/>
 		</div>
 
-		<!-- 4.4 Counting & Shaping -->
-		<div id="section-4-4" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={ListOrdered}
-				title="4.4 Counting &amp; Shaping — `wc`, `sort`, `uniq`, `cut`"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<Code code="grep" />
-				finds lines. These four tools <em>reshape</em> them: count them, order them, de-duplicate them,
-				and slice out columns. Individually they're almost boring — together they answer real questions,
-				like "who's hammering my website?"
+		<div id="section-4-4" class="lesson-section">
+			<SectionHeader level="section" icon={ListOrdered} title="4.4 Count, Group, and Rank" />
+			<p>
+				A search gives you matching lines. Now we can turn those lines into a count or a short
+				report.
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/counting-shaping.webp"
-					alt="wc, sort, uniq, and cut — four small tools that count and reshape text"
-					caption="Four tiny tools: count with wc, order with sort, collapse with uniq, slice with cut"
-				/>
+			<div class="table-scroll">
+				<table>
+					<thead><tr><th>Tool</th><th>Job</th><th>Detail that matters</th></tr></thead><tbody>
+						<tr
+							><td><Code code="wc -l" /></td><td>Count newline characters</td><td
+								>A final line without a newline is not counted by -l.</td
+							></tr
+						>
+						<tr
+							><td><Code code="sort" /></td><td>Order lines</td><td
+								>Use -n for numeric order, -r to reverse it.</td
+							></tr
+						>
+						<tr
+							><td><Code code="uniq -c" /></td><td>Count adjacent equal lines</td><td
+								>Sort first if equal lines are scattered.</td
+							></tr
+						>
+						<tr
+							><td><Code code="cut" /></td><td>Choose fields separated by one character</td><td
+								>It does not understand quoted CSV fields.</td
+							></tr
+						>
+					</tbody>
+				</table>
 			</div>
-
-			<CodeBlock
-				title="The cast, one line each"
-				code={`wc -l server.log        # Count lines (-w words, -c bytes)
-843 server.log
-
-sort names.txt          # Alphabetical order (-n numeric, -r reversed)
-
-uniq names.txt          # Collapse REPEATED ADJACENT lines into one
-
-cut -d',' -f2 users.csv # Slice column 2, using ',' as the delimiter`}
+			<ExpandableImage
+				src="{base}/images/counting-shaping.webp"
+				alt="Text lines being counted, sorted, grouped, and separated into columns."
+				caption="Choose a tool by the shape of the text you actually have."
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That last line hides a rule: some flags take a <em>value</em>.
-				<Code code="-d','" />
-				is one flag —
-				<Code code="d" />
-				for delimiter — with its value jammed straight onto the letter, and
-				<Code code="-f2" />
-				is
-				<Code code="f" />
-				for field, value
-				<Code code="2" />. Other commands want a space between the two, as in
-				<Code code="-n 3" />, and many take either. So
-				<Code code="-f2" />
-				is not two clustered flags the way
-				<Code code="ls -la" />
-				is — where the letter ends and its value begins is each command's own decision, and
-				<Code code="man cut" /> is what tells you.
+			<h4 id="count-lines">Try it: get one reliable count</h4>
+			<p>
+				Find the ERROR lines, pipe them into <Code code="wc -l" />, and save the count to the
+				requested file. Check the count against the matching lines themselves.
 			</p>
-
-			<Callout type="warning">
-				<strong>The <Code code="uniq" /> gotcha:</strong>
-				<Code code="uniq" />
-				only collapses duplicates that are <em>next to each other</em>. Given
-				<Code code="a b a" />, it removes nothing. That's why it practically always appears as
-				<Code code="sort | uniq" />
-				— <Code code="sort" /> herds the duplicates together first, then <Code code="uniq" /> collapses
-				them.
-			</Callout>
-
-			<h4
-				id="count-lines"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Count Before You Fix
-			</h4>
-			<PlaygroundNote>
-				Before ranking anything, answer the simplest question: how many? Pipe
-				<Code code="grep ERROR server.log" /> into
-				<Code code="wc -l" /> to count the error lines, and save the total to a file.
-			</PlaygroundNote>
 			<LessonActivity title="Count Before You Fix" scenarioId="count-lines" id="count-lines" />
-
-			<p class="mt-6 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Now the payoff. Your web server writes one line per visit to <Code code="access.log" />, and
-				you want to know your top visitors. This is the most famous pipeline in Unix history, and
-				we'll build it one stage at a time — exactly the way you should build every pipeline.
+			<h4>Build a small report one stage at a time</h4>
+			<p>
+				Suppose this is the entire content of a tiny access.log. Each line is a request to a
+				website. The first field identifies a network address; GET is the request’s action, and the
+				last field is the requested web path.
 			</p>
-
 			<CodeBlock
-				title="Stage 0 — look at the raw material"
-				code={`head -4 access.log
-203.0.113.9 GET /home
-198.51.100.4 GET /pricing
-203.0.113.9 GET /docs
-192.0.2.55 GET /home`}
+				lang="text"
+				title="Example access.log · four requests"
+				code={'203.0.113.9 GET /home\n198.51.100.4 GET /about\n203.0.113.9 GET /garden\n192.0.2.55 GET /home'}
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Two things to read before you start slicing. The number at the front is the visitor's <strong
-					style="color: var(--color-text);">IP</strong
-				>
-				address — each machine on a network has one, and <CourseLink to="section-9-1" /> takes it apart.
-				And
-				<Code code="/home" />
-				and
-				<Code code="/pricing" />
-				are <em>URL</em> paths — the part after the site's address — not folders on this machine. Same
-				slashes, different tree.
+			<p>
+				<Code code="cut -d ' ' -f 1" /> says: separate fields at spaces and keep field one. For this deliberately
+				simple format, that field is the address:
 			</p>
-
-			<CodeBlock
-				title="Stage 1 — `cut`: keep only the IP column"
-				code={`cut -d' ' -f1 access.log
-203.0.113.9
-198.51.100.4
-203.0.113.9
-192.0.2.55
-...
-
-# -d' ' = columns are separated by spaces; -f1 = give me field 1`}
+			<CommandTranscript
+				command="cut -d ' ' -f 1 access.log"
+				output={'203.0.113.9\n198.51.100.4\n203.0.113.9\n192.0.2.55'}
 			/>
-
-			<CodeBlock
-				title="Stage 2 — `sort`: herd the duplicates together"
-				code={`cut -d' ' -f1 access.log | sort
-192.0.2.55
-198.51.100.4
-198.51.100.4
-203.0.113.9
-203.0.113.9
-203.0.113.9
-...`}
+			<p>Sort those lines to put equal addresses beside one another:</p>
+			<CommandTranscript
+				command="cut -d ' ' -f 1 access.log | sort"
+				output={'192.0.2.55\n198.51.100.4\n203.0.113.9\n203.0.113.9'}
 			/>
-
-			<CodeBlock
-				title="Stage 3 — `uniq -c`: collapse and count"
-				code={`cut -d' ' -f1 access.log | sort | uniq -c
-   1 192.0.2.55
-   2 198.51.100.4
-   3 203.0.113.9
-...
-
-# -c = count: each collapsed group carries a tally of how many lines it stood for.
-# (Not grep's -c, which prints one total and no lines at all.)`}
+			<p>Count each adjacent group with uniq -c:</p>
+			<CommandTranscript
+				command="cut -d ' ' -f 1 access.log | sort | uniq -c"
+				output={'1 192.0.2.55\n1 198.51.100.4\n2 203.0.113.9'}
 			/>
-
+			<p>
+				Then order by the leading number. <Code code="sort -n" /> puts the largest count last; <Code
+					code="sort -nr"
+				/> puts it first. Output may have extra alignment spaces.
+			</p>
 			<CodeBlock
-				title="Stage 4 — `sort -n`: rank by the count"
-				code={`cut -d' ' -f1 access.log | sort | uniq -c | sort -n
-   1 192.0.2.55
-   2 198.51.100.4
-   3 203.0.113.9
-
-# Biggest number last — your top visitor is 203.0.113.9`}
+				code="cut -d ' ' -f 1 access.log | sort | uniq -c | sort -n"
+				title="Select the field, group equal values, count, rank"
 			/>
-
-			<Callout type="tip">
-				Read the finished pipeline aloud and it's a sentence: "take column one, group the
-				duplicates, count each group, rank by count." When you can narrate a pipeline like that, you
-				own it — whether you wrote it or an AI did.
-			</Callout>
-
-			<h4
-				id="pipeline-practice"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Build a Pipeline
-			</h4>
-			<PlaygroundNote>
-				<Code code="access.log" />
-				is waiting in the playground. Build the classic pipeline stage by stage —
-				<Code code="cut" />, then
-				<Code code="| sort" />, then
-				<Code code="| uniq -c" />, then
-				<Code code="| sort -n" /> — and identify your site's top visitor. Run each stage before adding
-				the next.
-			</PlaygroundNote>
+			<p>
+				The totals should add up to four requests. An address is not necessarily a person: several
+				people can share one network address, and a person can use several addresses. Name the
+				report accurately.
+			</p>
+			<h4 id="pipeline-practice">Try it: build the report yourself</h4>
+			<p>
+				This practice contains a longer log. Run each stage before adding the next. Save the final
+				report as top-visitors.txt and check that the busiest address appears at the bottom.
+			</p>
 			<LessonActivity
 				title="Build a Pipeline"
 				scenarioId="pipeline-practice"
 				id="pipeline-practice"
 			/>
-
-			<VibeBox
-				prompts={[
-					'From access.log, show me the top 5 most-requested pages with their counts',
-					'How many unique visitors are in this log file? Walk me through the pipeline you use'
-				]}
-			/>
+			<details>
+				<summary>Why a comma is not always a column boundary</summary>
+				<div class="detail-content">
+					<p>
+						A simple table such as <Code code="basil,green,3" /> is easy to split at commas. Real CSV
+						can quote a value that contains a comma, a quote, or even a newline. Neither plain cut nor
+						<Code code="awk -F," /> parses those CSV rules. Use a CSV-aware tool or library for a general
+						spreadsheet export. <CourseLink to="part-7" /> practises simple tables and explains the boundary.
+					</p>
+				</div>
+			</details>
 		</div>
 
-		<!-- 4.5 Finding Files -->
-		<div id="section-4-5" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={FileSearch}
-				title="4.5 Finding Files — `find`"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				<Code code="grep" />
-				searches <em>inside</em> files. But sometimes the question is "where <em>is</em> that file?"
-				— a config you know exists, every Markdown file in a project, that one script you wrote last
-				month.
-				<Code code="find" /> walks an entire directory tree and prints every path that matches your criteria.
+		<div id="section-4-5" class="lesson-section">
+			<SectionHeader level="section" icon={FileSearch} title="4.5 Find Files by Name" />
+			<p>
+				grep asks “which lines contain this text?” <Code code="find" /> can ask “where are the files with
+				these names?” It searches a folder and its descendants.
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/finding-files.webp"
-					alt="find — walking a directory tree to locate files by name and type"
-					caption="find walks the whole tree and reports every path that matches"
-				/>
-			</div>
-
 			<CodeBlock
-				title="`find` essentials"
-				code={`find . -name '*.md'            # Every Markdown file below here
-./README.md
-./docs/setup.md
-./docs/notes/ideas.md
-
-find . -name '*.md' -type f    # -type f: files only
-find . -type d -name 'test*'   # -type d: directories only
-find ~ -name '.zshrc'          # Start the search from your home folder`}
+				code="find . -type f -name '*.md'"
+				title="Find Markdown filenames under the current folder"
 			/>
-
-			<Callout type="caution">
-				<strong>Quote the pattern.</strong> Write
-				<Code code="'*.md'" />
-				with quotes, not bare
-				<Code code="*.md" />. Remember <CourseLink to="part-3" />: the <em>shell</em> expands
-				wildcards before the command ever runs. Unquoted,
-				<Code code="*.md" />
-				becomes a list of the Markdown files in your <em>current</em> folder — and <Code
-					code="find"
-				/>
-				receives that list instead of the pattern, searching for the wrong thing entirely. Single quotes
-				are the fully literal kind, so the pattern reaches <Code code="find" /> intact and gets applied
-				at every level of the tree — the rule for both kinds of quote is in <CourseLink
-					to="section-2-2"
-				/>.
-			</Callout>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Keep the two search tools straight — they're a team, not rivals:
+			<p>
+				Read the pieces in order: start at <Code code="." />, keep regular files with <Code
+					code="-type f"
+				/>, and match their names against <Code code="'*.md'" />. The quotes stop the shell from
+				expanding the star before find sees it.
 			</p>
-
-			<div class="mb-4 grid gap-4 sm:grid-cols-2">
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-note);"
-					>
-						<FileSearch size={14} />
-						<span><Code code="find" /> — searches <em>filenames</em></span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						"Where are the files called <Code code="*.md" />?" It never opens a file; it only looks
-						at names, types, and locations.
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-important);"
-					>
-						<TextSearch size={14} />
-						<span><Code code="grep" /> — searches <em>contents</em></span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						"Which lines contain <Code code="TODO" />?" It reads inside files but doesn't care what
-						they're named.
-					</p>
-				</div>
-			</div>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				And naturally, they compose. Find the files by name, then <Code code="grep" /> inside exactly
-				those:
-			</p>
-
+			<ExpandableImage
+				src="{base}/images/finding-files.webp"
+				alt="A search following branches of a folder tree to matching filenames."
+				caption="Choose where to start, then say which names or types you want."
+			/>
 			<CodeBlock
-				title="`find` + `grep`, together"
-				code={`find . -name '*.js' | xargs grep -n "TODO"
-./src/app.js:14:  // TODO: handle empty cart
-./src/utils.js:3: // TODO: remove this hack
-
-# (For a whole tree, grep -rn "TODO" . is the simpler everyday version.)`}
+				code={"find notes -type f -name '*.txt'\nfind . -type d -name 'photos'"}
+				title="One search for text files; another for folders named photos"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code="xargs" /> is there because
-				<Code code="grep" />
-				wants filenames as arguments, not on standard input. Pipe a list of paths straight into
-				<Code code="grep" />
-				and it dutifully searches the <em>text of those paths</em> instead of the files they name —
-				a pipeline that runs, returns nothing, and looks like an answer.
-				<Code code="xargs" />
-				collects the lines arriving on standard input and lays them out as arguments, which is the shape
-				<Code code="grep" />
-				was waiting for. Reach for it when you want to narrow the file set first — by name, type or depth
-				— and reach for
-				<Code code="grep -rn" /> when you want everything under a folder.
+			<p>
+				Start with the smallest sensible folder. Searching your whole computer creates unnecessary
+				output and permission errors. If nothing matches, check the starting folder, capitalization,
+				and pattern.
 			</p>
-
-			<h4
-				id="find-files"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Hunt Down Every TODO
-			</h4>
-			<PlaygroundNote>
-				A project tree is scattered with leftover TODOs. Use <Code
-					code="find . -name '*.js' -type f"
-				/>
-				to locate the source files (quote that glob!), then combine with
-				<Code code="grep" /> to list every TODO with its file and line number.
-			</PlaygroundNote>
+			<h4>Searching paths is different from searching their contents</h4>
+			<p>
+				<Code code="find . -name '*.py' | grep TODO" /> searches the <em>printed path names</em> for
+				TODO. It does not open each Python file. To search contents recursively, use <Code
+					code="grep -rn TODO ."
+				/>; to limit the file set on a real terminal, find can pass each filename as an argument:
+			</p>
+			<CodeBlock
+				code={"find . -type f -name '*.py' -exec grep -n 'TODO' /dev/null {} +"}
+				title="Real terminal · search only the Python files find selected"
+			/>
+			<p>
+				<Code code="-exec" /> runs the following command. <Code code={'{}'} /> marks where the found paths
+				go, and <Code code="+" /> groups paths into batches. The harmless empty file <Code
+					code="/dev/null"
+				/> ensures grep sees multiple file arguments and includes filenames in its results. The sandbox
+				does not implement find -exec.
+			</p>
+			<p>
+				Do not use a plain line-based <Code code="find ... | xargs ..." /> recipe for arbitrary filenames.
+				Spaces, quotes, and newlines can be part of a filename. On a real terminal, <Code
+					code="-exec"
+				/> passes the names directly. A null-delimited <Code code="find -print0 | xargs -0" /> pipeline
+				is another approach, but those options are outside this sandbox.
+			</p>
+			<h4 id="find-files">Try it: collect the remaining TODOs</h4>
+			<p>
+				The sample project uses Python files ending in .py. Locate them with find, then use grep’s
+				recursive search to collect the TODO lines with their file and line numbers. Save the report
+				as the activity requests. No source files need to change.
+			</p>
 			<LessonActivity title="Hunt Down Every TODO" scenarioId="find-files" id="find-files" />
-
-			<VibeBox
-				prompts={[
-					'Find every Markdown file in this project, including ones in nested folders',
-					'List all the TODO comments left anywhere in src/ with their file names and line numbers'
-				]}
-			/>
-
-			<p class="mt-10 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Notice what all of these have in common: they <em>find</em> and <em>count</em> — none of
-				them changes a single character. That's deliberate, and it's why they're safe to experiment
-				with. When you're ready to make text
-				<em>different</em> — swap a word across a file, drop every <Code code="DEBUG" /> line, pull one
-				column out of a table — that's <Code code="sed" /> and <Code code="awk" />, waiting in <CourseLink
-					to="part-7"
-				/>.
+			<ChallengeActivity title="Who Is Actually Visiting?" part={4} id="ch-4-top-visitors" />
+			<p class="next-lesson">
+				Explain one pipeline from this part aloud: what does each stage receive, and what does it
+				produce? If one stage is unclear, run it separately. That habit scales to much larger jobs.
 			</p>
 		</div>
-
-		<ChallengeActivity title="Who Is Actually Visiting?" part={4} id="ch-4-top-visitors" />
 	</div>
 </section>
+
+<style>
+	.chapter p {
+		max-width: 76ch;
+		color: var(--color-text-secondary);
+		font-size: 0.94rem;
+		line-height: 1.8;
+		margin: 0 0 1rem;
+	}
+	.chapter .lead {
+		color: var(--color-text);
+		font-size: 1.06rem;
+	}
+	.lesson-section {
+		margin-top: 3rem;
+		scroll-margin-top: 90px;
+	}
+	h4 {
+		color: var(--color-text);
+		font-size: 1.06rem;
+		font-weight: 650;
+		line-height: 1.5;
+		margin: 1.7rem 0 0.7rem;
+		scroll-margin-top: 90px;
+	}
+	details {
+		border-top: 1px solid var(--color-border);
+		margin: 1.1rem 0;
+	}
+	summary {
+		padding: 0.9rem 0;
+		cursor: pointer;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.detail-content {
+		padding: 0.2rem 0.3rem 0.7rem;
+	}
+	.table-scroll {
+		overflow-x: auto;
+		margin: 1.2rem 0;
+	}
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.84rem;
+		line-height: 1.65;
+		color: var(--color-text-secondary);
+	}
+	th {
+		color: var(--color-text);
+		text-align: left;
+		font-weight: 650;
+	}
+	th,
+	td {
+		padding: 0.7rem 0.65rem;
+		border-bottom: 1px solid var(--color-border);
+		vertical-align: top;
+	}
+	.steps {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8rem;
+		margin: 1.5rem 0;
+	}
+	.steps span {
+		flex: 1;
+		padding: 0.9rem;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 0.6rem;
+		color: var(--color-text);
+	}
+	.steps code {
+		font: 1rem var(--font-mono);
+	}
+	.steps small {
+		display: block;
+		margin-top: 0.4rem;
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+	}
+	.next-lesson {
+		padding: 1.1rem;
+		border-radius: 0.7rem;
+		background: var(--color-bg-secondary);
+	}
+</style>

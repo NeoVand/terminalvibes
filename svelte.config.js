@@ -1,10 +1,14 @@
 import { mdsvex } from 'mdsvex';
 import adapter from '@sveltejs/adapter-static';
+import { excludePrivateArt, isPrivateArtPath } from './scripts/static-art-isolation.mjs';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		adapter: adapter(),
+		adapter: excludePrivateArt(adapter()),
+		serviceWorker: {
+			files: (file) => !isPrivateArtPath(file) && !/\.DS_Store/.test(file)
+		},
 		paths: {
 			base: process.env.BASE_PATH ?? ''
 		}

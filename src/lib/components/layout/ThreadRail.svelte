@@ -13,12 +13,14 @@
 		longLabel,
 		makeLayout,
 		makeMapping,
+		makeNavigationSpace,
 		partLabel,
 		pick,
 		shortLabel,
 		solveP,
 		type MarkLayout,
 		type Mapping,
+		type NavigationSpace,
 		type PlacedItem,
 		type TimelineModel,
 		type Tune
@@ -77,6 +79,9 @@
 	/* ---- imperative state (never reactive: it changes every frame) -------- */
 
 	let model: TimelineModel | null = null;
+	let navigation: NavigationSpace | null = null;
+	// Dwell remains tied to physical reading distance, never the widened rail.
+	const navigationPosition = () => navigation?.fromDocument(position) ?? position;
 	let marks: MarkLayout | null = null;
 	let map: Mapping | null = null;
 
@@ -494,7 +499,7 @@
 
 	function paint() {
 		if (!model || !marks || !map || !glowNode || !posNode) return;
-		layoutMarks(model, map, W, position, marks, live());
+		layoutMarks(model, map, W, navigationPosition(), marks, live());
 
 		glowNode.style.width = marks.glowW + 'px';
 		glowNode.style.transform = `translateX(${marks.glowX}px)`;
@@ -747,7 +752,7 @@
 		if (!model || !host) return;
 		rectStale = true;
 		freshRect();
-		pRest = solveP(clamp01(position), restTune);
+		pRest = solveP(navigationPosition(), restTune);
 		// Keep the keyboard anchor meaningful before any key has been pressed,
 		// and re-solve it on resize so it stays on its item.
 		pKey = cursorId ? solveP(cursorDocCentre(), TUNE) : pRest;
@@ -830,7 +835,8 @@
 		}
 		const bar = model.bars.find((b) => b.item.id === id);
 		if (!bar) return null;
-		const here = position >= bar.s && position < bar.e;
+		const at = navigationPosition();
+		const here = at >= bar.s && at < bar.e;
 		const partIdx = model.partOf.get(id) ?? 0;
 		return {
 			kind: 'section',
@@ -997,7 +1003,7 @@
 		const sci = chIndex(id);
 		if (speak && sci >= 0) {
 			announce =
-				`Challenge: ${chList[sci].title} — ${partLabel(model.parts.find((p) => p.item.id === chJump[sci])?.item)} — ` +
+				`Challenge: ${chList[sci].title} — ${partLabel(model.parts[model.partOf.get(chJump[sci]) ?? 0]?.item)} — ` +
 				(chDone[sci] ? 'solved' : 'not attempted');
 		} else if (speak && id && !id.startsWith('part:')) {
 			const it = [...model.bars.map((b) => b.item), ...model.pgs.map((f) => f.item)].find(
@@ -1147,10 +1153,12 @@
 	function gotoIndex(i: number) {
 		if (!model) return;
 		const it = model.navList[clamp(i, 0, model.navList.length - 1)];
+		const challengeIndex = it.kind === 'challenge' ? chList.findIndex((c) => c.id === it.id) : -1;
 		mode = 'key';
 		pKey = solveP(model.docCentreOf(it.id), TUNE);
 		startTween(TUNE.keyMs);
-		applyCursor(it.id, true);
+		// Pointer and keyboard use the same challenge mark, card and announcement.
+		applyCursor(challengeIndex >= 0 ? `ch:${challengeIndex}` : it.id, true);
 	}
 
 	function onFocus() {
@@ -1158,7 +1166,8 @@
 		open = true;
 		if (!cursorId) {
 			let i = 0;
-			for (let k = 0; k < model.flow.length; k++) if (position >= model.flow[k].s) i = k;
+			for (let k = 0; k < model.flow.length; k++)
+				if (navigationPosition() >= model.flow[k].s) i = k;
 			gotoIndex(i);
 		} else {
 			applyCursor(cursorId, true);
@@ -1388,7 +1397,8 @@
 	/** Rebuild the document model in place, keeping the DOM and the lens. */
 	function rebuild(next: PlacedItem[] = items) {
 		if (!model) return;
-		model = buildModel(next);
+		navigation = makeNavigationSpace(next);
+		model = buildModel(navigation.items);
 		// Every bar's span just moved, so the hits' document positions are stale
 		// even though the query has not changed. Re-resolve before painting.
 		resolveHits();
@@ -1399,7 +1409,7 @@
 		// so a re-measure repoints them at new pixels without invalidating one
 		// byte of what the reader actually did. That is the whole reason the
 		// buckets are section-relative rather than keyed to raw offsets.
-		tracker?.setModel(model);
+		tracker?.setModel(buildModel(next));
 		layout();
 	}
 
@@ -1407,7 +1417,8 @@
 		reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 		for (const it of items) if (it.thumb) thumbOf.set(it.id, it.thumb);
 
-		model = buildModel(items);
+		navigation = makeNavigationSpace(items);
+		model = buildModel(navigation.items);
 		marks = makeLayout(model);
 		map = makeMapping(0, live());
 		resolveChallenges();
@@ -1456,7 +1467,7 @@
 		   point — a reader who is reading is not touching the rail. */
 		rebuildLut();
 		tracker = createDwellTracker();
-		tracker.setModel(model);
+		tracker.setModel(buildModel(items));
 		const stopHeat = tracker.subscribe(paintHeat);
 
 		// The ramp inverts between themes (light goes darker-and-richer, dark
@@ -1480,7 +1491,7 @@
 		// someone's first impression of the rail. Warm the neighbourhood of where
 		// the reader already is, at idle so it never competes with page load.
 		const idle = window.requestIdleCallback ?? ((fn: () => void) => window.setTimeout(fn, 400));
-		idle(() => warmNeighbours(model?.barAt(position).item.id ?? null));
+		idle(() => warmNeighbours(model?.barAt(navigationPosition()).item.id ?? null));
 
 		/* Then trickle the REST of the rail in, a few files per idle slot.
 		   The bounded ±window around the cursor is the right shape for a hand,
@@ -1638,7 +1649,7 @@
 		const at = clamp01(position);
 		untrack(() => {
 			if (!model) return;
-			pRest = solveP(at, restTune);
+			pRest = solveP(navigation?.fromDocument(at) ?? at, restTune);
 			if (mode === 'rest' && !springing && !hovering) pShown = pRest;
 			draw();
 		});

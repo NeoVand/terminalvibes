@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { asset } from '$app/paths';
+	import { tick, untrack } from 'svelte';
 
 	// The pre-generated PDF (scripts/make-cheatsheet-pdf.mjs) shipped in static/
 	const pdfHref = asset('/terminalvibes-cheatsheet.pdf');
@@ -32,33 +33,133 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import {
 		cheatSheet,
+		searchReferences,
 		cheatSheetLegend,
 		type CheatSheetCategory,
 		type CheatSheetCommand
 	} from '$lib/data/cheat-sheet';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
 	import { readingContext } from '$lib/ai/reading-context.svelte';
-	import { exerciseFocusOf, rowUsesWords } from '$lib/playground/exercise-commands';
+	import { exerciseFocusOf, referenceMatchesExercise } from '$lib/playground/exercise-commands';
+	import { focusAnchor, revealAnchor } from '$lib/navigation/reveal-anchor';
 
-	let { open = false, onToggle }: { open: boolean; onToggle: () => void } = $props();
+	let {
+		open = false,
+		onToggle,
+		onNavigate
+	}: {
+		open: boolean;
+		onToggle: () => void;
+		onNavigate?: (id: string) => void;
+	} = $props();
 
 	let searchQuery = $state('');
 	let expandedCategories = new SvelteSet<string>(cheatSheet.map((c) => c.label));
 	let copiedCommand = $state<string | null>(null);
 	let modalOpen = $state(false);
+	let editingCommand = $state<string | null>(null);
+	let commandDraft = $state('');
+	let copyError = $state('');
+	let panelEl: HTMLElement | undefined = $state();
+	let panelSearch: HTMLInputElement | undefined = $state();
+	let expandButton: HTMLButtonElement | undefined = $state();
+	let navigating = false;
+	let copiedTimer: ReturnType<typeof setTimeout>;
+	function needsArguments(command: string) {
+		return /<[^<>\s]+>|\b(?:FILE|PID|NAME|URL|VAR)\b/.test(command);
+	}
 
 	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape' && modalOpen) {
+		if (event.key === 'Escape' && open && !modalOpen && !event.defaultPrevented) {
+			event.preventDefault();
 			event.stopPropagation();
-			modalOpen = false;
+			onToggle();
 		}
 	}
 
-	// `autofocus` is ignored on dynamically inserted elements; the modal
-	// exists to browse commands, so search is its entry point.
-	function focusOnMount(node: HTMLElement) {
-		node.focus();
+	function openModal(node: HTMLDialogElement) {
+		node.showModal();
+		node.querySelector<HTMLInputElement>('input')?.focus();
+		return {
+			destroy() {
+				node.close();
+			}
+		};
 	}
+
+	function containModalFocus(event: KeyboardEvent) {
+		if (event.key !== 'Tab') return;
+		const dialog = event.currentTarget as HTMLDialogElement;
+		const controls = Array.from(
+			dialog.querySelectorAll<HTMLElement>(
+				'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+			)
+		).filter((node) => node.getClientRects().length > 0);
+		const first = controls[0];
+		const last = controls[controls.length - 1];
+		if (
+			(!event.shiftKey && document.activeElement === last) ||
+			(event.shiftKey && document.activeElement === first)
+		) {
+			event.preventDefault();
+			(event.shiftKey ? last : first)?.focus();
+		}
+	}
+
+	async function closeModal() {
+		modalOpen = false;
+		await tick();
+		if (!navigating) expandButton?.focus();
+	}
+
+	async function chooseReference(cmd: CheatSheetCommand) {
+		copyError = '';
+		if (cmd.kind === 'shortcut') {
+			// A chord describes keys to press; it must never become shell input.
+			if (!cmd.lessonId) return;
+			navigating = true;
+			modalOpen = false;
+			if (open) onToggle();
+			await tick();
+			if (onNavigate) onNavigate(cmd.lessonId);
+			else {
+				const target = revealAnchor(cmd.lessonId);
+				if (target) {
+					target.scrollIntoView({ behavior: 'smooth' });
+					focusAnchor(target);
+				}
+			}
+			navigating = false;
+		} else if (needsArguments(cmd.command)) {
+			editingCommand = cmd.command;
+			commandDraft = cmd.command;
+			await tick();
+			const surface = document.querySelector('dialog.cheat-modal[open]') ?? panelEl;
+			surface?.querySelector<HTMLTextAreaElement>('textarea')?.focus();
+		} else {
+			await copyCommand(cmd.command);
+		}
+	}
+
+	// Hidden drawers are inert. Opening a reference starts in its search field;
+	// closing returns to the control used to open it, unless a lesson was chosen.
+	$effect(() => {
+		if (!open || !panelSearch) return;
+		const previous = document.activeElement;
+		panelSearch.focus({ preventScroll: true });
+		return () => {
+			if (
+				!navigating &&
+				previous instanceof HTMLElement &&
+				(document.activeElement === document.body ||
+					untrack(() => panelEl)?.contains(document.activeElement))
+			) {
+				previous.focus({ preventScroll: true });
+			}
+		};
+	});
+
+	$effect(() => () => clearTimeout(copiedTimer));
 
 	// Map icon string names (from cheat-sheet.ts categories) to lucide components
 	const iconMap: Record<string, typeof Compass> = {
@@ -94,37 +195,40 @@
 		if (!exercise) return null;
 		const result: CheatSheetCategory[] = [];
 		for (const category of cheatSheet) {
-			const commands = category.commands.filter((cmd) => rowUsesWords(cmd.command, exercise.words));
+			const commands = category.commands.filter((cmd) => referenceMatchesExercise(cmd, exercise));
 			if (commands.length > 0) result.push({ ...category, commands });
 		}
 		return result.length > 0 ? result : null;
 	});
 
-	const focusActive = $derived(focusEnabled && focusedCategories !== null);
+	const focusActive = $derived(focusEnabled && focusedCategories !== null && !searchQuery.trim());
 	const focusAccent = $derived(
 		exercise?.kind === 'challenge' ? 'var(--color-challenge)' : 'var(--color-important)'
 	);
 	const FocusIcon = $derived(exercise?.kind === 'challenge' ? Puzzle : Gamepad2);
 
 	let filteredCategories = $derived.by(() => {
-		const base = focusActive && focusedCategories ? focusedCategories : cheatSheet;
+		const base =
+			!searchQuery.trim() && focusActive && focusedCategories ? focusedCategories : cheatSheet;
 		const query = searchQuery.toLowerCase().trim();
 		if (!query) return base;
+		const hits = new Set(searchReferences(query));
 
 		const result: CheatSheetCategory[] = [];
 		for (const category of base) {
-			const matchingCommands = category.commands.filter(
-				(cmd) =>
-					cmd.command.toLowerCase().includes(query) ||
-					cmd.description.toLowerCase().includes(query) ||
-					cmd.detail?.toLowerCase().includes(query)
-			);
+			const matchingCommands = category.commands.filter((cmd) => hits.has(cmd));
 			if (matchingCommands.length > 0) {
 				result.push({ ...category, commands: matchingCommands });
 			}
 		}
 		return result;
 	});
+	const showLegend = $derived(
+		!focusActive &&
+			filteredCategories.some((category) =>
+				category.commands.some((cmd) => cmd.kind !== 'shortcut' && needsArguments(cmd.command))
+			)
+	);
 
 	function toggleCategory(label: string) {
 		if (expandedCategories.has(label)) expandedCategories.delete(label);
@@ -132,14 +236,18 @@
 	}
 
 	async function copyCommand(command: string) {
+		copyError = '';
+		if (!command.trim() || needsArguments(command)) return;
 		try {
 			await navigator.clipboard.writeText(command);
 			copiedCommand = command;
-			setTimeout(() => {
+			clearTimeout(copiedTimer);
+			copiedTimer = setTimeout(() => {
 				copiedCommand = null;
 			}, 1500);
 		} catch {
-			// Clipboard API not available
+			copyError =
+				'Copy is unavailable here. Select the command text and copy it with your keyboard.';
 		}
 	}
 
@@ -242,13 +350,19 @@
 	     in the 336px panel that width is the difference between commands
 	     fitting on one line and wrapping -->
 	<button
-		onclick={() => copyCommand(cmd.command)}
+		onclick={() => void chooseReference(cmd)}
+		data-reference-id={cmd.id}
+		data-reference-kind={cmd.kind ?? 'command'}
 		class="group relative block w-full cursor-pointer rounded-md px-1.5 py-[6px] text-left transition-colors"
 		style="background: transparent;"
-		title="Click to copy"
+		title={cmd.kind === 'shortcut'
+			? 'Open the lesson'
+			: needsArguments(cmd.command)
+				? 'Fill in your command'
+				: 'Click to copy'}
 	>
 		<code
-			class="block w-fit max-w-full rounded px-1 py-0.5 text-[11px] leading-relaxed break-all"
+			class="block w-fit max-w-full rounded px-1 py-0.5 text-xs leading-relaxed break-all"
 			style="background: var(--color-code-bg); color: var(--color-code-text); font-family: var(--font-mono);"
 			>{#each tokenizeShellCommand(cmd.command) as token, ti (ti)}<span class="tok tok-{token.type}"
 					>{token.text}</span
@@ -260,17 +374,18 @@
 				? 'var(--color-tip)'
 				: 'var(--color-text-muted)'}; background: var(--color-bg-secondary);"
 		>
-			{#if isCopied}
+			{#if cmd.kind === 'shortcut'}<ChevronRight size={11} />
+			{:else if isCopied}
 				<Check size={11} />
 			{:else}
 				<Copy size={11} />
 			{/if}
 		</span>
-		<p class="mt-0.5 text-[11px] leading-snug" style="color: var(--color-text-muted);">
+		<p class="mt-0.5 text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 			{@render chipText(cmd.description)}
 		</p>
 		{#if showDetail && cmd.detail}
-			<p class="mt-1 text-[11px] leading-relaxed" style="color: var(--color-text-muted);">
+			<p class="mt-1 text-xs leading-relaxed" style="color: var(--color-text-secondary);">
 				{@render chipText(cmd.detail)}
 			</p>
 		{/if}
@@ -280,6 +395,33 @@
 			</span>
 		{/if}
 	</button>
+	{#if editingCommand === cmd.command}
+		<form
+			class="command-builder"
+			onsubmit={(event) => {
+				event.preventDefault();
+				if (commandDraft.trim() && !needsArguments(commandDraft)) void copyCommand(commandDraft);
+			}}
+		>
+			<label
+				>Replace the placeholders
+				<textarea
+					bind:value={commandDraft}
+					rows="3"
+					spellcheck="false"
+					aria-label="Your completed command"
+				></textarea>
+			</label>
+			<p>Use your own filename or value. Put quotes around a filename with spaces.</p>
+			<div>
+				<button type="submit" disabled={!commandDraft.trim() || needsArguments(commandDraft)}
+					>Copy command</button
+				>
+				<button type="button" onclick={() => (editingCommand = null)}>Close</button>
+			</div>
+			{#if copiedCommand === commandDraft}<p role="status">Copied your completed command.</p>{/if}
+		</form>
+	{/if}
 {/snippet}
 
 <!-- Backdrop on mobile -->
@@ -298,6 +440,10 @@
 	class:translate-x-0={open}
 	class:translate-x-full={!open}
 	data-fabric
+	bind:this={panelEl}
+	aria-label="Terminal cheat sheet"
+	aria-hidden={!open || modalOpen}
+	inert={!open || modalOpen}
 >
 	<!-- Header -->
 	<div
@@ -324,6 +470,7 @@
 			</a>
 			<button
 				onclick={() => (modalOpen = true)}
+				bind:this={expandButton}
 				class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:opacity-70"
 				style="color: var(--color-text-muted);"
 				aria-label="Expand cheat sheet"
@@ -350,7 +497,9 @@
 		<Search size={13} style="color: var(--color-text-muted); flex-shrink: 0;" />
 		<input
 			type="text"
-			placeholder="Filter commands..."
+			placeholder="Find a command or describe what you need..."
+			aria-label="Find a command or shortcut"
+			bind:this={panelSearch}
 			bind:value={searchQuery}
 			class="w-full border-none bg-transparent text-xs shadow-none outline-none focus:border-none focus:shadow-none focus:ring-0 focus:outline-none"
 			style="color: var(--color-text); font-family: var(--font-sans);"
@@ -359,11 +508,13 @@
 
 	{@render focusStrip()}
 
+	{#if copyError}<p role="status" class="px-4 py-2 text-xs">{copyError}</p>{/if}
+
 	<!-- Scrollable command list. The legend rests while the sheet is focused
 	     on an exercise: a learner mid-exercise is copying commands, not
 	     decoding notation, and the short list should read at a glance. -->
 	<div class="flex-1 overflow-y-auto px-2 py-2.5" use:autohideScroll>
-		{#if filteredCategories.length > 0 && !focusActive}
+		{#if showLegend}
 			{@render legend()}
 		{/if}
 		{#each filteredCategories as category (category.label)}
@@ -373,6 +524,7 @@
 				<!-- Category header -->
 				<button
 					onclick={() => toggleCategory(category.label)}
+					aria-expanded={isExpanded}
 					class="flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-[7px] text-left text-[13px] font-semibold transition-colors"
 					style="color: var(--color-text-secondary);"
 				>
@@ -414,109 +566,159 @@
 
 <!-- ───── EXPANDED MODAL ───── -->
 {#if modalOpen}
-	<div class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8">
-		<button
-			class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-			onclick={() => (modalOpen = false)}
-			aria-label="Close expanded cheat sheet"
-		></button>
+	<dialog
+		class="cheat-modal fixed inset-0 m-auto flex max-h-[88vh] w-[calc(100%-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl border p-0 shadow-2xl sm:w-[calc(100%-4rem)]"
+		style="border-color: var(--color-border); color: var(--color-text);"
+		aria-label="Terminal cheat sheet"
+		use:openModal
+		onkeydown={containModalFocus}
+		oncancel={(event) => {
+			event.preventDefault();
+			void closeModal();
+		}}
+		onclick={(event) => {
+			if (event.target !== event.currentTarget) return;
+			const bounds = event.currentTarget.getBoundingClientRect();
+			if (
+				event.clientX < bounds.left ||
+				event.clientX > bounds.right ||
+				event.clientY < bounds.top ||
+				event.clientY > bounds.bottom
+			)
+				void closeModal();
+		}}
+	>
 		<div
-			class="cheat-modal relative flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border shadow-2xl"
+			class="flex shrink-0 items-center justify-between border-b px-5 py-3"
 			style="border-color: var(--color-border);"
-			role="dialog"
-			aria-modal="true"
-			aria-label="Terminal cheat sheet"
 		>
-			<div
-				class="flex shrink-0 items-center justify-between border-b px-5 py-3"
-				style="border-color: var(--color-border);"
+			<span
+				class="text-xs font-semibold tracking-wider uppercase"
+				style="color: var(--color-text-muted); letter-spacing: 0.08em;"
 			>
-				<span
-					class="text-xs font-semibold tracking-wider uppercase"
-					style="color: var(--color-text-muted); letter-spacing: 0.08em;"
+				Cheat Sheet
+			</span>
+			<div class="flex items-center gap-1">
+				{@render focusToggle()}
+				<a
+					href={pdfHref}
+					download="terminalvibes-cheatsheet.pdf"
+					class="flex h-7 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-[11px] font-medium transition-colors hover:opacity-80"
+					style="color: var(--color-text-secondary); border-color: var(--color-border);"
+					aria-label="Download as PDF"
 				>
-					Cheat Sheet
-				</span>
-				<div class="flex items-center gap-1">
-					{@render focusToggle()}
-					<a
-						href={pdfHref}
-						download="terminalvibes-cheatsheet.pdf"
-						class="flex h-7 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-[11px] font-medium transition-colors hover:opacity-80"
-						style="color: var(--color-text-secondary); border-color: var(--color-border);"
-						aria-label="Download as PDF"
-					>
-						<Download size={12} />
-						PDF
-					</a>
-					<button
-						onclick={() => (modalOpen = false)}
-						class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:opacity-70"
-						style="color: var(--color-text-muted);"
-						aria-label="Close expanded cheat sheet"
-					>
-						<X size={15} />
-					</button>
-				</div>
-			</div>
-
-			<div
-				class="flex shrink-0 items-center gap-2 border-b px-5 py-2.5"
-				style="border-color: var(--color-border); background: color-mix(in srgb, var(--color-bg-tertiary) 55%, transparent);"
-			>
-				<Search size={13} style="color: var(--color-text-muted); flex-shrink: 0;" />
-				<input
-					type="text"
-					placeholder="Filter commands..."
-					bind:value={searchQuery}
-					use:focusOnMount
-					class="w-full border-none bg-transparent text-xs shadow-none outline-none focus:border-none focus:shadow-none focus:ring-0 focus:outline-none"
-					style="color: var(--color-text); font-family: var(--font-sans);"
-				/>
-			</div>
-
-			{@render focusStrip()}
-
-			<div class="min-h-0 flex-1 overflow-y-auto px-5 py-4" use:autohideScroll>
-				{#if filteredCategories.length > 0 && !focusActive}
-					{@render legend()}
-				{/if}
-				<div class="cheat-modal-columns">
-					{#each filteredCategories as category (category.label)}
-						{@const IconComponent = iconMap[category.icon]}
-						<section class="cheat-modal-category mb-4">
-							<h3
-								class="mb-1.5 flex items-center gap-2 px-1 pb-1.5 text-[13px] font-semibold"
-								style="color: var(--color-text); border-bottom: 1px solid var(--color-border);"
-							>
-								{#if IconComponent}
-									<IconComponent size={14} strokeWidth={2} />
-								{/if}
-								<span class="flex-1">{category.label}</span>
-								<span class="text-[10px] font-normal" style="color: var(--color-text-muted);">
-									{category.commands.length}
-								</span>
-							</h3>
-							{#each category.commands as cmd (cmd.command)}
-								{@render commandRow(cmd, true)}
-							{/each}
-						</section>
-					{/each}
-				</div>
-
-				{#if filteredCategories.length === 0}
-					<div class="px-2 py-8 text-center">
-						<p class="text-xs" style="color: var(--color-text-muted);">
-							No commands match your search.
-						</p>
-					</div>
-				{/if}
+					<Download size={12} />
+					PDF
+				</a>
+				<button
+					onclick={() => void closeModal()}
+					class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:opacity-70"
+					style="color: var(--color-text-muted);"
+					aria-label="Close expanded cheat sheet"
+				>
+					<X size={15} />
+				</button>
 			</div>
 		</div>
-	</div>
+
+		<div
+			class="flex shrink-0 items-center gap-2 border-b px-5 py-2.5"
+			style="border-color: var(--color-border); background: color-mix(in srgb, var(--color-bg-tertiary) 55%, transparent);"
+		>
+			<Search size={13} style="color: var(--color-text-muted); flex-shrink: 0;" />
+			<input
+				type="text"
+				placeholder="Find a command or describe what you need..."
+				aria-label="Find a command or shortcut"
+				bind:value={searchQuery}
+				class="w-full border-none bg-transparent text-xs shadow-none outline-none focus:border-none focus:shadow-none focus:ring-0 focus:outline-none"
+				style="color: var(--color-text); font-family: var(--font-sans);"
+			/>
+		</div>
+
+		{@render focusStrip()}
+		{#if copyError}<p role="status" class="px-5 py-2 text-xs">{copyError}</p>{/if}
+
+		<div class="min-h-0 flex-1 overflow-y-auto px-5 py-4" use:autohideScroll>
+			{#if showLegend}
+				{@render legend()}
+			{/if}
+			<div class="cheat-modal-columns">
+				{#each filteredCategories as category (category.label)}
+					{@const IconComponent = iconMap[category.icon]}
+					<section class="cheat-modal-category mb-4">
+						<h3
+							class="mb-1.5 flex items-center gap-2 px-1 pb-1.5 text-[13px] font-semibold"
+							style="color: var(--color-text); border-bottom: 1px solid var(--color-border);"
+						>
+							{#if IconComponent}
+								<IconComponent size={14} strokeWidth={2} />
+							{/if}
+							<span class="flex-1">{category.label}</span>
+							<span class="text-[10px] font-normal" style="color: var(--color-text-muted);">
+								{category.commands.length}
+							</span>
+						</h3>
+						{#each category.commands as cmd (cmd.command)}
+							{@render commandRow(cmd, true)}
+						{/each}
+					</section>
+				{/each}
+			</div>
+
+			{#if filteredCategories.length === 0}
+				<div class="px-2 py-8 text-center">
+					<p class="text-xs" style="color: var(--color-text-muted);">
+						No commands match your search.
+					</p>
+				</div>
+			{/if}
+		</div>
+	</dialog>
 {/if}
 
 <style>
+	.command-builder {
+		margin: 0.25rem 0.4rem 0.75rem;
+		padding: 0.7rem;
+		background: var(--color-bg-tertiary);
+		border-radius: 0.5rem;
+		font-size: 0.75rem;
+	}
+	.command-builder label {
+		display: block;
+		font-weight: 600;
+	}
+	.command-builder textarea {
+		display: block;
+		width: 100%;
+		margin: 0.4rem 0;
+		border: 1px solid var(--color-border);
+		border-radius: 0.35rem;
+		background: var(--color-bg);
+		color: var(--color-text);
+		font: 0.75rem/1.5 var(--font-mono);
+		padding: 0.4rem;
+	}
+	.command-builder p {
+		margin: 0.4rem 0;
+		color: var(--color-text-muted);
+	}
+	.command-builder div {
+		display: flex;
+		gap: 0.5rem;
+	}
+	.command-builder button {
+		border: 1px solid var(--color-border);
+		border-radius: 0.35rem;
+		padding: 0.3rem 0.5rem;
+		cursor: pointer;
+	}
+	.command-builder button:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+
 	/* Frosted glass, matching the header and sidebar */
 	.cheat-panel {
 		background: var(--panel-glass);
@@ -528,6 +730,11 @@
 		background: color-mix(in srgb, var(--color-bg-secondary) 78%, transparent);
 		backdrop-filter: blur(28px) saturate(1.5);
 		-webkit-backdrop-filter: blur(28px) saturate(1.5);
+	}
+
+	.cheat-modal::backdrop {
+		background: rgb(0 0 0 / 50%);
+		backdrop-filter: blur(4px);
 	}
 
 	/* Categories flow through balanced columns; each stays whole */

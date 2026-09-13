@@ -140,9 +140,7 @@
 	const accent = 'var(--color-challenge)';
 	/** A great solve earns the course's own green; an acceptable one keeps the
 	 *  challenge's earth-red, because it is still a solve on its own terms. */
-	const verdictAccent = $derived(
-		verdict?.grade === 'great' ? 'var(--color-primary)' : 'var(--color-challenge)'
-	);
+	const verdictAccent = 'var(--color-primary)';
 </script>
 
 <div
@@ -239,40 +237,23 @@
 		<div class="verdict" style="--verdict-accent: {verdictAccent};" role="status">
 			<p class="verdict-line">
 				<Puzzle size={14} aria-hidden="true" />
-				{#if verdict.grade === 'great'}
-					<!-- No number in this line. `greatCost` is the MAX across the
-					     canonical route and its alternates, so an economical solve is
-					     often UNDER par — and "solved for 2, which is par" next to
-					     "par is 4" is the kind of sentence that makes a reader
-					     distrust the whole scoreboard. The figures live below. -->
-					<strong>Great.</strong> You found the short way — the one the Part was teaching.
-				{:else}
-					<strong>Solved.</strong> That is a real solve — and there is a shorter way.
-				{/if}
+				<strong>Completed.</strong> You reached the goal. Exploring and checking your work are part of
+				learning.
 			</p>
-
-			<p class="verdict-cost">
-				Your cost: <strong>{verdict.score.cost}</strong>
-				&mdash; {verdict.score.enters}
-				{verdict.score.enters === 1 ? 'Enter press' : 'Enter presses'} plus
-				{verdict.score.elements}
-				{verdict.score.elements === 1 ? 'command element' : 'command elements'}. Par is
-				<strong>{par}</strong>. Looking costs nothing; only the commands that change something
-				count.
-			</p>
-
-			{#if verdict.grade === 'great' && greatPath}
-				<p class="verdict-note">{greatPath.note}</p>
-			{:else if greatPath}
+			{#if greatPath}
 				<details class="verdict-reveal">
-					<summary>Show the economical route</summary>
+					<summary>Optional: compare another approach</summary>
 					<p class="verdict-note">{greatPath.note}</p>
 					<pre class="verdict-lines">{greatPath.lines.join('\n')}</pre>
+					<p class="verdict-cost">
+						Your route used {verdict.score.enters} Enter presses and {verdict.score.elements} command
+						elements. The reference route has a combined count of {par}. Fewer commands are not
+						required to complete this lesson.
+					</p>
 				</details>
-				<button type="button" class="verdict-retry" onclick={retry}>
-					<RotateCcw size={12} />
-					Reset and try for par
-				</button>
+				<button type="button" class="verdict-retry" onclick={retry}
+					><RotateCcw size={12} /> Practise again</button
+				>
 			{/if}
 		</div>
 	{/if}

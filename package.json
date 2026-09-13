@@ -15,8 +15,13 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:e2e": "playwright test",
-		"test:unit": "vitest run",
-		"test": "npm run test:unit && npm run test:e2e"
+		"test:unit": "vitest run && npm run test:catalog && npm run test:content && npm run test:art",
+		"test": "npm run test:unit && npm run test:e2e",
+		"models:update": "node scripts/update-model-catalog.mjs",
+		"test:catalog": "node --test scripts/model-catalog.test.mjs",
+		"test:content": "node --test scripts/course-source.test.mjs",
+		"test:art": "node --test scripts/art-inventory.test.mjs",
+		"test:art-review": "playwright test --config playwright.art-review.config.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.1.0",

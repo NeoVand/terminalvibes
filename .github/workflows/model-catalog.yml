@@ -1,0 +1,79 @@
+name: Monthly tutor model catalog
+
+on:
+  schedule:
+    - cron: '17 9 1 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Check sources and show the diff without creating a pull request'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: monthly-model-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      MODEL_BRANCH: codex/monthly-model-catalog
+      BASE_BRANCH: ${{ github.event.repository.default_branch }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check source parsers
+        run: node --test scripts/model-catalog.test.mjs
+      - name: Prepare maintenance branch
+        if: env.DRY_RUN != 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin "$BASE_BRANCH"
+          if git ls-remote --exit-code --heads origin "$MODEL_BRANCH" >/dev/null; then
+            git fetch origin "$MODEL_BRANCH"
+            git switch -c "$MODEL_BRANCH" --track "origin/$MODEL_BRANCH"
+            git merge --no-edit "origin/$BASE_BRANCH"
+          else
+            git switch -c "$MODEL_BRANCH" "origin/$BASE_BRANCH"
+          fi
+      - name: Read official provider catalogs
+        run: node scripts/update-model-catalog.mjs
+      - name: Show proposed changes
+        run: git diff -- src/lib/ai/cloud/model-catalog.json
+      - name: Propose model changes
+        if: env.DRY_RUN != 'true'
+        run: |
+          if git diff --quiet -- src/lib/ai/cloud/model-catalog.json; then
+            echo 'No model changes; no pull request needed.'
+            exit 0
+          fi
+          git add src/lib/ai/cloud/model-catalog.json
+          git commit -m 'chore: refresh public tutor model catalog'
+          git push origin "$MODEL_BRANCH"
+          cat > /tmp/model-catalog-pr.md <<'BODY'
+          Updates the static tutor model choices from OpenAI and Anthropic's official public text-model lineups. No API credentials or browser model-discovery calls are used.
+
+          Review new and removed model IDs and their provider source links before merging. Public listing does not guarantee account access or successful tool use. The exact-model-ID option remains available between catalog updates.
+
+          Validation: source parser tests passed; the refresh rejects empty, malformed, duplicate, and unexpectedly shrunken model lists. This bot never merges its own pull request.
+          BODY
+          existing=$(gh pr list --head "$MODEL_BRANCH" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --body-file /tmp/model-catalog-pr.md
+          else
+            gh pr create --head "$MODEL_BRANCH" --base "$BASE_BRANCH" --title 'chore: refresh tutor model catalog' --body-file /tmp/model-catalog-pr.md
+          fi

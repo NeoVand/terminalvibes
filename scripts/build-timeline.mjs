@@ -19,9 +19,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { courseSource } from './course-source.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const SECTIONS_DIR = join(ROOT, 'src/lib/components/sections');
 const OUT_FILE = join(ROOT, 'src/lib/data/timeline-manifest.json');
 
 /* ── the four id lists, parsed out of sections.ts so they never drift ───── */
@@ -113,7 +113,7 @@ function headingText(inner) {
 const items = [];
 
 for (const file of files) {
-	const raw = readFileSync(join(SECTIONS_DIR, file), 'utf8');
+	const raw = courseSource(file);
 	// One string for every positional pass, so anchor / title / image indices
 	// are directly comparable. Replace the script and style blocks with spaces
 	// of the same length rather than deleting them, so nothing shifts.
@@ -158,7 +158,7 @@ for (const file of files) {
 			text: decode(m[1]).replaceAll('`', ''),
 			at: m.index
 		})),
-		...[...scan.matchAll(/<(h[2-4])\b[^>]*>([\s\S]*?)<\/\1>/g)]
+		...[...scan.matchAll(/<(h[1-4]|summary)\b[^>]*>([\s\S]*?)<\/\1>/g)]
 			.filter((m) => !/\bsr-only\b/.test(m[0]))
 			// Anchor at the heading's TEXT, not its opening tag: several anchors
 			// live on the heading element itself (<h4 id="prompt-designer">), so
@@ -172,6 +172,9 @@ for (const file of files) {
 		file: m[1],
 		at: m.index
 	}));
+	const subsectionStarts = [...scan.matchAll(/<h[1-4]\b[^>]*\bid="[a-z0-9-]+"/g)].map(
+		(match) => match.index
+	);
 
 	const comp = file.replace('.svelte', '');
 
@@ -180,19 +183,23 @@ for (const file of files) {
 		const end = i + 1 < anchors.length ? anchors[i + 1].at : scan.length;
 		const kind = kindOf(id);
 		const between = (list) => list.find((x) => x.at > at && x.at < end);
+		// A later subsection can start before the next rail anchor. Its picture
+		// must not become the preceding playground's banner.
+		const nextSubsection = subsectionStarts.find((start) => start > at && start < end);
+		const imageEnd = kind === 'playground' ? (nextSubsection ?? end) : end;
 
 		// Both activity kinds name themselves on the tag. A challenge especially
 		// must not fall through to `between(titles)`: it is the LAST thing in its
 		// Part, so the next heading it would find belongs to the next chapter.
 		let title =
 			kind === 'playground' || kind === 'challenge' ? activityTitle.get(id) : between(titles)?.text;
-		if (!title) title = id;
+		if (!title) title = id === 'hello-first-command' ? 'Your First Command' : id;
 
 		items.push({
 			id,
 			kind,
 			title,
-			image: between(images)?.file ?? null,
+			image: images.find((image) => image.at > at && image.at < imageEnd)?.file ?? null,
 			comp
 		});
 	}
@@ -224,13 +231,13 @@ for (const file of files) {
 const firstSectionAfter = (i) => {
 	for (let j = i + 1; j < items.length; j++) {
 		if (items[j].kind === 'part') break; // never reach past the next chapter
-		if (items[j].kind === 'section' && items[j].image) return items[j];
+		if (items[j].image) return items[j];
 	}
 	return null;
 };
 const sectionAtOrBefore = (i) => {
 	for (let j = i - 1; j >= 0; j--) {
-		if (items[j].kind === 'section' && items[j].image) return items[j];
+		if (items[j].image) return items[j];
 	}
 	return null;
 };

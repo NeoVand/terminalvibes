@@ -2,45 +2,63 @@
 	{
 		"id": "hero",
 		"kind": "part",
-		"title": "hero",
+		"title": "Your first command.Right here.",
 		"image": "Hero.webp",
-		"thumb": "hero",
+		"thumb": "hello-first-command",
+		"inherited": true,
+		"comp": "Hero"
+	},
+	{
+		"id": "hello-first-command",
+		"kind": "section",
+		"title": "Your First Command",
+		"image": "Hero.webp",
+		"thumb": "hello-first-command",
+		"inherited": false,
+		"comp": "Hero"
+	},
+	{
+		"id": "keyboard-workshop",
+		"kind": "section",
+		"title": "Fix a line. Keep your flow.",
+		"image": "keyboard-line-editing.webp",
+		"thumb": "keyboard-workshop",
 		"inherited": false,
 		"comp": "Hero"
 	},
 	{
 		"id": "section-intro-what",
 		"kind": "section",
-		"title": "What Is the Terminal?",
+		"title": "What are the terminal and the shell?",
 		"image": "what-is-terminal.webp",
 		"thumb": "section-intro-what",
 		"inherited": false,
 		"comp": "Hero"
 	},
 	{
-		"id": "section-intro-history",
+		"id": "section-intro-anatomy",
 		"kind": "section",
-		"title": "A Brief History",
-		"image": "terminal-history.webp",
-		"thumb": "section-intro-history",
-		"inherited": false,
+		"title": "What is a prompt? Which text do I type?",
+		"image": "what-is-terminal.webp",
+		"thumb": "section-intro-what",
+		"inherited": true,
 		"comp": "Hero"
 	},
 	{
 		"id": "section-intro-shells",
 		"kind": "section",
-		"title": "Your Machine's Terminal",
-		"image": "your-machines-terminal.webp",
-		"thumb": "section-intro-shells",
-		"inherited": false,
+		"title": "Can I use the terminal on my own computer?",
+		"image": "what-is-terminal.webp",
+		"thumb": "section-intro-what",
+		"inherited": true,
 		"comp": "Hero"
 	},
 	{
-		"id": "section-intro-anatomy",
+		"id": "section-intro-history",
 		"kind": "section",
-		"title": "Anatomy of a Prompt",
-		"image": "prompt-anatomy.webp",
-		"thumb": "section-intro-anatomy",
+		"title": "Why do people still type commands?",
+		"image": "terminal-history.webp",
+		"thumb": "section-intro-history",
 		"inherited": false,
 		"comp": "Hero"
 	},
@@ -48,8 +66,8 @@
 		"id": "part-1",
 		"kind": "part",
 		"title": "First Contact",
-		"image": "opening-terminal.webp",
-		"thumb": "section-1-1",
+		"image": "first-commands.webp",
+		"thumb": "first-steps",
 		"inherited": true,
 		"comp": "Part1"
 	},
@@ -57,9 +75,9 @@
 		"id": "section-1-1",
 		"kind": "section",
 		"title": "1.1 Opening Your Terminal",
-		"image": "opening-terminal.webp",
-		"thumb": "section-1-1",
-		"inherited": false,
+		"image": "first-commands.webp",
+		"thumb": "first-steps",
+		"inherited": true,
 		"comp": "Part1"
 	},
 	{
@@ -67,8 +85,8 @@
 		"kind": "section",
 		"title": "1.2 Your First Commands",
 		"image": "first-commands.webp",
-		"thumb": "section-1-2",
-		"inherited": false,
+		"thumb": "first-steps",
+		"inherited": true,
 		"comp": "Part1"
 	},
 	{
@@ -76,25 +94,25 @@
 		"kind": "playground",
 		"title": "Say Hello to the Machine",
 		"image": "first-commands.webp",
-		"thumb": "section-1-2",
-		"inherited": true,
+		"thumb": "first-steps",
+		"inherited": false,
 		"comp": "Part1"
 	},
 	{
 		"id": "section-1-3",
 		"kind": "section",
 		"title": "1.3 Getting Help",
-		"image": "getting-help.webp",
-		"thumb": "section-1-3",
-		"inherited": false,
+		"image": "first-commands.webp",
+		"thumb": "first-steps",
+		"inherited": true,
 		"comp": "Part1"
 	},
 	{
 		"id": "help-lookup",
 		"kind": "playground",
 		"title": "Read the Manual First",
-		"image": "getting-help.webp",
-		"thumb": "section-1-3",
+		"image": "first-commands.webp",
+		"thumb": "first-steps",
 		"inherited": true,
 		"comp": "Part1"
 	},
@@ -102,15 +120,15 @@
 		"id": "ch-1-read-the-flags",
 		"kind": "challenge",
 		"title": "Look It Up First",
-		"image": "getting-help.webp",
-		"thumb": "section-1-3",
+		"image": "first-commands.webp",
+		"thumb": "first-steps",
 		"inherited": true,
 		"comp": "Part1"
 	},
 	{
 		"id": "part-2",
 		"kind": "part",
-		"title": "Moving Around: Your Mental Map of the Machine",
+		"title": "Moving Around: Find Your Files",
 		"image": "where-am-i.webp",
 		"thumb": "section-2-1",
 		"inherited": true,
@@ -128,19 +146,10 @@
 	{
 		"id": "section-2-2",
 		"kind": "section",
-		"title": "2.2 Paths",
+		"title": "2.2 Paths: Addresses for Files",
 		"image": "paths.webp",
 		"thumb": "section-2-2",
 		"inherited": false,
-		"comp": "Part2"
-	},
-	{
-		"id": "quoting",
-		"kind": "playground",
-		"title": "Mind the Gap",
-		"image": "paths.webp",
-		"thumb": "section-2-2",
-		"inherited": true,
 		"comp": "Part2"
 	},
 	{
@@ -155,7 +164,7 @@
 	{
 		"id": "navigation",
 		"kind": "playground",
-		"title": "Find the Lost API Key",
+		"title": "Find the Hidden Garden Note",
 		"image": "changing-directories.webp",
 		"thumb": "section-2-3",
 		"inherited": true,
@@ -164,27 +173,45 @@
 	{
 		"id": "section-2-4",
 		"kind": "section",
-		"title": "2.4 Making Things",
+		"title": "2.4 Make a Place for Your Notes",
 		"image": "making-things.webp",
 		"thumb": "section-2-4",
 		"inherited": false,
 		"comp": "Part2"
 	},
 	{
+		"id": "quoting",
+		"kind": "playground",
+		"title": "Mind the Gap",
+		"image": "making-things.webp",
+		"thumb": "section-2-4",
+		"inherited": true,
+		"comp": "Part2"
+	},
+	{
 		"id": "section-2-5",
 		"kind": "section",
-		"title": "2.5 Looking Inside Files",
-		"image": "looking-inside.webp",
-		"thumb": "section-2-5",
+		"title": "2.5 Read, Edit, and Save a File",
+		"image": "making-things.webp",
+		"thumb": "section-2-4",
+		"inherited": true,
+		"comp": "Part2"
+	},
+	{
+		"id": "edit-notes",
+		"kind": "playground",
+		"title": "Add to Your Seed List",
+		"image": "file-editor-save.webp",
+		"thumb": "edit-notes",
 		"inherited": false,
 		"comp": "Part2"
 	},
 	{
 		"id": "workspace-setup",
 		"kind": "playground",
-		"title": "Build Your Workspace",
-		"image": "looking-inside.webp",
-		"thumb": "section-2-5",
+		"title": "Build Your Notebook Workspace",
+		"image": "file-editor-save.webp",
+		"thumb": "edit-notes",
 		"inherited": true,
 		"comp": "Part2"
 	},
@@ -192,15 +219,15 @@
 		"id": "ch-2-scaffold",
 		"kind": "challenge",
 		"title": "Scaffold It From Here",
-		"image": "looking-inside.webp",
-		"thumb": "section-2-5",
+		"image": "file-editor-save.webp",
+		"thumb": "edit-notes",
 		"inherited": true,
 		"comp": "Part2"
 	},
 	{
 		"id": "part-3",
 		"kind": "part",
-		"title": "Copy, Move, Delete — and the Habits That Keep You Safe",
+		"title": "Copy, Move, and Delete with Confidence",
 		"image": "copying.webp",
 		"thumb": "section-3-1",
 		"inherited": true,
@@ -209,7 +236,7 @@
 	{
 		"id": "section-3-1",
 		"kind": "section",
-		"title": "3.1 Copying",
+		"title": "3.1 Copying: Keep the Original",
 		"image": "copying.webp",
 		"thumb": "section-3-1",
 		"inherited": false,
@@ -218,7 +245,7 @@
 	{
 		"id": "section-3-2",
 		"kind": "section",
-		"title": "3.2 Moving & Renaming",
+		"title": "3.2 Moving and Renaming",
 		"image": "moving-renaming.webp",
 		"thumb": "section-3-2",
 		"inherited": false,
@@ -227,7 +254,7 @@
 	{
 		"id": "section-3-3",
 		"kind": "section",
-		"title": "3.3 Deleting (Carefully)",
+		"title": "3.3 Deleting: Choose the Exact Target",
 		"image": "deleting.webp",
 		"thumb": "section-3-3",
 		"inherited": false,
@@ -245,7 +272,7 @@
 	{
 		"id": "section-3-4",
 		"kind": "section",
-		"title": "3.4 Wildcards",
+		"title": "3.4 Wildcards: Select a Group of Names",
 		"image": "wildcards.webp",
 		"thumb": "section-3-4",
 		"inherited": false,
@@ -272,7 +299,7 @@
 	{
 		"id": "part-4",
 		"kind": "part",
-		"title": "Text & Pipes: How Small Tools Combine",
+		"title": "Text and Pipes: Turn a List into an Answer",
 		"image": "redirection.webp",
 		"thumb": "section-4-1",
 		"inherited": true,
@@ -281,7 +308,7 @@
 	{
 		"id": "section-4-1",
 		"kind": "section",
-		"title": "4.1 Redirection — Point the Output Somewhere Else",
+		"title": "4.1 Save a Command’s Output",
 		"image": "redirection.webp",
 		"thumb": "section-4-1",
 		"inherited": false,
@@ -299,7 +326,7 @@
 	{
 		"id": "section-4-2",
 		"kind": "section",
-		"title": "4.2 Pipes — Small Tools, Composed",
+		"title": "4.2 Pipes: Give the Text to Another Tool",
 		"image": "pipes.webp",
 		"thumb": "section-4-2",
 		"inherited": false,
@@ -308,7 +335,7 @@
 	{
 		"id": "section-4-3",
 		"kind": "section",
-		"title": "4.3 Searching Text — grep",
+		"title": "4.3 Search Inside Files with grep",
 		"image": "grep.webp",
 		"thumb": "section-4-3",
 		"inherited": false,
@@ -326,7 +353,7 @@
 	{
 		"id": "section-4-4",
 		"kind": "section",
-		"title": "4.4 Counting & Shaping — wc, sort, uniq, cut",
+		"title": "4.4 Count, Group, and Rank",
 		"image": "counting-shaping.webp",
 		"thumb": "section-4-4",
 		"inherited": false,
@@ -353,7 +380,7 @@
 	{
 		"id": "section-4-5",
 		"kind": "section",
-		"title": "4.5 Finding Files — find",
+		"title": "4.5 Find Files by Name",
 		"image": "finding-files.webp",
 		"thumb": "section-4-5",
 		"inherited": false,
@@ -380,7 +407,7 @@
 	{
 		"id": "part-5",
 		"kind": "part",
-		"title": "Permissions & Environment: How the Machine Decides",
+		"title": "Permissions and Settings: Understand the Refusal",
 		"image": "reading-ls-l.webp",
 		"thumb": "section-5-1",
 		"inherited": true,
@@ -389,7 +416,7 @@
 	{
 		"id": "section-5-1",
 		"kind": "section",
-		"title": "5.1 Reading ls -l — The 10-Character Rulebook",
+		"title": "5.1 Read a File’s Permissions",
 		"image": "reading-ls-l.webp",
 		"thumb": "section-5-1",
 		"inherited": false,
@@ -398,7 +425,7 @@
 	{
 		"id": "section-5-2",
 		"kind": "section",
-		"title": "5.2 chmod — Changing the Rules",
+		"title": "5.2 Change Only the Permission You Need",
 		"image": "chmod.webp",
 		"thumb": "section-5-2",
 		"inherited": false,
@@ -416,7 +443,7 @@
 	{
 		"id": "section-5-3",
 		"kind": "section",
-		"title": "5.3 sudo — Borrowed Superpowers",
+		"title": "5.3 sudo: Run One Command with More Authority",
 		"image": "sudo.webp",
 		"thumb": "section-5-3",
 		"inherited": false,
@@ -425,7 +452,7 @@
 	{
 		"id": "section-5-4",
 		"kind": "section",
-		"title": "5.4 Environment Variables — The Invisible Settings",
+		"title": "5.4 Variables and the Places Commands Are Found",
 		"image": "env-vars.webp",
 		"thumb": "section-5-4",
 		"inherited": false,
@@ -443,7 +470,7 @@
 	{
 		"id": "section-5-5",
 		"kind": "section",
-		"title": "5.5 Your Shell Config — Make It Stick",
+		"title": "5.5 Keep a Useful Setting",
 		"image": "shell-config.webp",
 		"thumb": "section-5-5",
 		"inherited": false,
@@ -470,7 +497,7 @@
 	{
 		"id": "part-6",
 		"kind": "part",
-		"title": "Scripts & Automation: Teach the Machine Your Routine",
+		"title": "Scripts: Save a Routine You Understand",
 		"image": "first-script.webp",
 		"thumb": "section-6-1",
 		"inherited": true,
@@ -495,18 +522,9 @@
 		"comp": "Part6"
 	},
 	{
-		"id": "script-args",
-		"kind": "playground",
-		"title": "One Script, Any Folder",
-		"image": "first-script.webp",
-		"thumb": "section-6-1",
-		"inherited": true,
-		"comp": "Part6"
-	},
-	{
 		"id": "section-6-2",
 		"kind": "section",
-		"title": "6.2 Exit Codes & Chaining",
+		"title": "6.2 Know Whether the Work Succeeded",
 		"image": "exit-codes.webp",
 		"thumb": "section-6-2",
 		"inherited": false,
@@ -516,6 +534,15 @@
 		"id": "exit-codes",
 		"kind": "playground",
 		"title": "Deploy Only on Green",
+		"image": "exit-codes.webp",
+		"thumb": "section-6-2",
+		"inherited": true,
+		"comp": "Part6"
+	},
+	{
+		"id": "script-args",
+		"kind": "playground",
+		"title": "One Script, Any Folder",
 		"image": "exit-codes.webp",
 		"thumb": "section-6-2",
 		"inherited": true,
@@ -533,7 +560,7 @@
 	{
 		"id": "part-7",
 		"kind": "part",
-		"title": "Text Surgery: Find, Change, Extract",
+		"title": "Text Surgery: Change a Word, Keep the Original",
 		"image": "find-replace.webp",
 		"thumb": "section-7-1",
 		"inherited": true,
@@ -542,7 +569,7 @@
 	{
 		"id": "section-7-1",
 		"kind": "section",
-		"title": "7.1 Find & Replace — the s Command",
+		"title": "7.1 Find and Replace with sed",
 		"image": "find-replace.webp",
 		"thumb": "section-7-1",
 		"inherited": false,
@@ -560,7 +587,7 @@
 	{
 		"id": "section-7-2",
 		"kind": "section",
-		"title": "7.2 Line Surgery — Addresses, d and p",
+		"title": "7.2 Choose Which Lines to Keep",
 		"image": "line-surgery.webp",
 		"thumb": "section-7-2",
 		"inherited": false,
@@ -578,7 +605,7 @@
 	{
 		"id": "section-7-3",
 		"kind": "section",
-		"title": "7.3 Editing in Place — the -i Footgun and the .bak Rule",
+		"title": "7.3 Save an Edit and Check the Difference",
 		"image": "edit-in-place.webp",
 		"thumb": "section-7-3",
 		"inherited": false,
@@ -596,7 +623,7 @@
 	{
 		"id": "section-7-4",
 		"kind": "section",
-		"title": "7.4 Columns & awk — Pull the Field You Need",
+		"title": "7.4 Choose Fields with awk",
 		"image": "columns-awk.webp",
 		"thumb": "section-7-4",
 		"inherited": false,
@@ -623,7 +650,7 @@
 	{
 		"id": "part-8",
 		"kind": "part",
-		"title": "Processes & Ports: When Things Won't Stop",
+		"title": "Processes & ports: get your prompt back",
 		"image": "everything-is-a-process.webp",
 		"thumb": "section-8-1",
 		"inherited": true,
@@ -632,7 +659,7 @@
 	{
 		"id": "section-8-1",
 		"kind": "section",
-		"title": "8.1 Everything Is a Process",
+		"title": "8.1 Meet a running program",
 		"image": "everything-is-a-process.webp",
 		"thumb": "section-8-1",
 		"inherited": false,
@@ -641,7 +668,7 @@
 	{
 		"id": "section-8-2",
 		"kind": "section",
-		"title": "8.2 Stopping Things — Ask Nicely, Then Insist",
+		"title": "8.2 Get your prompt back",
 		"image": "stopping-things.webp",
 		"thumb": "section-8-2",
 		"inherited": false,
@@ -650,7 +677,7 @@
 	{
 		"id": "runaway-process",
 		"kind": "playground",
-		"title": "Stop the Runaway",
+		"title": "Stop the runaway",
 		"image": "stopping-things.webp",
 		"thumb": "section-8-2",
 		"inherited": true,
@@ -659,7 +686,7 @@
 	{
 		"id": "section-8-3",
 		"kind": "section",
-		"title": "8.3 Who's on Port 3000?",
+		"title": "8.3 Find who is using a port",
 		"image": "port-3000.webp",
 		"thumb": "section-8-3",
 		"inherited": false,
@@ -668,7 +695,7 @@
 	{
 		"id": "free-the-port",
 		"kind": "playground",
-		"title": "Free Port 3000",
+		"title": "Free port 3000",
 		"image": "port-3000.webp",
 		"thumb": "section-8-3",
 		"inherited": true,
@@ -677,7 +704,7 @@
 	{
 		"id": "section-8-4",
 		"kind": "section",
-		"title": "8.4 Background & Foreground",
+		"title": "8.4 Give each job a place",
 		"image": "background-jobs.webp",
 		"thumb": "section-8-4",
 		"inherited": false,
@@ -686,7 +713,7 @@
 	{
 		"id": "backstage-jobs",
 		"kind": "playground",
-		"title": "Two Things at Once",
+		"title": "Two things at once",
 		"image": "background-jobs.webp",
 		"thumb": "section-8-4",
 		"inherited": true,
@@ -695,7 +722,7 @@
 	{
 		"id": "ch-8-agent-cleanup",
 		"kind": "challenge",
-		"title": "Clear the Agent's Processes",
+		"title": "Clear the agent’s processes",
 		"image": "background-jobs.webp",
 		"thumb": "section-8-4",
 		"inherited": true,
@@ -704,7 +731,7 @@
 	{
 		"id": "part-9",
 		"kind": "part",
-		"title": "Talking to the Network",
+		"title": "Network conversations: ask, inspect, verify",
 		"image": "localhost.webp",
 		"thumb": "section-9-1",
 		"inherited": true,
@@ -713,7 +740,7 @@
 	{
 		"id": "section-9-1",
 		"kind": "section",
-		"title": "9.1 What Is localhost?",
+		"title": "9.1 Know where a request goes",
 		"image": "localhost.webp",
 		"thumb": "section-9-1",
 		"inherited": false,
@@ -722,7 +749,7 @@
 	{
 		"id": "section-9-2",
 		"kind": "section",
-		"title": "9.2 curl — Ask the Network",
+		"title": "9.2 Ask, then inspect the answer",
 		"image": "curl.webp",
 		"thumb": "section-9-2",
 		"inherited": false,
@@ -731,7 +758,7 @@
 	{
 		"id": "health-check",
 		"kind": "playground",
-		"title": "Is It Alive?",
+		"title": "Is it alive?",
 		"image": "curl.webp",
 		"thumb": "section-9-2",
 		"inherited": true,
@@ -740,7 +767,7 @@
 	{
 		"id": "section-9-3",
 		"kind": "section",
-		"title": "9.3 Reading JSON with jq",
+		"title": "9.3 Find one value inside JSON",
 		"image": "reading-json.webp",
 		"thumb": "section-9-3",
 		"inherited": false,
@@ -758,7 +785,7 @@
 	{
 		"id": "section-9-4",
 		"kind": "section",
-		"title": "9.4 Keys & Secrets",
+		"title": "9.4 Keep credentials out of commands",
 		"image": "keys-and-secrets.webp",
 		"thumb": "section-9-4",
 		"inherited": false,
@@ -767,7 +794,7 @@
 	{
 		"id": "secret-keeper",
 		"kind": "playground",
-		"title": "Keep the Key Secret",
+		"title": "Keep the key secret",
 		"image": "keys-and-secrets.webp",
 		"thumb": "section-9-4",
 		"inherited": true,
@@ -776,7 +803,7 @@
 	{
 		"id": "section-9-5",
 		"kind": "section",
-		"title": "9.5 A Door to Another Machine",
+		"title": "9.5 Work on another machine without losing your bearings",
 		"image": "ssh.webp",
 		"thumb": "section-9-5",
 		"inherited": false,
@@ -785,7 +812,7 @@
 	{
 		"id": "ch-9-prove-the-release",
 		"kind": "challenge",
-		"title": "Prove the Release",
+		"title": "Prove the release",
 		"image": "ssh.webp",
 		"thumb": "section-9-5",
 		"inherited": true,
@@ -794,7 +821,7 @@
 	{
 		"id": "part-10",
 		"kind": "part",
-		"title": "The Toolshed: Getting, Unpacking, Finding",
+		"title": "The toolshed: useful tools for everyday work",
 		"image": "package-managers.webp",
 		"thumb": "section-10-1",
 		"inherited": true,
@@ -803,7 +830,7 @@
 	{
 		"id": "section-10-1",
 		"kind": "section",
-		"title": "10.1 Package Managers — Getting New Tools",
+		"title": "10.1 Add a tool, then use it for one small job",
 		"image": "package-managers.webp",
 		"thumb": "section-10-1",
 		"inherited": false,
@@ -812,7 +839,7 @@
 	{
 		"id": "summon-a-tool",
 		"kind": "playground",
-		"title": "Install a Tool",
+		"title": "Install a tool",
 		"image": "package-managers.webp",
 		"thumb": "section-10-1",
 		"inherited": true,
@@ -821,7 +848,7 @@
 	{
 		"id": "section-10-2",
 		"kind": "section",
-		"title": "10.2 Archives — tar & zip",
+		"title": "10.2 Inspect an archive before unpacking it",
 		"image": "archives.webp",
 		"thumb": "section-10-2",
 		"inherited": false,
@@ -830,7 +857,7 @@
 	{
 		"id": "open-the-crate",
 		"kind": "playground",
-		"title": "Peek, Then Unpack",
+		"title": "Peek, then unpack",
 		"image": "archives.webp",
 		"thumb": "section-10-2",
 		"inherited": true,
@@ -839,7 +866,7 @@
 	{
 		"id": "section-10-3",
 		"kind": "section",
-		"title": "10.3 Links & Where Things Live",
+		"title": "10.3 Make a signpost, not another copy",
 		"image": "symlinks.webp",
 		"thumb": "section-10-3",
 		"inherited": false,
@@ -848,7 +875,7 @@
 	{
 		"id": "section-10-4",
 		"kind": "section",
-		"title": "10.4 Disk Detective",
+		"title": "10.4 Measure disk usage before deleting anything",
 		"image": "disk-detective.webp",
 		"thumb": "section-10-4",
 		"inherited": false,
@@ -857,7 +884,7 @@
 	{
 		"id": "space-hog",
 		"kind": "playground",
-		"title": "Find the Space Hog",
+		"title": "Find the space hog",
 		"image": "disk-detective.webp",
 		"thumb": "section-10-4",
 		"inherited": true,
@@ -866,7 +893,7 @@
 	{
 		"id": "ch-10-handover",
 		"kind": "challenge",
-		"title": "Hand It Over, Not the Bloat",
+		"title": "Hand over the useful files",
 		"image": "disk-detective.webp",
 		"thumb": "section-10-4",
 		"inherited": true,
@@ -875,7 +902,7 @@
 	{
 		"id": "part-11",
 		"kind": "part",
-		"title": "Terminal for the AI Era: Read, Verify, Run",
+		"title": "Work with an agent: understand the next step",
 		"image": "read-before-you-run.webp",
 		"thumb": "section-11-1",
 		"inherited": true,
@@ -884,7 +911,7 @@
 	{
 		"id": "section-11-1",
 		"kind": "section",
-		"title": "11.1 Read Before You Run",
+		"title": "11.1 Turn a proposal into something you can check",
 		"image": "read-before-you-run.webp",
 		"thumb": "section-11-1",
 		"inherited": false,
@@ -893,7 +920,7 @@
 	{
 		"id": "audit-the-agent",
 		"kind": "playground",
-		"title": "Audit the Agent",
+		"title": "Audit the agent",
 		"image": "read-before-you-run.webp",
 		"thumb": "section-11-1",
 		"inherited": true,
@@ -902,7 +929,7 @@
 	{
 		"id": "ch-11-approve-the-plan",
 		"kind": "challenge",
-		"title": "Approve the Release Plan",
+		"title": "Approve the release plan",
 		"image": "read-before-you-run.webp",
 		"thumb": "section-11-1",
 		"inherited": true,
@@ -911,7 +938,7 @@
 	{
 		"id": "part-12",
 		"kind": "part",
-		"title": "Your Cockpit: Making the Terminal a Place You Like",
+		"title": "Your cockpit: readable, familiar, easy to revisit",
 		"image": "make-it-yours.webp",
 		"thumb": "section-12-1",
 		"inherited": true,
@@ -920,7 +947,7 @@
 	{
 		"id": "section-12-1",
 		"kind": "section",
-		"title": "12.1 Make It Yours",
+		"title": "12.1 Make the window easy to read",
 		"image": "make-it-yours.webp",
 		"thumb": "section-12-1",
 		"inherited": false,
@@ -929,7 +956,7 @@
 	{
 		"id": "prompt-designer",
 		"kind": "section",
-		"title": "Try It: Design Your Prompt",
+		"title": "Try it: design your prompt",
 		"image": "make-it-yours.webp",
 		"thumb": "section-12-1",
 		"inherited": true,
@@ -938,7 +965,7 @@
 	{
 		"id": "section-12-2",
 		"kind": "section",
-		"title": "12.2 History Superpowers",
+		"title": "12.2 Recall, inspect, and edit",
 		"image": "history-superpowers.webp",
 		"thumb": "section-12-2",
 		"inherited": false,
@@ -947,7 +974,7 @@
 	{
 		"id": "history-recall",
 		"kind": "playground",
-		"title": "Retrace Your Steps",
+		"title": "Retrace your steps",
 		"image": "history-superpowers.webp",
 		"thumb": "section-12-2",
 		"inherited": true,
@@ -956,7 +983,7 @@
 	{
 		"id": "section-12-3",
 		"kind": "section",
-		"title": "12.3 Terminal in VS Code",
+		"title": "12.3 Keep the editor and terminal connected",
 		"image": "vscode-terminal.webp",
 		"thumb": "section-12-3",
 		"inherited": false,
@@ -965,7 +992,7 @@
 	{
 		"id": "section-12-4",
 		"kind": "section",
-		"title": "12.4 Many Terminals at Once",
+		"title": "12.4 Give parallel work a clear home",
 		"image": "many-terminals.webp",
 		"thumb": "section-12-4",
 		"inherited": false,
@@ -974,7 +1001,7 @@
 	{
 		"id": "ch-12-handover",
 		"kind": "challenge",
-		"title": "Hand Over the Cockpit",
+		"title": "Hand over the cockpit",
 		"image": "many-terminals.webp",
 		"thumb": "section-12-4",
 		"inherited": true,
@@ -983,7 +1010,7 @@
 	{
 		"id": "part-13",
 		"kind": "part",
-		"title": "Under the Hood: The Machine You've Been Driving",
+		"title": "Useful machinery, dependable scripts",
 		"image": "under-the-hood.webp",
 		"thumb": "section-13-1",
 		"inherited": true,
@@ -992,7 +1019,7 @@
 	{
 		"id": "section-13-1",
 		"kind": "section",
-		"title": "13.1 How the Terminal Works",
+		"title": "13.1 A small map of the machinery",
 		"image": "under-the-hood.webp",
 		"thumb": "section-13-1",
 		"inherited": false,
@@ -1001,7 +1028,7 @@
 	{
 		"id": "section-13-2",
 		"kind": "section",
-		"title": "13.2 The Terminal, Evolving",
+		"title": "13.2 Write scripts that make decisions",
 		"image": "terminal-evolving.webp",
 		"thumb": "section-13-2",
 		"inherited": false,
@@ -1010,7 +1037,7 @@
 	{
 		"id": "ch-13-exit-codes",
 		"kind": "challenge",
-		"title": "What the Transcript Knows",
+		"title": "What the transcript knows",
 		"image": "terminal-evolving.webp",
 		"thumb": "section-13-2",
 		"inherited": true,
@@ -1019,7 +1046,7 @@
 	{
 		"id": "part-14",
 		"kind": "part",
-		"title": "Conclusion: The Terminal Is Yours Now",
+		"title": "Make it yours: independent practice and a field guide",
 		"image": "mindset.webp",
 		"thumb": "section-14-1",
 		"inherited": true,
@@ -1028,7 +1055,7 @@
 	{
 		"id": "section-14-1",
 		"kind": "section",
-		"title": "14.1 The Command-Line Mindset",
+		"title": "14.1 A method you can carry into another task",
 		"image": "mindset.webp",
 		"thumb": "section-14-1",
 		"inherited": false,
@@ -1037,7 +1064,7 @@
 	{
 		"id": "section-14-2",
 		"kind": "section",
-		"title": "14.2 Quick Reference Card",
+		"title": "14.2 Use a reference at the moment you need it",
 		"image": "quick-reference.webp",
 		"thumb": "section-14-2",
 		"inherited": false,
@@ -1046,7 +1073,7 @@
 	{
 		"id": "section-14-3",
 		"kind": "section",
-		"title": "14.3 The Final Challenge",
+		"title": "14.3 Put the skills together",
 		"image": "final-challenge.webp",
 		"thumb": "section-14-3",
 		"inherited": false,
@@ -1055,7 +1082,7 @@
 	{
 		"id": "capstone",
 		"kind": "playground",
-		"title": "The Final Challenge",
+		"title": "One messy home folder",
 		"image": "final-challenge.webp",
 		"thumb": "section-14-3",
 		"inherited": true,
@@ -1064,7 +1091,16 @@
 	{
 		"id": "midnight-deploy",
 		"kind": "playground",
-		"title": "The Midnight Deploy",
+		"title": "The midnight deploy",
+		"image": "final-challenge.webp",
+		"thumb": "section-14-3",
+		"inherited": true,
+		"comp": "Part14"
+	},
+	{
+		"id": "ch-14-desk-clear",
+		"kind": "challenge",
+		"title": "Clear the desk for the demo",
 		"image": "final-challenge.webp",
 		"thumb": "section-14-3",
 		"inherited": true,
@@ -1073,19 +1109,10 @@
 	{
 		"id": "section-14-4",
 		"kind": "section",
-		"title": "14.4 Keep Learning — The References That Matter",
+		"title": "14.4 Take one useful task into your own terminal",
 		"image": "keep-learning.webp",
 		"thumb": "section-14-4",
 		"inherited": false,
-		"comp": "Part14"
-	},
-	{
-		"id": "ch-14-desk-clear",
-		"kind": "challenge",
-		"title": "Clear the Desk for the Demo",
-		"image": "keep-learning.webp",
-		"thumb": "section-14-4",
-		"inherited": true,
 		"comp": "Part14"
 	}
 ]

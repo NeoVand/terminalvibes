@@ -8,11 +8,12 @@
 // all client-side) keeps working on a plane.
 
 import { build, files, version } from '$service-worker';
+import { isPrivateArtPath } from '../scripts/static-art-isolation.mjs';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
 const CACHE = `terminalvibes-${version}`;
-const PRECACHE = [...build, ...files];
+const PRECACHE = [...build, ...files].filter((path) => !isPrivateArtPath(path));
 
 sw.addEventListener('install', (event) => {
 	event.waitUntil(
@@ -47,7 +48,7 @@ sw.addEventListener('fetch', (event) => {
 	const { request } = event;
 	if (request.method !== 'GET') return;
 	const url = new URL(request.url);
-	if (url.origin !== location.origin) return;
+	if (url.origin !== location.origin || isPrivateArtPath(url.pathname)) return;
 
 	// Content-hashed build assets never change: cache-first
 	if (build.includes(url.pathname)) {

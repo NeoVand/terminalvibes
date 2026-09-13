@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import manifest from '../lib/data/timeline-manifest.json' with { type: 'json' };
 
 /**
  * The Thread rail in the header.
@@ -15,6 +16,11 @@ import { expect, test } from '@playwright/test';
 test.use({ viewport: { width: 1440, height: 900 } });
 
 const RAIL = '[role="listbox"][aria-label^="Course progress"]';
+
+test.beforeEach(async ({ page }) => {
+	await page.goto('/');
+	await expect(page.locator('#keyboard-practice-input')).toBeEnabled();
+});
 
 test.describe('Thread rail', () => {
 	/**
@@ -42,19 +48,21 @@ test.describe('Thread rail', () => {
 	}
 
 	test('mounts in the header with a mark for every anchor', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 
 		// One bar per section (playgrounds fold into the preceding bar) plus one
 		// diamond per playground — built once, never rebuilt.
-		await expect(rail.locator('.tt-seg')).toHaveCount(57);
-		await expect(rail.locator('.tt-pg')).toHaveCount(35);
+		await expect(rail.locator('.tt-seg')).toHaveCount(
+			manifest.filter((item) => item.kind === 'section').length
+		);
+		await expect(rail.locator('.tt-pg')).toHaveCount(
+			manifest.filter((item) => item.kind === 'playground').length
+		);
 		await expect(rail.locator('.tt-pos')).toHaveCount(1);
 	});
 
 	test('lays the thread out across the rail once offsets are measured', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 
@@ -74,7 +82,6 @@ test.describe('Thread rail', () => {
 	});
 
 	test('hovering opens the card and moving along it changes the target', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 		const rect = (await rail.boundingBox())!;
@@ -94,7 +101,6 @@ test.describe('Thread rail', () => {
 	});
 
 	test('the playground lane names the activity, not the section', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 		const rect = (await rail.boundingBox())!;
@@ -108,7 +114,6 @@ test.describe('Thread rail', () => {
 	});
 
 	test('clicking a bar navigates the page, same as the sidebar', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 		const rect = (await rail.boundingBox())!;
@@ -123,7 +128,6 @@ test.describe('Thread rail', () => {
 	});
 
 	test('a click navigates but leaves the card to the hover', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 		const rect = (await rail.boundingBox())!;
@@ -148,7 +152,6 @@ test.describe('Thread rail', () => {
 	});
 
 	test('is fully operable from the keyboard', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 
@@ -170,8 +173,51 @@ test.describe('Thread rail', () => {
 		await expect(page).toHaveURL(/#/, { timeout: 5000 });
 	});
 
+	test('keyboard navigation includes every lesson, exercise and challenge in order', async ({
+		page
+	}) => {
+		const rail = page.locator(RAIL);
+		await rail.focus();
+		await page.keyboard.press('Home');
+		for (const item of manifest.filter((item) => item.kind !== 'part')) {
+			await expect(rail).toHaveAttribute('aria-activedescendant', new RegExp(`-${item.id}$`));
+			await expect(rail.locator('[aria-selected="true"]')).toHaveCount(1);
+			await page.keyboard.press('ArrowRight');
+		}
+		await page.keyboard.press('Tab');
+		await expect(rail).not.toBeFocused();
+	});
+
+	test('closed intro cards have whole-pixel pointer targets and open when selected', async ({
+		page
+	}) => {
+		const rail = page.locator(RAIL);
+		const ids = [
+			'section-intro-what',
+			'section-intro-anatomy',
+			'section-intro-shells',
+			'section-intro-history'
+		];
+		for (const id of ids) await expect(page.locator(`#${id}`)).not.toHaveAttribute('open', '');
+		const rect = (await rail.boundingBox())!;
+		await page.mouse.move(rect.x + 1, rect.y + 24);
+		// Finish the enter animation before measuring integer-pixel selections.
+		await page.waitForTimeout(260);
+		const pixels = new Map(ids.map((id) => [id, [] as number[]]));
+		for (let x = 1; x < rect.width * 0.2; x++) {
+			await page.mouse.move(rect.x + x, rect.y + 24);
+			const selected = await rail.getAttribute('aria-activedescendant');
+			for (const id of ids) if (selected?.endsWith(`-${id}`)) pixels.get(id)!.push(x);
+		}
+		for (const id of ids)
+			expect(pixels.get(id)!.length, `${id} pointer width`).toBeGreaterThanOrEqual(4);
+		const anatomy = pixels.get('section-intro-anatomy')!;
+		await page.mouse.click(rect.x + anatomy[Math.floor(anatomy.length / 2)], rect.y + 24);
+		await expect(page).toHaveURL(/#section-intro-anatomy$/);
+		await expect(page.locator('#section-intro-anatomy')).toHaveAttribute('open', '');
+	});
+
 	test('focusing the search box yields exactly the width it takes', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 		const box = page.locator('.search-box');
@@ -207,7 +253,6 @@ test.describe('Thread rail', () => {
 	});
 
 	test('the lens stays under the pointer while the rail narrows', async ({ page }) => {
-		await page.goto('/');
 		const rail = page.locator(RAIL);
 		await expect(rail).toBeVisible();
 		const rect = (await rail.boundingBox())!;
@@ -257,11 +302,12 @@ test.describe('Thread rail', () => {
 	   the last width where the sidebar's mini timeline owns progress instead. */
 	test('survives to iPad mini portrait', async ({ page }) => {
 		await page.setViewportSize({ width: 744, height: 1000 });
-		await page.goto('/');
 		await expect(page.locator(RAIL)).toBeVisible();
 
 		// Every anchor still present — it is the whole rail, not a reduced one.
-		await expect(page.locator(RAIL).locator('.tt-seg')).toHaveCount(57);
+		await expect(page.locator(RAIL).locator('.tt-seg')).toHaveCount(
+			manifest.filter((item) => item.kind === 'section').length
+		);
 
 		// And still above the 448px sweep floor, which is the reason the header
 		// gives up its labels and wordmark rather than the rail giving up width.
@@ -274,7 +320,6 @@ test.describe('Thread rail', () => {
 		// deliberately: 744 is iPad mini portrait exactly, so gating there put the
 		// target device ON the boundary where a scrollbar tips it into mobile.
 		await page.setViewportSize({ width: 719, height: 1000 });
-		await page.goto('/');
 		await expect(page.locator(RAIL)).toHaveCount(0);
 	});
 });
