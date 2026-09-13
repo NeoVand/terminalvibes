@@ -37,4 +37,8 @@ The owner has narrowed this phase to new sections only, matching the existing ar
 
 The original reference style is near-black woodland, aged brass, warm parchment, green terminal lettering, and intricate natural hermit crabs. Each new brief includes original-file references, exact teaching text, and technical checks. The rejected replacement-art rounds remain archived outside static output. No image is selected automatically; final insertion follows owner choice.
 
-Generation is in progress. Do not report fifty completed candidates until actual files and their provenance have been checked. Candidate images and local selections remain excluded from GitHub Pages output. All core content and implementation work above remains complete.
+All fifty candidates are generated and available in the local `/art-review` gallery: five distinct compositions for each of the ten concepts. The original reference files were supplied directly to the generator. Visual review covered the teaching text, commands, diagram connections, and fit with the original artwork. Targeted corrections fixed the search examples and a misleading directory prompt.
+
+The local provenance audit verified fifty unique generated originals and fifty unique WebP candidates, matching source hashes, exact saved prompts, unchanged frame dimensions, and no automatic selections. The candidates total 20,909,372 bytes. The availability scan reports 50/50. Gallery refresh preserves the owner's choices; completed generation is not owner approval.
+
+Candidate images, generation records, and local selections remain excluded from Git and GitHub Pages output. Rejected early workbench drafts were moved out of static assets into the ignored archive. Existing course illustrations remain unchanged. Final placement, alt text, responsive derivatives, and selected-image commits follow the owner's choices. All core content and implementation work above remains complete.

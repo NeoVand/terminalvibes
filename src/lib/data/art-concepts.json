@@ -2757,7 +2757,8 @@
 			"visualBrief": "Two side-by-side search panels compare searching inside files with searching their names. A magnifier over a short note line supports ripgrep; a filename tab supports fd. Each panel has one exact command and a concise explanation. One crab guides the comparison.",
 			"visualChecks": [
 				"ripgrep is paired with file contents and fd with filenames, never reversed.",
-				"The fd command has all four arguments: -e, md, ., notes. Avoid fabricated result lists or implying hidden and ignored files are always searched."
+				"The fd command has all four arguments: -e, md, ., notes. Avoid fabricated result lists or implying hidden and ignored files are always searched.",
+				"The example word watering must start with lowercase w: this command is case-sensitive. Do not show uppercase Watering as its match."
 			],
 			"altSuggestion": "Distinguish ripgrep content search from fd filename search.",
 			"aspectRatio": "16:9",
@@ -2801,7 +2802,7 @@
 					"path": "art-candidates/modern-find/05.webp"
 				}
 			],
-			"teachingText": "Title: Two kinds of search\nripgrep\nFind text inside files\nrg -n -F 'watering' notes\nfd\nFind filenames\nfd -e md . notes",
+			"teachingText": "Title: Two kinds of search\nripgrep\nFind text inside files\nrg -n -F 'watering' notes\nfd\nFind filenames\nfd -e md . notes\nExample text inside a note: watering keeps plants healthy.",
 			"styleReferences": [
 				"static/images/looking-inside.webp",
 				"static/images/package-managers.webp"
