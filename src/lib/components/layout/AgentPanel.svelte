@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { tick, untrack } from 'svelte';
+	import CloudTutorSettings from './CloudTutorSettings.svelte';
+	import { learnerContext } from '$lib/ai/learner-context.svelte';
 	import {
 		Bot,
 		X,
@@ -48,6 +50,8 @@
 	let hasOpened = $state(false);
 	let introDismissed = $state(false);
 	let settingsOpen = $state(false);
+	let settingsDialog: HTMLDivElement | undefined = $state();
+	let settingsButton: HTMLButtonElement | undefined = $state();
 	let input = $state('');
 	let taEl: HTMLTextAreaElement | undefined = $state(undefined);
 	let messagesEl: HTMLDivElement | undefined = $state(undefined);
@@ -73,6 +77,7 @@
 	);
 
 	$effect(() => {
+		if (!open) settingsOpen = false;
 		if (open) {
 			hasOpened = true;
 			// Capability sniff + auto-warm of a previously downloaded model
@@ -80,7 +85,7 @@
 			agentRuntime.initLocal();
 			// Autofocus on desktop only — on mobile the keyboard would cover
 			// the panel before the user has read anything.
-			if (window.innerWidth >= 768) {
+			if (window.innerWidth >= 768 && !untrack(() => settingsOpen)) {
 				tick().then(() => taEl?.focus());
 			}
 		}
@@ -144,9 +149,48 @@
 		editedCmd = agentRuntime.pendingCmd ?? '';
 	});
 
+	function openSettings() {
+		settingsOpen = true;
+		tick().then(() => settingsDialog?.querySelector<HTMLElement>('button, select, input')?.focus());
+	}
+
+	function closeSettings() {
+		settingsOpen = false;
+		tick().then(() => settingsButton?.focus());
+	}
+
+	function closePanel() {
+		settingsOpen = false;
+		onToggle();
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && open) {
-			onToggle();
+		if (!open) return;
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			if (settingsOpen) closeSettings();
+			else closePanel();
+		} else if (e.key === 'Tab' && settingsOpen && settingsDialog) {
+			const controls = Array.from(
+				settingsDialog.querySelectorAll<HTMLElement>(
+					'button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]'
+				)
+			);
+			const first = controls[0];
+			const last = controls.at(-1);
+			if (
+				e.shiftKey &&
+				(document.activeElement === first || !settingsDialog.contains(document.activeElement))
+			) {
+				e.preventDefault();
+				last?.focus();
+			} else if (
+				!e.shiftKey &&
+				(document.activeElement === last || !settingsDialog.contains(document.activeElement))
+			) {
+				e.preventDefault();
+				first?.focus();
+			}
 		}
 	}
 
@@ -307,12 +351,17 @@
 	</div>
 {/snippet}
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window
+	onpagehide={() => {
+		if (agentRuntime.backendName === 'cloud') agentRuntime.useMock();
+	}}
+	onkeydown={handleKeydown}
+/>
 
 {#if open}
 	<button
 		class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
-		onclick={onToggle}
+		onclick={closePanel}
 		aria-label="Close agent"
 	></button>
 {/if}
@@ -334,12 +383,15 @@
 			>
 				<Bot size={14} style="color: var(--color-important);" />
 				<span class="text-sm font-semibold" style="color: var(--color-text);">Agent</span>
-				<span class="agent-badge hidden sm:inline">{agentRuntime.badgeLabel}</span>
+				<span class="agent-badge hidden sm:inline" title={agentRuntime.badgeLabel}
+					>{agentRuntime.badgeLabel}</span
+				>
 
 				<div class="ml-auto flex items-center gap-1.5 sm:gap-2">
 					<button
 						type="button"
-						onclick={() => (settingsOpen = !settingsOpen)}
+						bind:this={settingsButton}
+						onclick={() => (settingsOpen ? closeSettings() : openSettings())}
 						class="agent-icon-btn"
 						class:agent-icon-btn-on={settingsOpen}
 						aria-label="Agent settings"
@@ -347,7 +399,12 @@
 					>
 						<Settings size={14} />
 					</button>
-					<button type="button" onclick={onToggle} class="agent-icon-btn" aria-label="Close agent">
+					<button
+						type="button"
+						onclick={closePanel}
+						class="agent-icon-btn"
+						aria-label="Close agent"
+					>
 						<X size={14} />
 					</button>
 				</div>
@@ -357,14 +414,31 @@
 				<button
 					class="agent-settings-backdrop"
 					type="button"
-					aria-label="Close settings"
-					onclick={() => (settingsOpen = false)}
+					aria-label="Dismiss settings"
+					tabindex="-1"
+					onclick={closeSettings}
 				></button>
-				<div class="agent-settings" role="dialog" aria-label="Agent settings">
+				<div
+					bind:this={settingsDialog}
+					class="agent-settings"
+					role="dialog"
+					aria-modal="true"
+					aria-label="Agent settings"
+				>
+					<div class="agent-settings-heading">
+						<h2>Agent settings</h2>
+						<button
+							type="button"
+							class="agent-icon-btn"
+							onclick={closeSettings}
+							aria-label="Close settings"><X size={14} /></button
+						>
+					</div>
+					<div class="agent-setting"><CloudTutorSettings /></div>
 					<!-- A tiny settings list — future entries (command allowlists,
 					     clear conversation, …) append as further .agent-setting rows. -->
 					<div class="agent-setting">
-						<p class="agent-setting-label">Model</p>
+						<p class="agent-setting-label">Local models · run in this browser</p>
 						{@render modelPicker()}
 						<p class="agent-card-note">
 							{defaultSpec.label}: {defaultSpec.license} · {qualitySpec.label}: {qualitySpec.license}
@@ -372,7 +446,7 @@
 					</div>
 					<div class="agent-setting">
 						<p class="agent-setting-label">Mode</p>
-						{#if agentRuntime.backendName === 'local'}
+						{#if agentRuntime.backendName !== 'mock'}
 							<button type="button" class="agent-mode-link" onclick={() => agentRuntime.useMock()}>
 								use scripted mode
 							</button>
@@ -406,6 +480,33 @@
 				</div>
 			{/if}
 
+			{#if learnerContext.latest}
+				<div
+					class="px-4 py-2 text-xs"
+					style="border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary);"
+				>
+					<label class="flex items-center gap-2"
+						><input type="checkbox" bind:checked={learnerContext.shareWithTutor} /> Include my last practice
+						command and result</label
+					>
+					<details class="mt-1">
+						<summary class="cursor-pointer"
+							>{learnerContext.latest.title} · view practice context</summary
+						>
+						<pre class="mt-2 max-h-28 overflow-auto text-[11px] whitespace-pre-wrap">{learnerContext
+								.latest.command +
+								'\n' +
+								learnerContext.latest.output}</pre>
+						<p>Your tutor’s demonstration terminal is separate.</p>
+					</details>
+				</div>
+			{/if}
+			{#if agentRuntime.backendName === 'cloud' && agentRuntime.usage.inputTokens + agentRuntime.usage.outputTokens > 0}
+				<p class="px-4 py-1 text-[10px]" style="color: var(--color-text-muted);">
+					This conversation: {agentRuntime.usage.inputTokens.toLocaleString()} input / {agentRuntime.usage.outputTokens.toLocaleString()}
+					output tokens · billed by your provider
+				</p>
+			{/if}
 			<div
 				bind:this={messagesEl}
 				class="autohide-scrollbar min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-5"
@@ -421,7 +522,7 @@
 								<div class="mb-2 flex items-start gap-2">
 									<p class="agent-card-title flex-1">
 										Right now I'm a <strong>scripted guide</strong> answering strictly from the lessons.
-										Want the real thing? Download a model once — it runs entirely in your browser.
+										Download a local model, or connect your OpenAI or Anthropic key in settings.
 									</p>
 									<button
 										type="button"
@@ -432,6 +533,9 @@
 										<X size={13} />
 									</button>
 								</div>
+								<button type="button" class="agent-mode-link" onclick={openSettings}
+									>Connect OpenAI or Anthropic →</button
+								>
 								{@render modelPicker()}
 								{#if agentRuntime.localPhase === 'error'}
 									<p class="agent-status-err mt-2 text-[11px]">
@@ -678,7 +782,16 @@
 				</section>
 			{/if}
 
-			{#if agentRuntime.backendName === 'local'}
+			{#if agentRuntime.backendName === 'cloud'}
+				<div class="agent-mode-row shrink-0">
+					<span class="agent-connected-model" title={agentRuntime.badgeLabel}
+						>{agentRuntime.badgeLabel}</span
+					>
+					<button type="button" class="agent-mode-link" onclick={() => agentRuntime.useMock()}
+						>Disconnect</button
+					>
+				</div>
+			{:else if agentRuntime.backendName === 'local'}
 				<div class="agent-mode-row shrink-0">
 					<span
 						>{agentRuntime.badgeLabel}{agentRuntime.localDevice
@@ -742,6 +855,10 @@
 	}
 
 	.agent-badge {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		border-radius: 9999px;
 		padding: 0.175rem 0.5rem;
 		font-size: 10px;
@@ -751,6 +868,7 @@
 	}
 
 	.agent-icon-btn {
+		flex-shrink: 0;
 		display: inline-flex;
 		height: 1.875rem;
 		width: 1.875rem;
@@ -1279,6 +1397,8 @@
 	}
 
 	.agent-settings {
+		max-height: calc(100dvh - 120px);
+		overflow-y: auto;
 		position: absolute;
 		top: 3.25rem;
 		right: 0.75rem;
@@ -1292,6 +1412,22 @@
 		border: 1px solid var(--color-border);
 		background: var(--color-surface);
 		box-shadow: 0 14px 36px -16px rgba(0, 0, 0, 0.5);
+	}
+
+	.agent-settings-heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+	.agent-settings-heading h2 {
+		font-size: 0.85rem;
+		font-weight: 650;
+		color: var(--color-text);
+	}
+	.agent-connected-model {
+		min-width: 0;
+		overflow-wrap: anywhere;
 	}
 
 	.agent-setting {

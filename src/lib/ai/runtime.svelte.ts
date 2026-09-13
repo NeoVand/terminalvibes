@@ -14,7 +14,9 @@ import {
 	topUpSuggestions,
 	STATIC_STARTERS
 } from './suggestions';
-import type { ReadingSpot } from './reading-context.svelte';
+import { readingContext, type ReadingSpot } from './reading-context.svelte';
+import { learnerContext } from './learner-context.svelte';
+import { CloudBackend, type CloudProvider } from './cloud/backend';
 import type { AgentBackend, AgentBash, ChatMessage, RuntimeStatus } from './types';
 import {
 	deleteLegacyModelCaches,
@@ -54,7 +56,12 @@ function mockSuggestForced(): boolean {
 
 export class AgentRuntime {
 	status = $state<RuntimeStatus>('idle');
-	backendName = $state<'mock' | 'local'>('mock');
+	backendName = $state<'mock' | 'local' | 'cloud'>('mock');
+	cloudProvider = $state<CloudProvider | null>(null);
+	cloudModel = $state<string | null>(null);
+	usage = $state({ inputTokens: 0, outputTokens: 0 });
+	#cloud: CloudBackend | null = null;
+	#askSeq = 0;
 	messages = $state<ChatMessage[]>([]);
 	/** Live note while the agent works: "searching the course for …". */
 	activity = $state<string | null>(null);
@@ -93,6 +100,7 @@ export class AgentRuntime {
 	#initDone = false;
 	#gate: Gate = createGate();
 	#bridge: BashBridge | null = null;
+	#bridgeSeq = 0;
 
 	constructor() {
 		this.#gate.subscribe((pending) => {
@@ -105,6 +113,7 @@ export class AgentRuntime {
 	}
 
 	get backend(): AgentBackend {
+		if (this.backendName === 'cloud' && this.#cloud) return this.#cloud;
 		return this.backendName === 'local' && this.#local ? this.#local : this.#mock;
 	}
 
@@ -113,12 +122,14 @@ export class AgentRuntime {
 	 * active or waking — the badge tells the truth about the actual state.
 	 */
 	get badgeLabel(): string {
+		if (this.backendName === 'cloud')
+			return `${this.cloudProvider === 'openai' ? 'OpenAI' : 'Anthropic'} · ${this.cloudModel}`;
 		if (this.localModelId) {
 			const label = getModelSpec(this.localModelId)?.label ?? 'local model';
 			if (this.backendName === 'local') return `${label} · local`;
 			if (this.localBusy) return `${label} · waking…`;
 		}
-		return 'local · in your browser';
+		return 'scripted guide · no model';
 	}
 
 	/** A model download/load/probe is in flight. */
@@ -132,7 +143,7 @@ export class AgentRuntime {
 
 	/** Nothing downloaded yet — the only state that shows the intro banner. */
 	get firstRun(): boolean {
-		return this.downloaded.length === 0;
+		return this.downloaded.length === 0 && this.backendName !== 'cloud';
 	}
 
 	/**
@@ -212,19 +223,24 @@ export class AgentRuntime {
 	async #ensureBash(): Promise<AgentBash | undefined> {
 		if (typeof window === 'undefined') return undefined;
 		if (!this.#bridge) {
-			this.#bridge = await createBashBridge({
+			const bridgeSeq = this.#bridgeSeq;
+			const bridge = await createBashBridge({
 				gate: this.#gate,
 				onLine: (line) => {
+					if (bridgeSeq !== this.#bridgeSeq) return;
 					this.terminal.push(line);
 					// First activity auto-expands the agent's terminal strip.
 					this.terminalOpen = true;
 				}
 			});
+			if (bridgeSeq !== this.#bridgeSeq) return undefined;
+			this.#bridge = bridge;
 		}
+		const bridge = this.#bridge;
 		return {
-			propose: (cmd) => this.#bridge!.propose(cmd),
-			run: (cmd) => this.#bridge!.run(cmd),
-			listing: () => this.#bridge!.listing()
+			propose: (cmd) => bridge.propose(cmd),
+			run: (cmd) => bridge.run(cmd),
+			listing: () => bridge.listing()
 		};
 	}
 
@@ -234,7 +250,7 @@ export class AgentRuntime {
 	 * never a fresh download without an explicit click.
 	 */
 	initLocal(): void {
-		if (this.#initDone) return;
+		if (this.#initDone || this.backendName === 'cloud') return;
 		this.#initDone = true;
 		this.caps = detectCaps();
 		purgeLegacyFlags();
@@ -254,6 +270,7 @@ export class AgentRuntime {
 		) {
 			return;
 		}
+		this.useMock();
 		const cached = downloadedModels().includes(modelId);
 		this.localError = null;
 		this.localModelId = modelId;
@@ -324,9 +341,45 @@ export class AgentRuntime {
 
 	/** Fall back to the scripted guide (keeps the downloaded weights cached). */
 	useMock(): void {
+		this.stop();
+		this.#askSeq++;
+		this.#cloud?.disconnect();
+		this.#cloud = null;
+		this.cloudProvider = null;
+		this.cloudModel = null;
+		this.messages = [];
+		this.#bridgeSeq++;
+		this.#bridge = null;
+		this.terminal = [];
+		this.terminalOpen = false;
+		this.suggestions = [];
+		this.#suggestSeq++;
+		this.suggesting = false;
+		this.#suggestCache.clear();
+		this.#suggestedKey = null;
+		this.suggestedTitle = null;
+		this.usage = { inputTokens: 0, outputTokens: 0 };
+		this.status = 'ready';
+		this.activity = null;
 		this.backendName = 'mock';
 		forgetSelectedModel();
 		if (this.localPhase === 'ready') this.localPhase = 'idle';
+	}
+
+	/** Keys stay only inside this backend instance, never in a persisted store. */
+	connectCloud(provider: CloudProvider, model: string, key: string): void {
+		if (this.localBusy)
+			throw new Error('Cancel the local model download before connecting a provider.');
+		const backend = new CloudBackend(provider, model, key);
+		this.useMock();
+		this.#cloud = backend;
+		this.cloudProvider = provider;
+		this.cloudModel = model;
+		this.backendName = 'cloud';
+		this.localModelId = null;
+		this.suggestions = [];
+		this.#suggestSeq++;
+		this.suggesting = false;
 	}
 
 	/** Chat entry point: append the question, stream the answer. */
@@ -334,6 +387,7 @@ export class AgentRuntime {
 		const trimmed = question.trim();
 		if (!trimmed || this.status === 'generating') return;
 
+		const seq = ++this.#askSeq;
 		this.messages.push({ role: 'user', content: trimmed });
 		this.messages.push({ role: 'assistant', content: '' });
 		const reply = this.messages[this.messages.length - 1];
@@ -344,15 +398,25 @@ export class AgentRuntime {
 		// and clears the moment the first real token lands.
 		this.activity = 'thinking…';
 		this.#abort = new AbortController();
-		const bash = await this.#ensureBash();
-
+		const controller = this.#abort;
+		const backend = this.backend;
 		try {
-			await this.backend.generate(history, {
+			const bash = await this.#ensureBash();
+			if (seq !== this.#askSeq || controller.signal.aborted) return;
+			await backend.generate(history, {
+				context: `Current reading: ${readingContext.current.label}\n${learnerContext.snapshot}`,
+				sectionId: readingContext.current.sectionId ?? undefined,
 				tools: false,
-				signal: this.#abort.signal,
+				signal: controller.signal,
 				bash,
 				onEvent: (event) => {
-					if (event.type === 'token') {
+					if (seq !== this.#askSeq || controller.signal.aborted) return;
+					if (event.type === 'usage') {
+						this.usage = {
+							inputTokens: this.usage.inputTokens + event.inputTokens,
+							outputTokens: this.usage.outputTokens + event.outputTokens
+						};
+					} else if (event.type === 'token') {
 						this.activity = null;
 						reply.content += event.text;
 					} else if (event.type === 'toolCall' && event.call.name === 'bash') {
@@ -370,15 +434,18 @@ export class AgentRuntime {
 				}
 			});
 		} catch (error) {
+			if (seq !== this.#askSeq || controller.signal.aborted) return;
 			reply.content += `${reply.content ? '\n\n' : ''}Something went wrong: ${error instanceof Error ? error.message : String(error)}`;
 		} finally {
-			if (reply.content === '') {
-				// Aborted before the first token — drop the empty bubble.
-				this.messages.pop();
+			if (seq === this.#askSeq) {
+				if (reply.content === '') {
+					// Aborted before the first token — drop the empty bubble.
+					this.messages.pop();
+				}
+				this.activity = null;
+				this.status = 'ready';
+				this.#abort = null;
 			}
-			this.activity = null;
-			this.status = 'ready';
-			this.#abort = null;
 		}
 	}
 
@@ -425,6 +492,9 @@ export class AgentRuntime {
 
 	clear(): void {
 		this.stop();
+		this.#askSeq++;
+		this.status = 'ready';
+		this.activity = null;
 		this.messages = [];
 	}
 }
