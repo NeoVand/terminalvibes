@@ -336,8 +336,9 @@
 							<div class="candidate-top">
 								<h3>{variant.label}</h3>
 								<span
-									>{catalog.variantDirections.find((direction) => direction.id === variant.id)
-										?.name}</span
+									>Brief: {catalog.variantDirections.find(
+										(direction) => direction.id === variant.id
+									)?.name}</span
 								>
 							</div>
 							{#if file}

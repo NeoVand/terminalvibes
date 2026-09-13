@@ -169,6 +169,11 @@ export async function scanAvailability(catalog, directory = candidateDirectory) 
 
 export function promptFor(catalog, concept, variant) {
 	return [
+		...(concept.id === 'crab-guide-logo'
+			? [
+					'This is a square isolated mascot asset with a real transparent alpha background. Show only the complete hermit crab and its small leaf motif. No scenery, garden backdrop, surface, frame, text, or checkerboard pattern. Apply the alternative’s materials and palette to the mascot itself; its setting must remain transparent.'
+				]
+			: []),
 		`Create ONE standalone illustration. Follow this alternative's specific medium, camera angle, and palette: ${catalog.variantDirections.find((direction) => direction.id === variant.id).brief}`,
 		'No lettering anywhere: no words, motivational signs, book titles, labels, numbers, code, keyboard legends, or watermarks. All signs, pages and screens should use blank surfaces or simple non-text shapes. The website will supply the real explanatory text separately.',
 		`TerminalVibes artwork candidate ${concept.id}/${variant.id}. ${concept.title}.`,

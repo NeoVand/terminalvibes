@@ -17,6 +17,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import ts from 'typescript';
+import { parse } from 'svelte/compiler';
 import { courseSource } from './course-source.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -160,7 +161,8 @@ for (const [name, id] of [
 	['KeyboardWorkshop', 'keyboard-workshop']
 ]) {
 	const widget = readFileSync(join(ROOT, `src/lib/components/playground/${name}.svelte`), 'utf8');
-	const script = widget.match(/<script[^>]*>([\s\S]*?)<\/script>/)?.[1] ?? '';
+	const scriptNode = parse(widget, { modern: true }).instance?.content;
+	const script = scriptNode ? widget.slice(scriptNode.start, scriptNode.end) : '';
 	const ast = ts.createSourceFile(`${name}.ts`, script, ts.ScriptTarget.Latest, true);
 	let stepText = '';
 	function walk(node) {

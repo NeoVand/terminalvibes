@@ -1,6 +1,6 @@
 # Local artwork review
 
-The consolidated inventory has **64 illustration concepts and 320 alternatives**. It covers all 56 active raster usages in the opening, Parts 1–14, keyboard workshop, and header. The two header logo usages share one logo concept. The keyboard workshop and later history lesson get separate concepts, even though they currently share an old image.
+The consolidated inventory has **64 illustration concepts and 320 candidate slots**. It covers all 56 active raster usages in the opening, Parts 1–14, keyboard workshop, and header. The two header logo usages share one logo concept. The keyboard workshop and later history lesson get separate concepts, even though they currently share an old image.
 
 Nine new explanations cover saving an editor draft, script arguments, conditions, loops, checked copying, and modern tools for finding, choosing, revisiting, and reading files. These have explicit lesson placements. No candidate is selected initially, and no course image is replaced by the review UI.
 
