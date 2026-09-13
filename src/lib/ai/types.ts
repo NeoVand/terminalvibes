@@ -29,6 +29,7 @@ export type AgentEvent =
 	| { type: 'token'; text: string }
 	| { type: 'toolCall'; call: ToolCall }
 	| { type: 'doneTurn' }
+	| { type: 'usage'; inputTokens: number; outputTokens: number }
 	| { type: 'error'; message: string };
 
 /** A human verdict on a proposed command (mirrors gate.ts resolutions). */
@@ -71,6 +72,9 @@ export interface SuggestOptions {
 }
 
 export interface GenerateOptions {
+	/** Bounded learner context, separate from the demonstration sandbox. */
+	context?: string;
+	sectionId?: string;
 	/** Enable the bash/done tool loop instead of plain chat. */
 	tools?: boolean;
 	/** Skip streaming delays (tests, prefetch). Test mode always skips. */

@@ -64,7 +64,7 @@ export const AGENT_TRY_TASK = 'agent "create a notes folder with three dated fil
 export const AGENT_USAGE = [
 	'agent — an AI agent that lives in this terminal',
 	'',
-	'  It runs a real language model entirely in your browser and works toward',
+	'  It uses your selected local or cloud model and works toward',
 	'  your goal by proposing bash commands — one at a time, each one waiting',
 	'  for your approval. Reading a command before you allow it is the whole',
 	'  lesson of this course, made real.',
