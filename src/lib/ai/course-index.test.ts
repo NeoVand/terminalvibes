@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import courseIndex from './course-index.json';
-import { sectionIds } from '../data/sections';
+import { anchorIds, sectionIds } from '../data/sections';
 
 interface Entry {
 	id: string;
@@ -17,7 +17,7 @@ describe('course index sanity', () => {
 	});
 
 	it('every section entry id is a real section id', () => {
-		const known = new Set<string>(sectionIds);
+		const known = new Set<string>(anchorIds);
 		for (const entry of entries) {
 			if (entry.id.startsWith('cheat-')) continue;
 			expect(known, `unknown id ${entry.id}`).toContain(entry.id);

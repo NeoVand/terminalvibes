@@ -19,9 +19,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { courseSource } from './course-source.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const SECTIONS_DIR = join(ROOT, 'src/lib/components/sections');
 const OUT_FILE = join(ROOT, 'src/lib/data/timeline-manifest.json');
 
 /* ── the four id lists, parsed out of sections.ts so they never drift ───── */
@@ -113,7 +113,7 @@ function headingText(inner) {
 const items = [];
 
 for (const file of files) {
-	const raw = readFileSync(join(SECTIONS_DIR, file), 'utf8');
+	const raw = courseSource(file);
 	// One string for every positional pass, so anchor / title / image indices
 	// are directly comparable. Replace the script and style blocks with spaces
 	// of the same length rather than deleting them, so nothing shifts.
@@ -158,7 +158,7 @@ for (const file of files) {
 			text: decode(m[1]).replaceAll('`', ''),
 			at: m.index
 		})),
-		...[...scan.matchAll(/<(h[2-4])\b[^>]*>([\s\S]*?)<\/\1>/g)]
+		...[...scan.matchAll(/<(h[1-4]|summary)\b[^>]*>([\s\S]*?)<\/\1>/g)]
 			.filter((m) => !/\bsr-only\b/.test(m[0]))
 			// Anchor at the heading's TEXT, not its opening tag: several anchors
 			// live on the heading element itself (<h4 id="prompt-designer">), so
@@ -186,7 +186,7 @@ for (const file of files) {
 		// Part, so the next heading it would find belongs to the next chapter.
 		let title =
 			kind === 'playground' || kind === 'challenge' ? activityTitle.get(id) : between(titles)?.text;
-		if (!title) title = id;
+		if (!title) title = id === 'hello-first-command' ? 'Your First Command' : id;
 
 		items.push({
 			id,
@@ -224,13 +224,13 @@ for (const file of files) {
 const firstSectionAfter = (i) => {
 	for (let j = i + 1; j < items.length; j++) {
 		if (items[j].kind === 'part') break; // never reach past the next chapter
-		if (items[j].kind === 'section' && items[j].image) return items[j];
+		if (items[j].image) return items[j];
 	}
 	return null;
 };
 const sectionAtOrBefore = (i) => {
 	for (let j = i - 1; j >= 0; j--) {
-		if (items[j].kind === 'section' && items[j].image) return items[j];
+		if (items[j].image) return items[j];
 	}
 	return null;
 };

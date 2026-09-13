@@ -1,955 +1,486 @@
 <script lang="ts">
-	import {
-		BookOpen,
-		Library,
-		Wand2,
-		Table,
-		Trophy,
-		Gamepad2,
-		SearchCode,
-		ListChecks,
-		BookMarked,
-		Bot,
-		GitBranch
-	} from 'lucide-svelte';
-	import { base } from '$app/paths';
+	import { BookOpen } from 'lucide-svelte';
+	import { base, resolve } from '$app/paths';
 	import Code from '../ui/Code.svelte';
-	import CourseLink from '../ui/CourseLink.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
-	import Callout from '../ui/Callout.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
-	import VibeBox from '../ui/VibeBox.svelte';
+	import WorkflowSteps from '../ui/WorkflowSteps.svelte';
+	import { cheatSheet } from '$lib/data/cheat-sheet';
 	import { progress, toggleChecklistItem } from '$lib/data/progress';
 
-	let {
-		onOpenPlayground
-	}: {
-		onOpenPlayground?: () => void;
-	} = $props();
-
-	// Command names sit in `backticks`; the renderer below turns those segments
-	// into syntax-highlighted chips, the same convention the headings use.
-	const SKILL_CHECKLIST = [
+	let { onOpenPlayground }: { onOpenPlayground?: () => void } = $props();
+	const skills = [
+		{
+			id: 'keyboard',
+			label: 'I can move around an unfinished command, replace a word, and cancel it.',
+			lesson: 'keyboard-workshop'
+		},
 		{
 			id: 'navigate',
-			label:
-				'I can get anywhere with `pwd`, `ls`, and `cd` — using TAB completion, not typing full paths.'
+			label: 'I can find my current folder, inspect its contents, and navigate to a known file.',
+			lesson: 'section-2-1'
 		},
 		{
 			id: 'paths',
-			label: 'I can read any path on sight: absolute vs relative, `~`, `.`, and `..` — no guessing.'
+			label: 'I can explain the path I am about to use, including spaces and relative locations.',
+			lesson: 'section-2-2'
 		},
 		{
 			id: 'rm-safety',
-			label:
-				'I never delete blind: `ls` (or `echo` the glob) first, then `rm` — and I know there is no trash can.'
+			label: 'I can identify the exact files affected by a change and decide how to recover.',
+			lesson: 'part-3'
 		},
 		{
 			id: 'pipes',
-			label:
-				'I can chain small tools with `|` and redirect with `>` and `>>` — and I know `>` truncates.'
+			label: 'I can build a short pipeline in stages and explain where its output goes.',
+			lesson: 'part-4'
 		},
 		{
 			id: 'grep-find',
-			label:
-				'I can find things: `grep` for text inside files, `find` for files by name — and I know which is which.'
+			label: 'I can choose a text search or filename search and inspect its results.',
+			lesson: 'part-4'
 		},
 		{
 			id: 'permissions',
-			label:
-				'I can decode an `ls -l` permission string and fix `permission denied` with the minimal `chmod`.'
+			label: 'I can read relevant permissions and choose a limited change when needed.',
+			lesson: 'part-5'
 		},
 		{
 			id: 'path-env',
-			label: 'I can demystify `command not found` with `echo $PATH` and `which`.'
+			label: 'I can investigate a command-not-found error without guessing an installation.',
+			lesson: 'part-5'
 		},
 		{
 			id: 'audit',
-			label: 'I audit AI-proposed commands: name it, read the flags, find the target, rehearse it.'
+			label: 'I can explain a proposed command’s action, target, and verification.',
+			lesson: 'part-11'
 		},
 		{
 			id: 'script',
-			label: 'I can write and run a script: shebang, `chmod +x`, `./`, variables, and `$1`.'
+			label: 'I can save, inspect, and run a small script using an editor.',
+			lesson: 'part-6'
 		},
 		{
 			id: 'exit-codes',
-			label: 'I know what `$?` holds and when `&&` vs `||` vs `;` runs the next command.'
+			label: 'I can check a command’s status and use it to decide a next step.',
+			lesson: 'part-13'
 		},
 		{
 			id: 'sed-backup',
 			label:
-				'I can find-and-replace across files with `sed` — and I never run `-i` without a `.bak` backup.'
+				'I can preview a text transformation and review the result before replacing important work.',
+			lesson: 'part-7'
 		},
 		{
 			id: 'processes',
-			label:
-				'I can find what is hogging a port or a CPU, stop it politely, and escalate to `-9` only when it refuses.'
+			label: 'I can identify a running process and choose an appropriate way to stop it.',
+			lesson: 'part-8'
 		},
 		{
 			id: 'verify-network',
-			label:
-				'I check a server myself with `curl` instead of trusting "it\'s running" — and I can pull one value out of JSON.'
+			label: 'I can inspect a request’s reply and select a value from JSON.',
+			lesson: 'part-9'
 		},
 		{
 			id: 'secrets',
-			label:
-				'I keep API keys in a locked-down `.env` file, never typed into a command where history keeps them.'
+			label: 'I can keep real credentials out of commands, transcripts, and shared files.',
+			lesson: 'section-9-4'
 		},
 		{
 			id: 'toolshed',
-			label:
-				'I can install a missing tool, peek inside an archive before unpacking it, and measure with `du` before deleting.'
+			label: 'I can inspect an archive and measure a folder before making changes.',
+			lesson: 'part-10'
 		}
 	];
 </script>
 
 <section id="part-14" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter-copy mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={BookOpen}
 			partLabel="Part 14"
-			title="Conclusion: The Terminal Is Yours Now"
-			color="var(--color-primary)"
+			title="Make it yours: independent practice and a field guide"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"The terminal isn't a relic the AI era left behind — it's the interface the AI era runs on."
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			You started this course unable to read a shell command. Now you navigate, build, search, pipe,
-			permission, script, and — most importantly — <em>audit</em>. This last part distills the
-			mindset, hands you a reference card, sets one final challenge, and points you at the places to
-			keep growing.
+		<p class="lead">
+			You began by making the terminal print a message. Now you have ways to find your place, change
+			files, recover from mistakes, inspect running work, and ask better questions. The next step is
+			to use those skills together on a task that feels useful to you.
 		</p>
-
-		<!-- 14.1 The Command-Line Mindset -->
-		<div id="section-14-1" class="mb-14">
+		<p>
+			You are allowed to look things up. A good result includes understanding what changed and how
+			you checked it. Finishing without a reference is not the goal.
+		</p>
+		<div id="section-14-1" class="lesson">
 			<SectionHeader
 				level="section"
-				icon={Wand2}
-				title="14.1 The Command-Line Mindset"
-				color="var(--color-primary)"
+				icon={BookOpen}
+				title="14.1 A method you can carry into another task"
 			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/mindset.webp"
-					alt="The Command-Line Mindset — small tools composed into pipelines, read before run"
-					caption="Not a list of commands — a way of thinking: small tools, composed, read before run"
-				/>
-			</div>
-
-			<p class="mb-6" style="color: var(--color-text-secondary);">
-				Commands fade if you don't use them; the mindset sticks. Three ideas carry everything you've
-				learned — and you can rehearse any of them anytime in the
-				<button
-					type="button"
-					onclick={onOpenPlayground}
-					class="cursor-pointer underline underline-offset-2"
-					style="color: var(--color-primary);">Terminal Playground</button
-				> — a real shell sandbox, right in your browser.
-			</p>
-
-			<div class="mt-6 space-y-3">
-				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
-					<span
-						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-						style="background: var(--color-primary); color: var(--color-text-inverse);">1</span
-					>
-					<div>
-						<p class="text-[13px] font-medium" style="color: var(--color-text);">
-							Compose small tools
-						</p>
-						<p class="text-xs" style="color: var(--color-text-muted);">
-							The Unix philosophy from <CourseLink to="part-4" />: each command does one thing well,
-							and <Code code="|" />
-							snaps them together.
-							<Code code="grep" /> doesn't sort and
-							<Code code="sort" /> doesn't count — yet
-							<Code code="grep ERROR log | sort | uniq -c" /> answers a question none of them could alone.
-							When a problem looks big, don't hunt for a big tool — chain small ones.
-						</p>
-					</div>
-				</div>
-				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
-					<span
-						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-						style="background: var(--color-primary); color: var(--color-text-inverse);">2</span
-					>
-					<div>
-						<p class="text-[13px] font-medium" style="color: var(--color-text);">
-							Read before you run
-						</p>
-						<p class="text-xs" style="color: var(--color-text-muted);">
-							The safety habit that threads the whole course: <Code code="ls" />
-							before <Code code="rm" />, echo the glob before trusting it, count the arrows in a
-							redirect, audit every AI-proposed command with the four-step routine from <CourseLink
-								to="section-11-1"
-							/>. The terminal does exactly what you say, immediately, with no undo — reading first
-							is what makes that power safe to hold.
-						</p>
-					</div>
-				</div>
-				<div class="flex gap-3 rounded-lg p-3" style="background: var(--color-bg-secondary);">
-					<span
-						class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-						style="background: var(--color-primary); color: var(--color-text-inverse);">3</span
-					>
-					<div>
-						<p class="text-[13px] font-medium" style="color: var(--color-text);">
-							The terminal is the AI-native interface
-						</p>
-						<p class="text-xs" style="color: var(--color-text-muted);">
-							The claim from the introduction, now closing the loop: text in, text out is the
-							language AI speaks natively, which is why every coding agent works by running shell
-							commands. It's measurable now — <a
-								href="https://www.tbench.ai/"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">Terminal-Bench</a
-							>
-							(Stanford × Laude Institute) is an entire benchmark that scores AI agents on real terminal
-							work — and it matters because trust hasn't kept up with use:
-							<a
-								href="https://survey.stackoverflow.co/2025/ai/"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">Stack Overflow's 2025 survey</a
-							> found 84% of developers using AI tools while only about 29% trust their output. Someone
-							still has to close that gap. You can watch what an agent runs, audit what it proposes, and
-							step in when it's wrong — which is the whole point of learning to read the shell.
-						</p>
-					</div>
-				</div>
-			</div>
-
-			<VibeBox
-				prompts={[
-					'Quiz me on the command-line mindset: give me five real-world tasks and check my one-liners',
-					'From now on, before running any command, show it to me and wait — I read before we run'
+			<ExpandableImage
+				src="{base}/images/mindset.webp"
+				alt="Several small tools join into a pipeline beside a careful reader."
+				caption="Observe, make one useful change, then check the result."
+			/>
+			<WorkflowSteps
+				title="A method worth keeping"
+				steps={[
+					{ label: 'Orient', detail: 'Which machine, folder, and input?' },
+					{ label: 'Act', detail: 'One change you can explain.' },
+					{ label: 'Verify', detail: 'What evidence supports success?' }
 				]}
 			/>
-		</div>
 
-		<!-- 14.2 Quick Reference -->
-		<div id="section-14-2" class="mb-8">
+			<p>
+				When a task feels large, write down the desired result in one sentence. “Organize my
+				downloaded reports without losing the originals.” “Find which line explains a failed job.”
+				“Save a copy of today's notes.” A concrete outcome helps you choose a first action.
+			</p>
+			<ol>
+				<li>
+					<strong>Orient.</strong> Identify the machine, current folder, relevant files, or running program.
+				</li>
+				<li>
+					<strong>Inspect.</strong> Read the input and the command you propose to use. Predict what it
+					will touch.
+				</li>
+				<li>
+					<strong>Act.</strong> Make one understandable change. Preserve a recovery route when existing
+					work matters.
+				</li>
+				<li>
+					<strong>Verify.</strong> Read the output, compare files, check the process, or ask the server.
+					Decide what the evidence actually proves.
+				</li>
+			</ol>
+			<p>
+				A pipeline can connect several steps, but build it a stage at a time when you are still
+				learning it. Separate commands that you can explain are more useful than a compact line you
+				cannot inspect.
+			</p>
+			<p>
+				When an error appears, keep its message long enough to read it. It often tells you whether
+				the next check belongs to spelling, location, permissions, syntax, a process, or the
+				network. Reset the practice sandbox when you want a fresh attempt; on your own machine,
+				recovery depends on the operation and the copies you kept.
+			</p>
+		</div>
+		<div id="section-14-2" class="lesson">
 			<SectionHeader
 				level="section"
-				icon={Table}
-				title="14.2 Quick Reference Card"
-				color="var(--color-primary)"
+				icon={BookOpen}
+				title="14.2 Use a reference at the moment you need it"
 			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/quick-reference.webp"
-					alt="Quick Reference Card — the essential terminal commands, one dense table"
-					caption="Keep this cheat sheet handy — every command from the course, one glance away"
-				/>
-			</div>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Everything from the course, grouped the way you'll reach for it — with <Code code="NAME" />,
-				<Code code="URL" /> and <Code code="PID" /> standing in for your own, never typed literally (<CourseLink
-					to="section-1-3"
-				/>). When a command's flags slip your mind, <Code code="man" /> is one keystroke closer than this
-				table.
+			<ExpandableImage
+				src="{base}/images/quick-reference.webp"
+				alt="A compact reference gathers terminal commands by the jobs they do."
+				caption="Look up the operation you need, then adapt its example to your files."
+			/>
+			<p>
+				The header's cheatsheet stays available while you work. The categories below use the same
+				command data, so this chapter and the panel stay together as the reference improves. For
+				editing gestures, revisit the <a href={resolve('/#keyboard-workshop')}>keyboard workshop</a
+				>.
 			</p>
-
-			<div class="overflow-x-auto rounded-lg" style="background: var(--color-bg-secondary);">
-				<table class="w-full text-xs">
-					<thead>
-						<tr style="background: var(--color-bg-tertiary);">
-							<th class="px-3 py-2.5 text-left font-semibold" style="color: var(--color-text);"
-								>Task</th
+			<p>
+				Examples with <Code code="&lt;file&gt;" /> or an uppercase name such as PID ask you to substitute
+				your own value. Do not type angle brackets as decoration: they are real shell operators. Read
+				the explanation before adapting a command.
+			</p>
+			{#snippet referenceText(
+				text: string
+			)}{#each text.split('`') as segment, index (index)}{#if index % 2}<Code
+							code={segment}
+						/>{:else}{segment}{/if}{/each}{/snippet}
+			{#each cheatSheet as category (category.label)}<details>
+					<summary>{category.label}</summary>
+					<div class="table-wrap">
+						<table>
+							<thead><tr><th>Example</th><th>What it does</th></tr></thead><tbody
+								>{#each category.commands as entry, index (index)}<tr
+										><td><Code code={entry.command} /></td><td
+											>{@render referenceText(entry.description)}{#if entry.detail}<p>
+													{@render referenceText(entry.detail)}
+												</p>{/if}</td
+										></tr
+									>{/each}</tbody
 							>
-							<th class="px-3 py-2.5 text-left font-semibold" style="color: var(--color-text);"
-								>Command</th
-							>
-							<th class="px-3 py-2.5 text-left font-semibold" style="color: var(--color-text);"
-								>Remember</th
-							>
-						</tr>
-					</thead>
-					<tbody style="color: var(--color-text-secondary);">
-						<tr style="background: var(--color-bg-tertiary);">
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Orient &amp; navigate</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Where am I?</td>
-							<td class="px-3 py-2"><Code code="pwd" /></td>
-							<td class="px-3 py-2">Print working directory</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">What's here?</td>
-							<td class="px-3 py-2"><Code code="ls -la" /></td>
-							<td class="px-3 py-2"><Code code="-a" /> shows dotfiles</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Go somewhere</td>
-							<td class="px-3 py-2"><Code code="cd path" /></td>
-							<td class="px-3 py-2"
-								><Code code="cd .." /> up,
-								<Code code="cd ~" /> home,
-								<Code code="cd -" /> back</td
-							>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Create &amp; inspect</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Make folders / files</td>
-							<td class="px-3 py-2"
-								><Code code="mkdir -p a/b" /> ·
-								<Code code="touch f" /></td
-							>
-							<td class="px-3 py-2"><Code code="-p" /> builds the whole path</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Read a file</td>
-							<td class="px-3 py-2"
-								><Code code="cat" /> ·
-								<Code code="less" /> ·
-								<Code code="head" /> ·
-								<Code code="tail" /></td
-							>
-							<td class="px-3 py-2"
-								><Code code="q" /> quits
-								<Code code="less" />;
-								<Code code="tail -f" /> follows</td
-							>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Copy, move, delete</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Copy / move</td>
-							<td class="px-3 py-2"
-								><Code code="cp -r src dst" /> ·
-								<Code code="mv src dst" /></td
-							>
-							<td class="px-3 py-2"><Code code="mv" /> also renames</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Delete</td>
-							<td class="px-3 py-2"
-								><Code code="rm file" /> ·
-								<Code code="rm -r dir" /></td
-							>
-							<td class="px-3 py-2">No trash can — <Code code="ls" /> first, always</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Select many files</td>
-							<td class="px-3 py-2"
-								><Code code="*.log" /> ·
-								<Code code="report?.txt" /></td
-							>
-							<td class="px-3 py-2"><Code code="echo" /> the glob before trusting it</td>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Text &amp; pipes</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Redirect output</td>
-							<td class="px-3 py-2"
-								><Code code=">" /> ·
-								<Code code=">>" /> ·
-								<Code code="2>" /></td
-							>
-							<td class="px-3 py-2"
-								><Code code=">" /> truncates;
-								<Code code=">>" /> appends</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Search text</td>
-							<td class="px-3 py-2"><Code code="grep -rin &quot;text&quot; ." /></td>
-							<td class="px-3 py-2"
-								>recursive, ignore case, line numbers; <Code code="-v" /> inverts</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Shape a stream</td>
-							<td class="px-3 py-2"><Code code="sort | uniq -c | sort -n" /></td>
-							<td class="px-3 py-2"><Code code="uniq" /> needs sorted input first</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Find files by name</td>
-							<td class="px-3 py-2"><Code code="find . -name &quot;*.md&quot;" /></td>
-							<td class="px-3 py-2"
-								><Code code="find" /> = filenames,
-								<Code code="grep" /> = contents</td
-							>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Permissions &amp; environment</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Make runnable</td>
-							<td class="px-3 py-2"><Code code="chmod +x script.sh" /></td>
-							<td class="px-3 py-2">Then run with <Code code="./script.sh" /></td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">"command not found"</td>
-							<td class="px-3 py-2"
-								><Code code="echo $PATH" /> ·
-								<Code code="which cmd" /></td
-							>
-							<td class="px-3 py-2">The shell only searches <Code code="PATH" /></td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Shortcuts</td>
-							<td class="px-3 py-2"><Code code="alias gs='git status'" /></td>
-							<td class="px-3 py-2"
-								>Persist in <Code code=".bashrc" /> /
-								<Code code=".zshrc" />, then
-								<Code code="source" /> it</td
-							>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Text surgery</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Find &amp; replace</td>
-							<td class="px-3 py-2"><Code code="sed 's/old/new/g' f.txt" /></td>
-							<td class="px-3 py-2"
-								>Prints the result; the file is untouched until <Code code="-i" /></td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Edit the file itself</td>
-							<td class="px-3 py-2"><Code code="sed -i.bak 's/a/b/g' f.txt" /></td>
-							<td class="px-3 py-2">Never bare <Code code="-i" /> — the suffix is your undo</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Drop / show lines</td>
-							<td class="px-3 py-2"
-								><Code code="sed '/DEBUG/d'" /> ·
-								<Code code="sed -n '40,55p'" /></td
-							>
-							<td class="px-3 py-2">Address picks lines, command decides their fate</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Pull a column</td>
-							<td class="px-3 py-2"><Code code={`awk '{print $2}'`} /></td>
-							<td class="px-3 py-2"
-								><Code code="-F," /> for CSV; <Code code="cut" /> for clean delimiters</td
-							>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Processes, ports &amp; the network</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">What's running?</td>
-							<td class="px-3 py-2"
-								><Code code="ps aux" /> ·
-								<Code code="pgrep node" /></td
-							>
-							<td class="px-3 py-2">PID is the handle; %CPU finds the runaway</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Stop it</td>
-							<td class="px-3 py-2"
-								><Code code="kill PID" /> ·
-								<Code code="kill -9 PID" /></td
-							>
-							<td class="px-3 py-2">Ask politely first; <Code code="-9" /> skips all cleanup</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">"Address already in use"</td>
-							<td class="px-3 py-2"><Code code="lsof -i :3000" /></td>
-							<td class="px-3 py-2">Find the PID, kill it, start yours</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Background a job</td>
-							<td class="px-3 py-2"
-								><Code code="cmd &" /> ·
-								<Code code="jobs" /> ·
-								<Code code="fg %1" /></td
-							>
-							<td class="px-3 py-2"><Code code="Ctrl+Z" /> pauses, <Code code="bg" /> resumes</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Is the server alive?</td>
-							<td class="px-3 py-2"><Code code="curl localhost:3000/health" /></td>
-							<td class="px-3 py-2">
-								<Code code="-s -o f.json" /> saves it quietly; <Code code="-I" /> = headers</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Copy files to a server</td>
-							<td class="px-3 py-2"
-								><Code code="scp f host:~/" /> ·
-								<Code code="rsync -avz d/ host:d/" /></td
-							>
-							<td class="px-3 py-2"
-								>Like <Code code="cp" />, across machines; <Code code="rsync" /> resumes and skips what's
-								done</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Read JSON</td>
-							<td class="px-3 py-2"><Code code="curl -s URL | jq -r .field" /></td>
-							<td class="px-3 py-2"><Code code="-r" /> drops the quotes for the next command</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Keep a secret</td>
-							<td class="px-3 py-2"
-								><Code code="echo 'K=v' > .env" /> ·
-								<Code code="chmod 600 .env" /></td
-							>
-							<td class="px-3 py-2">Never type a key into a command — history keeps it</td>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>The toolshed</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Install a tool</td>
-							<td class="px-3 py-2"><Code code="brew install NAME" /></td>
-							<td class="px-3 py-2"
-								>Linux: <Code code="sudo apt install" />. Confirm with <Code code="which" /></td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Open an archive</td>
-							<td class="px-3 py-2"
-								><Code code="tar -tzf f.tar.gz" /> ·
-								<Code code="tar -xzf f.tar.gz" /></td
-							>
-							<td class="px-3 py-2"
-								><Code code="t" /> lists, <Code code="x" /> extracts — peek before you unpack</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">What's eating the disk?</td>
-							<td class="px-3 py-2"
-								><Code code="du -sh *" /> ·
-								<Code code="df -h" /></td
-							>
-							<td class="px-3 py-2">Measure before you delete</td>
-						</tr>
-						<tr
-							style="background: var(--color-bg-tertiary); border-top: 1px solid var(--color-border);"
-						>
-							<td colspan="3" class="px-3 py-1.5 font-semibold" style="color: var(--color-text);"
-								>Chaining, history &amp; help</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Chain on success</td>
-							<td class="px-3 py-2"
-								><Code code="a && b" /> ·
-								<Code code="a || b" /></td
-							>
-							<td class="px-3 py-2"><Code code="$?" /> holds the last exit code; 0 = success</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Recall a command</td>
-							<td class="px-3 py-2"
-								><Code code="Ctrl+R" /> ·
-								<Code code="!!" /> ·
-								<Code code="history" /></td
-							>
-							<td class="px-3 py-2"><Code code="Ctrl+R" /> is the biggest speed unlock</td>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Get help</td>
-							<td class="px-3 py-2"
-								><Code code="man cmd" /> ·
-								<Code code="cmd --help" /></td
-							>
-							<td class="px-3 py-2"
-								><Code code="q" /> quits the pager; built-in <Code code="--help" /> is GNU-only, so
-								<Code code="man" /> on a Mac</td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-3 py-2">Practice all commands</td>
-							<td class="px-3 py-2">
-								<button
-									type="button"
-									onclick={onOpenPlayground}
-									class="cursor-pointer underline underline-offset-2"
-									style="color: var(--color-primary);">Terminal Playground</button
-								>
-							</td>
-							<td class="px-3 py-2">Try-it activities in nearly every part</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+						</table>
+					</div>
+				</details>{/each}
+			<p>
+				Use the built-in help and local manual when a flag differs from an example. The browser
+				sandbox implements a useful subset of a shell. “Not supported here” does not mean the same
+				command is invalid in your actual terminal.
+			</p>
 		</div>
-
-		<!-- 14.3 The Final Challenge -->
-		<div id="section-14-3" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Trophy}
-				title="14.3 The Final Challenge"
-				color="var(--color-primary)"
+		<div id="section-14-3" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="14.3 Put the skills together" />
+			<p>
+				These missions are a chance to choose a sequence yourself. Read the brief, inspect what is
+				present, and decide what evidence will count as done. Use the cheatsheet, earlier chapters,
+				or a small tutor hint whenever you need one.
+			</p>
+			<ExpandableImage
+				src="{base}/images/final-challenge.webp"
+				alt="A messy home folder contains reports, notes, logs, and a place for backups."
+				caption="Several small jobs, one workspace. Choose a first step you can verify."
 			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Reading is not knowing. Here's the exam — one gloriously messy home folder, no step-by-step
-				instructions. Everything you need is in <CourseLink to="part-1" /> through
-				<CourseLink to="part-6" />, and the playground will tell you the moment you've won.
+			<h4 id="capstone">Mission: one messy home folder</h4>
+			<ol>
+				<li>
+					Inspect downloads. Move the report PDFs into documents and remove only the temporary files
+					identified by the task. Leave unrelated files alone.
+				</li>
+				<li>
+					Find the error in the application log and save the relevant lines as logs/error.txt. Read
+					the saved result.
+				</li>
+				<li>
+					Use Edit a file to create backup.sh, inspect it, make it executable, and run it. Verify
+					the backup and the original.
+				</li>
+			</ol>
+			<p>
+				You can do these in any sensible order. Pause between operations to check the tree. If you
+				get stuck, name the smallest unresolved question: “Which files match this pattern?” is
+				easier to answer than “How do I do the whole mission?”
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/final-challenge.webp"
-					alt="The Final Challenge — one messy home folder, every skill from the course at once"
-					caption="One messy home folder — navigation, organizing, searching, and scripting, all at once"
-				/>
-			</div>
-
-			<Callout type="important">
-				<strong>Your mission:</strong> a home folder where downloads, notes, and stray scripts have been
-				piling up for months. Explore it, sort the loose files into sensible folders, hunt down the one
-				file that contains the phrase you're told to find, and finish by writing a small executable script
-				— every part of the course, combined, in any order that works.
-			</Callout>
-
-			<h4
-				id="capstone"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: One Messy Home Folder
-			</h4>
-			<PlaygroundNote>
-				Start with <Code code="ls -la" /> and a look around before you touch anything — read before you
-				run, even now. A ✔ appears in the terminal when every goal is met — no partial credit.
-			</PlaygroundNote>
-			<LessonActivity title="The Final Challenge" scenarioId="capstone" id="capstone" />
-
-			<h4 class="mt-10 mb-3 text-lg font-semibold" style="color: var(--color-text);">
-				And One More: The Midnight Deploy
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The first challenge covers <CourseLink to="part-1" /> through <CourseLink to="part-6" />.
-				This one is the power tools: a release is due, a stale server is squatting on your port, the
-				config still says <Code code="http:" />, and you refuse to ship on faith. Free the port, fix
-				the config <em>with a backup</em>, start your server, and save the proof it's alive —
-				<CourseLink to="part-7" />, <CourseLink to="part-8" />, <CourseLink to="part-9" /> and
-				<CourseLink to="part-10" /> in a single sitting.
+			<LessonActivity title="One messy home folder" scenarioId="capstone" id="capstone" />
+			<h4 id="midnight-deploy">Mission: the midnight deploy</h4>
+			<p>
+				A previous server is still using the port. The configuration needs a reviewed change. The
+				intended server must start, and its health reply must be saved. Work from evidence rather
+				than the deadline in the story.
 			</p>
-
-			<h4
-				id="midnight-deploy"
-				class="mt-6 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: The Midnight Deploy
-			</h4>
-			<PlaygroundNote>
-				Four moves: find and stop whoever holds port 3000, rewrite <Code code="config.yml" /> with
-				<Code code="sed -i.bak" />, start the server, then <Code code="curl" /> the health endpoint into
-				<Code code="status.json" />. Verification is part of the job, not an afterthought.
-			</PlaygroundNote>
+			<p>
+				Identify the old listener before stopping it. Preserve the configuration's previous
+				contents, inspect the edit, then start the intended server. Save and read its response. A
+				process existing, a URL using https, and an application being healthy are related
+				observations; none proves every other one.
+			</p>
 			<LessonActivity
-				title="The Midnight Deploy"
+				title="The midnight deploy"
 				scenarioId="midnight-deploy"
 				id="midnight-deploy"
 			/>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The Skill Checklist
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Beyond the challenge, here's the honest self-test. Check each item only when you could do it
-				<em>right now, without looking anything up</em>. (Saved locally in your browser — nobody's
-				grading you but you.)
+			<p>
+				After either mission, write a short handover: what you changed, what you kept, how you
+				checked it, and what you would do if the result were wrong. That explanation is useful
+				evidence of understanding.
 			</p>
-
-			<div class="mb-4 space-y-1.5">
-				{#each SKILL_CHECKLIST as item (item.id)}
-					<button
-						type="button"
-						onclick={() => toggleChecklistItem(item.id)}
-						class="flex w-full cursor-pointer items-start gap-3 rounded-lg p-3 text-left transition-opacity hover:opacity-80"
-						style="background: var(--color-bg-secondary);"
-					>
-						<span
-							class="mt-0.5 flex h-4.5 w-4.5 flex-shrink-0 items-center justify-center rounded border text-[11px] font-bold"
-							style="border-color: {$progress.checklist[item.id]
-								? 'var(--color-tip)'
-								: 'var(--color-border)'}; color: var(--color-tip); background: {$progress.checklist[
-								item.id
-							]
-								? 'color-mix(in srgb, var(--color-tip) 15%, transparent)'
-								: 'transparent'};"
-						>
-							{$progress.checklist[item.id] ? '✔' : ''}
-						</span>
-						<span
-							class="text-[13px]"
-							style="color: {$progress.checklist[item.id]
-								? 'var(--color-text-muted)'
-								: 'var(--color-text-secondary)'};"
-						>
-							{#each item.label.split('`') as seg, i (i)}{#if i % 2 === 1}<Code
-										code={seg}
-									/>{:else}{seg}{/if}{/each}
-						</span>
-					</button>
-				{/each}
+			<h4>Your skill notebook</h4>
+			<p>
+				Check a statement after completing a related task you can explain. Looking up syntax is
+				welcome. These notes are saved in this browser; they are your reflection, not a score or a
+				certificate. Uncheck something when you want more practice.
+			</p>
+			<div class="skill-list">
+				{#each skills as skill (skill.id)}<div class="skill-row">
+						<label
+							><input
+								type="checkbox"
+								checked={!!$progress.checklist[skill.id]}
+								onchange={() => toggleChecklistItem(skill.id)}
+							/><span>{skill.label}</span></label
+						><a href={resolve(`/#${skill.lesson}`)}>Practise</a>
+					</div>{/each}
 			</div>
+			<ChallengeActivity title="Clear the desk for the demo" part={14} id="ch-14-desk-clear" />
+			<p class="reflection">
+				<strong>Try again later:</strong> choose one mission after a break and change one detail, such
+				as a filename or destination. Keep your references available. Notice which parts you can now choose
+				without coaching.
+			</p>
 		</div>
-
-		<!-- 14.4 Keep Learning -->
-		<div id="section-14-4" class="mb-14">
+		<div id="section-14-4" class="lesson">
 			<SectionHeader
 				level="section"
-				icon={Library}
-				title="14.4 Keep Learning — The References That Matter"
-				color="var(--color-primary)"
+				icon={BookOpen}
+				title="14.4 Take one useful task into your own terminal"
 			/>
-
-			<div class="mb-6">
-				<ExpandableImage
-					src="{base}/images/keep-learning.webp"
-					alt="Keep learning — a forest path branching toward deeper command-line territory"
-					caption="This course ends here — the prompt keeps going"
-				/>
-			</div>
-
-			<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				You've practiced everything here in a real shell — but the command line is deep, and the
-				best references are worth knowing by name. These six will cover you from quick lookups to
-				true mastery:
+			<ExpandableImage
+				src="{base}/images/keep-learning.webp"
+				alt="A garden path branches toward several new places to explore."
+				caption="Choose a small task you want to repeat. Let that task choose the next tool."
+			/>
+			<p>
+				Begin in a fresh practice folder on your own machine. Make a notebook, find a sentence in
+				it, copy it, and compare the two copies. Practise one keyboard repair. Keep valuable files
+				outside the experiment until the steps feel familiar.
 			</p>
-
-			<div class="mb-4 space-y-3">
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
-						<BookOpen size={14} style="color: var(--color-primary);" />
-						<span
-							><a
-								href="https://linuxcommand.org/tlcl.php"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">The Linux Command Line</a
-							><span style="color: var(--color-text);"> — the book, free forever</span></span
-						>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						William Shotts' 500-page classic, now in its 3rd edition (No Starch Press, February
-						2026) and still free as a PDF from
-						<a
-							href="https://linuxcommand.org"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">linuxcommand.org</a
-						>. It starts exactly where this course ends and goes all the way to serious shell
-						scripting. When you want to know <em>why</em> the shell works the way it does, this is the
-						answer.
-					</p>
-				</div>
-
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
-						<Gamepad2 size={14} style="color: var(--color-primary);" />
-						<span
-							><a
-								href="https://overthewire.org/wargames/bandit/"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">OverTheWire: Bandit</a
-							><span style="color: var(--color-text);"> — the terminal as a game</span></span
-						>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						A free wargame played entirely over SSH: each level hides the password to the next
-						somewhere in the filesystem, and your only tools are the ones from this course — <Code
-							code="ls"
-						/>,
-						<Code code="cat" />,
-						<Code code="grep" />,
-						<Code code="find" />. The most fun way to make everything here reflexive.
-					</p>
-				</div>
-
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
-						<SearchCode size={14} style="color: var(--color-primary);" />
-						<span
-							><a
-								href="https://explainshell.com"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">explainshell.com</a
-							><span style="color: var(--color-text);">
-								— paste a command, get the anatomy</span
-							></span
-						>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						The audit tool from <CourseLink to="section-11-1" />, permanently bookmarked. It maps
-						every flag and argument of a pasted command to the matching lines of the real man pages
-						— the perfect second opinion on anything an AI proposes.
-					</p>
-				</div>
-
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
-						<ListChecks size={14} style="color: var(--color-primary);" />
-						<span
-							><a
-								href="https://tldr.sh"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">tldr pages</a
-							><span style="color: var(--color-text);"> — man pages, but the good parts</span></span
-						>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Community-written cheat sheets: <Code code="tldr tar" /> gives you the five examples you actually
-						wanted instead of forty flags. Still actively maintained in 2026, installable as a command
-						or usable in the browser — the fastest "how do I use this again?" answer that isn't an AI.
-					</p>
-				</div>
-
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
-						<BookMarked size={14} style="color: var(--color-primary);" />
-						<span
-							><a
-								href="https://man7.org"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">man7.org</a
-							><span style="color: var(--color-text);"> — the manual, in a browser</span></span
-						>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						The canonical Linux man pages, online and linkable — the same authoritative text <Code
-							code="man"
-						/> shows you locally, handy when you want to read documentation without leaving the browser
-						(or share a link to a specific flag's definition).
-					</p>
-				</div>
-
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
-						<Bot size={14} style="color: var(--color-primary);" />
-						<span
-							><a
-								href="https://code.claude.com/docs/en/terminal-guide"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">Claude Code's terminal guide</a
-							><span style="color: var(--color-text);">
-								— even the AI vendors teach this now</span
-							></span
-						>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						The clearest sign the terminal is the AI-native interface: Anthropic publishes its own
-						beginner terminal guide for people picking up Claude Code. Cross-check what you learned
-						here, and note who's telling you these skills matter — the company whose agent you'll be
-						supervising.
-					</p>
-				</div>
-			</div>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				Your Next Course: Git
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				There's one command this course kept respectfully walking past, and said so at the time (<CourseLink
-					to="section-5-5"
-				/>): <Code code="git" />. It's the other half of the vibe coder's toolkit — the save-game
-				system that makes AI-generated changes reviewable, undoable, and safe to experiment with.
-				And it lives exactly where you now feel at home: the terminal.
+			<p>
+				The native terminal will expose differences the simulation keeps small: your actual shell,
+				real permissions, installed tools, other processes, and the network. When something differs,
+				write down the command, its output, and the environment. That is a useful question to
+				investigate, not evidence that you failed the course.
 			</p>
-
-			<div class="mb-4 space-y-3">
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4 class="mb-1 flex items-center gap-1.5 text-[14px] font-semibold">
-						<GitBranch size={14} style="color: var(--color-primary);" />
-						<span
-							><a
-								href="https://neovand.github.io/gitvibes/"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="underline underline-offset-2"
-								style="color: var(--color-primary);">GitVibes</a
-							><span style="color: var(--color-text);">
-								— the sister course, learn Git next</span
-							></span
-						>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Same format, same free-forever deal, same in-browser playground — but for Git: commits,
-						branches, undo, merge conflicts, and the guardrails that keep AI agents from wrecking
-						your history. Everything you just learned about reading commands is the head start;
-						TerminalVibes graduates are exactly who it was written for.
-					</p>
-				</div>
-			</div>
+			<h4>Choose a direction that solves a problem you have</h4>
+			<ul>
+				<li>
+					<strong>Find things faster:</strong> try one of the rg, fd, fzf, or zoxide tasks in Part 10
+					on a familiar folder.
+				</li>
+				<li>
+					<strong>Keep long work organized:</strong> use named tabs or practise detaching a tmux session
+					in Part 12.
+				</li>
+				<li>
+					<strong>Repeat a chore:</strong> build a small script from Part 13 and test what happens when
+					an input is missing.
+				</li>
+				<li>
+					<strong>Work remotely:</strong> practise SSH only with an account you are authorized to use;
+					keep local and remote identities clear.
+				</li>
+				<li>
+					<strong>Track changes over time:</strong> learn Git so you can inspect history, compare
+					revisions, and make deliberate recoveries. The sister course
+					<a href="https://neovand.github.io/gitvibes/">GitVibes</a> follows that path.
+				</li>
+			</ul>
+			<p>
+				The local manual describes the tools you actually have. Official project guides explain
+				optional additions. When a guide assumes knowledge you have not learned, pause at that
+				assumption and try a smaller example. You can return to the <button
+					type="button"
+					onclick={onOpenPlayground}
+					class="practice-link">course playground</button
+				> whenever a disposable workspace would help.
+			</p>
+			<p class="reflection">
+				<strong>A good next task:</strong> pick one small thing you currently do by hand and want to understand
+				better. Write down what done would look like. Start by looking around.
+			</p>
 		</div>
-
-		<!-- Final Thoughts -->
-		<div class="mb-8">
-			<Callout type="important">
-				<strong>Final Thoughts:</strong> The terminal has outlived every interface fashion of the last
-				fifty years, and the AI era just made it more central, not less — because text is what both you
-				and your agents speak. You can now read what the machine is told to do, verify it, and run it
-				with intent. The promise of this course was never memorizing commands. It was having a way to
-				read what you're about to run — especially when you didn't write it.
-			</Callout>
-		</div>
-
-		<ChallengeActivity title="Clear the Desk for the Demo" part={14} id="ch-14-desk-clear" />
 	</div>
 </section>
+
+<style>
+	.chapter-copy {
+		color: var(--color-text-secondary);
+		font-size: 1rem;
+		line-height: 1.85;
+	}
+	.chapter-copy p {
+		margin: 1rem 0;
+	}
+	.chapter-copy .lead {
+		font-size: 1.1rem;
+	}
+	.lesson {
+		margin: 3rem 0;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy h4 {
+		color: var(--color-text);
+		font: 600 1.1rem/1.5 var(--font-heading);
+		margin: 1.8rem 0 0.7rem;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy strong {
+		color: var(--color-text);
+	}
+	.chapter-copy ul,
+	.chapter-copy ol {
+		padding-left: 1.5rem;
+		margin: 1rem 0;
+	}
+	.chapter-copy ul {
+		list-style: disc;
+	}
+	.chapter-copy ol {
+		list-style: decimal;
+	}
+	.chapter-copy li {
+		margin: 0.55rem 0;
+	}
+	.chapter-copy a {
+		color: var(--color-primary-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.chapter-copy details {
+		border: 1px solid var(--color-border);
+		border-radius: 0.75rem;
+		padding: 1rem;
+		margin: 1.5rem 0;
+	}
+	.chapter-copy summary {
+		cursor: pointer;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.table-wrap {
+		overflow-x: auto;
+		margin: 1.5rem 0;
+	}
+	.chapter-copy table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.88rem;
+		line-height: 1.65;
+	}
+	.chapter-copy th,
+	.chapter-copy td {
+		text-align: left;
+		padding: 0.7rem;
+		border-bottom: 1px solid var(--color-border);
+		vertical-align: top;
+	}
+	.chapter-copy th {
+		color: var(--color-text);
+	}
+	.chapter-copy .reflection {
+		background: var(--color-bg-secondary);
+		padding: 1rem;
+		border-radius: 0.6rem;
+	}
+
+	.skill-list {
+		display: grid;
+		gap: 0.5rem;
+	}
+	.skill-row {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+		justify-content: space-between;
+		border: 1px solid var(--color-border);
+		border-radius: 0.5rem;
+		padding: 0.8rem;
+		font-size: 0.87rem;
+	}
+	.skill-row label {
+		display: flex;
+		gap: 0.75rem;
+		align-items: flex-start;
+		cursor: pointer;
+	}
+	.skill-row input {
+		flex-shrink: 0;
+		margin-top: 0.4rem;
+		accent-color: var(--color-primary);
+	}
+	.skill-row a {
+		white-space: nowrap;
+		font-size: 0.8rem;
+	}
+	.practice-link {
+		color: var(--color-primary-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		cursor: pointer;
+	}
+	@media (max-width: 500px) {
+		.skill-row {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 0.3rem;
+		}
+		.skill-row a {
+			margin-left: 1.75rem;
+		}
+	}
+</style>

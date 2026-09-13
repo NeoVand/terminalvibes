@@ -5,8 +5,10 @@
 	let {
 		code,
 		lang = 'bash',
-		title = ''
-	}: { code: string; lang?: string; title?: string } = $props();
+		title = '',
+		copyText,
+		output
+	}: { code: string; lang?: string; title?: string; copyText?: string; output?: string } = $props();
 
 	const SHELL_LANGS = ['bash', 'sh', 'shell', 'zsh'];
 	const lines = $derived(
@@ -33,7 +35,7 @@
 
 	async function copyCode() {
 		try {
-			await navigator.clipboard.writeText(code);
+			await navigator.clipboard.writeText(copyText ?? code);
 			copied = true;
 			setTimeout(() => (copied = false), 2000);
 		} catch {
@@ -86,6 +88,13 @@
 					>{/each}{/each}</code
 		></pre>
 </div>
+
+{#if output !== undefined}
+	<div class="my-3 rounded-lg border p-4" style="border-color: var(--color-border);">
+		<p class="mb-2 text-xs" style="color: var(--color-text-muted);">The terminal prints</p>
+		<pre class="overflow-x-auto text-sm whitespace-pre-wrap">{output || '(No text printed)'}</pre>
+	</div>
+{/if}
 
 <style>
 	.cb-code {

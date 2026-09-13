@@ -3,6 +3,7 @@
 	import { searchEntries, type SearchEntry } from '$lib/data/search-index';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
 	import { searchHits } from '$lib/timeline/search-hits.svelte';
+	import { focusAnchor, revealAnchor } from '$lib/navigation/reveal-anchor';
 
 	let {
 		onNavigate,
@@ -37,9 +38,10 @@
 		if (onNavigate) {
 			onNavigate(entry.sectionId);
 		} else {
-			const el = document.getElementById(entry.sectionId);
+			const el = revealAnchor(entry.sectionId);
 			if (el) {
 				el.scrollIntoView({ behavior: 'smooth' });
+				focusAnchor(el);
 			}
 		}
 		close();
@@ -90,7 +92,15 @@
 	}
 
 	function handleGlobalKeydown(e: KeyboardEvent) {
-		if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+		// Editing shortcuts belong to the focused field, especially a terminal's Ctrl+K.
+		const target = e.target;
+		if (
+			e.defaultPrevented ||
+			(target instanceof HTMLElement &&
+				target.closest('input, textarea, [contenteditable="true"], [data-terminal-input]'))
+		)
+			return;
+		if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
 			e.preventDefault();
 			inputEl?.focus();
 		}

@@ -29,9 +29,19 @@ export interface CourseNode {
  * not need chmod.
  */
 export const courseGraph: CourseNode[] = [
-	{ id: 'hero', gives: 'what a terminal is, and why it matters now', needs: [], track: 'core' },
+	{
+		id: 'hero',
+		gives: 'type a command, read its reply, and fix the line with your keyboard',
+		needs: [],
+		track: 'core'
+	},
 	{ id: 'part-1', gives: 'open a terminal and ask it for help', needs: ['hero'], track: 'core' },
-	{ id: 'part-2', gives: 'know where you are and move anywhere', needs: ['part-1'], track: 'core' },
+	{
+		id: 'part-2',
+		gives: 'find folders, build a notebook, and edit a file',
+		needs: ['part-1'],
+		track: 'core'
+	},
 	{
 		id: 'part-3',
 		gives: 'copy, move and delete without losing work',
@@ -65,7 +75,7 @@ export const courseGraph: CourseNode[] = [
 	{
 		id: 'part-8',
 		gives: 'unstick a machine: stop a process, free a port',
-		needs: ['part-4', 'part-7'],
+		needs: ['part-4'],
 		track: 'power'
 	},
 	{
@@ -100,7 +110,7 @@ export const courseGraph: CourseNode[] = [
 	},
 	{
 		id: 'part-14',
-		gives: 'the mindset, a reference card, and two final challenges',
+		gives: 'combine your skills in two practical projects',
 		needs: ['part-11'],
 		track: 'mastery'
 	}

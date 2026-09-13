@@ -11,6 +11,8 @@ import {
 	layoutMarks,
 	makeLayout,
 	makeMapping,
+	makeNavigationSpace,
+	NAVIGATION,
 	pick,
 	solveP,
 	type PlacedItem,
@@ -30,10 +32,9 @@ import measured from './measured-offsets.fixture.json';
  * it is enforced here — and these assertions are deliberately tight enough
  * that a "harmless" rewrite of the numerics fails them.
  *
- * Offsets come from a real measurement of the rendered page
- * (measured-offsets.fixture.json), not from an even spacing: the tight anchors
- * are tight precisely because the real document is uneven, and an idealised
- * fixture would quietly stop testing the thing that matters.
+ * Offsets come from a real measurement of the default, collapsed page. The
+ * navigation allocator must make those tight anchors selectable without
+ * falsifying the measured document or changing where reading time is counted.
  */
 
 const items = manifest as TimelineItem[];
@@ -46,16 +47,18 @@ const placed: PlacedItem[] = items.map((it) => ({
 }));
 
 /**
- * Raw anchor spans — every item, parts included — which is what the cursor
+ * Navigation spans — every item, parts included — which is what the cursor
  * actually sweeps through. (The rail FOLDS parts into the following section
  * for drawing; that is a rendering decision and must not hide an anchor that
  * the sweep can no longer reach.)
  */
-const spans = placed.map((it, i) => ({
+const navigation = makeNavigationSpace(placed);
+const navigable = navigation.items;
+const spans = navigable.map((it, i) => ({
 	id: it.id,
 	kind: it.kind,
 	a: it.f,
-	b: i + 1 < placed.length ? placed[i + 1].f : 1
+	b: i + 1 < navigable.length ? navigable[i + 1].f : 1
 }));
 
 const RAIL_W = 760;
@@ -65,6 +68,71 @@ function spanIndexAt(u: number): number {
 	for (let i = 0; i < spans.length; i++) if (u >= spans[i].a && u < spans[i].b) return i;
 	return u >= 1 ? spans.length - 1 : 0;
 }
+
+describe('navigation space', () => {
+	it('keeps the closed-page measurements honest and gives every anchor its floor', () => {
+		const before = placed.map((item) => item.f);
+		const sum = placed.reduce((total, item) => total + NAVIGATION.minSpanPx[item.kind], 0);
+		const scale = Math.min(1, (NAVIGATION.maxFloorShare * NAVIGATION.referenceWidth) / sum);
+		for (let i = 0; i < spans.length; i++) {
+			const width = (spans[i].b - spans[i].a) * NAVIGATION.referenceWidth;
+			expect(width + 1e-9, spans[i].id).toBeGreaterThanOrEqual(
+				NAVIGATION.minSpanPx[spans[i].kind] * scale
+			);
+		}
+		expect(placed.map((item) => item.f)).toEqual(before);
+		expect(placed[1]).not.toBe(navigable[1]);
+		// This regression fixture contains a genuinely tiny closed intro card.
+		// Making its recorded height bigger would conceal the reason for the fix.
+		const shortest = Math.min(...placed.slice(0, -1).map((item, i) => placed[i + 1].f - item.f));
+		expect(shortest * RAIL_W).toBeLessThan(1);
+	});
+
+	it('keeps the reading head on the same lesson as the physical document', () => {
+		const documentModel = buildModel(placed);
+		const railModel = buildModel(navigable);
+		for (let i = 1; i < placed.length; i++) {
+			expect(navigation.fromDocument(placed[i].f)).toBeCloseTo(navigable[i].f, 10);
+		}
+		let previous = -1;
+		for (let i = 0; i <= SWEEP; i++) {
+			const documentPosition = i / SWEEP;
+			const railPosition = navigation.fromDocument(documentPosition);
+			expect(railPosition).toBeGreaterThan(previous);
+			expect(railModel.barAt(railPosition).item.id).toBe(
+				documentModel.barAt(documentPosition).item.id
+			);
+			previous = railPosition;
+		}
+		expect(navigation.fromDocument(0)).toBe(0);
+		expect(navigation.fromDocument(1)).toBe(1);
+	});
+
+	it('keeps zero-height anchors selectable and remeasures expanded content', () => {
+		const collapsed = placed.map((item, i) => ({ ...item, f: i < 6 ? 0 : item.f }));
+		const closed = makeNavigationSpace(collapsed);
+		for (let i = 1; i < 6; i++) expect(closed.items[i].f).toBeGreaterThan(closed.items[i - 1].f);
+		let previous = -1;
+		for (let i = 0; i <= SWEEP; i++) {
+			const at = closed.fromDocument(i / SWEEP);
+			expect(Number.isFinite(at)).toBe(true);
+			expect(at).toBeGreaterThanOrEqual(previous);
+			previous = at;
+		}
+		const reopened = makeNavigationSpace(placed);
+		expect(reopened.items.map((item) => item.id)).toEqual(closed.items.map((item) => item.id));
+		expect(buildModel(reopened.items).navList.map((item) => item.id)).toEqual(
+			buildModel(closed.items).navList.map((item) => item.id)
+		);
+	});
+
+	it('preserves the relative lengths of spans that exceed their floors', () => {
+		const example = placed.slice(0, 3).map((item, i) => ({ ...item, f: [0, 0.1, 0.4][i] }));
+		const result = makeNavigationSpace(example);
+		for (let i = 0; i < 3; i++) expect(result.items[i].f).toBeCloseTo(example[i].f, 12);
+		expect(makeNavigationSpace([]).fromDocument(0.4)).toBe(0.4);
+	});
+});
 
 describe('manifest', () => {
 	it('is in document order and covers every anchor exactly once', () => {
@@ -84,31 +152,28 @@ describe('manifest', () => {
 		}
 	});
 
-	it('closes every part on its challenge', () => {
-		// The fourteen are the Parts' exit tests, and the owner treats each as the
-		// marker where one Part ends and the next begins. So a challenge is always
-		// the LAST anchor before the next `kind: 'part'` — if one drifted into the
-		// middle of a chapter, the rail would hand it a span it does not own.
+	it('closes each part with its challenge, followed only by the final learning footer', () => {
+		// Part 14 deliberately puts Keep Learning after its final challenge.
 		const chs = items.filter((it) => it.kind === 'challenge');
 		expect(chs).toHaveLength(14);
 		for (const ch of chs) {
 			const next = items[items.indexOf(ch) + 1];
-			expect(next === undefined || next.kind === 'part').toBe(true);
+			if (ch.id === 'ch-14-desk-clear') {
+				expect(next?.id).toBe('section-14-4');
+				expect(items.indexOf(next)).toBe(items.length - 1);
+			} else expect(next?.kind).toBe('part');
 		}
 	});
 
-	it('records the two known sidebarNav discrepancies as page truth', () => {
-		// The page has `quoting` BEFORE section-2-3 and contains `midnight-deploy`;
-		// sidebarNav says otherwise. Building the rail from sidebarNav would hand
-		// one bar's scroll span to the wrong anchor — this pins the correct order.
+	it('places quoting after its explanation and keeps the independent scripting mission', () => {
 		const order = new Map(items.map((it, i) => [it.id, i]));
-		expect(order.get('quoting')!).toBeLessThan(order.get('section-2-3')!);
+		expect(order.get('quoting')!).toBeGreaterThan(order.get('section-2-3')!);
 		expect(order.has('midnight-deploy')).toBe(true);
 	});
 });
 
 describe('model', () => {
-	const model = buildModel(placed);
+	const model = buildModel(navigable);
 
 	it('tiles [0,1] with the bar row, no gaps and no overlaps', () => {
 		expect(model.bars[0].s).toBe(0);
@@ -318,56 +383,26 @@ describe('the sweep — the property the direction was approved on', () => {
 				.map((x) => x.px)
 				.sort((a, b) => a - b);
 
-		const median = (a: number[]) => a[Math.floor(a.length / 2)];
-
 		const sections = byKind('section');
 		const playgrounds = byKind('playground');
 		const parts = byKind('part');
 		const challenges = byKind('challenge');
 
-		/* The floors measured on the approved prototype. Lowering A or widening
-		   sigma pushes these down; this is the assertion that stops a TUNING
-		   change from quietly making the small marks unhittable — and the tuning
-		   itself is still pinned exactly, three tests up.
-
-		   Re-derived once, for the fourteen challenges. They are content, not
-		   tuning: 107 anchors became 121, so every anchor's share of a 760px rail
-		   fell. Measured on the same rig with the challenge cards hidden, this
-		   page still reproduces the prototype's numbers to the digit (5.13 /
-		   3.04 / 1.71), so the drop below is entirely the new anchors and nothing
-		   else moved:
-
-		     sections[0]   5.13 → 4.94      median 7.79 → 7.60
-		                   (floored at 4.93 — the measurement is 4.9399999…)
-		     playgrounds   3.04 → 3.04      median 3.80 → 3.61
-
-		   That is a 3–5% squeeze for a 13% rise in anchor count, and every mark
-		   stays far above the 1.5px hard floor asserted in the rest/hover split.
-		   Same precedent as the part note below, which was re-derived when
-		   prompt-designer and midnight-deploy were added back. */
-		expect(sections[0]).toBeGreaterThanOrEqual(4.93);
-		expect(median(sections)).toBeGreaterThanOrEqual(7.6);
-		expect(playgrounds[0]).toBeGreaterThanOrEqual(3.04);
-		expect(median(playgrounds)).toBeGreaterThanOrEqual(3.61);
-		// The challenges' own floor, new with them. They read tighter than the
-		// playgrounds because each is one anchor at the very end of a chapter,
-		// where the following part header is already crowding the span.
+		// Minimum usable targets are the contract. A historical median mainly
+		// measured how much prose and art each chapter happened to contain; it
+		// must not penalise a clearer, shorter lesson. The minimum section and
+		// exercise targets are now stronger than the old 4.93px / 3.04px floors.
+		expect(sections[0]).toBeGreaterThanOrEqual(5);
+		expect(playgrounds[0]).toBeGreaterThanOrEqual(4.5);
 		expect(challenges).toHaveLength(14);
 		expect(challenges[0]).toBeGreaterThanOrEqual(2.46);
-		expect(median(challenges)).toBeGreaterThanOrEqual(2.66);
-		// Parts read a little tighter than the 1.80/2.19 quoted on the prototype
-		// because that snapshot was missing two anchors (prompt-designer and
-		// midnight-deploy); adding them back splits two part spans. It costs
-		// nothing in practice: the chapter lane is hit-tested over the FOLDED
-		// part span (partAt), which is an order of magnitude wider than the raw
-		// anchor span measured here. Kept as a regression floor all the same.
+		// The chapter lane uses each whole part, not this short header span.
 		expect(parts[0]).toBeGreaterThanOrEqual(1.71);
-		expect(median(parts)).toBeGreaterThanOrEqual(2.09);
 	});
 });
 
 describe('hit testing', () => {
-	const model = buildModel(placed);
+	const model = buildModel(navigable);
 
 	it('reaches every bar and every playground across a sweep', () => {
 		const barsHit = new Set<string>();
@@ -415,7 +450,7 @@ describe('hit testing', () => {
 });
 
 describe('mark layout', () => {
-	const model = buildModel(placed);
+	const model = buildModel(navigable);
 	const out = makeLayout(model);
 
 	it('keeps the thread continuous and inside the rail', () => {

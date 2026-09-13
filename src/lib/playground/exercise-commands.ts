@@ -10,6 +10,7 @@
  * sheet explains what each command does, which is exactly the audit a salted
  * pool invites, and it never reveals which pool entries are the solution.
  */
+import type { CheatSheetCommand } from '$lib/data/cheat-sheet';
 import { playgroundScenarios } from './scenarios';
 import { allChallenges } from './challenges';
 import { commandWordOf, splitSegments } from './challenge-parsing';
@@ -21,6 +22,7 @@ export interface ExerciseFocus {
 	kind: 'playground' | 'challenge';
 	/** Command words the exercise's command lines use ('ls', 'grep', …). */
 	words: ReadonlySet<string>;
+	references?: ReadonlySet<string>;
 }
 
 /**
@@ -48,12 +50,76 @@ function toFocus(
 ): ExerciseFocus {
 	const words = new Set<string>();
 	for (const line of lines) for (const word of commandWordsOf(line)) words.add(word);
-	return { id, title, kind, words };
+	return {
+		id,
+		title,
+		kind,
+		words,
+		references: REFERENCES[id] ? new Set(REFERENCES[id]) : undefined
+	};
+}
+
+const REFERENCES: Record<string, string[]> = {
+	hero: ['say-hello', 'key-history', 'key-cancel'],
+	'hello-first-command': ['say-hello', 'key-history', 'key-cancel'],
+	'keyboard-workshop': [
+		'key-start',
+		'key-end',
+		'key-whole-line',
+		'key-kill-end',
+		'key-word',
+		'key-yank',
+		'key-history',
+		'key-cancel',
+		'key-redraw',
+		'key-search',
+		'key-complete'
+	],
+	'first-steps': [
+		'say-hello',
+		'my-user',
+		'where-am-i',
+		'current-date',
+		'clear-screen',
+		'key-history',
+		'key-cancel'
+	],
+	'help-lookup': ['command-help', 'file-start'],
+	navigation: [
+		'where-am-i',
+		'list-files',
+		'hidden-files',
+		'change-folder',
+		'parent-folder',
+		'home-folder',
+		'read-file'
+	],
+	'workspace-setup': [
+		'make-folder',
+		'make-parent-folders',
+		'make-file',
+		'list-files',
+		'change-folder'
+	],
+	'edit-notes': ['read-file', 'edit-file', 'key-cancel']
+};
+
+export function referenceMatchesExercise(entry: CheatSheetCommand, focus: ExerciseFocus): boolean {
+	if (focus.references) return Boolean(entry.id && focus.references.has(entry.id));
+	const words = commandWordsOf(entry.command);
+	return words.length > 0 && words.every((word) => focus.words.has(word));
 }
 
 /** The exercise an anchor id points at, or null for ordinary sections. */
 export function exerciseFocusOf(anchorId: string | null): ExerciseFocus | null {
 	if (!anchorId) return null;
+	if (['hero', 'hello-first-command', 'keyboard-workshop'].includes(anchorId))
+		return toFocus(
+			anchorId,
+			anchorId === 'keyboard-workshop' ? 'Keyboard workshop' : 'Your first command',
+			'playground',
+			['echo']
+		);
 	const challenge = allChallenges.find((c) => c.id === anchorId);
 	if (challenge) {
 		return toFocus(

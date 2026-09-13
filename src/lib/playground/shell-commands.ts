@@ -1148,9 +1148,14 @@ function lsLongLine(
 }
 
 function cmdLs(engine: ShellEngine, args: string[]): ExecResult {
-	const { flags, rest } = flagSplit(args, 'laFRht', 'ls');
+	const { flags, rest } = flagSplit(
+		args.map((arg) => (arg === '--all' ? '-a' : arg === '--almost-all' ? '-A' : arg)),
+		'laAFRht',
+		'ls'
+	);
 	const long = flags.has('l');
 	const all = flags.has('a');
+	const almostAll = flags.has('A');
 	const classify = flags.has('F');
 	const recursive = flags.has('R');
 	const human = flags.has('h');
@@ -1198,7 +1203,7 @@ function cmdLs(engine: ShellEngine, args: string[]): ExecResult {
 			g.html.push(span(`${label}:`, 'font-weight:600;color:var(--color-terminal-command)'));
 		}
 		let names = engine.listDir(abs)!;
-		if (!all) names = names.filter((n) => !n.startsWith('.'));
+		if (!all && !almostAll) names = names.filter((n) => !n.startsWith('.'));
 		const entries = names.map((n) => ({
 			name: n,
 			node: engine.getNode(abs === '/' ? '/' + n : abs + '/' + n)!
@@ -1234,7 +1239,7 @@ function cmdLs(engine: ShellEngine, args: string[]): ExecResult {
 			const visit = (label: string, abs: string) => {
 				collect.push({ label, abs });
 				let names = engine.listDir(abs)!;
-				if (!all) names = names.filter((n) => !n.startsWith('.'));
+				if (!all && !almostAll) names = names.filter((n) => !n.startsWith('.'));
 				for (const n of names) {
 					const childAbs = abs === '/' ? '/' + n : abs + '/' + n;
 					if (engine.isDir(childAbs)) visit(`${label}/${n}`, childAbs);
@@ -1530,10 +1535,10 @@ function relLabel(root: string, rootAbs: string, abs: string): string {
 }
 
 function cmdGrep(engine: ShellEngine, args: string[], stdin: string | null): ExecResult {
-	const { flags, rest } = flagSplit(args, 'invcr', 'grep');
+	const { flags, rest } = flagSplit(args, 'invcrFE', 'grep');
 	if (!rest.length) {
 		throw new CmdError(
-			'Usage: grep [-i -n -v -c -r] PATTERN [FILE...]\n(example: grep -in error server.log — or pipe into it: cat log | grep error)'
+			'Usage: grep [-F -E -i -n -v -c -r] PATTERN [FILE...]\n(example: grep -in error server.log — or pipe into it: cat log | grep error)'
 		);
 	}
 	const pattern = rest[0];
@@ -1541,7 +1546,7 @@ function cmdGrep(engine: ShellEngine, args: string[], stdin: string | null): Exe
 	const reFlags = flags.has('i') ? 'i' : '';
 	let re: RegExp;
 	try {
-		re = new RegExp(pattern, reFlags);
+		re = new RegExp(flags.has('F') ? escapeRegExp(pattern) : pattern, reFlags);
 	} catch {
 		re = new RegExp(escapeRegExp(pattern), reFlags);
 	}
@@ -3415,7 +3420,7 @@ async function cmdBash(ctx: Ctx, cmd: string, args: string[]): Promise<ExecResul
 function cmdEditorStub(cmd: string, args: string[]): ExecResult {
 	const target = args.find((a) => !a.startsWith('-')) ?? 'file.txt';
 	return ok(
-		`${cmd}: on a real machine this opens a full-screen text editor — the playground can't take over your screen.\nTo create or change files here, use redirection instead:\n  echo 'first line' > ${target}      (create / overwrite)\n  echo 'another line' >> ${target}   (append)\n  cat ${target}                      (check your work)\n`
+		`${cmd}: native ${cmd} takes over your terminal screen. Here, use the playground’s “Edit a file” button and open ${target}.\nSave, close the editor, then run cat ${target} to verify the saved contents.\n`
 	);
 }
 
@@ -4045,9 +4050,9 @@ const MAN_PAGES: Record<string, ManPage> = {
 	},
 	grep: {
 		name: 'search text for a pattern',
-		synopsis: 'grep [-i -n -v -c -r] PATTERN [file ...]',
+		synopsis: 'grep [-F -E -i -n -v -c -r] PATTERN [file ...]',
 		description:
-			'Prints lines matching PATTERN. -i ignores case, -n shows line numbers, -v inverts (lines NOT matching), -c counts instead of printing, -r searches whole directories. Works on files or on piped input.',
+			'Prints lines matching PATTERN. -F treats the pattern as literal text; -E accepts extended patterns in this limited simulator. -i ignores case, -n shows line numbers, -v inverts (lines NOT matching), -c counts instead of printing, -r searches whole directories. Works on files or on piped input. The simulator uses JavaScript regular expressions, which differ from native grep patterns; verify advanced regex in your real shell.',
 		examples: ['grep -in error server.log', "grep -r 'TODO' .", 'history | grep cd'],
 		vibe: 'The single most useful command you will ever learn.'
 	},
@@ -4365,8 +4370,8 @@ const MAN_PAGES: Record<string, ManPage> = {
 		name: 'turn piped words into command arguments',
 		synopsis: 'command | xargs [command]',
 		description:
-			'Reads words from the pipe and appends them as arguments to another command — the bridge between "a list of names" and "a command that wants arguments".',
-		examples: ["find . -name '*.tmp' | xargs rm", 'echo a b c | xargs mkdir'],
+			'Reads words from the pipe and appends them as arguments to another command — a bridge from words to arguments. Plain whitespace splitting is not safe for arbitrary filenames; native find -exec or null-delimited tools are needed for that case.',
+		examples: ['echo basil mint | xargs echo seeds:'],
 		vibe: 'The adapter plug of pipelines.'
 	},
 	sleep: {
@@ -4413,7 +4418,7 @@ const MAN_PAGES: Record<string, ManPage> = {
 		name: 'the shell itself (run a script)',
 		synopsis: 'bash script.sh [args]',
 		description:
-			'Runs a script in a fresh shell — no execute bit needed, unlike ./script.sh. Bash (1989) is the lingua franca of shells; zsh on macOS speaks the same language for everything this course covers.',
+			'Runs a script in a fresh shell — no execute bit needed, unlike ./script.sh. Bash (1989) is the lingua franca of shells; zsh shares many commands but differs in globbing, startup files, and key bindings.',
 		examples: ['bash backup.sh', './backup.sh   (needs chmod +x first)'],
 		vibe: 'The language this whole course is teaching.'
 	},
@@ -4421,8 +4426,8 @@ const MAN_PAGES: Record<string, ManPage> = {
 		name: 'a friendly full-screen text editor',
 		synopsis: 'nano file',
 		description:
-			'On a real machine nano takes over the terminal for editing (Ctrl-O saves, Ctrl-X exits). The playground has no full-screen mode — build files with echo/>>/cat instead.',
-		examples: ["echo 'hello' > file.txt   (the sandbox way)"],
+			'On a real machine nano takes over the terminal for editing (Ctrl-O saves, Ctrl-X exits). In the playground, use Edit a file, save, close, then cat the same file to check it. This is a practice editor, not a nano emulation.',
+		examples: ['nano notes.txt   (native terminal)', 'cat notes.txt   (check after saving)'],
 		vibe: 'The editor that prints its own cheat sheet.',
 		simulated: true
 	},
@@ -4430,8 +4435,8 @@ const MAN_PAGES: Record<string, ManPage> = {
 		name: 'a powerful modal text editor',
 		synopsis: 'vim file',
 		description:
-			'A full-screen editor with modes; famously, :q quits (the most searched question in terminal history). No full-screen editing in the playground — use echo redirection to build files.',
-		examples: [":q   (you're welcome)", "echo 'text' >> file.txt   (the sandbox way)"],
+			'A full-screen editor with modes; famously, :q quits (the most searched question in terminal history). In the playground, use Edit a file. In native Vim, Esc then :q! leaves without saving; :wq saves and leaves.',
+		examples: ['vim notes.txt   (native terminal)'],
 		vibe: 'Enter as a novice; leave when you learn :q.',
 		simulated: true
 	},

@@ -1,628 +1,439 @@
 <script lang="ts">
-	import {
-		FolderTree,
-		Copy,
-		MoveRight,
-		Trash2,
-		Hash,
-		ShieldOff,
-		Asterisk,
-		MapPinOff
-	} from 'lucide-svelte';
-	import { base } from '$app/paths';
+	import { FolderTree, Copy, MoveRight, Trash2, Hash } from 'lucide-svelte';
+	import { base, resolve } from '$app/paths';
 	import Code from '../ui/Code.svelte';
-	import CourseLink from '../ui/CourseLink.svelte';
-	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
+	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
-
-	import VibeBox from '../ui/VibeBox.svelte';
 </script>
 
 <section id="part-3" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={FolderTree}
 			partLabel="Part 3"
-			title="Copy, Move, Delete — and the Habits That Keep You Safe"
-			color="var(--color-primary)"
+			title="Copy, Move, and Delete with Confidence"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"The terminal assumes you mean exactly what you say. Deleting is the moment to be sure you
-			do."
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			In <CourseLink to="part-2" /> you learned to look and to create. Now come the tools that
-			<em>change</em>
-			things: copy, move, rename, delete. They're wonderfully fast — one line does what fifty drag-and-drops
-			would — and they come with a responsibility the graphical world hid from you: there is no confirmation
-			dialog, and for
-			<Code code="rm" />, no trash can. This part teaches the commands and, just as deliberately,
-			the habits that make them safe.
+		<p class="lead">
+			Your notebook has a draft, some photographs, and a few files you no longer need. Let’s
+			organize them, one small change at a time.
+		</p>
+		<p>
+			There are three different actions to keep separate. <Code code="cp" /> makes a copy. <Code
+				code="mv"
+			/> moves or renames the original. <Code code="rm" /> removes a name without putting it in the Trash.
+			We’ll inspect the result after each action.
 		</p>
 
-		<Callout type="important">
-			The safety net in the terminal isn't a feature — it's a <strong>ritual</strong>: look before
-			you act (<Code code="ls" />
-			first), prefer interactive flags (<Code code="-i" />) while learning, and preview every
-			wildcard with
-			<Code code="echo" /> before letting it loose. Every habit in this part exists because someone, somewhere,
-			lost a day's work not having it.
-		</Callout>
-
-		<!-- 3.1 Copying -->
-		<div id="section-3-1" class="mb-14">
-			<SectionHeader level="section" icon={Copy} title="3.1 Copying" color="var(--color-primary)" />
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Copying is the gentlest of the three power tools — the original is never touched. It's also
-				your cheapest insurance policy: one <Code code="cp" /> before an experiment means there's always
-				a way back.
+		<div id="section-3-1" class="lesson-section">
+			<SectionHeader level="section" icon={Copy} title="3.1 Copying: Keep the Original" />
+			<p>
+				Before changing a note, make a second copy you can return to. Read this command as “copy
+				plan.md to plan-original.md.” The source comes first; the destination comes last.
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/copying.webp"
-					alt="cp — duplicating files and folders, originals untouched"
-					caption="cp duplicates: the original stays put, the copy goes where you point"
-				/>
-			</div>
-
-			<Callout type="note">
-				<strong>The stakes:</strong> You're about to let an AI agent rewrite
-				<Code code="config.yaml" />. If its "improvement" breaks everything, you want the original
-				back in one command.
-			</Callout>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				<Code code="cp" />
-				always reads the same way: <strong>source first, destination second</strong> — "copy
-				<em>this</em>, to <em>there</em>." What "there" means depends on what the destination is:
-			</p>
-
 			<CodeBlock
-				title="The two shapes of `cp`"
-				code={`# Destination is a new name: copy + rename in one step
-cp config.yaml config.yaml.bak
-
-# Destination is an existing folder: copy INTO it, same name
-cp config.yaml backups/`}
+				code={'cp plan.md plan-original.md\nls\ncat plan-original.md'}
+				title="In a folder containing plan.md · copy, list, read"
 			/>
-
-			<Callout type="tip">
-				That first line is the <strong>backup-before-experiment</strong> pattern, and it's worth
-				making a reflex: before any risky edit — yours or an agent's —
-				<Code code="cp file file.bak" />. Restoring later is just the reverse:
-				<Code code="cp config.yaml.bak config.yaml" />. (a Git-free time machine, until you have
-				Git.)
-			</Callout>
-
-			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				Copying Folders Needs <Code code="-r" />
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Ask <Code code="cp" /> to copy a directory and it declines — a folder can contain thousands of
-				files, and <Code code="cp" /> wants you to say you mean it:
+			<p>
+				The first command normally prints nothing. The listing should now contain both names, and
+				cat should print the copied text. Editing <Code code="plan.md" /> afterward does not update this
+				separate copy.
 			</p>
-
+			<ExpandableImage
+				src="{base}/images/copying.webp"
+				alt="A file copied into a second file while the original remains."
+				caption="A copy gives you a second file; it does not move the first one."
+			/>
+			<h4>The destination can be a new name or an existing folder</h4>
 			<CodeBlock
-				title="`cp -r` for directories"
-				code={`cp projects backup-projects
-# cp: -r not specified; omitting directory 'projects'
-
-cp -r projects backup-projects   # -r = recursive: the folder and everything inside`}
+				code={'mkdir copies\ncp plan.md copies/\nls copies'}
+				title="Copy into an existing folder, keeping the filename"
 			/>
-
-			<Callout type="warning">
-				<strong><Code code="cp" /> overwrites silently.</strong> If the destination file already
-				exists, <Code code="cp" /> replaces it — no question asked, old contents gone. While you're learning,
-				add
-				<Code code="-i" />
-				("interactive"):
-				<Code code="cp -i config.yaml backups/" />
-				stops and asks
-				<Code code="overwrite?" />
-				before clobbering anything — type <Code code="y" /> or <Code code="n" /> and press Enter, and
-				a bare Enter counts as no. That <Code code="-i" /> belongs to <Code code="cp" />, though,
-				not to the terminal:
-				<Code code="sed" /> takes the same letter and means something far sharper by it (<CourseLink
-					to="section-7-3"
-				/>). This same silent-overwrite rule returns with
-				<Code code="mv" /> in the next section — it's a theme.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'Back up my config file before you change anything, and tell me the restore command',
-					'Copy the whole src folder to src-backup so we can experiment safely'
-				]}
-			/>
-		</div>
-
-		<!-- 3.2 Moving & Renaming -->
-		<div id="section-3-2" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={MoveRight}
-				title="3.2 Moving &amp; Renaming"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Here's a small mind-bender: the terminal has no "rename" command, because it doesn't need
-				one. Renaming <em>is</em> moving — moving a file to a new name in the same place. One
-				command,
-				<Code code="mv" />, does both.
+			<p>
+				Here the copied file is <Code code="copies/plan.md" />. The final slash makes your intention
+				easy to read. The destination folder must exist; cp does not create missing parent folders.
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/moving-renaming.webp"
-					alt="mv — one command for both moving and renaming"
-					caption="mv relocates or renames — same command, and the original doesn't stay behind"
-				/>
-			</div>
-
-			<Callout type="note">
-				<strong>The Problem:</strong> The agent scaffolded your project but named the main file
-				<Code code="untitled.py" />, and dropped three data files in the project's top folder that
-				belong in
-				<Code code="data/" />. Tidy it up.
-			</Callout>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Like <Code code="cp" />, it's always <strong>source first, destination second</strong> — and the
-				same two shapes:
+			<p>
+				<strong>Check the destination first.</strong> A normal copy can replace an existing
+				destination file. On your own computer, <Code code="cp -i plan.md copies/" /> asks before overwriting.
+				Answer <kbd>n</kbd> if you are unsure. In this sandbox, -i refuses an overwrite and explains the
+				prompt rather than running a yes/no conversation.
 			</p>
-
+			<h4>Copy a folder and what is inside it</h4>
 			<CodeBlock
-				title="`mv` — rename or relocate"
-				code={`# Destination is a new name: RENAME
-mv untitled.py main.py
-
-# Destination is an existing folder: MOVE into it
-mv sales.csv users.csv logs.csv data/
-
-# Both at once: move AND rename
-mv draft.md docs/chapter-1.md`}
+				code={'cp -R notes notes-copy\nls notes-copy'}
+				title="Create notes-copy when that destination does not already exist"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The middle line is the fine print behind "source first, destination second": once you name
-				more than two things, the <em>last</em> one has to be a folder, and it has to exist already.
-				Neither <Code code="cp" /> nor <Code code="mv" /> will make one for you — with no
-				<Code code="docs/" /> yet, the last line stops at
-				<Code code="No such file or directory" />, and you fix it with
-				<Code code="mkdir docs" /> and run it again.
+			<p>
+				The capital <Code code="-R" /> means copy recursively: include the folder’s contents and its subfolders.
+				<Code code="-r" /> also works for these examples. Without a recursive option, cp normally refuses
+				a directory.
 			</p>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Two nice surprises compared to <Code code="cp" />:
-				<Code code="mv" />
-				moves whole folders <em>without</em> needing
-				<Code code="-r" />
-				(on the same disk it just relabels the folder's address — instant, even for gigabytes), and since
-				nothing is duplicated, there's no copy lying around to get stale. Move to a
-				<em>different</em> disk, though — an external drive, a USB stick — and <Code code="mv" /> quietly
-				becomes a full copy followed by a delete: slow, and interruptible halfway through.
+			<p>
+				Whether the destination already exists matters. If <Code code="notes-copy" /> is absent, the command
+				creates it as the copy. If it is already a directory, the source may be copied
+				<em>inside</em>
+				it, producing <Code code="notes-copy/notes" />. Check with ls before repeating a folder-copy
+				command.
 			</p>
-
-			<Callout type="warning">
-				<strong>The overwrite danger, part two.</strong> If the destination name already exists,
-				<Code code="mv" />
-				replaces it silently — and unlike <Code code="cp" />, you lose <em>both</em> versions of the
-				story: the destination's old contents are gone, and the source no longer exists under its
-				old name.
-				<Code code="mv notes.txt ideas.txt" />
-				when
-				<Code code="ideas.txt" />
-				already exists destroys
-				<Code code="ideas.txt" />. The fix is the same reflex:
-				<Code code="mv -i" />
-				asks before overwriting, and
-				<Code code="ls" /> the destination first when in doubt.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'Rename untitled.py to main.py and move every CSV in this folder into data/',
-					'Reorganize these files into sensible folders — show me the mv commands before running them'
-				]}
-			/>
-		</div>
-
-		<!-- 3.3 Deleting -->
-		<div id="section-3-3" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Trash2}
-				title="3.3 Deleting (Carefully)"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				This is the most important safety lesson in the entire course. Everything else in the
-				terminal is forgiving — errors are harmless,
-				<Code code="cd" />
-				can't hurt you,
-				<Code code="cp" />
-				leaves originals alone.
-				<Code code="rm" /> is the exception. Read this section twice.
+			<p>
+				<strong>Try a variation:</strong> copy one short note, edit only the copy with the file editor,
+				and read both names with cat. You should see two different versions.
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/deleting.webp"
-					alt="rm — deletion with no trash can and no undo"
-					caption="rm doesn't move files to a trash can — it erases them, immediately and permanently"
-				/>
-			</div>
-
-			<Callout type="caution">
-				<strong>rm has no trash can.</strong> When your file manager "deletes" a file, it moves it
-				to the Trash, where it sits recoverable for weeks.
-				<Code code="rm" />
-				does no such thing: the file is gone the instant you press Enter. No confirmation, no undo, no
-				recovery. Treat every
-				<Code code="rm" /> as permanent, because it is.
-			</Callout>
-
-			<CodeBlock
-				title="The `rm` family"
-				code={`rm old-notes.txt        # Delete one file. Permanently.
-rm draft1.md draft2.md  # Delete several
-rmdir empty-folder      # Delete a folder — only works if it's EMPTY
-rm -r old-project       # Delete a folder and everything inside it
-rm -f missing.txt       # -f = force: no complaints if it doesn't exist`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Each flag is reasonable alone. <Code code="-r" />
-				recurses into folders;
-				<Code code="-f" />
-				suppresses prompts and "no such file" errors so scripts run clean. Combined as
-				<Code code="rm -rf" />, they mean:
-				<em>delete everything at this path, recursively, without asking, without stopping</em>. Now
-				add the two ingredients from your recent lessons and you have the terminal's most famous
-				disaster recipe:
-			</p>
-
-			<div class="mb-6 grid gap-3 sm:grid-cols-3">
-				<div class="rounded-lg p-4" style="background: var(--color-caution-bg);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-caution);"
-					>
-						<ShieldOff size={14} />
-						<Code code="rm -rf" /> — no questions
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Recursive and forced: nothing slows it down, nothing asks "are you sure?"
+			<details>
+				<summary>What makes a useful backup?</summary>
+				<div class="detail-content">
+					<p>
+						A nearby copy is useful before an edit. It does not protect you from losing the disk, or
+						from deleting both copies together. Keep important work in a backup system with separate
+						storage and retained versions. A filename ending in .bak is only a convention; the name
+						itself does not protect the file.
 					</p>
 				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-caution-bg);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-caution);"
-					>
-						<Asterisk size={14} />
-						+ a wildcard
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						<Code code="*" /> expands to "everything here" — however much that turns out to be (next section).
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-caution-bg);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-caution);"
-					>
-						<MapPinOff size={14} />
-						+ the wrong directory
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						You <em>thought</em> you were in
-						<Code code="~/tmp" />. You were in
-						<Code code="~/projects" />. The
-						<Code code="pwd" /> habit exists for this moment.
-					</p>
-				</div>
-			</div>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				A single mistyped space does it too: <Code code="rm -rf old-app /" />
-				(note the stray space) is not "delete old-app/" — it's "delete old-app,
-				<em>and also the entire filesystem starting at root</em>." This exact typo has destroyed
-				production servers. It's why modern systems refuse plain
-				<Code code="rm -rf /" />
-				without an extra flag — but they won't save you from
-				<Code code="~" /> or a wrong folder.
-			</p>
-
-			<Callout type="warning" title="Files that start with a dash">
-				A file named <Code code="-old.txt" /> jams the grammar from <CourseLink to="section-1-3" />:
-				<Code code="rm -old.txt" /> reads as a fistful of flags, not a filename, and the error complains
-				about an invalid option instead of the real problem. Two ways out:
-				<Code code="rm -- -old.txt" /> — the double dash means "everything after this is a name, no matter
-				what it looks like," and nearly every command honors it — or point at the file with a path, <Code
-					code="rm ./-old.txt"
-				/>. Worth knowing before some download names itself something dashed.
-			</Callout>
-
-			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The Ritual: <Code code="ls" /> First, Then <Code code="rm" />
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Here's the habit that makes
-				<Code code="rm" />
-				boring instead of scary. Never aim
-				<Code code="rm" />
-				at anything you haven't just looked at. List first, confirm with your eyes, then recall the command
-				(<strong>up-arrow</strong>) and swap
-				<Code code="ls" />
-				for
-				<Code code="rm" /> — same targets, guaranteed:
-			</p>
-
-			<CodeBlock
-				title="Look, confirm, then delete"
-				code={`ls old-project          # 1. LOOK: what exactly is in there?
-pwd                     # 2. CONFIRM: am I where I think I am?
-rm -r old-project       # 3. Same target you just inspected — up-arrow, edit, Enter`}
-			/>
-
-			<Callout type="important">
-				<strong>The AI angle — this is a stop-and-read moment.</strong> When a coding agent proposes
-				a command containing
-				<Code code="rm -rf" />, do not rubber-stamp it. Read three things before approving:
-				<strong>the exact path</strong>
-				(absolute? relative to <em>what</em>?), <strong>any wildcard</strong> (what could it expand
-				to?), and <strong>the working directory</strong> the agent is running in. Agents make
-				location mistakes exactly the way beginners do — they just make them faster. Deletion is the
-				one category of command you always read in full — and <CourseLink to="part-11" /> later turns
-				that instinct into a complete auditing method.
-			</Callout>
-
-			<Callout type="tip">
-				Training wheels while you learn: <Code code="rm -i" />
-				asks before every single deletion, and
-				<Code code="rm -I" /> (capital i) asks once when deleting more than three files — a good permanent
-				default. And for anything precious, the calmer move is often mv: relocate to a scrap folder today,
-				delete the scrap folder next week. The exception is <strong>build artifacts</strong> — whatever
-				the project's build leaves behind, the step that turns your source files into something you can
-				run. Delete those freely; running the build again writes them straight back.
-			</Callout>
-
-			<h4
-				id="tidy-up"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Clean the Downloads Mess
-			</h4>
-			<PlaygroundNote>
-				A cluttered downloads folder awaits: inspect what's there with <Code code="ls" />
-				and
-				<Code code="cat" />, make folders, sort keepers into them with
-				<Code code="mv" />, and
-				<Code code="rm" /> the junk — practicing the <Code code="ls" />-first ritual where deletion
-				can't hurt you.
-			</PlaygroundNote>
-			<LessonActivity title="Clean the Downloads Mess" scenarioId="tidy-up" id="tidy-up" />
-
-			<VibeBox
-				prompts={[
-					'You suggested rm -rf — walk me through exactly what that path resolves to before I approve it',
-					'Delete the build artifacts in this project, but list everything you plan to remove first'
-				]}
-			/>
+			</details>
 		</div>
 
-		<!-- 3.4 Wildcards -->
-		<div id="section-3-4" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={Hash}
-				title="3.4 Wildcards"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Everything so far has operated on files one name at a time. Wildcards — also called
-				<strong>globs</strong> — let one pattern stand for many names: "every <Code code=".log" /> file,"
-				"all the photos from January." This is where selecting files by hand in a file manager starts
-				to feel slow.
+		<div id="section-3-2" class="lesson-section">
+			<SectionHeader level="section" icon={MoveRight} title="3.2 Moving and Renaming" />
+			<p>
+				Renaming a file is a move to a new name in the same folder. Moving it to another folder uses
+				the same command:
 			</p>
+			<CodeBlock
+				code={'mv rough-notes.txt planting-plan.txt\nmkdir finished\nmv planting-plan.txt finished/\nls\nls finished'}
+				title="Rename, then move · start with a disposable rough-notes.txt"
+			/>
+			<p>
+				After the rename, the original name is gone. After the move, the file is inside finished.
+				Its text has not been rewritten. This makes mv different from cp: you have relocated the
+				file, not created a second independent copy.
+			</p>
+			<ExpandableImage
+				src="{base}/images/moving-renaming.webp"
+				alt="A file changing its label and then moving into another folder."
+				caption="Source first. Destination last. Check both places afterward."
+			/>
+			<p>You can move several sources into one existing folder:</p>
+			<CodeBlock code="mv basil.jpg mint.jpg photos/" title="Two files, one destination folder" />
+			<p>
+				With several sources, the final argument must be a directory that already exists. If you see
+				“No such file or directory,” check both sides: a source may be misspelled, or the
+				destination’s parent may be missing.
+			</p>
+			<p>
+				<Code code="mv -i" /> asks before overwriting an existing destination file on a real terminal.
+				Our sandbox refuses that overwrite instead. Choose a new destination name when you want to preserve
+				both versions.
+			</p>
+			<p>
+				Moving a whole folder does not require -R. A move within one filesystem is often quick
+				because the system changes its location rather than copying all its contents. Moving between
+				disks requires copying data and removing the source after that succeeds; let it finish and
+				inspect the result.
+			</p>
+			<p>
+				To undo a simple rename or move, move the file back—provided nothing else has taken its old
+				place. If a move overwrote another file, renaming it back does not recover the overwritten
+				contents. That is what a backup or version history is for.
+			</p>
+		</div>
 
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/wildcards.webp"
-					alt="Wildcards — one pattern matching many filenames"
-					caption="A glob is a net: the shell casts it over the directory and hands your command whatever it catches"
-				/>
-			</div>
-
-			<Callout type="note">
-				<strong>The mess:</strong> The agent's test run left 40
-				<Code code=".tmp" /> files littered through this folder. Deleting them one by one would take ten
-				minutes. One pattern does it in a second — if you can trust what the pattern matches.
-			</Callout>
-
-			<div class="my-4 overflow-hidden rounded-lg" style="background: var(--color-bg-secondary);">
-				<table class="w-full text-[13px]">
-					<thead>
-						<tr style="background: var(--color-bg-tertiary);">
-							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
-								>Pattern</th
-							>
-							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
-								>Matches</th
-							>
-							<th class="px-4 py-2 text-left font-semibold" style="color: var(--color-text);"
-								>Example</th
-							>
-						</tr>
-					</thead>
-					<tbody style="color: var(--color-text-secondary);">
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"><Code code="*" /></td>
-							<td class="px-4 py-2">Any run of characters (including none)</td>
-							<td class="px-4 py-2 text-xs"
-								><Code code="*.log" /> → <Code code="app.log" />, <Code code="errors.log" /></td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"><Code code="?" /></td>
-							<td class="px-4 py-2">Exactly one character</td>
-							<td class="px-4 py-2 text-xs"
-								><Code code="page?.html" /> → <Code code="page1.html" />, not <Code
-									code="page12.html"
-								/></td
-							>
-						</tr>
-						<tr style="border-top: 1px solid var(--color-border);">
-							<td class="px-4 py-2"><Code code="[abc]" /></td>
-							<td class="px-4 py-2">One character from the set (ranges like [0-9] work too)</td>
-							<td class="px-4 py-2 text-xs"
-								><Code code="report-[12].txt" /> → <Code code="report-1.txt" />, <Code
-									code="report-2.txt"
-								/></td
-							>
-						</tr>
+		<div id="section-3-3" class="lesson-section">
+			<SectionHeader level="section" icon={Trash2} title="3.3 Deleting: Choose the Exact Target" />
+			<p>
+				<Code code="rm" /> removes files without moving them to your file manager’s Trash. Treat deletion
+				as permanent unless you have a separate backup. The playground’s Undo button is a learning feature;
+				an ordinary shell does not provide it.
+			</p>
+			<p>
+				Start with a disposable file you made yourself. This sequence creates one, shows it, removes
+				it, then checks the folder:
+			</p>
+			<CodeBlock
+				code={'touch practice-scrap.txt\nls practice-scrap.txt\nrm practice-scrap.txt\nls'}
+				title="One deliberately disposable file"
+			/>
+			<p>
+				The last listing should no longer include practice-scrap.txt. You did not need a force
+				option or a wildcard to remove one known file.
+			</p>
+			<ExpandableImage
+				src="{base}/images/deleting.webp"
+				alt="A carefully selected file being removed from a folder."
+				caption="Choose the name, inspect it, then remove only that target."
+			/>
+			<div class="table-scroll">
+				<table>
+					<thead><tr><th>Task</th><th>Command shape</th><th>What to expect</th></tr></thead><tbody>
+						<tr
+							><td>Remove one file</td><td><Code code="rm scrap.txt" /></td><td
+								>It removes the named file.</td
+							></tr
+						>
+						<tr
+							><td>Remove an empty folder</td><td><Code code="rmdir empty-folder" /></td><td
+								>It refuses if the folder is not empty.</td
+							></tr
+						>
+						<tr
+							><td>Remove a folder and its contents</td><td><Code code="rm -r old-drafts" /></td><td
+								>Inspect the folder first; its contents are targets too.</td
+							></tr
+						>
+						<tr
+							><td>Ask before removing (real terminal)</td><td><Code code="rm -i scrap.txt" /></td
+							><td>Read the question and answer y or n. The sandbox leaves it untouched.</td></tr
+						>
 					</tbody>
 				</table>
 			</div>
-
-			<h4 class="mt-6 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				The Big Idea: the Shell Expands the Glob, Not the Command
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				This is the one concept that makes wildcards predictable instead of magical. When you type
-				<Code code="rm *.tmp" />, the
-				<Code code="rm" />
-				program never sees a star. The <em>shell</em> expands the pattern against the current
-				directory <em>first</em>, then runs the command with the resulting list of plain filenames:
-			</p>
-
-			<MermaidDiagram
-				definition={`flowchart LR
-  A["rm *.tmp"] -->|"shell expands"| B["rm cache1.tmp<br/>cache2.tmp scratch.tmp"]
-  B -->|"rm runs"| C(["3 files deleted"])`}
-				id="glob-expansion"
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Two consequences follow directly. First, what a glob matches depends entirely on
-				<strong>where you are</strong> — the same
-				<Code code="*.tmp" />
-				is three files in one folder and three hundred in another (this is the wildcard half of the
-				<Code code="rm -rf" /> disaster from <CourseLink to="section-3-3" />). Second, since
-				expansion happens before <em>any</em> command runs, you can ask a harmless command to show you
-				the expansion:
-			</p>
-
+			<h4>A short routine before removing a folder</h4>
 			<CodeBlock
-				title="The habit: `echo` the glob first"
-				code={`echo *.tmp
-# cache1.tmp cache2.tmp scratch.tmp    <- exactly what rm would receive
-
-rm *.tmp                               # Now you KNOW what this deletes`}
+				code={'pwd\nls -la old-drafts\nls -R old-drafts'}
+				title="Inspection only · choose your actual disposable folder"
 			/>
-
-			<Callout type="important">
-				<strong>Echo the glob first.</strong>
-				<Code code="echo" />
-				just prints its arguments — so
-				<Code code="echo <pattern>" />
-				is a free, safe preview of any wildcard. (<Code code="ls <pattern>" /> works too; the angle brackets
-				mark the spot you fill in and are never typed — the convention from
-				<CourseLink to="section-1-3" />.) Make it a reflex before every destructive glob, and apply
-				it to AI-proposed commands: when an agent suggests a command containing a wildcard, echo
-				that pattern in the target directory before you approve the real thing.
-			</Callout>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Globs compose with everything you already know — they're just a way of writing file lists:
+			<p>
+				Confirm where you are and what is inside the intended folder, including hidden names. If you
+				are undecided, move it to a clearly named review folder instead of deleting it today. When
+				you have decided to remove it, use the same explicit path in <Code
+					code="rm -r old-drafts"
+				/>.
 			</p>
+			<p>
+				The option <Code code="-f" /> suppresses questions and ignores missing-file errors. It does not
+				grant permission and does not make a command correct. The common combination <Code
+					code="rm -rf"
+				/> asks for recursive removal without questions; there is no reason to make that your default
+				for a single scrap file.
+			</p>
+			<details>
+				<summary>If a filename starts with a dash</summary>
+				<div class="detail-content">
+					<p>
+						A name such as <Code code="-old.txt" /> can look like options. An explicit path avoids that
+						ambiguity: <Code code="rm ./-old.txt" /> names a file in this folder. Commands such as rm
+						also accept <Code code="--" /> to end options: <Code code="rm -- -old.txt" />. Check a
+						tool’s help before assuming it supports that convention.
+					</p>
+				</div>
+			</details>
+			<h4 id="tidy-up">Try it: sort the downloads</h4>
+			<p>
+				Move the photos and invoices into their destination folders. Read the filenames before
+				deciding which installer is no longer needed. Check both the source and destination after
+				each move.
+			</p>
+			<LessonActivity title="Clean the Downloads Mess" scenarioId="tidy-up" id="tidy-up" />
+		</div>
 
-			<CodeBlock
-				title="Wildcards with `cp`, `mv`, `ls`"
-				code={`cp *.md drafts/           # Copy every Markdown file into drafts/
-mv photo-0?.jpg january/  # Move photo-01.jpg through photo-09.jpg
-ls report-[12].txt        # List just report-1.txt and report-2.txt
-ls src/*.js               # Globs work inside a path too — but only one folder deep`}
+		<div id="section-3-4" class="lesson-section">
+			<SectionHeader level="section" icon={Hash} title="3.4 Wildcards: Select a Group of Names" />
+			<p>
+				Sometimes you want every photo with a certain name, not one photo at a time. A <strong
+					>wildcard pattern</strong
+				>, also called a glob, selects matching filenames.
+			</p>
+			<div class="table-scroll">
+				<table>
+					<thead><tr><th>Pattern</th><th>Matches</th><th>Does not match</th></tr></thead><tbody>
+						<tr><td><Code code="*.txt" /></td><td>notes.txt, plan.txt</td><td>photo.jpg</td></tr><tr
+							><td><Code code="photo-?.jpg" /></td><td>photo-1.jpg, photo-a.jpg</td><td
+								>photo-12.jpg</td
+							></tr
+						><tr
+							><td><Code code="note-[12].txt" /></td><td>note-1.txt, note-2.txt</td><td
+								>note-3.txt</td
+							></tr
+						>
+					</tbody>
+				</table>
+			</div>
+			<p>
+				<Code code="*" /> matches any number of characters within a path component, including none. <Code
+					code="?"
+				/> matches one character. Brackets choose one character from a set. The pattern is about names;
+				it does not inspect what the files contain.
+			</p>
+			<ExpandableImage
+				src="{base}/images/wildcards.webp"
+				alt="Several filename patterns selecting different groups of files."
+				caption="A pattern selects names. Preview the selection before acting on it."
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That last line is where globs stop: one never crosses a <Code code="/" />.
-				<Code code="src/*.js" /> looks inside <Code code="src" /> and gives up there — it will not find
-				<Code code="src/lib/util.js" />, and no arrangement of stars will make it. When a mess is
-				spread down through subfolders the pattern is the wrong tool, and walking a whole tree is
-				<Code code="find" />'s job: <Code code="find . -name '*.tmp'" /> would have caught those 40 files
-				wherever they'd landed. It has a section waiting in <CourseLink to="section-4-5" />.
+			<div id="glob-expansion" class="steps">
+				<span><code>echo *.txt</code><small>You type a pattern</small></span><span
+					><code>echo notes.txt plan.txt</code><small>The shell supplies matching names</small
+					></span
+				><span><code>notes.txt plan.txt</code><small>echo prints its arguments</small></span>
+			</div>
+			<CommandTranscript
+				command="echo *.txt"
+				output="notes.txt plan.txt"
+				title="A simple preview · example matching names"
+			/>
+			<p>
+				The shell expands the unquoted pattern <em>before</em> running the command. So echo can show a
+				simple selection without changing those files. For names containing spaces, a one-name-per-line
+				preview is easier to read:
 			</p>
-
-			<Callout type="warning">
-				Two classic surprises: <Code code="*" />
-				does <strong>not</strong> match hidden dotfiles (a small mercy —
-				<Code code="rm *" />
-				spares your <Code code=".env" />), and a pattern that matches <em>nothing</em> is passed to
-				the command literally, star and all — which is why a typo'd glob often produces the baffling
-				error
-				<Code code="cannot access '*.tpm'" />. Both surprises are caught instantly by the echo
-				habit.
-			</Callout>
-
-			<Callout type="note" title="Braces look like a glob — and aren't one">
-				One more pattern-shaped thing, so it never fools you:
-				<Code code={'mkdir -p src/{components,lib}'} />. Those braces don't <em>match</em> anything
-				— they <em>expand</em>, unconditionally: the shell rewrites the line into
-				<Code code="mkdir -p src/components src/lib" /> before <Code code="mkdir" /> ever runs. A glob
-				asks "what's already here?"; braces say "make me these." That's why braces work for files that
-				don't exist yet — exactly where a glob would come back empty-handed — and why coding agents lean
-				on this shape every time they scaffold a project. You'll read it far more often than you'll type
-				it.
-			</Callout>
-
-			<h4
-				id="glob-practice"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Select Exactly the Right Files
-			</h4>
-			<PlaygroundNote>
-				A folder full of similar names — your job is to write patterns that catch exactly the right
-				ones and nothing else. <Code code="echo" /> every glob before you commit to it; that's the skill
-				being tested.
-			</PlaygroundNote>
+			<CodeBlock code="printf '%s\n' ./*.txt" title="Show each matching name on its own line" />
+			<p>
+				<Code code="printf" /> is another printing command. Here, <Code code="%s" /> means print one supplied
+				string and <Code code="\n" /> means start a new line. The format repeats for each matching name.
+				The <Code code="./" /> prefix makes the names explicit paths in the current folder.
+			</p>
+			<p>
+				After inspecting a selection, you can use it with a copying or moving command. For example, <Code
+					code="cp ./*.txt copies/"
+				/> copies matching text files into an existing copies folder. Rerun the preview if the directory
+				or its files have changed.
+			</p>
+			<h4>Two differences to recognize</h4>
+			<p>
+				By default, a star does not include names beginning with a dot. Use <Code code="ls -a" /> to inspect
+				hidden names separately. Also, <Code code="photos/*.jpg" /> selects files directly inside photos,
+				not inside every subfolder. Recursive glob features exist, but differ by shell and settings;
+				<a href="{resolve('/')}#section-4-5">find</a> gives us an explicit way to search a whole tree.
+			</p>
+			<p>
+				<strong>If nothing matches:</strong> Bash normally leaves the pattern unchanged, so a
+				command may receive the literal text <Code code="*.txt" />. zsh normally stops with “no
+				matches found.” Neither message means the files were deleted. List the folder, check the
+				pattern, and try again. Our sandbox uses the Bash-style default.
+			</p>
+			<details>
+				<summary>Braces make words; globs find existing names</summary>
+				<div class="detail-content">
+					<p>
+						In Bash and zsh, <Code code={'mkdir -p notes/{spring,summer}'} /> expands to two folder names
+						even if neither exists. Braces generate words; globs match names already present. The longer
+						form <Code code="mkdir -p notes/spring notes/summer" /> is equally valid and often easier
+						to read.
+					</p>
+				</div>
+			</details>
+			<h4 id="glob-practice">Try it: choose exactly the right files</h4>
+			<p>
+				Preview each pattern before using it to move or remove anything. Some similar names are
+				deliberate distractions. It is fine to list them several times while you decide.
+			</p>
 			<LessonActivity
 				title="Select Exactly the Right Files"
 				scenarioId="glob-practice"
 				id="glob-practice"
 			/>
-
-			<VibeBox
-				prompts={[
-					'Write a glob that matches all the 2024 log files but not the 2025 ones, and echo it first',
-					'Move every image file in this folder into photos/ — show me what the wildcard matches before moving'
-				]}
-			/>
+			<ChallengeActivity title="Clean Up After the Agent" part={3} id="ch-3-after-the-agent" />
+			<p class="next-lesson">
+				Check your understanding: what changes if the last argument to cp is an existing directory
+				instead of a new filename? Next, we’ll work with the text inside files.
+			</p>
 		</div>
-
-		<ChallengeActivity title="Clean Up After the Agent" part={3} id="ch-3-after-the-agent" />
 	</div>
 </section>
+
+<style>
+	.chapter p {
+		max-width: 76ch;
+		color: var(--color-text-secondary);
+		font-size: 0.94rem;
+		line-height: 1.8;
+		margin: 0 0 1rem;
+	}
+	.chapter .lead {
+		color: var(--color-text);
+		font-size: 1.06rem;
+	}
+	.lesson-section {
+		margin-top: 3rem;
+		scroll-margin-top: 90px;
+	}
+	h4 {
+		color: var(--color-text);
+		font-size: 1.06rem;
+		font-weight: 650;
+		line-height: 1.5;
+		margin: 1.7rem 0 0.7rem;
+		scroll-margin-top: 90px;
+	}
+	.chapter a {
+		color: var(--color-primary-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	kbd {
+		font: 0.8rem var(--font-mono);
+		border: 1px solid var(--color-border);
+		border-radius: 0.25rem;
+		background: var(--color-bg-tertiary);
+		color: var(--color-text);
+		padding: 0.12rem 0.3rem;
+		white-space: nowrap;
+	}
+	details {
+		border-top: 1px solid var(--color-border);
+		margin: 1.1rem 0;
+	}
+	summary {
+		padding: 0.9rem 0;
+		cursor: pointer;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.detail-content {
+		padding: 0.2rem 0.3rem 0.7rem;
+	}
+	.table-scroll {
+		overflow-x: auto;
+		margin: 1.2rem 0;
+	}
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.84rem;
+		line-height: 1.65;
+		color: var(--color-text-secondary);
+	}
+	th {
+		color: var(--color-text);
+		text-align: left;
+		font-weight: 650;
+	}
+	th,
+	td {
+		padding: 0.7rem 0.65rem;
+		border-bottom: 1px solid var(--color-border);
+		vertical-align: top;
+	}
+	.steps {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8rem;
+		margin: 1.5rem 0;
+	}
+	.steps span {
+		flex: 1;
+		padding: 0.9rem;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 0.6rem;
+		color: var(--color-text);
+	}
+	.steps code {
+		font: 1rem var(--font-mono);
+	}
+	.steps small {
+		display: block;
+		margin-top: 0.4rem;
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+	}
+	.next-lesson {
+		padding: 1.1rem;
+		border-radius: 0.7rem;
+		background: var(--color-bg-secondary);
+	}
+</style>

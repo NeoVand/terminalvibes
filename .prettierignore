@@ -14,3 +14,4 @@ bun.lockb
 
 # Playwright artifacts
 /test-results/
+/.playwright-mcp/

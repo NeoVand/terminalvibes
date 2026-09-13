@@ -1,702 +1,305 @@
 <script lang="ts">
-	import {
-		Gauge,
-		Palette,
-		History,
-		Layout,
-		SplitSquareHorizontal,
-		Type,
-		Ghost,
-		Bot,
-		ArrowUp,
-		ScrollText,
-		Repeat,
-		Search,
-		Keyboard,
-		ClipboardCopy,
-		PanelTop,
-		Columns2
-	} from 'lucide-svelte';
-	import { base } from '$app/paths';
+	import { BookOpen } from 'lucide-svelte';
+	import { base, resolve } from '$app/paths';
 	import Code from '../ui/Code.svelte';
-	import CourseLink from '../ui/CourseLink.svelte';
-	import OsIcon from '../ui/OsIcon.svelte';
-	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
-	import SectionHeader from '../ui/SectionHeader.svelte';
-	import VibeBox from '../ui/VibeBox.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
+	import SectionHeader from '../ui/SectionHeader.svelte';
 	import StarshipDesigner from '../starship/StarshipDesigner.svelte';
 </script>
 
 <section id="part-12" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter-copy mx-auto max-w-4xl px-6">
 		<SectionHeader
-			icon={Gauge}
+			icon={BookOpen}
 			partLabel="Part 12"
-			title="Your Cockpit: Making the Terminal a Place You Like"
-			color="var(--color-primary)"
+			title="Your cockpit: readable, familiar, easy to revisit"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"If you're going to live in this window, you might as well like it: readable fonts, a prompt
-			that helps, history that finds last Tuesday's command."
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			You have the skills. This short part is about the <em>room</em> — turning the default terminal into
-			a cockpit: colors and a prompt you actually like, history tricks that recall any command in two
-			keystrokes, the integrated terminal in VS Code where vibe coders live, and running several terminals
-			at once without losing your mind.
+		<p class="lead">
+			A comfortable terminal helps you notice what matters. Make the text readable, keep your
+			location visible, and give each running job a clear place. Then add shortcuts where they save
+			effort.
 		</p>
-
-		<MermaidDiagram
-			definition={`flowchart TD
-  A(["Your Cockpit"]) --> B(["Looks & Prompt"])
-  A --> C(["History Recall"])
-  A --> D(["VS Code Terminal"])
-  A --> E(["Tabs & Splits"])`}
-			id="cockpit-overview"
-		/>
-
-		<!-- 12.1 Make It Yours -->
-		<div id="section-12-1" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Palette}
-				title="12.1 Make It Yours"
-				color="var(--color-primary)"
+		<div id="cockpit-overview">
+			<p>
+				You already have the essentials in the <a href={resolve('/#keyboard-workshop')}
+					>early keyboard workshop</a
+				>: jump, remove a word, restore text, and cancel. This chapter builds on those moves.
+				Customization is optional; a plain terminal can do serious work.
+			</p>
+		</div>
+		<div id="section-12-1" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="12.1 Make the window easy to read" />
+			<ExpandableImage
+				src="{base}/images/make-it-yours.webp"
+				alt="A terminal window has a carefully chosen font, color theme, and prompt."
+				caption="Readability comes first. Decoration is optional."
 			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/make-it-yours.webp"
-					alt="Make It Yours — a terminal window dressed up with a custom theme and prompt"
-					caption="Same shell underneath — but a window you chose is a window you'll open more often"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				The default white-on-black is fine, but "fine" is not what you want from a tool you'll live
-				in. Every terminal app ships with themes, font settings, and transparency — five minutes of
-				setup pays off every day after:
+			<p>
+				Start in your terminal application's settings. Increase the font until punctuation is
+				comfortable to distinguish. Check a zero against a capital O and a one against a lowercase
+				l. Use enough contrast to read dim output as well as the prompt.
 			</p>
-
-			<div class="mb-6 grid gap-3 sm:grid-cols-2">
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<span class="inline-flex" style="color: var(--color-primary);"
-							><OsIcon os="macos" size={14} /></span
-						>
-						macOS: Terminal.app got good again
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						macOS 26 Tahoe gave the stock Terminal.app its first real overhaul in roughly 24 years —
-						24-bit true color (~16.7 million shades, where older terminals were stuck with 16 or
-						256), Powerline font support, and a batch of fresh themes. Settings → Profiles (a
-						profile is one saved bundle of font, colors and behavior): pick one, hit "Default" to
-						keep it. As a beginner you genuinely don't need to install anything. <a
-							href="https://iterm2.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">iTerm2</a
-						> remains the solid power-user choice — hundreds of importable color schemes, better splits,
-						better search — and its AI features are an optional, separate plugin, off by default.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<span class="inline-flex" style="color: var(--color-primary);"
-							><OsIcon os="windows" size={14} /></span
-						>
-						Windows: Windows Terminal
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Already the default on Windows 11, and the host for your WSL and Git Bash sessions.
-						Settings → Color schemes ships with One Half, Solarized, and Tango out of the box, and
-						each profile (Ubuntu, Git Bash, PowerShell) can have its own theme — a handy visual cue
-						for which shell you're in.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<span class="inline-flex" style="color: var(--color-primary);"
-							><OsIcon os="linux" size={14} /></span
-						>
-						Linux: GNOME Terminal &amp; friends
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						GNOME Terminal → Preferences → Profiles: colors, fonts, transparency. Konsole (KDE) and
-						others offer the same. Profiles are cheap — make a garish red one for any terminal
-						that's SSH'd into something important.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Type size={14} style="color: var(--color-primary);" />
-						Everywhere: the font matters
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Monospaced means every character takes the same width — the only reason columns of
-						output line up, so the choice is less taste than it looks. Pick one with a legible
-						<Code code="0" />-vs-<Code code="O" /> and a size you don't squint at. JetBrains Mono, Fira
-						Code, and Cascadia Code are free favorites.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<ClipboardCopy size={14} style="color: var(--color-primary);" />
-						Everywhere: the clipboard bridge
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Terminal to clipboard without a mouse: on macOS
-						<Code code="ps aux | pbcopy" /> copies the whole output and
-						<Code code="pbpaste" /> brings the clipboard back into a pipe. Linux says
-						<Code code="xclip" /> (or <Code code="wl-copy" />), WSL says
-						<Code code="clip.exe" />. The everyday move for handing a wall of output to an AI chat
-						without screenshotting your terminal.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Ghost size={14} style="color: var(--color-primary);" />
-						The upgrade pick: Ghostty
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						<a
-							href="https://ghostty.org"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline underline-offset-2"
-							style="color: var(--color-primary);">Ghostty</a
-						> (v1.3, 2026; macOS &amp; Linux) is the current favorite when you outgrow the stock app:
-						extremely fast, native-feeling, free and open source, and deliberately AI-free. Your shell,
-						prompt, and everything in this course carry over unchanged.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Bot size={14} style="color: var(--color-primary);" />
-						The AI-first one: Warp
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Warp builds an AI agent directly into the terminal. Know what you're choosing: it went
-						open source in 2026, but it wants an account, and its AI runs on a paid, metered credit
-						system — an AI-first terminal with a subscription posture, not a free tool. Nothing it
-						offers replaces being able to read the commands yourself.
-					</p>
-				</div>
-			</div>
-
-			<h4 class="mt-8 mb-2 text-[14px] font-semibold" style="color: var(--color-text);">
-				A taste of prompt customization
-			</h4>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The prompt itself — that <Code code="user@host:~$" />
-				from the intro — is just a variable named
-				<Code code="PS1" />, short for prompt string 1, and you set it the way you set any variable
-				(<CourseLink to="section-5-4" />):
+			<p>
+				Try a larger line spacing and a wider window before adding plugins. A long command that
+				wraps across four narrow lines is harder to inspect. Change one setting, use it for a while,
+				then decide whether it helped.
 			</p>
-
-			<CodeBlock
-				title="PS1 exists (try it, it only lasts until you close the window)"
-				code={`PS1="\\w > "
-# ~/projects >              <- your prompt is now the current directory
-
-PS1="🌲 \\W $ "
-# 🌲 projects $             <- yes, emoji work`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The name implies a <Code code="PS2" />, and there is one: the continuation prompt — the bare
-				<Code code=">" /> you get if you press Enter with a quote still hanging open. That's the shell
-				asking you to finish the line, not an error.
+			<h4>What your prompt should tell you</h4>
+			<p>
+				A useful prompt answers “which machine, which account, which folder?” For a project, a
+				branch name or last-command status may help too. Keep the information you actually use. A
+				long list of versions and symbols can hide the place where you type.
 			</p>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Hand-rolling a fancy <Code code="PS1" />
-				with colors and git status is a classic rabbit hole. The modern shortcut is
-				<a
-					href="https://starship.rs"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="underline underline-offset-2"
-					style="color: var(--color-primary);">Starship</a
-				>
-				— a fast, cross-shell prompt that works in bash, zsh, and every OS in this course. One install,
-				one line in your shell config (<CourseLink to="section-5-5" />,
-				<Code code=".bashrc" />
-				/
-				<Code code=".zshrc" />), and your prompt shows the current directory, git branch, language
-				versions, and whether the last command failed — the useful stuff, with zero maintenance.
+			<p>
+				The shell creates the prompt; the terminal application draws it. Bash commonly configures it
+				through PS1. zsh has its own prompt notation. Copying Bash escape sequences into zsh does
+				not produce the same result.
 			</p>
-
-			<p class="mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Pair it with a couple of small zsh <strong style="color: var(--color-text);">plugins</strong
-				>
-				— extra files your shell config loads at startup, the same mechanism as the aliases you added
-				there yourself, only someone else wrote the file. Two earn their place:
-				<Code code="zsh-autosuggestions" /> greys in the rest of a command as you start typing it, and
-				<Code code="zsh-syntax-highlighting" /> turns a command red before you press Enter if the shell
-				can't find it. A framework like <Code code="oh-my-zsh" /> bundles hundreds instead, and charges
-				you startup time for the ones you'll never use.
-			</p>
-
-			<Callout type="tip">
-				<strong>Practice the audit from <CourseLink to="section-11-1" /> here.</strong> Starship's
-				install command is a <Code code="curl ... | sh" /> one-liner — the red-flag pattern, with one
-				detail worth catching: it ends in <Code code="sh" />, not <Code code="bash" />. <Code
-					code="sh"
-				/> is an older, more minimal shell that on many systems isn't bash at all — a quiet swap of what
-				runs the script, and the kind of detail an audit is for. Perfect low-stakes rehearsal: download
-				the script first, skim it (or ask your AI to), then run it. Trusted source, verified anyway —
-				that's the habit.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'Help me install starship and add it to my shell config — explain each step before we run it',
-					'Set up a terminal color scheme and font that are easy on the eyes for long sessions on my OS'
-				]}
-			/>
-
-			<h4
-				id="prompt-designer"
-				class="mt-8 mb-2 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Design Your Prompt
-			</h4>
-			<p class="mb-5 text-[14px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Enough talk — build one. Pick a design, make it yours, and take the real
-				<Code code="starship.toml" /> home. This is a genuine config for
-				<a
-					href="https://starship.rs/"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="underline underline-offset-2"
-					style="color: var(--color-primary);">Starship</a
-				>, the cross-shell prompt — nothing here touches your machine until you choose to install
-				it.
+			<details>
+				<summary>Try a temporary Bash prompt</summary>
+				<p>
+					Use this only inside Bash. The first line keeps your old setting; the second shows your
+					account, host, and current folder. The final line restores the saved value. This changes
+					the current shell session, not a startup file.
+				</p>
+				<CodeBlock
+					title="Bash only: try a prompt"
+					code={`old_prompt=$PS1
+PS1='\\u@\\h:\\w\\$ '`}
+				/><CodeBlock title="Bash only: restore it" code="PS1=$old_prompt" />
+				<p>
+					Once you like a change, put it in the appropriate shell configuration file deliberately.
+					Keep a known-working terminal open while you test a new one. If the new shell reports an
+					error, use that working window to repair the file.
+				</p>
+			</details>
+			<h4 id="prompt-designer">Try it: design your prompt</h4>
+			<p>
+				The designer below creates a Starship configuration you can inspect and download. It does
+				not install anything on your computer. Starship is an optional cross-shell prompt tool;
+				installation and initialization are separate steps, and initialization differs by shell.
 			</p>
 			<StarshipDesigner />
+			<p>
+				Before replacing an existing configuration, save a copy and compare the change. Follow <a
+					href="https://starship.rs/guide/">Starship's setup guide</a
+				> for your system. Treat an installer as executable code even when it belongs to a popular tool.
+			</p>
 		</div>
-
-		<!-- 12.2 History Superpowers -->
-		<div id="section-12-2" class="mb-14">
+		<div id="section-12-2" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="12.2 Recall, inspect, and edit" />
+			<p>
+				Your command history records commands. Scrollback is the text displayed above the prompt,
+				including output. They are different records. Clearing the view does not necessarily clear
+				history; closing a terminal does not guarantee that either record has been erased.
+			</p>
+			<ExpandableImage
+				src="{base}/images/history-superpowers.webp"
+				alt="A crab follows a ribbon of past commands back to a previous task."
+				caption="Recall the command, check it, then decide whether to run it."
+			/>
+			<p>
+				Press Up to recall an earlier command. Edit it before pressing Enter. Down moves toward more
+				recent history. In the course playground, returning past the newest entry restores the
+				unfinished draft you had before browsing.
+			</p>
+			<p>
+				Try this deliberately: run <Code code="echo blue" />, start typing a different unfinished
+				command, then press Up and Down. Your earlier command and current draft have different jobs.
+				You are choosing which one to edit.
+			</p>
+			<p>
+				<Code code="history" /> prints the history available to this shell. Filtering it with <Code
+					code="history | grep releases"
+				/> finds matching lines in that available record, not necessarily every command you have ever
+				run. Shell settings control what is saved, how much, and whether sessions share it.
+			</p>
+			<h4 id="history-recall">Try it: Retrace your steps</h4>
+			<LessonActivity title="Retrace your steps" scenarioId="history-recall" id="history-recall" />
+			<h4>Search older history in your terminal</h4>
+			<p class="native">
+				Press Ctrl+R, type a remembered fragment, and inspect the match. Press Ctrl+R again for an
+				older match. Enter runs the selected command; Ctrl+C cancels the search. In many
+				Readline-style setups an arrow key accepts a match for editing, but check your shell
+				bindings. Browsers may reserve Ctrl+R for reload, so practise this in your own terminal.
+			</p>
+			<p>
+				Interactive history expansion such as <Code code="!!" /> can repeat the previous command in shells
+				that enable it. It is optional shorthand, and often less clear than Up, inspect, and edit. In
+				particular, do not prepend sudo to an unexamined recalled command just because it previously failed.
+			</p>
+			<h4>Keep the short editing moves close</h4>
+			<p>
+				Ctrl+A and Ctrl+E move to the beginning and end. Ctrl+K removes the suffix after the cursor.
+				Ctrl+W removes a previous whitespace-delimited word; Ctrl+Y restores killed text. Bash's
+				Ctrl+U normally removes text before the cursor, while zsh's default Emacs binding removes
+				the whole line. Ctrl+E followed by Ctrl+U clears a single line in both.
+			</p>
+			<p>
+				These gestures assume the usual Emacs-style key bindings. Vi editing mode and personal
+				configuration differ. On macOS, Option-based word shortcuts may require terminal
+				configuration; Esc followed by the letter is a common alternative. The workshop shows the
+				actual cursor movement so you can connect the key with its effect.
+			</p>
+			<p class="reflection">
+				Return to a command from the activity and change one path before running it. What did you
+				inspect to make sure the recalled command still fits today's task?
+			</p>
+		</div>
+		<div id="section-12-3" class="lesson">
 			<SectionHeader
 				level="section"
-				icon={History}
-				title="12.2 History Superpowers"
-				color="var(--color-primary)"
+				icon={BookOpen}
+				title="12.3 Keep the editor and terminal connected"
 			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/history-superpowers.webp"
-					alt="History Superpowers — recalling past commands with up-arrow, !!, and Ctrl+R"
-					caption="You almost never type a command twice — you recall it"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Watch someone fluent in the terminal and you'll notice they barely type. The shell writes
-				down every command you run in a file it keeps between sessions — that record is your
-				<strong style="color: var(--color-text);">history</strong>, and it is not the same thing as
-				<strong style="color: var(--color-text);">scrollback</strong>, the output still sitting in
-				the window above your prompt. Scrollback is what a screenshot captures, and it dies with the
-				window; history outlives it. The recall tools built on that record are the biggest speed
-				unlock in this course:
+			<p>
+				Your editor is where you comfortably change a file. Your terminal runs a command that uses
+				that file. Keeping them together shortens the loop: edit, save, run, inspect, adjust.
 			</p>
-
-			<div class="mb-6 space-y-3">
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<ArrowUp size={14} style="color: var(--color-primary);" />
-						Up-arrow — the one you know
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Each press steps one command back through history; Enter re-runs, or edit first. Perfect
-						for the last two or three commands — clumsy for anything older. That's what the rest of
-						this section is for.
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<ScrollText size={14} style="color: var(--color-primary);" />
-						<span><Code code="history" /> — the full ledger</span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Prints your numbered command history — and because it's just text output, all of <CourseLink
-							to="part-4"
-						/>
-						applies: <Code code="history | grep ssh" /> finds every <Code code="ssh" /> command you've
-						ever run. Your history is a searchable log of how you did everything.
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Repeat size={14} style="color: var(--color-primary);" />
-						<span><Code code="!!" /> — the last command, verbatim</span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						<Code code="!!" />
-						expands to your previous command. Its one legendary use: you run something, it fails with
-						"permission denied," and
-						<Code code="sudo !!" /> re-runs it elevated — no retyping. (Every bit of the
-						<Code code="sudo" /> caution in
-						<CourseLink to="section-5-3" /> still applies; the shell prints the expanded command, so you
-						see what's about to run.)
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Search size={14} style="color: var(--color-primary);" />
-						<span><Code code="Ctrl+R" /> — reverse search, the crown jewel</span>
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						Press <kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+R</kbd
-						>
-						and start typing any fragment — the shell live-searches backward through history for the most
-						recent match. Press
-						<kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+R</kbd
-						>
-						again for older matches, Enter to run, arrow keys to edit first,
-						<kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+C</kbd
-						> to bail. That 40-character command from last Tuesday? Three letters and it's back.
-					</p>
-				</div>
-				<div class="rounded-lg p-5" style="background: var(--color-bg-secondary);">
-					<h4
-						class="mb-2 flex items-center gap-1.5 text-[14px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Keyboard size={14} style="color: var(--color-primary);" />
-						Edit the line — without riding the arrow keys
-					</h4>
-					<p class="text-[13px]" style="color: var(--color-text-secondary);">
-						A recalled command usually needs one fix, and holding an arrow key across 60 characters
-						is not the fix. <Code code="Ctrl+A" /> jumps to the start of the line,
-						<Code code="Ctrl+E" /> to the end, <Code code="Ctrl+W" /> deletes the word behind the cursor,
-						and <Code code="Ctrl+U" /> wipes the line entirely — the panic-adjacent one, for when you've
-						typed something you'd rather not have sitting at a prompt. Four chords, and recall-then-edit
-						becomes one motion.
-					</p>
-				</div>
-			</div>
-
+			<ExpandableImage
+				src="{base}/images/vscode-terminal.webp"
+				alt="An editor shows a file above a terminal pane."
+				caption="Save the file above before running a command below that reads it."
+			/>
+			<p>
+				Many editors include a terminal panel. Open it through the editor's menu, then run pwd. The
+				panel may start in your project folder, but verify instead of assuming. Its shell can be
+				Bash, zsh, PowerShell, or another configured shell; being inside an editor does not choose
+				Bash automatically.
+			</p>
+			<p>
+				Make a tiny notes.txt in a practice folder. Type one sentence in the editor and save it. In
+				the terminal, run <Code code="cat notes.txt" />. Change the sentence, save again, and rerun
+				cat. This reveals an easy mistake: the terminal reads the saved file, not an unsaved editor
+				buffer.
+			</p>
+			<p>
+				In a course playground, use <strong>Edit a file</strong> to open the same simulated filesystem
+				that the commands use. Save, then inspect with cat. It is a compact file editor rather than a
+				simulation of every nano or Vim key.
+			</p>
+			<details>
+				<summary>When editing a real file feels unfamiliar</summary>
+				<p>
+					With nano installed, run <Code code="nano notes.txt" />, type a sentence, press Ctrl+O,
+					press Enter to confirm the filename, then press Ctrl+X. In nano's footer, a caret such as
+					^O means Control+O.
+				</p>
+				<p>
+					If you have opened Vim accidentally, press Esc, then type <Code code=":q!" /> and Enter to leave
+					without saving. To save a file you intentionally edited in Vim, Esc then <Code
+						code=":wq"
+					/> and Enter writes it and quits. Learn its modes in a dedicated session before using it for
+					an important first edit.
+				</p>
+			</details>
+			<p>
+				If the editor offers “Open in integrated terminal,” use it when it helps, then still check
+				pwd. Familiar layout is a convenience, not a replacement for knowing which file and folder
+				you are using.
+			</p>
+		</div>
+		<div id="section-12-4" class="lesson">
+			<SectionHeader level="section" icon={BookOpen} title="12.4 Give parallel work a clear home" />
+			<p>
+				Try two terminal tabs before learning a multiplexer. Put a running server in one and your
+				commands in the other. Name the tabs when possible. When something prints continuously, its
+				dedicated tab makes the source obvious.
+			</p>
+			<ExpandableImage
+				src="{base}/images/many-terminals.webp"
+				alt="Separate terminal panes hold a server, its logs, and an interactive prompt."
+				caption="One job per pane makes it easier to know what is running."
+			/>
+			<p>
+				Each shell has its own current directory and variables. Changing folders in tab one does not
+				move tab two. They still share the underlying files. A saved edit in one can affect a
+				command running in another.
+			</p>
+			<h4>Native practice: detach and return with tmux</h4>
+			<p>
+				tmux manages terminal sessions with windows and panes. After installing it, run <Code
+					code="tmux new -s practice"
+				/>. Inside, run pwd so you can recognize the session. Press Ctrl+B, release both keys, then
+				press D to detach. You return to the shell outside tmux.
+			</p>
 			<CodeBlock
-				title="A history session"
-				code={`history | grep backup
-#  212  ./backup.sh notes
-#  340  ./backup.sh recipes
-
-npm run deploy
-# Error: permission denied
-sudo !!
-# sudo npm run deploy       <- the shell shows what !! became
-
-# (reverse-i-search)\`dep': npm run deploy     <- Ctrl+R, then "dep"`}
+				title="Your terminal: find and return to the session"
+				code={`tmux ls
+tmux attach -t practice`}
 			/>
-
-			<Callout type="tip">
-				<strong>Make <Code code="Ctrl+R" /> the habit.</strong> The rule of thumb: up-arrow for the
-				last couple of commands,
-				<kbd
-					class="rounded border px-1 py-0.5 text-[11px]"
-					style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-					>Ctrl+R</kbd
-				>
-				for everything else. If you catch yourself pressing up-arrow more than three times, stop — reverse
-				search would have had it already. And for commands you recall <em>constantly</em>, promote
-				them to an alias (<CourseLink to="section-5-5" />) and stop searching altogether.
-			</Callout>
-
-			<h4
-				id="history-recall"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Retrace Your Steps
-			</h4>
-			<PlaygroundNote>
-				<Code code="Ctrl+R" /> lives at a real prompt, but you can practice the other half here: run a
-				couple of commands, then pipe <Code code="history" /> into
-				<Code code="grep" /> to dig one back out — and save the line you found.
-			</PlaygroundNote>
-			<LessonActivity title="Retrace Your Steps" scenarioId="history-recall" id="history-recall" />
-
-			<VibeBox
-				prompts={[
-					'Search my shell history for every command I ran involving npm and summarize what they did',
-					'Teach me the Ctrl+R workflow with three practice rounds using commands from this session'
-				]}
-			/>
+			<p>
+				Back inside, Ctrl+B then % creates a side-by-side pane; Ctrl+B then a double-quote creates a
+				stacked pane. The prefix and the next key are separate presses. Use Ctrl+B then an arrow key
+				to move focus. Type exit in an unused pane to close its shell.
+			</p>
+			<p>
+				Detaching leaves the session running while its host remains available. It does not survive a
+				reboot automatically, and it is not a service manager. Practise on disposable work first.
+				The <a href="https://github.com/tmux/tmux/wiki/Getting-Started"
+					>tmux getting-started guide</a
+				> covers navigation and copy mode.
+			</p>
+			<p class="reflection">
+				Try leaving one harmless command running in a tmux session, detach, and return. Name which
+				shell is outside, which is inside, and what “detach” preserved.
+			</p>
 		</div>
-
-		<!-- 12.3 Terminal in VS Code -->
-		<div id="section-12-3" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Layout}
-				title="12.3 Terminal in VS Code"
-				color="var(--color-primary)"
-			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/vscode-terminal.webp"
-					alt="Terminal in VS Code — the integrated terminal panel beneath the editor"
-					caption="Editor above, terminal below — one window, and it's the same bash you've been learning"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Here's where all of this lands in daily life. VS Code has a full terminal built into the
-				editor — toggle it with <kbd
-					class="rounded border px-1 py-0.5 text-[11px]"
-					style="border-color: var(--color-border); background: var(--color-bg-tertiary);">⌃`</kbd
-				>
-				(Control + backtick, same keys on every OS), and it slides up as a panel beneath your code. It's
-				not a lookalike or a simulation — it runs your real shell, with your
-				<Code code=".bashrc" />, your aliases, your <Code code="PATH" />, your history. Everything
-				from this course works in it unchanged.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				Two conveniences make it better than a separate window: it <strong
-					style="color: var(--color-text);"
-					>opens already <Code code="cd" />'d into your project folder</strong
-				>
-				(no navigating to where your code lives — you're there), and the
-				<strong style="color: var(--color-text);">+</strong> button in the panel spawns extra terminals
-				in the same place, with a dropdown to pick which shell (bash, zsh, or on Windows: WSL, Git Bash,
-				PowerShell).
-			</p>
-
-			<Callout type="important">
-				<strong>This is where a lot of AI coding actually lands.</strong> When a coding agent in VS
-				Code — Copilot, Claude Code, Cursor's agent — runs a command, it usually runs in this
-				integrated terminal:
-				<em>the same panel you can read, scroll, and type into</em>. The agent proposes
-				<Code code="npm test" />, you watch it execute, you scroll back through the failures, you
-				run your own
-				<Code code="grep" /> on the log — human and AI, sharing one shell. Every skill in this course
-				is what lets you be a participant in that terminal instead of a spectator.
-			</Callout>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				That shared visibility is the practical payoff of <CourseLink to="part-11" />: when the
-				agent asks permission to run a command, you audit it first; when it writes a <Code
-					code="setup.sh"
-				/>, you read it line by line; when it says "tests failed," you can see the exit code it saw.
-				The integrated terminal is the one place code, agent, and shell meet — all in a single
-				window.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				VS Code even builds the red-flag mental model from <CourseLink to="section-11-1" /> into settings.
-				Copilot's agent mode runs terminal commands
-				<strong style="color: var(--color-text);">with per-command approval</strong>, and you can
-				maintain an allowlist and denylist of which commands auto-approve — let
-				<Code code="git status" />
-				through without asking, always stop on
-				<Code code="rm -rf" />
-				and
-				<Code code="sudo" />. Claude Code ships a VS Code extension that drives the same CLI from a
-				panel in the editor — same terminal, same approval moments, same skills.
-			</p>
-
-			<Callout type="note">
-				One habit worth stealing: keep <strong>one terminal for the agent and one for you</strong>.
-				Click <strong>+</strong> to add yours. The agent's commands and output stay in its terminal
-				where you can audit the transcript; your exploring (<Code code="ls" />, <Code code="cat" />,
-				<Code code="grep" />) doesn't tangle with its work. Which is the perfect segue to the next
-				section.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'Run the test suite in the integrated terminal and walk me through the output you see',
-					'Before you run any command in this terminal, tell me what it does and wait for my okay'
-				]}
-			/>
-		</div>
-
-		<!-- 12.4 Many Terminals at Once -->
-		<div id="section-12-4" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={SplitSquareHorizontal}
-				title="12.4 Many Terminals at Once"
-				color="var(--color-primary)"
-			/>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/many-terminals.webp"
-					alt="Many Terminals at Once — tabs and split panes, one job per pane"
-					caption="One terminal per job: server here, logs there, you in the middle"
-				/>
-			</div>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Sooner or later one terminal isn't enough: a dev server occupies one (it runs until you stop
-				it, holding the prompt hostage), <Code code="tail -f" />
-				follows a log in another (<CourseLink to="part-2" />), and you still need a free prompt to
-				actually work. The answer is never "quit the server" — it's
-				<strong style="color: var(--color-text);">more terminals</strong>, and every modern terminal
-				app makes that cheap:
-			</p>
-
-			<div class="mb-6 grid gap-3 sm:grid-cols-2">
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<PanelTop size={14} style="color: var(--color-primary);" />
-						Tabs
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Like browser tabs: <kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>⌘T</kbd
-						>
-						on macOS,
-						<kbd
-							class="rounded border px-1 py-0.5 text-[11px]"
-							style="border-color: var(--color-border); background: var(--color-bg-tertiary);"
-							>Ctrl+Shift+T</kbd
-						> in Windows Terminal and GNOME Terminal. Each tab is a fresh, independent shell — new history
-						position, own working directory. Best for separate contexts: one tab per project.
-					</p>
-				</div>
-				<div class="rounded-lg p-4" style="background: var(--color-bg-secondary);">
-					<p
-						class="mb-1 flex items-center gap-1.5 text-[13px] font-semibold"
-						style="color: var(--color-text);"
-					>
-						<Columns2 size={14} style="color: var(--color-primary);" />
-						Split panes
-					</p>
-					<p class="text-xs" style="color: var(--color-text-secondary);">
-						Two or more shells visible side by side in one window — best for things you watch <em
-							>while</em
-						> you work (server output, a followed log). iTerm2, Windows Terminal, and VS Code's terminal
-						panel all split with a keystroke or the pane's context menu.
-					</p>
-				</div>
-			</div>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				A classic three-pane cockpit for a coding session: the dev server in one pane, <Code
-					code="tail -f server.log"
-				/>
-				in a second, and a free prompt in the third — with your agent's terminal from
-				<CourseLink to="section-12-3" /> alongside. Every shell is independent: its own working directory,
-				its own
-				<Code code="cd" />, its own foreground command. Nothing you do in one pane disturbs another.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				And here's the 2026 twist that turned splits from a power-user nicety into standard
-				practice: <strong style="color: var(--color-text);"
-					>people now run multiple AI agents in parallel</strong
-				>
-				— one agent per pane or tab, each pointed at its own copy of the project (<Code
-					code="git"
-				/> calls that a worktree) so they never collide. The split layout stops being "server here, logs
-				there" and becomes several agents, each in its own pane: three panes, three agents on three tasks,
-				and you sweeping your eyes across all of them, approving and course-correcting. Every pane is
-				just a shell — which is why everything in this course scales from one terminal to ten.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				One name to file away for later: <strong style="color: var(--color-text);">tmux</strong>, a
-				terminal multiplexer that does tabs and splits <em>inside</em> the terminal itself — and whose
-				sessions survive the window closing, your laptop sleeping, even an SSH connection dropping. You
-				log back in, reattach, and every pane is exactly where you left it (agents included — which is
-				why people running several at once tend to live in it).
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				Careful with that word, though — everywhere else in this course a session is one shell's
-				lifetime, and it dies with its window. A <Code code="tmux" /> session is a named collection of
-				panes living in a process of its own, which is how it survives yours closing. Its keybindings
-				feel arcane for one reason: every one of them starts with the same two keys,
-				<Code code="Ctrl+B" />, pressed and released
-				<em>before</em> the key that does the work — so splitting a pane is <Code code="Ctrl+B" />,
-				then
-				<Code code="%" />.
-			</p>
-
-			<p class="mb-4 text-[14px]" style="color: var(--color-text-secondary);">
-				<strong style="color: var(--color-text);">Zellij</strong> is the friendlier modern multiplexer,
-				with its shortcuts printed on screen. Overkill for today; indispensable the day you work on remote
-				servers. It'll be waiting.
-			</p>
-
-			<VibeBox
-				prompts={[
-					'Set up my layout: dev server in one terminal, log tail in a second, and a free shell for me',
-					'The dev server is hogging my only terminal — what are my options, and which do you recommend?'
-				]}
-			/>
-		</div>
-
-		<ChallengeActivity title="Hand Over the Cockpit" part={12} id="ch-12-handover" />
+		<ChallengeActivity title="Hand over the cockpit" part={12} id="ch-12-handover" />
 	</div>
 </section>
+
+<style>
+	.chapter-copy {
+		color: var(--color-text-secondary);
+		font-size: 1rem;
+		line-height: 1.85;
+	}
+	.chapter-copy p {
+		margin: 1rem 0;
+	}
+	.chapter-copy .lead {
+		font-size: 1.1rem;
+	}
+	.lesson {
+		margin: 3rem 0;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy h4 {
+		color: var(--color-text);
+		font: 600 1.1rem/1.5 var(--font-heading);
+		margin: 1.8rem 0 0.7rem;
+		scroll-margin-top: 6rem;
+	}
+	.chapter-copy strong {
+		color: var(--color-text);
+	}
+	.chapter-copy a {
+		color: var(--color-primary-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.chapter-copy details {
+		border: 1px solid var(--color-border);
+		border-radius: 0.75rem;
+		padding: 1rem;
+		margin: 1.5rem 0;
+	}
+	.chapter-copy summary {
+		cursor: pointer;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.chapter-copy .native {
+		border-left: 3px solid var(--color-primary);
+		padding-left: 1rem;
+	}
+	.chapter-copy .reflection {
+		background: var(--color-bg-secondary);
+		padding: 1rem;
+		border-radius: 0.6rem;
+	}
+</style>

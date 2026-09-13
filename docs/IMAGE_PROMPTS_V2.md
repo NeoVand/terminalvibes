@@ -1,3 +1,5 @@
+> Draft artwork only. These two initial generations are not selected for the site. The owner has since requested that illustration work wait until content consolidation, with at least five alternatives per final concept and owner selection before replacement.
+
 # Illustration prompts — opening refresh, September 2026
 
 Generated with the built-in image generation tool. The tool does not expose a model selector; no specific model version is asserted. Source PNGs remain in the Codex generated_images directory; the selected production WebP assets and responsive variants are committed in static/images.

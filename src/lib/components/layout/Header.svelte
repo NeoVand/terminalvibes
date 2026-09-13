@@ -298,7 +298,7 @@
 					TerminalVibes
 				</h2>
 				<p class="mb-4 text-xs" style="color: var(--color-text-muted);">
-					The Terminal for Vibe Coders
+					Learn the terminal by doing
 				</p>
 
 				<p class="mb-5 text-sm leading-relaxed" style="color: var(--color-text-secondary);">

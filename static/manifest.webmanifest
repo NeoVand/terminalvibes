@@ -1,7 +1,7 @@
 {
-	"name": "TerminalVibes — The Terminal for Vibe Coders",
+	"name": "TerminalVibes \u2014 Learn the terminal by doing",
 	"short_name": "TerminalVibes",
-	"description": "An interactive, visual Git tutorial for AI-assisted developers — with a real in-browser Git playground.",
+	"description": "A visual terminal course for absolute beginners, with keyboard practice, a simulated Bash playground, and optional AI tutoring.",
 	"start_url": ".",
 	"scope": ".",
 	"display": "standalone",

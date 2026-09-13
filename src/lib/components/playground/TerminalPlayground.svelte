@@ -9,13 +9,25 @@
 		ChevronRight,
 		ChevronDown,
 		X,
-		ArrowLeft
+		ArrowLeft,
+		FilePenLine
 	} from 'lucide-svelte';
 	import FsTreeView from '$lib/components/playground/FsTreeView.svelte';
+	import SandboxFileEditor, {
+		type EditorFile
+	} from '$lib/components/playground/SandboxFileEditor.svelte';
 	import RichHint from '$lib/components/playground/RichHint.svelte';
 	import { tokenizeShellCommand } from '$lib/data/bash-syntax';
 	import { autohideScroll } from '$lib/actions/autohide-scroll';
 	import { ShellEngine, BIN_COMMANDS } from '$lib/playground/shell-engine';
+	import {
+		actionForKey,
+		editLine,
+		navigateHistory,
+		completionContext,
+		applyCompletion,
+		longestCommonPrefix
+	} from '$lib/playground/line-editor';
 	import { runShellCommand } from '$lib/playground/shell-commands';
 	import { snapshotFsTree, type FsTreeNode } from '$lib/playground/fs-tree';
 	import {
@@ -34,6 +46,7 @@
 	import { shareUrl, type SharedSession } from '$lib/playground/share';
 	import { get } from 'svelte/store';
 	import { agentRuntime } from '$lib/ai/runtime.svelte';
+	import { learnerContext } from '$lib/ai/learner-context.svelte';
 	import { downloadedModels } from '$lib/ai/local/models';
 	import { CliSession, type CliEvent, type CliPhase } from '$lib/ai/cli/session';
 	import {
@@ -65,9 +78,7 @@
 		hideHeader = false,
 		onClose,
 		onResetReady,
-		// Part of the public props API (callers pass unique ids); unused here
-		// since the engine keys state internally.
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		// Callers provide a unique prefix for the input's accessible help text.
 		id = 'playground',
 		shared = null,
 		kind,
@@ -91,13 +102,16 @@
 		 */
 		customScenario?: PlaygroundScenario | null;
 		/**
-		 * Fired after every command (and once per load/reset) with the engine's
+		 * Fired after commands and editor saves (and once per load/reset) with the engine's
 		 * durable history and whether `check()` currently passes. ChallengeActivity
 		 * scores off this; it is the only way out of the sandbox, and it is
 		 * read-only — the caller cannot steer the terminal with it.
 		 */
 		onProgress?: (state: { history: readonly string[]; solved: boolean }) => void;
 	} = $props();
+
+	const instanceId = $props.id();
+	let recordedContextId: string | null = null;
 
 	// One-shot: a shared session (from a #pg= link) replays once on first load.
 	// Capturing the initial prop value is intentional — later prop changes
@@ -106,6 +120,9 @@
 	let pendingShared: SharedSession | null = shared;
 
 	let graphCollapsed = $state(false);
+	let editorOpen = $state(false);
+	let fileEditor: SandboxFileEditor | undefined = $state();
+	let editorButton: HTMLButtonElement | undefined = $state();
 
 	// Capturing the initial value is intentional: the picker owns the state
 	// afterwards, and the $effect below syncs later prop changes for embedded
@@ -119,6 +136,12 @@
 	let promptCwd = $state('~');
 	let loading = $state(true);
 	let historyIndex = $state(-1);
+	let historyDraft = '';
+	let submittedHistory: string[] = [];
+	let killBuffer = '';
+	let lastKill = false;
+	let completionMessage = $state('');
+	let allowTabExit = false;
 	let inputEl: HTMLInputElement | undefined = $state(undefined);
 	let terminalEl: HTMLDivElement | undefined = $state(undefined);
 	let inputFocused = $state(false);
@@ -157,6 +180,85 @@
 		}
 	});
 
+	function guardEditorDraft(action: () => void) {
+		if (editorOpen && fileEditor) fileEditor.requestLeave(action);
+		else action();
+	}
+
+	async function openEditor() {
+		if (isChallenge || loading || cliActive) return;
+		editorOpen = true;
+		await tick();
+		fileEditor?.focusFilename();
+	}
+
+	function closeEditor() {
+		editorOpen = false;
+		tick().then(() => editorButton?.focus());
+	}
+
+	/** Check the same VFS without silently creating missing parent folders. */
+	function editorPath(filename: string, writing = false): string {
+		if (!engine || loading) throw new Error('The playground is still loading. Try again shortly.');
+		if (isChallenge) throw new Error('The file editor is not available in a graded challenge.');
+		if (!filename.trim()) throw new Error('Enter a file name, such as notes.txt.');
+		if (/[\0\r\n]/.test(filename)) throw new Error('Use a file path on one line.');
+		const path = engine.resolve(filename.trim());
+		const node = engine.getNode(path);
+		if (node?.kind === 'dir')
+			throw new Error(`${engine.pretty(path)} is a folder. Add a file name after it.`);
+		const parent = path.slice(0, path.lastIndexOf('/')) || '/';
+		if (!engine.isDir(parent))
+			throw new Error(
+				`Folder ${engine.pretty(parent)} does not exist. Create it in the terminal with mkdir first.`
+			);
+		// The sandbox has one owner. Honor its displayed read/write/search bits
+		// here; writeFile itself is a low-level seed API and bypasses those bits.
+		for (let dir = parent; ; dir = dir.slice(0, dir.lastIndexOf('/')) || '/') {
+			if (engine.modeOf(dir)[2] !== 'x')
+				throw new Error(`Permission denied: cannot enter ${engine.pretty(dir)}.`);
+			if (dir === '/') break;
+		}
+		if (node && engine.modeOf(path)[writing ? 1 : 0] !== (writing ? 'w' : 'r')) {
+			throw new Error(
+				`Permission denied: ${engine.pretty(path)} is not ${writing ? 'writable' : 'readable'}.`
+			);
+		}
+		if (!node && engine.modeOf(parent)[1] !== 'w')
+			throw new Error(`Permission denied: cannot create a file in ${engine.pretty(parent)}.`);
+		return path;
+	}
+
+	function loadEditorFile(filename: string): EditorFile {
+		const path = editorPath(filename);
+		const content = engine!.readFile(path);
+		return { path, content: content ?? '', isNew: content === null };
+	}
+
+	async function saveEditorFile(
+		filename: string,
+		content: string,
+		fromRedo = false
+	): Promise<string> {
+		const path = editorPath(filename, true);
+		if (cliActive) throw new Error('Wait for the agent to finish before saving a file.');
+		engine!.writeFile(path, content);
+		if (!fromRedo) redoStack = [];
+		commandLog.push({ type: 'file', path, content });
+		markScenarioAttempted(scenario.id);
+		const label = engine!.pretty(path);
+		history = [
+			...history,
+			{
+				type: 'system',
+				text: `File editor saved ${label}. Use cat to read it in the terminal. You can undo this save with undo.`
+			}
+		];
+		refreshDiagram();
+		await runScenarioCheck();
+		return `Saved ${label}. Close the editor, then use cat to check your file.`;
+	}
+
 	function refreshDiagram() {
 		if (!engine) return;
 		tree = snapshotFsTree(engine);
@@ -168,6 +270,9 @@
 	let loadGeneration = 0;
 
 	async function loadScenario(next: PlaygroundScenario) {
+		editorOpen = false;
+		if (recordedContextId) learnerContext.clear(recordedContextId);
+		recordedContextId = null;
 		// A scenario switch/reset pulls the rug out — end any agent session.
 		cliSession?.interrupt();
 		const generation = ++loadGeneration;
@@ -188,6 +293,11 @@
 			// half-typed command lingering from before.
 			input = '';
 			historyIndex = -1;
+			historyDraft = '';
+			submittedHistory = [];
+			killBuffer = '';
+			lastKill = false;
+			completionMessage = '';
 			// A CHALLENGE'S BRIEF IS PRINTED ONCE, and the slot above the terminal
 			// is where it is printed (see the `TypeIcon` note). Echoing
 			// `description` into the scrollback as well put the same paragraph on
@@ -226,7 +336,7 @@
 				for (const cmd of toReplay) {
 					await runShellCommand(engine, cmd).catch(() => {});
 				}
-				commandLog = [...toReplay];
+				commandLog = toReplay.map((command) => ({ type: 'command', command }));
 				await recalibrateCheck(); // no award for someone else's commands
 				history = [
 					...history,
@@ -262,23 +372,29 @@
 
 	onDestroy(() => {
 		cliSession?.interrupt();
+		if (recordedContextId) learnerContext.clear(recordedContextId);
 	});
 
-	// Undo is replay-based: rebuild the seed and re-run every command except
-	// the undone one. Commands are deterministic, so the resulting state is
-	// equivalent — and it's immune to every kind of engine state.
-	let commandLog: string[] = [];
-	let redoStack: string[] = [];
+	// Undo rebuilds the seed, then replays commands and explicit editor saves.
+	// File actions preserve literal contents without inventing shell commands
+	// or leaking those contents into the shell's command history.
+	type PlaygroundAction =
+		{ type: 'command'; command: string } | { type: 'file'; path: string; content: string };
+	let commandLog: PlaygroundAction[] = [];
+	let redoStack: PlaygroundAction[] = [];
 
 	async function rebuildFromLog() {
 		if (!engine) return;
 		loading = true;
 		try {
 			await loadScenarioSeed(engine, scenario);
-			for (const cmd of commandLog) {
-				await runShellCommand(engine, cmd).catch(() => {});
+			for (const action of commandLog) {
+				if (action.type === 'command')
+					await runShellCommand(engine, action.command).catch(() => {});
+				else engine.writeFile(action.path, action.content);
 			}
 			await recalibrateCheck();
+			onProgress?.({ history: [...engine.historyLog], solved: !!scenario.check && !checkArmed });
 		} finally {
 			loading = false;
 		}
@@ -310,20 +426,40 @@
 		const undone = commandLog.pop()!;
 		redoStack.push(undone);
 		await rebuildFromLog();
-		history = [...history, { type: 'system', text: `↩ Undid: ${undone}` }];
+		history = [
+			...history,
+			{
+				type: 'system',
+				text: `↩ Undid: ${undone.type === 'command' ? undone.command : `save ${engine?.pretty(undone.path)}`}`
+			}
+		];
 	}
 
 	async function handleRedo() {
-		const cmd = redoStack.pop();
-		if (!cmd) {
+		const action = redoStack.pop();
+		if (!action) {
 			history = [...history, { type: 'system', text: 'Nothing to redo.' }];
 			return;
 		}
-		await executeCommand(cmd, { fromRedo: true });
+		if (action.type === 'command') await executeCommand(action.command, { fromRedo: true });
+		else await saveEditorFile(action.path, action.content, true);
 	}
 
 	function handleShare() {
-		const url = shareUrl({ scenarioId: activeScenarioId, commands: commandLog });
+		if (commandLog.some((action) => action.type === 'file')) {
+			history = [
+				...history,
+				{
+					type: 'system',
+					text: 'This session includes file-editor saves. Share links currently replay terminal commands only, so a link would leave out your files. Copy your practice file text separately, or reset to share a command-only session.'
+				}
+			];
+			return;
+		}
+		const commands = commandLog.flatMap((action) =>
+			action.type === 'command' ? [action.command] : []
+		);
+		const url = shareUrl({ scenarioId: activeScenarioId, commands });
 		navigator.clipboard?.writeText(url).catch(() => {});
 		history = [
 			...history,
@@ -332,6 +468,20 @@
 				text: `🔗 Share link (copied to clipboard):\n${url}\nAnyone opening it gets this scenario with your ${commandLog.length} command${commandLog.length === 1 ? '' : 's'} replayed.`
 			}
 		];
+	}
+
+	function recordLearnerCommand(command: string, output: string) {
+		if (!engine) return;
+		recordedContextId = `${instanceId}:${activeScenarioId}`;
+		learnerContext.record({
+			sandboxId: recordedContextId,
+			title: scenario.title,
+			goal: scenario.goal ?? scenario.description,
+			cwd: engine.cwd,
+			command,
+			output: output === '__CLEAR__' ? '' : output,
+			exitCode: engine.lastExitCode
+		});
 	}
 
 	async function executeCommand(command: string, opts: { fromRedo?: boolean } = {}) {
@@ -351,11 +501,12 @@
 		const stateless = command === 'clear' || command === 'help';
 		if (!stateless) {
 			if (!opts.fromRedo) redoStack = [];
-			commandLog.push(command);
+			commandLog.push({ type: 'command', command });
 		}
 
 		try {
 			const result = await runShellCommand(engine, command);
+			recordLearnerCommand(command, result.output);
 
 			if (result.output === '__CLEAR__') {
 				history = [];
@@ -387,7 +538,9 @@
 	// in every playground (the runtime is one shared singleton, and the mount
 	// hook below populates `downloaded` + warms a cached model). The header
 	// status chip reports the finer lifecycle (waking up / active).
-	let agentChip = $derived(agentRuntime.downloaded.length > 0);
+	let agentChip = $derived(
+		agentRuntime.downloaded.length > 0 || agentRuntime.backend.name === 'cloud'
+	);
 	let cliActive = $derived(
 		cliPhase === 'generating' || cliPhase === 'awaiting-approval' || cliPhase === 'executing'
 	);
@@ -404,6 +557,8 @@
 		if (r.localPhase === 'loading' || r.localPhase === 'probing') {
 			return { label: 'agent waking up…', tone: 'warm' as const };
 		}
+		if (r.backend.name === 'cloud')
+			return { label: 'cloud agent connected', tone: 'active' as const };
 		if (r.backendName === 'local' && r.localPhase === 'ready') {
 			return { label: 'agent active', tone: 'active' as const };
 		}
@@ -474,7 +629,7 @@
 		if (!engine) return { output: 'Sandbox still initializing.', error: true };
 		history = [...history, { type: 'input', text: cmd, promptCwd }];
 		redoStack = [];
-		commandLog.push(cmd);
+		commandLog.push({ type: 'command', command: cmd });
 		try {
 			const result = await runShellCommand(engine, cmd);
 			if (result.output === '__CLEAR__') {
@@ -507,12 +662,13 @@
 			return;
 		}
 		// Wake a previously downloaded model from cache (never a download).
-		agentRuntime.initLocal();
-		if (agentRuntime.downloaded.length === 0) {
+		const cloudConnected = agentRuntime.backend.name === 'cloud';
+		if (!cloudConnected) agentRuntime.initLocal();
+		if (!cloudConnected && agentRuntime.downloaded.length === 0) {
 			pushLine({ type: 'output', text: AGENT_NO_MODEL });
 			return;
 		}
-		if (agentRuntime.localBusy) {
+		if (!cloudConnected && agentRuntime.localBusy) {
 			pushLine({ type: 'output', text: AGENT_WAKING });
 			return;
 		}
@@ -561,7 +717,11 @@
 		if (!session) return false;
 		// Ctrl+C is SIGINT — unless text is selected (then it's a copy).
 		if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'c') {
-			if (window.getSelection()?.toString()) return true;
+			if (
+				(inputEl?.selectionStart ?? 0) !== (inputEl?.selectionEnd ?? 0) ||
+				window.getSelection()?.toString()
+			)
+				return true;
 			e.preventDefault();
 			history = [...history, { type: 'output', text: '^C' }];
 			session.interrupt();
@@ -619,6 +779,10 @@
 		markScenarioAttempted(scenario.id);
 
 		history = [...history, { type: 'input', text: command, promptCwd }];
+		submittedHistory.push(command);
+		historyDraft = '';
+		lastKill = false;
+		completionMessage = '';
 		input = '';
 		historyIndex = -1;
 
@@ -642,7 +806,11 @@
 	let checkArmed = $state(true);
 
 	async function runScenarioCheck() {
-		if (!engine || !scenario.check) return;
+		if (!engine) return;
+		if (!scenario.check) {
+			onProgress?.({ history: [...engine.historyLog], solved: false });
+			return;
+		}
 		// Without a listener there is nothing to report, so keep the original
 		// short-circuit: a disarmed check must not re-run every command.
 		if (!checkArmed && !onProgress) return;
@@ -671,25 +839,90 @@
 		});
 	}
 
+	function placeCursor(start: number, end = start) {
+		tick().then(() => inputEl?.setSelectionRange(start, end));
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (cliActive && handleCliKey(e)) return;
-		if (e.key === 'ArrowUp') {
-			e.preventDefault();
-			const inputs = history.filter((h) => h.type === 'input').map((h) => h.text);
-			if (inputs.length === 0) return;
-			historyIndex = Math.min(historyIndex + 1, inputs.length - 1);
-			input = inputs[inputs.length - 1 - historyIndex] ?? '';
-		} else if (e.key === 'ArrowDown') {
-			e.preventDefault();
-			if (historyIndex <= 0) {
-				historyIndex = -1;
-				input = '';
+		if (e.isComposing) return;
+		// Shift+Tab always leaves. Escape, then Tab also leaves forwards.
+		if (e.key === 'Escape') {
+			e.stopPropagation();
+			allowTabExit = true;
+			completionMessage = 'Press Tab to leave the terminal input.';
+			return;
+		}
+		if (e.key === 'Tab' && (e.shiftKey || allowTabExit)) {
+			allowTabExit = false;
+			return;
+		}
+		const escapeWords = { b: 'wordBackward', f: 'wordForward', d: 'killNextWord' } as const;
+		const escapeAction =
+			allowTabExit && !e.ctrlKey && !e.altKey && !e.metaKey
+				? escapeWords[e.key.toLowerCase() as keyof typeof escapeWords]
+				: undefined;
+		allowTabExit = false;
+		const action = escapeAction ?? actionForKey(e);
+		if (action) {
+			// Preserve copying when the input or terminal output has a selection.
+			if (
+				action === 'cancel' &&
+				((inputEl?.selectionStart ?? 0) !== (inputEl?.selectionEnd ?? 0) ||
+					window.getSelection()?.toString())
+			)
 				return;
+			e.preventDefault();
+			const changed = editLine(
+				{
+					value: input,
+					start: inputEl?.selectionStart ?? input.length,
+					end: inputEl?.selectionEnd ?? input.length,
+					killBuffer,
+					lastKill
+				},
+				action
+			);
+			if (changed.cancelled) {
+				history = [
+					...history,
+					{ type: 'system', text: input + '^C — unfinished command cancelled.' }
+				];
+				historyIndex = -1;
+				historyDraft = '';
 			}
-			historyIndex -= 1;
-			const inputs = history.filter((h) => h.type === 'input').map((h) => h.text);
-			input = inputs[inputs.length - 1 - historyIndex] ?? '';
-		} else if (e.key === 'Tab') {
+			if (changed.cleared) history = [];
+			input = changed.value;
+			killBuffer = changed.killBuffer;
+			lastKill = changed.lastKill ?? false;
+			completionMessage = changed.cleared
+				? 'Screen cleared. Your files, command history, and unfinished line are unchanged.'
+				: '';
+			placeCursor(changed.start, changed.end);
+			scrollTerminal();
+			return;
+		}
+		lastKill = false;
+		if (
+			(e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+			!e.ctrlKey &&
+			!e.altKey &&
+			!e.metaKey &&
+			!e.shiftKey
+		) {
+			e.preventDefault();
+			const next = navigateHistory(
+				submittedHistory,
+				{ index: historyIndex, draft: historyDraft },
+				input,
+				e.key === 'ArrowUp' ? 'older' : 'newer'
+			);
+			historyIndex = next.index;
+			historyDraft = next.draft;
+			input = next.value;
+			completionMessage = '';
+			placeCursor(input.length);
+		} else if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey) {
 			e.preventDefault();
 			completeInput();
 		}
@@ -697,32 +930,16 @@
 
 	const EXTRA_COMMANDS = ['undo', 'redo', 'share'];
 
-	function longestCommonPrefix(values: string[]): string {
-		let prefix = values[0] ?? '';
-		for (const value of values.slice(1)) {
-			while (!value.startsWith(prefix)) prefix = prefix.slice(0, -1);
-		}
-		return prefix;
-	}
-
-	/**
-	 * TAB completion, the real thing in miniature: first word completes from
-	 * the command list, later words complete as paths against the sandbox
-	 * filesystem (directories gain a trailing slash so you can keep drilling).
-	 */
+	/** Complete the word under the cursor; later arguments stay in place. */
 	function completeInput() {
 		if (!engine || loading) return;
-		const tokens = input.split(/(\s+)/);
-		const last = tokens[tokens.length - 1] ?? '';
-		if (!last || /\s/.test(last)) return;
-
-		const words = input.trim().split(/\s+/);
+		const context = completionContext(input, inputEl?.selectionStart ?? input.length);
 		let candidates: string[];
-		if (words.length === 1) {
-			candidates = [...BIN_COMMANDS, ...EXTRA_COMMANDS, ...engine.aliases.keys()];
+		if (context.isCommand && !context.prefix.includes('/')) {
+			candidates = [...new Set([...BIN_COMMANDS, ...EXTRA_COMMANDS, ...engine.aliases.keys()])];
 		} else {
-			const slash = last.lastIndexOf('/');
-			const dirPart = slash === -1 ? '' : last.slice(0, slash + 1);
+			const slash = context.prefix.lastIndexOf('/');
+			const dirPart = slash === -1 ? '' : context.prefix.slice(0, slash + 1);
 			const baseDir = engine.resolve(dirPart || '.');
 			const entries = engine.listDir(baseDir) ?? [];
 			candidates = entries.map((name) => {
@@ -730,18 +947,27 @@
 				return engine!.isDir(`${baseDir}/${name}`) ? `${full}/` : full;
 			});
 		}
-
-		const matches = candidates.filter((c) => c.startsWith(last));
-		if (matches.length === 0) return;
+		const matches = candidates.filter((candidate) => candidate.startsWith(context.prefix)).sort();
+		if (!matches.length) {
+			completionMessage = 'No matching name here. Check the spelling or folder.';
+			return;
+		}
 		const completion = matches.length === 1 ? matches[0] : longestCommonPrefix(matches);
-		if (completion.length <= last.length) return;
-		const done = matches.length === 1 && !completion.endsWith('/');
-		tokens[tokens.length - 1] = completion + (done ? ' ' : '');
-		input = tokens.join('');
+		if (matches.length === 1 || completion.length > context.prefix.length) {
+			const next = applyCompletion(input, context, completion, matches.length === 1);
+			input = next.value;
+			placeCursor(next.cursor);
+		}
+		completionMessage =
+			matches.length > 1
+				? `More than one match: ${matches.slice(0, 12).join(' · ')}${matches.length > 12 ? ' · …' : ''}. Type more letters, then press Tab.`
+				: `Completed ${matches[0]}.`;
 	}
 
-	async function resetScenario() {
-		await loadScenario(customScenario ?? getScenario(activeScenarioId));
+	function resetScenario() {
+		guardEditorDraft(() => {
+			void loadScenario(customScenario ?? getScenario(activeScenarioId));
+		});
 	}
 
 	/**
@@ -762,9 +988,11 @@
 		];
 	}
 
-	async function changeScenario(nextId: string) {
-		activeScenarioId = nextId;
-		await loadScenario(getScenario(nextId));
+	function changeScenario(nextId: string) {
+		guardEditorDraft(() => {
+			activeScenarioId = nextId;
+			void loadScenario(getScenario(nextId));
+		});
 	}
 
 	/**
@@ -774,9 +1002,12 @@
 	 * attempt here rather than waiting for the submit.
 	 */
 	function runSuggested(command: string) {
-		markScenarioAttempted(scenario.id);
-		input = command;
-		inputEl?.focus();
+		guardEditorDraft(() => {
+			editorOpen = false;
+			markScenarioAttempted(scenario.id);
+			input = command;
+			tick().then(() => inputEl?.focus());
+		});
 	}
 
 	/** Clicking terminal whitespace focuses the prompt — unless the user is
@@ -787,12 +1018,42 @@
 	}
 </script>
 
+{#snippet editorToggle()}
+	{#if !isChallenge}
+		<button
+			type="button"
+			bind:this={editorButton}
+			onclick={() => (editorOpen ? guardEditorDraft(closeEditor) : openEditor())}
+			disabled={loading || cliActive}
+			class="pg-editor-button"
+			aria-expanded={editorOpen}
+		>
+			<FilePenLine size={13} aria-hidden="true" />{editorOpen ? 'Back to terminal' : 'Edit a file'}
+		</button>
+	{/if}
+{/snippet}
+
+{#snippet practiceEditor()}
+	<SandboxFileEditor
+		bind:this={fileEditor}
+		cwd={promptCwd}
+		initialPath={scenario.editorExample?.path}
+		loadFile={loadEditorFile}
+		saveFile={saveEditorFile}
+		onclose={closeEditor}
+	/>
+{/snippet}
+
 {#snippet scenarioSelect()}
 	{#if showScenarioPicker}
 		<div class="pg-select-wrap">
 			<select
 				value={activeScenarioId}
-				onchange={(e) => changeScenario(e.currentTarget.value)}
+				onchange={(e) => {
+					const nextId = e.currentTarget.value;
+					e.currentTarget.value = activeScenarioId;
+					changeScenario(nextId);
+				}}
 				class="pg-select"
 				disabled={loading}
 				aria-label="Scenario"
@@ -914,6 +1175,12 @@
 				bind:this={inputEl}
 				bind:value={input}
 				onkeydown={handleKeydown}
+				oninput={() => {
+					lastKill = false;
+					completionMessage = '';
+				}}
+				data-terminal-input
+				aria-describedby={id + '-keyboard-help'}
 				onfocus={() => {
 					inputFocused = true;
 					hasInteracted = true;
@@ -929,6 +1196,10 @@
 			/>
 		</span>
 	</form>
+	<p id={id + '-keyboard-help'} class="pg-keyboard-help">
+		↑ history · Tab complete · Ctrl+C cancel · Shift+Tab leave
+	</p>
+	<p class="pg-keyboard-help" role="status" aria-live="polite">{completionMessage}</p>
 {/snippet}
 
 {#snippet suggestedCommands()}
@@ -983,7 +1254,12 @@
 					<RotateCcw size={13} />
 				</button>
 				{#if onClose}
-					<button type="button" onclick={onClose} class="pg-icon-btn" aria-label="Close playground">
+					<button
+						type="button"
+						onclick={() => guardEditorDraft(() => onClose?.())}
+						class="pg-icon-btn"
+						aria-label="Close playground"
+					>
 						<X size={14} />
 					</button>
 				{/if}
@@ -1039,18 +1315,23 @@
 					<span class="text-xs font-medium" style="color: var(--color-text-secondary);">
 						Terminal
 					</span>
+					{@render editorToggle()}
 				</div>
 
-				<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
-				<div
-					bind:this={terminalEl}
-					use:autohideScroll
-					class="pg-terminal min-h-0 flex-1 cursor-text overflow-y-auto px-4 py-3"
-					onclick={focusIfIdle}
-				>
-					{@render terminalHistory()}
-					{@render promptForm()}
-				</div>
+				{#if editorOpen && !isChallenge}
+					{@render practiceEditor()}
+				{:else}
+					<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+					<div
+						bind:this={terminalEl}
+						use:autohideScroll
+						class="pg-terminal min-h-0 flex-1 cursor-text overflow-y-auto px-4 py-3"
+						onclick={focusIfIdle}
+					>
+						{@render terminalHistory()}
+						{@render promptForm()}
+					</div>
+				{/if}
 			</section>
 
 			<section
@@ -1121,21 +1402,26 @@
 					<span class="text-xs font-medium" style="color: var(--color-text-secondary);"
 						>Terminal</span
 					>
+					{@render editorToggle()}
 				</div>
 
-				<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
-				<div
-					bind:this={terminalEl}
-					use:autohideScroll
-					class="pg-terminal flex-1 cursor-text overflow-y-auto p-4"
-					style="min-height: {embedded ? '220px' : '280px'}; max-height: {embedded
-						? '300px'
-						: '360px'};"
-					onclick={focusIfIdle}
-				>
-					{@render terminalHistory()}
-					{@render promptForm()}
-				</div>
+				{#if editorOpen && !isChallenge}
+					{@render practiceEditor()}
+				{:else}
+					<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+					<div
+						bind:this={terminalEl}
+						use:autohideScroll
+						class="pg-terminal flex-1 cursor-text overflow-y-auto p-4"
+						style="min-height: {embedded ? '220px' : '280px'}; max-height: {embedded
+							? '300px'
+							: '360px'};"
+						onclick={focusIfIdle}
+					>
+						{@render terminalHistory()}
+						{@render promptForm()}
+					</div>
+				{/if}
 			</div>
 
 			<div class="order-1 flex flex-col lg:order-2">
@@ -1185,6 +1471,38 @@
 {/if}
 
 <style>
+	.pg-editor-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin-left: auto;
+		padding: 0.4rem 0.55rem;
+		border: 1px solid var(--color-border);
+		border-radius: 0.35rem;
+		color: var(--color-text-secondary);
+		font-size: 0.6875rem;
+		cursor: pointer;
+	}
+	.pg-editor-button:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+	.pg-editor-button:focus-visible {
+		outline: 2px solid var(--color-important);
+		outline-offset: 2px;
+	}
+
+	.pg-keyboard-help {
+		margin: 0.35rem 0 0;
+		color: var(--color-text-muted);
+		font-size: 0.6875rem;
+		line-height: 1.6;
+		overflow-wrap: anywhere;
+	}
+	.pg-keyboard-help:empty {
+		display: none;
+	}
+
 	.pg-shell {
 		background: var(--color-bg-secondary);
 	}

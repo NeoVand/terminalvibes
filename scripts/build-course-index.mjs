@@ -16,6 +16,8 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import ts from 'typescript';
+import { courseSource } from './course-source.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const SECTIONS_DIR = join(ROOT, 'src/lib/components/sections');
@@ -28,6 +30,8 @@ const sectionsSource = readFileSync(join(ROOT, 'src/lib/data/sections.ts'), 'utf
 const sectionIdsMatch = sectionsSource.match(/sectionIds = \[([\s\S]*?)\]/);
 if (!sectionIdsMatch) throw new Error('could not parse sectionIds from sections.ts');
 const sectionIds = new Set([...sectionIdsMatch[1].matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]));
+sectionIds.add('hello-first-command');
+sectionIds.add('keyboard-workshop');
 
 /* ── titles from sidebar-nav.ts labels ──────────────────────────────────── */
 
@@ -75,6 +79,12 @@ function stripMarkup(src) {
 	// tag-stripping eats the whole tag — same for already-stashed {`…`} values.
 	// eslint-disable-next-line no-control-regex -- \u0001 is our own chunk sentinel
 	s = s.replace(/<[A-Za-z][^<>]*?\bcode=(?:"([^"]*)"|(\u0001\d+\u0001))[^<>]*?>/g, ' $1$2 ');
+	// A transcript's command/output are attributes, not child markup. Preserve both.
+	s = s.replace(/<CommandTranscript\b[\s\S]*?\/>/g, (tag) => {
+		// eslint-disable-next-line no-control-regex -- internal literal sentinel
+		const values = [...tag.matchAll(/(?:command|output)=(?:"([^"]*)"|(\u0001\d+\u0001))/g)];
+		return values.map((match) => match[1] ?? match[2]).join(' ');
+	});
 	// Svelte expressions (attribute handlers, {#if}/{#each} tags, {base}, …),
 	// innermost first so nested braces unwind. Must run before tag-stripping:
 	// an inline `onclick={() => …}` would otherwise break the <[^>]+> regex.
@@ -89,7 +99,9 @@ function stripMarkup(src) {
 		.replace(/&quot;/g, '"')
 		.replace(/&#39;/g, "'")
 		.replace(/&nbsp;/g, ' ')
-		.replace(/&mdash;/g, '—');
+		.replace(/&mdash;/g, '—')
+		.replace(/&#123;/g, '{')
+		.replace(/&#125;/g, '}');
 	return s.replace(/\s+/g, ' ').trim();
 }
 
@@ -124,7 +136,7 @@ const files = [
 const entries = [];
 
 for (const file of files) {
-	let source = readFileSync(join(SECTIONS_DIR, file), 'utf8');
+	let source = courseSource(file, { examples: true });
 	source = source.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '');
 
 	// Anchor positions, in document order, restricted to real section ids.
@@ -142,26 +154,43 @@ for (const file of files) {
 	}
 }
 
+/* Teaching steps live in widget script data; capture their visible strings too. */
+for (const [name, id] of [
+	['FirstCommand', 'hello-first-command'],
+	['KeyboardWorkshop', 'keyboard-workshop']
+]) {
+	const widget = readFileSync(join(ROOT, `src/lib/components/playground/${name}.svelte`), 'utf8');
+	const script = widget.match(/<script[^>]*>([\s\S]*?)<\/script>/)?.[1] ?? '';
+	const ast = ts.createSourceFile(`${name}.ts`, script, ts.ScriptTarget.Latest, true);
+	let stepText = '';
+	function walk(node) {
+		if (ts.isVariableDeclaration(node) && node.name.getText(ast) === 'steps' && node.initializer) {
+			function literal(child) {
+				if (
+					ts.isPropertyAssignment(child) &&
+					/^(title|instruction|keys|example|reply)$/.test(child.name.getText(ast)) &&
+					ts.isStringLiteral(child.initializer)
+				)
+					stepText += child.initializer.text + ' ';
+				ts.forEachChild(child, literal);
+			}
+			literal(node.initializer);
+		}
+		ts.forEachChild(node, walk);
+	}
+	walk(ast);
+	for (const chunk of chunkText(stepText.trim()))
+		entries.push({ id, part: 0, title: titleFor(id), text: chunk });
+}
+
 /* ── cheat sheet categories ─────────────────────────────────────────────── */
 
-// cheat-sheet.ts is data-only TypeScript: strip the interfaces and every
-// `export const x: SomeType` annotation, then import the remainder as an ES
-// module via a data: URL. The annotation regex is deliberately general — an
-// earlier version hardcoded `: CheatSheetCategory[]` and a later export with a
-// different annotation broke the build with an opaque SyntaxError.
-const cheatSource = readFileSync(join(ROOT, 'src/lib/data/cheat-sheet.ts'), 'utf8')
-	.replace(/export interface [\s\S]*?\n\}/g, '')
-	.replace(/^(export const \w+)\s*:\s*[A-Za-z_$][\w$.]*(?:\[\])*(?=\s*=)/gm, '$1');
-
-// Fail loudly rather than letting an un-stripped annotation reach the parser.
-const leftover = cheatSource.match(/^export const \w+\s*:/m);
-if (leftover) {
-	throw new Error(
-		`cheat-sheet.ts has a type annotation this script cannot strip: ${leftover[0]}\n` +
-			'Use a named interface (export const x: SomeInterface = …), not an inline object type.'
-	);
-}
-const { cheatSheet } = await import(`data:text/javascript,${encodeURIComponent(cheatSource)}`);
+// Transpile data-only TypeScript rather than maintaining an incomplete type regex.
+const cheatSource = readFileSync(join(ROOT, 'src/lib/data/cheat-sheet.ts'), 'utf8');
+const { outputText } = ts.transpileModule(cheatSource, {
+	compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext }
+});
+const { cheatSheet } = await import(`data:text/javascript,${encodeURIComponent(outputText)}`);
 
 for (const category of cheatSheet) {
 	const slug = category.label

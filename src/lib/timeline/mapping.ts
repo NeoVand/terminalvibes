@@ -1,6 +1,10 @@
 /**
  * The Thread rail's geometry — pure, framework-free, no DOM.
  *
+ * `makeNavigationSpace` first gives short or collapsed anchors room to be
+ * selected. The lens below operates on that navigation axis; measured document
+ * fractions remain separate for scroll position and dwell tracking.
+ *
  * Everything the rail does is a function of ONE number: `p`, the cursor's
  * position along the rail in [0,1]. A density over SCREEN space dips at the
  * cursor and relaxes to 1 far away,
@@ -60,7 +64,7 @@ export interface TimelineItem {
 
 /** A manifest item once its scroll offset has been measured. */
 export interface PlacedItem extends TimelineItem {
-	/** document position, 0..1 of total scrollable height */
+	/** Position on the 0..1 axis: measured document, or allocated navigation. */
 	f: number;
 }
 
@@ -124,6 +128,81 @@ export const TUNE: Tune = {
 
 export const clamp = (v: number, a: number, b: number): number => (v < a ? a : v > b ? b : v);
 export const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+/**
+ * Navigation space is not a miniature of the page's pixel height. A collapsed
+ * reference card still needs room to be selected. These floors are measured
+ * against a 760px rail; long sections share the space left over in proportion
+ * to their actual length. A larger course scales the floors together, keeping
+ * at least 8% of the rail available for that length signal.
+ */
+export const NAVIGATION = {
+	referenceWidth: 760,
+	minSpanPx: { section: 9, playground: 8, challenge: 4, part: 3 },
+	maxFloorShare: 0.92
+} as const;
+
+export interface NavigationSpace {
+	/** Copies with navigation fractions. The measured input is never changed. */
+	items: PlacedItem[];
+	/** Measured scroll fraction -> navigation fraction for the reading head. */
+	fromDocument(position: number): number;
+}
+
+/** Allocate selectable spans, then connect the measured and navigation axes. */
+export function makeNavigationSpace(measured: PlacedItem[]): NavigationSpace {
+	const n = measured.length;
+	if (!n) return { items: [], fromDocument: clamp01 };
+	const document = new Float64Array(n + 1);
+	for (let i = 1; i < n; i++) {
+		document[i] = Math.max(document[i - 1], clamp01(Number(measured[i].f) || 0));
+	}
+	document[n] = 1;
+	const floors = measured.map(
+		(item) => NAVIGATION.minSpanPx[item.kind] / NAVIGATION.referenceWidth
+	);
+	const floorSum = floors.reduce((sum, floor) => sum + floor, 0);
+	const scale = Math.min(1, NAVIGATION.maxFloorShare / floorSum);
+	for (let i = 0; i < n; i++) floors[i] *= scale;
+	const lengths = measured.map((_, i) => document[i + 1] - document[i]);
+	// Find a common scale for the measured lengths. Short spans hold their
+	// floor; longer ones retain their relative size rather than becoming equal.
+	let low = 0;
+	let high = 1;
+	for (let step = 0; step < 48; step++) {
+		const mid = (low + high) / 2;
+		const total = lengths.reduce((sum, length, i) => sum + Math.max(floors[i], mid * length), 0);
+		if (total > 1) high = mid;
+		else low = mid;
+	}
+	const navigation = new Float64Array(n + 1);
+	for (let i = 0; i < n; i++) {
+		navigation[i + 1] = navigation[i] + Math.max(floors[i], low * lengths[i]);
+	}
+	navigation[n] = 1;
+
+	function fromDocument(position: number): number {
+		const at = clamp01(Number(position) || 0);
+		if (at <= 0) return 0;
+		if (at >= 1) return 1;
+		let lo = 0;
+		let hi = n;
+		while (hi - lo > 1) {
+			const mid = (lo + hi) >> 1;
+			if (document[mid] <= at) lo = mid;
+			else hi = mid;
+		}
+		// Coincident anchors have no scrollable extent. The reading head passes
+		// them together, while their separate navigation spans remain selectable.
+		const fraction = (at - document[lo]) / (document[hi] - document[lo]);
+		return navigation[lo] + fraction * (navigation[hi] - navigation[lo]);
+	}
+
+	return {
+		items: measured.map((item, i) => ({ ...item, f: navigation[i] })),
+		fromDocument
+	};
+}
 
 /* ---------------------------------------------------------------- mapping */
 

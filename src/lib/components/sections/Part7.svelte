@@ -2,332 +2,245 @@
 	import { Scissors, Replace, PenLine, Columns3 } from 'lucide-svelte';
 	import { base } from '$app/paths';
 	import Code from '../ui/Code.svelte';
-	import CourseLink from '../ui/CourseLink.svelte';
-	import Callout from '../ui/Callout.svelte';
 	import CodeBlock from '../ui/CodeBlock.svelte';
+	import CommandTranscript from '../ui/CommandTranscript.svelte';
 	import ExpandableImage from '../ui/ExpandableImage.svelte';
 	import LessonActivity from '../ui/LessonActivity.svelte';
 	import ChallengeActivity from '../ui/ChallengeActivity.svelte';
-	import PlaygroundNote from '../ui/PlaygroundNote.svelte';
-	import MermaidDiagram from '../ui/MermaidDiagram.svelte';
 	import SectionHeader from '../ui/SectionHeader.svelte';
-
-	import VibeBox from '../ui/VibeBox.svelte';
 </script>
 
 <section id="part-7" class="py-10">
-	<div class="mx-auto max-w-4xl px-6">
+	<div class="chapter mx-auto max-w-4xl px-6">
 		<SectionHeader
 			icon={Scissors}
 			partLabel="Part 7"
-			title="Text Surgery: Find, Change, Extract"
-			color="var(--color-primary)"
+			title="Text Surgery: Change a Word, Keep the Original"
 		/>
-
-		<blockquote
-			class="my-8 border-l-4 py-1 pl-5 text-lg italic"
-			style="color: var(--color-text-secondary); border-color: var(--color-primary); font-family: var(--font-heading);"
-		>
-			"<Code code="grep" /> asks: which lines? <Code code="sed" /> answers: make them different."
-		</blockquote>
-
-		<p class="mb-8 text-[15px] leading-relaxed" style="color: var(--color-text-secondary);">
-			<CourseLink to="part-4" /> taught you to <em>find</em> text — <Code code="grep" /> it, count it,
-			<Code code="sort" /> it. This part teaches you to
-			<em>change</em> it. <Code code="sed" /> is the single most common file-mutating command AI agents
-			propose — "let me just update that config" is almost always a <Code code="sed" /> one-liner — and
-			<Code code="awk" /> is how you pull one column out of anything shaped like a table. Learn to read
-			these two and a huge class of agent-suggested commands stops being line noise.
+		<p class="lead">
+			The café has run out of mango. Its menu needs kiwi instead. Let’s make that change without
+			rewriting the whole file—or losing the original while we experiment.
+		</p>
+		<p>
+			<Code code="sed" /> transforms text as it reads it. The basic commands here print the changed text
+			while leaving the input file alone. Later, we’ll deliberately save a new file or edit an existing
+			one. <Code code="awk" /> will help when the text is arranged into fields.
 		</p>
 
-		<Callout type="important">
-			The idea that makes <Code code="sed" /> safe to learn:
-			<strong>it edits the stream, not the file</strong>. Like every <CourseLink to="part-4" /> tool,
-			<Code code="sed" /> reads text, transforms it, and prints the result — the input file is untouched
-			unless you explicitly say otherwise (that's
-			<CourseLink to="section-7-3" />, and it has a safety rule). You can experiment freely: the
-			original survives every mistake.
-		</Callout>
-
-		<!-- 7.1 Find & Replace -->
-		<div id="section-7-1" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Replace}
-				title="7.1 Find &amp; Replace — the `s` Command"
-				color="var(--color-primary)"
+		<div id="section-7-1" class="lesson-section">
+			<SectionHeader level="section" icon={Replace} title="7.1 Find and Replace with sed" />
+			<p>Suppose menu.txt contains this one line:</p>
+			<CodeBlock lang="text" code="mango smoothie — mango, ice, lime" title="Example menu.txt" />
+			<p>Ask sed to substitute kiwi for mango:</p>
+			<CommandTranscript
+				command="sed 's/mango/kiwi/' menu.txt"
+				output="kiwi smoothie — mango, ice, lime"
 			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Every editor has find-and-replace. <Code code="sed" /> is find-and-replace
-				<em>unplugged from the editor</em>
-				— it works on anything that flows: files, pipes, command output. One tiny script does it all,
-				and it reads like a sentence once you know the grammar:
+			<p>
+				Only the first mango on the line changed. Add <Code code="g" /> to replace every match on each
+				line:
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/find-replace.webp"
-					alt="sed 's/mango/kiwi/g' — the substitute command anatomy, stamped onto a stream of text"
-					caption="s/old/new/g — substitute, find this, replace with this, every match on the line"
-				/>
+			<CommandTranscript
+				command="sed 's/mango/kiwi/g' menu.txt"
+				output="kiwi smoothie — kiwi, ice, lime"
+			/>
+			<div class="steps">
+				<span><code>s</code><small>Substitute</small></span><span
+					><code>mango</code><small>Find this pattern</small></span
+				><span><code>kiwi</code><small>Replace with this</small></span><span
+					><code>g</code><small>Every match on the line</small></span
+				>
 			</div>
-
-			<CodeBlock
-				title="Your first substitution"
-				code={`cat menu.txt
-mango smoothie — mango, ice, lime
-
-sed 's/mango/kiwi/' menu.txt      # replace the FIRST match on each line
-kiwi smoothie — mango, ice, lime
-
-sed 's/mango/kiwi/g' menu.txt     # g = every match on the line
-kiwi smoothie — kiwi, ice, lime`}
+			<ExpandableImage
+				src="{base}/images/find-replace.webp"
+				alt="The word mango becoming kiwi in a menu while the original is preserved."
+				caption="Read the result before choosing where to save it."
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Read <Code code="s/mango/kiwi/g" /> in four beats: <Code code="s" /> means
-				<strong style="color: var(--color-text);">substitute</strong>; <Code code="mango" /> is
-				<strong style="color: var(--color-text);">find this</strong>; <Code code="kiwi" /> is
-				<strong style="color: var(--color-text);">replace with this</strong>; <Code code="g" /> means
-				<strong style="color: var(--color-text);">every match on the line</strong>, not just the
-				first. That find half is a regular expression rather than a plain string, so
-				<Code code="." />, <Code code="*" />, <Code code="^" /> and <Code code="$" /> carry the meanings
-				they had in <CourseLink to="section-4-3" /> — a dot matches any character, even where you meant
-				a literal one. Two more pieces complete the grammar: <Code code="I" /> ignores case, and the slashes
-				are just delimiters — any character works, which saves you from escaping paths:
+			<p>
+				Now run <Code code="cat menu.txt" />. The file should still say mango. sed printed a
+				different version; it did not save that version over your input.
 			</p>
-
+			<p>To keep the result as a separate file, add redirection:</p>
 			<CodeBlock
-				title="Delimiters are your choice; & echoes the match"
-				code={`sed 's|/usr/local|/opt|' paths.txt     # | instead of / — no escaping
-sed 's/error/[&]/I' app.log            # & = whatever matched; I = any case
-[ERROR] payment timeout                # "error", "Error", "ERROR" all wrapped`}
+				code={"sed 's/mango/kiwi/g' menu.txt > kiwi-menu.txt\ncat kiwi-menu.txt\ncat menu.txt"}
+				title="Save a new version, then inspect both files"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				That <Code code="|" /> is doing <Code code="sed" />'s job, not the shell's — inside the
-				quotes it's a delimiter, and the same character outside them is the pipe from
-				<CourseLink to="part-4" />. The single quotes are the whole difference: they hand
-				<Code code="sed" /> its script as one untouched word (<CourseLink to="section-2-2" />),
-				which is why every sed script in this part wears them.
+			<p>
+				Choose a destination different from the source. <Code code="sed ... menu.txt > menu.txt" /> can
+				empty menu.txt before sed reads it. Redirection is handled by the shell, so that mistake happens
+				before the text transformation.
 			</p>
-
-			<Callout type="tip">
-				<strong>Preview to the screen, then redirect.</strong> The same habit as echo-the-glob from
-				<CourseLink to="part-3" />: run the <Code code="sed" /> command bare and read its output. Happy?
-				Add
-				<Code code="> new-file.txt" /> and run it again. Because <Code code="sed" /> doesn't touch the
-				input file, the preview is always free.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'Write me a sed one-liner that replaces every "staging" with "production" in deploy.txt — preview only, no file changes',
-					"Explain what sed 's|http://|https://|g' does, character by character"
-				]}
-			/>
-			<h4
-				id="sed-rename"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Rebrand the Menu
-			</h4>
-			<PlaygroundNote>
-				Marketing renamed the mango everything. Rewrite <Code code="menu.txt" /> with
-				<Code code="s/mango/kiwi/g" /> into <Code code="kiwi-menu.txt" /> — and notice the original survives
-				untouched. Line 1 has two mangos: you'll need <Code code="g" />.
-			</PlaygroundNote>
+			<h4>Know what the pattern means</h4>
+			<p>
+				The find part is a regular expression, like grep without -F. It can match inside a larger
+				word. The g means all matches <em>on each line</em>; sed already processes every line by
+				default. Neither option means “only complete words.”
+			</p>
+			<p>
+				A dot has a special pattern meaning. To match the literal text plan.md, use <Code
+					code="plan\.md"
+				/> in a sed pattern. The replacement has special characters too: <Code code="&" /> inserts the
+				matched text. Do not assume arbitrary search and replacement strings can be pasted into this syntax
+				unchanged.
+			</p>
+			<details>
+				<summary>A different delimiter can make paths easier to read</summary>
+				<div class="detail-content">
+					<CodeBlock
+						code="sed 's|/old/garden|/new/garden|g' paths.txt"
+						title="Use a vertical bar as sed’s separator"
+					/>
+					<p>
+						The vertical bars here are inside quotes, so they belong to sed’s substitution syntax. A
+						vertical bar outside quotes is the shell’s pipe. Changing the delimiter makes paths more
+						readable; it does not make the search pattern literal.
+					</p>
+					<p>
+						Case-insensitive sed flags vary between implementations. For portable simple matching,
+						spell out the needed alternatives or inspect your system’s sed manual before using
+						extensions such as I.
+					</p>
+				</div>
+			</details>
+			<h4 id="sed-rename">Try it: make the kiwi menu</h4>
+			<p>
+				The playground’s menu has several lines, and one has two mangos. Create kiwi-menu.txt with
+				every intended substitution. Inspect the new menu and confirm menu.txt still contains the
+				original.
+			</p>
 			<LessonActivity title="Rebrand the Menu" scenarioId="sed-rename" id="sed-rename" />
 		</div>
 
-		<!-- 7.2 Line Surgery -->
-		<div id="section-7-2" class="mb-14">
-			<SectionHeader
-				level="section"
-				icon={Scissors}
-				title="7.2 Line Surgery — Addresses, `d` and `p`"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Substitution is only one of <Code code="sed" />'s commands. Picture your file as a film
-				strip: every line passes through <Code code="sed" />, one frame at a time, and a
-				<strong style="color: var(--color-text);">command decides its fate</strong> — keep, drop, or
-				print. An <strong style="color: var(--color-text);">address</strong> in front of the command selects
-				which frames it applies to:
+		<div id="section-7-2" class="lesson-section">
+			<SectionHeader level="section" icon={Scissors} title="7.2 Choose Which Lines to Keep" />
+			<p>
+				A noisy log can be easier to read if you leave out routine DEBUG messages. In this command, <Code
+					code="/DEBUG/"
+				/> chooses matching lines and <Code code="d" /> drops them from the output:
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/line-surgery.webp"
-					alt="sed as an editor's light table — cutting DEBUG frames out of a film strip of log lines"
-					caption="Every line passes through; addresses pick the frames, commands decide their fate"
-				/>
+			<CodeBlock code="sed '/DEBUG/d' app.log" title="Preview the log without DEBUG lines" />
+			<p>
+				The original log stays unchanged. To retain this filtered version, redirect it into a
+				different name such as clean.log.
+			</p>
+			<ExpandableImage
+				src="{base}/images/line-surgery.webp"
+				alt="Some lines passing through a text filter while selected lines are omitted."
+				caption="A line selection tells sed where to apply its action."
+			/>
+			<div id="sed-line-flow" class="steps">
+				<span><code>One input line</code><small>Read the next line</small></span><span
+					><code>/DEBUG/</code><small>Does the pattern match?</small></span
+				><span><code>d</code><small>If yes, omit it; otherwise print it</small></span>
 			</div>
-
-			<CodeBlock
-				title="`d` drops lines; addresses choose them"
-				code={`sed '/DEBUG/d' app.log        # drop every line matching DEBUG
-sed '3d' notes.txt            # drop line 3
-sed '2,5d' notes.txt          # drop lines 2 through 5
-sed '$d' notes.txt            # drop the last line`}
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Those four are most of the address vocabulary, and two of them are worth a second look.
-				<Code code="/DEBUG/" /> is a regular expression tried against every line, not a plain word — the
-				same rules as the find half of <Code code="s///" />. And <Code code="$" /> here is
-				<Code code="sed" />'s name for the last line: an address, not a variable, with nothing to do
-				with the <Code code="$NAME" /> expansion from <CourseLink to="section-5-4" />.
-				<Code code="awk" /> hands the same character a third job in <CourseLink to="section-7-4" />.
+			<p>
+				The selection before an action is called an <strong>address</strong>. It can be a line
+				number, a range, or a pattern:
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The mirror image of dropping is <strong style="color: var(--color-text);"
-					>printing only what you ask for</strong
-				>. That's the <Code code="p" /> command paired with
-				<Code code="-n" />, which silences <Code code="sed" />'s default echo. It's the precision
-				tool for "show me lines 40 through 55 of that huge log" — no pager, no scrolling:
+			<div class="table-scroll">
+				<table>
+					<thead><tr><th>Command</th><th>What is omitted from the output</th></tr></thead><tbody>
+						<tr><td><Code code="sed '3d' notes.txt" /></td><td>Line 3</td></tr><tr
+							><td><Code code="sed '2,5d' notes.txt" /></td><td>Lines 2 through 5, inclusive</td
+							></tr
+						><tr><td><Code code="sed '$d' notes.txt" /></td><td>The last line</td></tr><tr
+							><td><Code code="sed '/DEBUG/d' app.log" /></td><td
+								>Lines matching the regular expression DEBUG</td
+							></tr
+						>
+					</tbody>
+				</table>
+			</div>
+			<h4>Print only a selected range</h4>
+			<CodeBlock code="sed -n '2,5p' notes.txt" title="Show only lines 2 through 5" />
+			<p>
+				<Code code="-n" /> turns off sed’s automatic printing; <Code code="p" /> explicitly prints the
+				selected lines. Without -n, those selected lines would normally be printed twice. The options
+				and the little sed program have different jobs.
 			</p>
-
-			<CodeBlock
-				title="`-n` + `p` — print only the selection"
-				code={`sed -n '40,55p' server.log     # just lines 40–55
-sed -n '/ERROR/p' server.log   # only ERROR lines (like grep!)
-sed -n '/start/,/stop/p' run.log   # from a /start/ match to a /stop/ match`}
-			/>
-
-			<MermaidDiagram
-				definition={`flowchart LR
-  A[("app.log")] --> B{"address match?"}
-  B -->|"/DEBUG/"| C["d — dropped"]
-  B -->|"everything else"| D(["printed on through"])`}
-				id="sed-line-flow"
-			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				Addresses compose with <em>any</em> command — <Code code="'2s/beta/B/'" /> substitutes on line
-				2 only, <Code code="'/alpha/s/a/A/'" /> substitutes only on lines matching <Code
-					code="alpha"
-				/>. One grammar, every combination. That's the Unix philosophy again, folded inside a single
-				tool.
+			<p>
+				You can also limit a substitution: <Code code="sed '2s/mango/kiwi/g' menu.txt" /> changes matches
+				on line 2 only. <Code code="sed '/smoothie/s/mango/kiwi/g' menu.txt" /> changes matches only on
+				lines containing smoothie.
 			</p>
-
-			<VibeBox
-				prompts={[
-					'Show me lines 100 to 120 of build.log without opening an editor',
-					'Write a sed command that strips every blank comment line starting with # from config.txt — preview first'
-				]}
-			/>
-			<h4
-				id="log-surgery"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Silence the Debug Noise
-			</h4>
-			<PlaygroundNote>
-				<Code code="app.log" /> is drowning in <Code code="DEBUG" /> chatter. Drop those lines with
-				<Code code="'/DEBUG/d'" /> and save the readable story as <Code code="clean.log" /> — the original
-				stays intact for the postmortem.
-			</PlaygroundNote>
+			<p>
+				<strong>Try a variation:</strong> print one numbered line, then a three-line range. Compare each
+				result with the original. A precise selection is more useful than a shorter-looking command.
+			</p>
+			<h4 id="log-surgery">Try it: keep the useful log</h4>
+			<p>
+				Save a clean.log without DEBUG lines. Check that INFO and ERROR lines remain and that
+				app.log has not changed. A filtered report is not a replacement for the original diagnostic
+				record.
+			</p>
 			<LessonActivity title="Silence the Debug Noise" scenarioId="log-surgery" id="log-surgery" />
 		</div>
 
-		<!-- 7.3 Editing in Place -->
-		<div id="section-7-3" class="mb-14">
+		<div id="section-7-3" class="lesson-section">
 			<SectionHeader
 				level="section"
 				icon={PenLine}
-				title="7.3 Editing in Place — the `-i` Footgun and the `.bak` Rule"
-				color="var(--color-primary)"
+				title="7.3 Save an Edit and Check the Difference"
 			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Everything so far printed to the screen or a new file. But the command agents actually
-				propose is usually <Code code="sed -i" /> —
-				<strong style="color: var(--color-text);">edit the file in place</strong>. Same
-				substitution, except now it rewrites the real file, silently, with no preview and no undo.
-				<Code code="-i" /> was the letter that stopped and asked before overwriting back in
-				<CourseLink to="section-3-1" />; here it means the opposite of careful, which is exactly
-				what
-				<CourseLink to="section-1-3" /> meant by flag letters belonging to their command. It's also the
-				one sed flag worth carrying into
-				<CourseLink to="part-11" />, where auditing becomes a routine.
+			<p>
+				Sometimes you want the existing file to contain the new text. The option <Code code="-i" /> asks
+				sed to edit a file in place. That changes the file you named, rather than merely printing a result.
 			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/edit-in-place.webp"
-					alt="sed -i.bak rewriting config.yml while a copy slides into a drawer labeled .bak"
-					caption="-i rewrites the real file — .bak keeps the original in the drawer"
-				/>
-			</div>
-
-			<Callout type="caution">
-				<strong><Code code="sed -i" /> with no backup is a red-flag pattern.</strong> File it with <Code
-					code="rm -rf"
-				/> and <Code code="curl | bash" /> on the list of commands to read twice — <CourseLink
-					to="part-11"
-				/> makes that list a method. But unlike those, the fix isn't refusing — it's
-				<em>amending</em>: one suffix turns the risky command into a safe one.
-			</Callout>
-
+			<p>
+				Begin with one file and preview the transformation without -i. Check that the chosen backup
+				name does not already contain a version you need. Then the form <Code code="-i.bak" /> edits while
+				saving a copy under a .bak name:
+			</p>
 			<CodeBlock
-				title="The house rule: -i.bak"
-				code={`sed -i.bak 's/http:/https:/g' config.yml
-                    # config.yml      — rewritten
-                    # config.yml.bak  — the original, untouched
-
-diff config.yml.bak config.yml   # exactly what changed, nothing else
-mv config.yml.bak config.yml     # instant rollback if it went wrong`}
+				code={"sed 's/http:/https:/g' config.yml\nls -a\nsed -i.bak 's/http:/https:/g' config.yml\ndiff config.yml.bak config.yml"}
+				title="Preview, check the backup name, edit, compare"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The suffix goes <em>directly</em> after the flag — <Code code="-i.bak" />, no space — and
-				<Code code="sed" /> saves each original as <Code code="file.bak" /> before rewriting. It costs
-				nothing, it works on many files at once (<Code code="sed -i.bak 's/<old>/<new>/' *.yml" /> backs
-				up every one), and it turns "I hope that was right" into something you can check. That's the
-				<Code code="diff" /> in the block above: hand it two files and it prints only the lines where
-				they disagree. When an agent proposes a bare <Code code="-i" />, don't approve or reject —
-				<strong style="color: var(--color-text);"
-					>edit the command and add the <Code code=".bak" /></strong
-				>.
+			<p>
+				Here config.yml contains the edited text, and config.yml.bak contains the text from just
+				before this edit. Repeating the command can replace that .bak file. It is one saved version,
+				not an unlimited undo history.
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				macOS enforces the house rule anyway. Mac and Linux carry different lineages of the same
-				veteran tools — BSD's on the Mac, GNU's on Linux — and BSD <Code code="sed" />
-				<em>insists</em>
-				on that suffix: leave it off and the command fails with an error pointing nowhere near the real
-				problem, while GNU <Code code="sed" /> takes the bare <Code code="-i" /> and keeps no copy at
-				all. <Code code="ps" />,
-				<Code code="ls" /> and <Code code="du" /> split the same two ways, which is why a command that
-				worked on a colleague's machine sometimes doesn't on yours.
-			</p>
-
-			<VibeBox
-				prompts={[
-					"You proposed sed -i without a backup — rewrite that command with -i.bak and tell me how I'd undo it",
-					'Mass-rename a function across all .py files here, with backups, and show me how to verify the change afterwards'
-				]}
+			<ExpandableImage
+				src="{base}/images/edit-in-place.webp"
+				alt="An edited file beside its earlier version, with their differences compared."
+				caption="A saved original is useful only if you inspect the result and preserve the version you need."
 			/>
-			<h4
-				id="in-place-audit"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: The Agent's Mass Edit
-			</h4>
-			<PlaygroundNote>
-				The agent's plan switches the site to https — worth doing, since the <Code code="s" /> is what
-				makes the connection encrypted (<CourseLink to="section-9-1" />) — but its
-				<Code code="sed -i" /> keeps no backup. Read <Code code="agent-plan.txt" />, amend the
-				command to <Code code="-i.bak" />, run it on both config files, then open a
-				<Code code=".bak" /> to admire your safety net.
-			</PlaygroundNote>
+			<h4>Read the diff before deciding the edit is finished</h4>
+			<p>
+				<Code code="diff" /> compares two files. In its normal output, lines beginning <Code
+					code="&lt;"
+				/> came from the first file, and lines beginning <Code code="&gt;" /> came from the second. On
+				a real terminal, <Code code="diff -u" /> gives a common format with surrounding context.
+			</p>
+			<p>
+				No differences normally means no output and status 0. Status 1 means differences were found;
+				that is not itself a broken comparison. A higher status indicates trouble comparing. This is
+				a useful example of why an exit status belongs to the command’s own rules.
+			</p>
+			<p>
+				If you want to restore the original, inspect the backup, then deliberately copy it back with <Code
+					code="cp config.yml.bak config.yml"
+				/>. This replaces the edited version. Keep a separate copy of either version if you may need
+				both later.
+			</p>
+			<p>
+				The joined backup form <Code code="-i.bak" /> works with the common GNU and BSD sed versions used
+				in this course. Bare <Code code="-i" /> behaves differently: GNU sed permits it without a backup,
+				while BSD sed expects a following backup suffix, which may be an empty string. macOS does not
+				force you to keep a backup.
+			</p>
+			<p>
+				If a file contains a secret, a .bak copy may still contain that secret. Removing it from the
+				edited file does not remove every copy. Review what the backup actually holds before sharing
+				the folder.
+			</p>
+			<h4 id="in-place-audit">Try it: review a proposed edit</h4>
+			<p>
+				The activity proposes replacing http: with https: in two configuration files. Read them,
+				preview the result, and keep their originals using the requested backup suffix. A text
+				change alone does not configure encryption on a server or prove that the new address works;
+				this exercise checks the edit itself.
+			</p>
 			<LessonActivity
 				title="The Agent's Mass Edit"
 				scenarioId="in-place-audit"
@@ -335,103 +248,182 @@ mv config.yml.bak config.yml     # instant rollback if it went wrong`}
 			/>
 		</div>
 
-		<!-- 7.4 Columns & awk -->
-		<div id="section-7-4" class="mb-8">
-			<SectionHeader
-				level="section"
-				icon={Columns3}
-				title="7.4 Columns &amp; `awk` — Pull the Field You Need"
-				color="var(--color-primary)"
-			/>
-
-			<p class="mb-4 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				A lot of terminal output is secretly a table: log lines, CSV exports, process listings.
-				<Code code="awk" /> splits every line into numbered
-				<strong style="color: var(--color-text);">fields</strong>
-				and prints the ones you name — <Code code="$1" /> is the first column, <Code code="$2" /> the
-				second, <Code code="$0" /> the whole line:
-			</p>
-
-			<div class="my-6">
-				<ExpandableImage
-					src="{base}/images/columns-awk.webp"
-					alt="awk print-field-two — a loom pulling the second column of threads out of a glowing table"
-					caption="Tables are just text — awk pulls the column you ask for"
-				/>
-			</div>
-
+		<div id="section-7-4" class="lesson-section">
+			<SectionHeader level="section" icon={Columns3} title="7.4 Choose Fields with awk" />
+			<p>A plain text table might separate its values with spaces. For example:</p>
 			<CodeBlock
-				title="Fields, separators, guards"
-				code={`awk '{print $2}' table.txt          # second column (splits on spaces)
-awk -F, '{print $1, $3}' data.csv    # -F, = split on commas; comma joins with a space
-awk '/error/ {print $1}' app.log     # /pattern/ runs the action on matching lines only`}
+				lang="text"
+				code={'basil   3   sunny\nmint    5   shade\nthyme   2   sunny'}
+				title="Example plants.txt · name, quantity, location"
 			/>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				The braces are <Code code="awk" />'s
-				<strong style="color: var(--color-text);">action block</strong>
-				— the work it does on every line that reaches it, with the <Code code="/pattern/" /> guard outside
-				and in front. The <Code code="$1" /> inside belongs to <Code code="awk" />, not the shell:
-				it has nothing to do with the numbered script arguments in <CourseLink to="section-6-1" />,
-				and that collision is why every <Code code="awk" /> program here sits in single quotes. Swap them
-				for double quotes and the shell empties
-				<Code code="$1" /> before <Code code="awk" /> ever sees it: <Code code={`{print $1}`} /> arrives
-				as
-				<Code code={`{print }`} />, which <Code code="awk" /> reads as "print the whole line" and obeys
-				without complaint — the wrong answer, delivered confidently. Ask for two columns and it's a syntax
-				error instead. Neither one mentions quotes.
+			<p>
+				awk normally separates each line into fields at runs of whitespace. <Code code="$1" /> is the
+				first field, <Code code="$2" /> the second, and <Code code="$0" /> the whole line.
 			</p>
-
-			<p class="mt-4 mb-3 text-[14px]" style="color: var(--color-text-secondary);">
-				You already know <Code code="cut" /> from <CourseLink to="part-4" /> — so which one? Honest answer:
-				<Code code="cut" /> when a single character separates every field — a comma in a CSV, a colon
-				or a tab elsewhere — and <Code code="awk" /> when the spacing is <em>ragged</em>.
-				<Code code="awk" />'s default split treats any run of spaces as one separator, which is
-				exactly what column-aligned output needs — <Code code="cut" /> would see every space as its own
-				empty field and hand you garbage. When you meet process listings in <CourseLink
-					to="section-8-1"
-				/>,
-				<Code code="awk" /> is the tool that reads them.
-			</p>
-
-			<Callout type="tip">
-				Real <Code code="awk" /> is an entire programming language — <Code code="BEGIN" /> blocks, variables,
-				<Code code="printf" />. What you've just learned is the
-				<strong>field-printing dialect</strong>, and it covers the vast majority of <Code
-					code="awk"
-				/> you'll ever see an agent propose. When one shows up wearing more syntax than this, that's not
-				a reading failure — that's your cue to ask the agent to explain it line by line.
-			</Callout>
-
-			<VibeBox
-				prompts={[
-					'This CSV has columns name,email,plan — give me just the emails, using awk and using cut, and tell me when each tool is the better pick',
-					"Explain this command an agent suggested: awk '/FAIL/ {print $3}' test-output.log"
-				]}
+			<CommandTranscript command={"awk '{print $1}' plants.txt"} output={'basil\nmint\nthyme'} />
+			<CommandTranscript
+				command={"awk '{print $1, $3}' plants.txt"}
+				output={'basil sunny\nmint shade\nthyme sunny'}
 			/>
-			<h4
-				id="column-pull"
-				class="mt-8 mb-3 scroll-mt-20 text-lg font-semibold"
-				style="color: var(--color-text);"
-			>
-				Try It: Pull the Column
-			</h4>
-			<PlaygroundNote>
-				<Code code="signups.csv" /> has three columns; the launch email needs one. Pull the email column
-				with <Code code="awk -F," /> or <Code code="cut -d," /> — your choice — and save it as <Code
-					code="emails.txt"
-				/>.
-			</PlaygroundNote>
+			<p>
+				The braces contain an action. <Code code="print" /> prints the fields you name; the comma between
+				fields inserts an output separator, a space by default. The shell’s single quotes keep the awk
+				program intact.
+			</p>
+			<ExpandableImage
+				src="{base}/images/columns-awk.webp"
+				alt="A text table divided into numbered fields and selected output columns."
+				caption="First inspect the table’s separators; then choose the fields."
+			/>
+			<p>
+				The <Code code="$1" /> here belongs to <strong>awk</strong>, not to the shell script
+				argument from Part 6. Double-quoting this program can let the shell replace $1 before awk
+				sees it. Keep these awk programs in single quotes.
+			</p>
+			<h4>Select rows as well as fields</h4>
+			<CommandTranscript command={"awk '/sunny/ {print $1}' plants.txt"} output={'basil\nthyme'} />
+			<p>
+				The pattern before the braces selects matching lines; the action only runs for those lines.
+				This pattern matches sunny anywhere on the line. It is not yet a condition saying “the third
+				field is exactly sunny.”
+			</p>
+			<h4>Choose a different separator</h4>
+			<p>
+				<Code code="-F," /> tells awk to split fields at commas. That is useful for a deliberately simple
+				table with no quoted commas or embedded newlines:
+			</p>
+			<CodeBlock
+				code={"awk -F, '{print $2}' signups.csv\ncut -d, -f2 signups.csv"}
+				title="Two ways to select field two from a simple unquoted comma table"
+			/>
+			<p>
+				These agree for the practice file. They do <strong>not</strong> implement general CSV
+				parsing. A value such as <Code code="&quot;Lovelace, Ada&quot;" /> contains a comma inside one
+				quoted field; a plain split treats it as two. Use a CSV-aware tool or library for such data instead
+				of adding guesses to this pipeline.
+			</p>
+			<p>
+				For aligned text with varying numbers of spaces, awk’s default whitespace splitting is often
+				convenient. cut is useful when a specific single character is truly the separator. Inspect
+				the actual input before choosing.
+			</p>
+			<details>
+				<summary>Real awk: add up a numeric field</summary>
+				<div class="detail-content">
+					<CodeBlock
+						code={"awk '{total += $2} END {print total}' plants.txt"}
+						title="Real terminal · the quantities above total 10"
+					/>
+					<p>
+						This adds field two into a variable named total for every line. The END action runs once
+						after the input ends and prints the total. It assumes field two contains valid numbers
+						and there is no header row. The sandbox’s awk models basic field printing and pattern
+						filters, not the full awk language.
+					</p>
+				</div>
+			</details>
+			<h4 id="column-pull">Try it: extract the email field</h4>
+			<p>
+				Read signups.csv, choose the separator, and save its second field as emails.txt. This
+				practice includes the header name email in the output; a real mailing workflow would handle
+				the header and validate addresses separately. No messages are sent.
+			</p>
 			<LessonActivity title="Pull the Column" scenarioId="column-pull" id="column-pull" />
-
-			<p class="mt-10 text-[14.5px] leading-relaxed" style="color: var(--color-text-secondary);">
-				Your text toolbox is complete: <Code code="grep" /> finds, <Code code="sed" /> changes,
-				<Code code="awk" /> extracts — and pipes chain them into anything. Every one of them previews
-				to the screen before it touches a file, which means every one of them rewards the habit this course
-				keeps drilling: <strong style="color: var(--color-text);">read first, run second</strong>.
+			<ChallengeActivity title="Promote the Stack" part={7} id="ch-7-promote-the-stack" />
+			<p class="next-lesson">
+				You can now search a file, preview a transformation, save a separate result, and inspect a
+				deliberate edit. When a command gets harder to read, slow it down into those same steps.
 			</p>
 		</div>
-
-		<ChallengeActivity title="Promote the Stack" part={7} id="ch-7-promote-the-stack" />
 	</div>
 </section>
+
+<style>
+	.chapter p {
+		max-width: 76ch;
+		color: var(--color-text-secondary);
+		font-size: 0.94rem;
+		line-height: 1.8;
+		margin: 0 0 1rem;
+	}
+	.chapter .lead {
+		color: var(--color-text);
+		font-size: 1.06rem;
+	}
+	.lesson-section {
+		margin-top: 3rem;
+		scroll-margin-top: 90px;
+	}
+	h4 {
+		color: var(--color-text);
+		font-size: 1.06rem;
+		font-weight: 650;
+		line-height: 1.5;
+		margin: 1.7rem 0 0.7rem;
+		scroll-margin-top: 90px;
+	}
+	details {
+		border-top: 1px solid var(--color-border);
+		margin: 1.1rem 0;
+	}
+	summary {
+		padding: 0.9rem 0;
+		cursor: pointer;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.detail-content {
+		padding: 0.2rem 0.3rem 0.7rem;
+	}
+	.table-scroll {
+		overflow-x: auto;
+		margin: 1.2rem 0;
+	}
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.84rem;
+		line-height: 1.65;
+		color: var(--color-text-secondary);
+	}
+	th {
+		color: var(--color-text);
+		text-align: left;
+		font-weight: 650;
+	}
+	th,
+	td {
+		padding: 0.7rem 0.65rem;
+		border-bottom: 1px solid var(--color-border);
+		vertical-align: top;
+	}
+	.steps {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8rem;
+		margin: 1.5rem 0;
+	}
+	.steps span {
+		flex: 1;
+		padding: 0.9rem;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 0.6rem;
+		color: var(--color-text);
+	}
+	.steps code {
+		font: 1rem var(--font-mono);
+	}
+	.steps small {
+		display: block;
+		margin-top: 0.4rem;
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+	}
+	.next-lesson {
+		padding: 1.1rem;
+		border-radius: 0.7rem;
+		background: var(--color-bg-secondary);
+	}
+</style>

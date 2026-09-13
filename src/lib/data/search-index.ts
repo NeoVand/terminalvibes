@@ -26,6 +26,17 @@ function resolveSectionId(command: string, category: string): string {
 
 	// Panic-row keys and history tricks first — they contain words that would
 	// otherwise match broader rules below.
+	if (
+		/^(?:ctrl|alt|esc|shift)[+ ]/.test(first) ||
+		first === 'tab' ||
+		first === '↑' ||
+		first === '↓'
+	)
+		return 'keyboard-workshop';
+	if (['rg', 'fd', 'fdfind', 'fzf', 'z', 'zoxide', 'bat', 'batcat'].includes(first))
+		return 'section-10-1';
+	if (first === 'tmux') return 'section-12-4';
+	if (first === 'shellcheck') return 'section-13-2';
 	if (cmd.includes('!!') || first === 'history') return 'section-12-2';
 	if (first === 'ctrl+c' || first === 'ctrl+d' || first === 'ctrl+l' || first === 'reset')
 		return 'section-1-2';
@@ -102,7 +113,7 @@ function resolveSectionId(command: string, category: string): string {
 		return 'section-1-2';
 	if (first === 'open' || cmd.includes('xdg-open') || cmd.includes('explorer.exe'))
 		return 'section-2-4';
-	if (first === 'nano') return 'section-2-5';
+	if (first === 'nano') return 'edit-notes';
 
 	if (first === 'ps' || first === 'pgrep' || first === 'top' || first === 'htop')
 		return 'section-8-1';
@@ -152,11 +163,16 @@ function buildCommandEntries(): SearchEntry[] {
 
 	for (const category of cheatSheet) {
 		for (const cmd of category.commands) {
-			const sectionId = resolveSectionId(cmd.command, category.label);
+			const sectionId =
+				cmd.kind === 'shortcut'
+					? 'keyboard-workshop'
+					: (cmd.lessonId ?? resolveSectionId(cmd.command, category.label));
 			const baseCommand = cmd.command.split('<')[0].trim();
 
 			entries.push({
-				id: `${sectionId}-${slugify(cmd.command)}-${slugify(cmd.description)}`,
+				id: cmd.id
+					? `reference-${cmd.id}`
+					: `${sectionId}-${slugify(cmd.command)}-${slugify(cmd.description)}`,
 				sectionId,
 				command: cmd.command,
 				title: baseCommand || cmd.command,
@@ -166,6 +182,7 @@ function buildCommandEntries(): SearchEntry[] {
 					baseCommand,
 					cmd.command,
 					cmd.description,
+					...(cmd.keywords ?? []),
 					category.label.toLowerCase(),
 					...baseCommand.replace(/"/g, '').split(/\s+/)
 				],
@@ -179,110 +196,142 @@ function buildCommandEntries(): SearchEntry[] {
 
 /** Concept / section / playground searches that are not a single cheat-sheet row */
 const topicEntries: SearchEntry[] = [
-	// ───── Introduction ─────
 	{
 		id: 'topic-hero',
 		sectionId: 'hero',
 		title: 'TerminalVibes — start here',
 		part: 'Introduction',
-		description: 'The Terminal for Vibe Coders — start the course from the top.',
-		keywords: ['start', 'home', 'beginning', 'intro', 'top', 'course', 'terminalvibes'],
+		description: 'Make the terminal print a message, then change it yourself.',
+		keywords: [
+			'start',
+			'home',
+			'beginning',
+			'intro',
+			'top',
+			'course',
+			'terminalvibes',
+			'hello world'
+		],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-what-is-terminal',
+		id: 'topic-hello-first-command',
+		sectionId: 'hello-first-command',
+		title: 'Your first command',
+		part: 'Start here',
+		description: 'Type a greeting, run it, read the reply, and change the message.',
+		keywords: ['hello world', 'first command', 'echo', 'start typing', 'try terminal'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-keyboard-workshop',
+		sectionId: 'keyboard-workshop',
+		title: 'Fix a line. Keep your flow.',
+		part: 'Start here',
+		description:
+			'Practise cursor movement, word replacement, cut and restore, and cancelling a draft.',
+		keywords: [
+			'keyboard shortcuts',
+			'delete whole line',
+			'delete entire line',
+			'clear line',
+			'beginning of line',
+			'end of line',
+			'jump',
+			'replace a word',
+			'ctrl a',
+			'ctrl e',
+			'ctrl u',
+			'ctrl w',
+			'ctrl k',
+			'ctrl y',
+			'ctrl c',
+			'control key'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-edit-notes',
+		sectionId: 'edit-notes',
+		title: 'Edit and save a note',
+		part: 'Start here',
+		description: 'Open a file in the practice editor, save it, then read it from the terminal.',
+		keywords: ['edit notes', 'edit a file', 'save file', 'text editor', 'nano', 'write notes'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-intro-what',
 		sectionId: 'section-intro-what',
-		title: 'What Is the Terminal?',
-		part: 'Introduction',
-		description: 'Terminal vs shell vs console — and why AI coding makes it more relevant.',
+		title: 'What are the terminal and the shell?',
+		part: 'Start here',
+		description: 'Connect your first command to the terminal window, shell, and text reply.',
+		keywords: ['terminal', 'shell', 'console', 'cli', 'command line', 'what is bash'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-intro-anatomy',
+		sectionId: 'section-intro-anatomy',
+		title: 'What is a prompt? Which text do I type?',
+		part: 'Start here',
+		description: 'Distinguish the prompt, the command you type, and the text printed in reply.',
 		keywords: [
-			'terminal',
-			'shell',
-			'console',
-			'command line',
-			'cli',
-			'what is bash',
-			'what is the terminal',
-			'terminal vs shell',
-			'why terminal',
-			'text interface',
-			'terminal-bench',
-			'tbench',
-			'ai agent benchmark'
+			'prompt',
+			'anatomy',
+			'which text do I type',
+			'dollar sign',
+			'user@host',
+			'input',
+			'output',
+			'command vs reply'
 		],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-history',
-		sectionId: 'section-intro-history',
-		title: 'A Brief History of the Terminal',
-		part: 'Introduction',
-		description: 'Unix 1969, Thompson & Ritchie, the Bourne shell, bash, and zsh.',
-		keywords: [
-			'history',
-			'unix',
-			'1969',
-			'ken thompson',
-			'dennis ritchie',
-			'bell labs',
-			'bourne shell',
-			'bash history',
-			'zsh',
-			'who created unix'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-your-machine',
+		id: 'topic-section-intro-shells',
 		sectionId: 'section-intro-shells',
-		title: "Your Machine's Terminal",
-		part: 'Introduction',
-		description: 'macOS Terminal & zsh, Linux distros, and Windows via WSL or Git Bash.',
+		title: 'Can I use the terminal on my own computer?',
+		part: 'Start here',
+		description: 'Choose a terminal and shell for macOS, Linux, or Windows.',
 		keywords: [
 			'macos',
-			'terminal.app',
-			'iterm',
-			'iterm2',
 			'linux',
-			'ubuntu',
 			'windows',
 			'wsl',
 			'git bash',
-			'windows terminal',
 			'powershell',
-			'cmd',
-			'which shell am i using',
-			'zsh vs bash'
+			'terminal app',
+			'which shell'
 		],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-prompt-anatomy',
-		sectionId: 'section-intro-anatomy',
-		title: 'Anatomy of a Prompt',
-		part: 'Introduction',
-		description: '`user@host:~/projects$` decoded — the cursor, Enter, and the up arrow.',
-		keywords: [
-			'prompt',
-			'dollar sign',
-			'$',
-			'user@host',
-			'tilde',
-			'cursor',
-			'where do i type',
-			'blinking',
-			'anatomy'
-		],
+		id: 'topic-section-intro-history',
+		sectionId: 'section-intro-history',
+		title: 'Why do people still type commands?',
+		part: 'Start here',
+		description: 'An optional look at the terminal’s roots after your first practice.',
+		keywords: ['terminal history', 'unix', 'teleprinter', 'bell labs', 'bash', 'zsh'],
 		kind: 'topic'
 	},
-	// ───── Part 1: First Contact ─────
 	{
-		id: 'topic-opening-terminal',
+		id: 'topic-part-1',
+		sectionId: 'part-1',
+		title: 'First Contact',
+		part: 'Part 1',
+		description:
+			'Open the terminal appropriate to your operating system after trying the browser practice.',
+		keywords: ['First Contact', 'part 1', 'chapter 1'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-1-1',
 		sectionId: 'section-1-1',
-		title: 'Opening Your Terminal',
-		part: 'First Contact',
-		description: 'Launch the terminal on macOS, Linux, or Windows — it is just an app.',
+		title: '1.1 Opening Your Terminal',
+		part: 'Part 1',
+		description:
+			'Open the terminal appropriate to your operating system after trying the browser practice.',
 		keywords: [
+			'1.1 Opening Your Terminal',
 			'open terminal',
 			'launch terminal',
 			'start terminal',
@@ -295,12 +344,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-first-commands',
+		id: 'topic-section-1-2',
 		sectionId: 'section-1-2',
-		title: 'Your First Commands',
-		part: 'First Contact',
-		description: '`whoami`, `echo`, `date`, `clear` — nothing here can break anything.',
+		title: '1.2 Your First Commands',
+		part: 'Part 1',
+		description: 'Run a small command, read its reply, and recover from an ordinary typo.',
 		keywords: [
+			'1.2 Your First Commands',
 			'first command',
 			'whoami',
 			'echo',
@@ -314,12 +364,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-getting-help',
+		id: 'topic-section-1-3',
 		sectionId: 'section-1-3',
-		title: 'Getting Help',
-		part: 'First Contact',
-		description: 'What a flag is, `--help`, `man` pages, `tldr` — and `q` to escape the pager.',
+		title: '1.3 Getting Help',
+		part: 'Part 1',
+		description: 'Ask for command help, read a manual, and leave a pager when finished.',
 		keywords: [
+			'1.3 Getting Help',
 			'help',
 			'man page',
 			'manual',
@@ -345,14 +396,23 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 2: Moving Around ─────
 	{
-		id: 'topic-where-am-i',
+		id: 'topic-part-2',
+		sectionId: 'part-2',
+		title: 'Moving Around: Find Your Files',
+		part: 'Part 2',
+		description: 'Use pwd and ls to identify your current folder and inspect its contents.',
+		keywords: ['Moving Around: Find Your Files', 'part 2', 'chapter 2'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-2-1',
 		sectionId: 'section-2-1',
-		title: 'Where Am I?',
-		part: 'Moving Around',
-		description: '`pwd` and `ls` — your position and your surroundings, always on tap.',
+		title: '2.1 Where Am I?',
+		part: 'Part 2',
+		description: 'Use pwd and ls to identify your current folder and inspect its contents.',
 		keywords: [
+			'2.1 Where Am I?',
 			'where am i',
 			'pwd',
 			'current directory',
@@ -366,12 +426,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-paths',
+		id: 'topic-section-2-2',
 		sectionId: 'section-2-2',
-		title: 'Paths',
-		part: 'Moving Around',
-		description: 'Absolute vs relative, `/`, `~`, `.` and `..` — plus TAB completion.',
+		title: '2.2 Paths: Addresses for Files',
+		part: 'Part 2',
+		description: 'Read absolute and relative paths, home, parent folders, and names with spaces.',
 		keywords: [
+			'2.2 Paths: Addresses for Files',
 			'path',
 			'absolute path',
 			'relative path',
@@ -398,12 +459,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-changing-directories',
+		id: 'topic-section-2-3',
 		sectionId: 'section-2-3',
-		title: 'Changing Directories',
-		part: 'Moving Around',
-		description: '`cd`, `cd ..`, `cd ~`, and `cd -` — moving through the filesystem.',
+		title: '2.3 Changing Directories',
+		part: 'Part 2',
+		description: 'Move between folders, verify your location, and return after a wrong turn.',
 		keywords: [
+			'2.3 Changing Directories',
 			'cd',
 			'change directory',
 			'go back',
@@ -416,12 +478,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-making-things',
+		id: 'topic-section-2-4',
 		sectionId: 'section-2-4',
-		title: 'Making Things',
-		part: 'Moving Around',
-		description: '`mkdir`, `mkdir -p`, and `touch` — creating folders and files.',
+		title: '2.4 Make a Place for Your Notes',
+		part: 'Part 2',
+		description: 'Create a practice folder and a file without losing track of where they live.',
 		keywords: [
+			'2.4 Make a Place for Your Notes',
 			'mkdir',
 			'touch',
 			'create folder',
@@ -435,12 +498,21 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-looking-inside',
+		id: 'topic-section-2-5',
 		sectionId: 'section-2-5',
-		title: 'Looking Inside Files',
-		part: 'Moving Around',
-		description: '`cat`, `less`, `head`, `tail` — reading files without opening an editor.',
+		title: '2.5 Read, Edit, and Save a File',
+		part: 'Part 2',
+		description: 'Read a saved file, edit it, save changes, and compare the next command’s output.',
 		keywords: [
+			'2.5 Read, Edit, and Save a File',
+			'edit',
+			'save',
+			'editor',
+			'nano',
+			'vim',
+			'quit vim',
+			'exit editor',
+			'edit a file',
 			'cat',
 			'less',
 			'head',
@@ -466,14 +538,23 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 3: Copy, Move, Delete ─────
 	{
-		id: 'topic-copying',
+		id: 'topic-part-3',
+		sectionId: 'part-3',
+		title: 'Copy, Move, and Delete with Confidence',
+		part: 'Part 3',
+		description: 'Copy a file while keeping its original and checking the destination.',
+		keywords: ['Copy, Move, and Delete with Confidence', 'part 3', 'chapter 3'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-3-1',
 		sectionId: 'section-3-1',
-		title: 'Copying',
-		part: 'Copy, Move, Delete',
-		description: '`cp` and `cp -r` — duplicating files and whole folders.',
+		title: '3.1 Copying: Keep the Original',
+		part: 'Part 3',
+		description: 'Copy a file while keeping its original and checking the destination.',
 		keywords: [
+			'3.1 Copying: Keep the Original',
 			'cp',
 			'copy',
 			'copy file',
@@ -485,21 +566,37 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-moving-renaming',
+		id: 'topic-section-3-2',
 		sectionId: 'section-3-2',
-		title: 'Moving & Renaming',
-		part: 'Copy, Move, Delete',
-		description: '`mv` does both — and silently overwrites unless you ask it not to.',
-		keywords: ['mv', 'move', 'rename', 'rename file', 'move file', 'overwrite', 'mv -i'],
+		title: '3.2 Moving and Renaming',
+		part: 'Part 3',
+		description: 'Move or rename a file, inspect the result, and watch for existing destinations.',
+		keywords: [
+			'3.2 Moving and Renaming',
+			'mv',
+			'move',
+			'rename',
+			'rename file',
+			'move file',
+			'overwrite',
+			'mv -i'
+		],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-deleting',
+		id: 'topic-section-3-3',
 		sectionId: 'section-3-3',
-		title: 'Deleting (Carefully)',
-		part: 'Copy, Move, Delete',
-		description: '`rm` has NO trash can — the safety lesson, including `rm -rf`.',
+		title: '3.3 Deleting: Choose the Exact Target',
+		part: 'Part 3',
+		description:
+			'Inspect the exact target before deleting and understand available recovery routes.',
 		keywords: [
+			'3.3 Deleting: Choose the Exact Target',
+			'deleted file',
+			'undo delete',
+			'recovery',
+			'trash',
+			'restore',
 			'rm',
 			'delete',
 			'remove',
@@ -518,12 +615,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-wildcards',
+		id: 'topic-section-3-4',
 		sectionId: 'section-3-4',
-		title: 'Wildcards',
-		part: 'Copy, Move, Delete',
-		description: '`*`, `?` and `[abc]` globs — and the "`echo` the glob first" habit.',
+		title: '3.4 Wildcards: Select a Group of Names',
+		part: 'Part 3',
+		description: 'Predict which filenames match a wildcard before applying an operation.',
 		keywords: [
+			'3.4 Wildcards: Select a Group of Names',
 			'wildcard',
 			'glob',
 			'asterisk',
@@ -544,14 +642,23 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 4: Text & Pipes ─────
 	{
-		id: 'topic-redirection',
+		id: 'topic-part-4',
+		sectionId: 'part-4',
+		title: 'Text and Pipes: Turn a List into an Answer',
+		part: 'Part 4',
+		description: 'Send output to a file and distinguish replacement, append, and error output.',
+		keywords: ['Text and Pipes: Turn a List into an Answer', 'part 4', 'chapter 4'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-4-1',
 		sectionId: 'section-4-1',
-		title: 'Redirection',
-		part: 'Text & Pipes',
-		description: '`>`, `>>`, `2>` and `<` — sending output to files (and `>` truncates!).',
+		title: '4.1 Save a Command’s Output',
+		part: 'Part 4',
+		description: 'Send output to a file and distinguish replacement, append, and error output.',
 		keywords: [
+			'4.1 Save a Command’s Output',
 			'redirect',
 			'redirection',
 			'output to file',
@@ -574,12 +681,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-pipes',
+		id: 'topic-section-4-2',
 		sectionId: 'section-4-2',
-		title: 'Pipes',
-		part: 'Text & Pipes',
-		description: 'The `|` operator — small tools composed into big answers.',
+		title: '4.2 Pipes: Give the Text to Another Tool',
+		part: 'Part 4',
+		description: 'Build a pipeline one stage at a time and inspect the text between tools.',
 		keywords: [
+			'4.2 Pipes: Give the Text to Another Tool',
 			'pipe',
 			'pipes',
 			'|',
@@ -592,12 +700,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-grep',
+		id: 'topic-section-4-3',
 		sectionId: 'section-4-3',
-		title: 'Searching Text with grep',
-		part: 'Text & Pipes',
-		description: '`grep -i -n -r -v -c` — find lines in logs and code.',
+		title: '4.3 Search Inside Files with grep',
+		part: 'Part 4',
+		description: 'Search file contents with grep and read line numbers and matching text.',
 		keywords: [
+			'4.3 Search Inside Files with grep',
 			'grep',
 			'search text',
 			'find text',
@@ -619,12 +728,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-counting-shaping',
+		id: 'topic-section-4-4',
 		sectionId: 'section-4-4',
-		title: 'Counting & Shaping',
-		part: 'Text & Pipes',
-		description: '`wc`, `sort`, `uniq`, `cut` — and the `sort | uniq -c | sort -rn` recipe.',
+		title: '4.4 Count, Group, and Rank',
+		part: 'Part 4',
+		description: 'Count lines and group or sort results to answer a concrete question.',
 		keywords: [
+			'4.4 Count, Group, and Rank',
 			'wc',
 			'sort',
 			'uniq',
@@ -640,12 +750,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-finding-files',
+		id: 'topic-section-4-5',
 		sectionId: 'section-4-5',
-		title: 'Finding Files',
-		part: 'Text & Pipes',
-		description: '`find . -name -type` — search file names; `grep` searches contents.',
+		title: '4.5 Find Files by Name',
+		part: 'Part 4',
+		description: 'Search filenames with find and choose a starting folder and name pattern.',
 		keywords: [
+			'4.5 Find Files by Name',
 			'find',
 			'find files',
 			'locate file',
@@ -657,14 +768,23 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 5: Permissions & Config ─────
 	{
-		id: 'topic-ls-l',
+		id: 'topic-part-5',
+		sectionId: 'part-5',
+		title: 'Permissions and Settings: Understand the Refusal',
+		part: 'Part 5',
+		description: 'Read owner, group, and permission bits in a file listing.',
+		keywords: ['Permissions and Settings: Understand the Refusal', 'part 5', 'chapter 5'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-5-1',
 		sectionId: 'section-5-1',
-		title: 'Reading ls -l',
-		part: 'Permissions & Config',
-		description: 'The 10-character permission string decoded: rwx for user, group, other.',
+		title: '5.1 Read a File’s Permissions',
+		part: 'Part 5',
+		description: 'Read owner, group, and permission bits in a file listing.',
 		keywords: [
+			'5.1 Read a File’s Permissions',
 			'ls -l',
 			'permissions',
 			'rwx',
@@ -686,12 +806,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-chmod',
+		id: 'topic-section-5-2',
 		sectionId: 'section-5-2',
-		title: 'chmod',
-		part: 'Permissions & Config',
-		description: '`chmod +x` to run a script; `755` and `644` as recipes.',
+		title: '5.2 Change Only the Permission You Need',
+		part: 'Part 5',
+		description: 'Choose a limited permission change and verify it instead of granting everything.',
 		keywords: [
+			'5.2 Change Only the Permission You Need',
 			'chmod',
 			'permission denied',
 			'make executable',
@@ -706,12 +827,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-sudo',
+		id: 'topic-section-5-3',
 		sectionId: 'section-5-3',
-		title: 'sudo',
-		part: 'Permissions & Config',
-		description: 'Run as administrator — with respect, and never blindly.',
+		title: '5.3 sudo: Run One Command with More Authority',
+		part: 'Part 5',
+		description: 'Understand why a command may need additional authority before using sudo.',
 		keywords: [
+			'5.3 sudo: Run One Command with More Authority',
 			'sudo',
 			'root',
 			'admin',
@@ -728,12 +850,19 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-env-vars',
+		id: 'topic-section-5-4',
 		sectionId: 'section-5-4',
-		title: 'Environment Variables',
-		part: 'Permissions & Config',
-		description: '`$HOME`, `export`, `PATH` — and `command not found` demystified.',
+		title: '5.4 Variables and the Places Commands Are Found',
+		part: 'Part 5',
+		description: 'Inspect variables and command lookup to diagnose missing commands.',
 		keywords: [
+			'5.4 Variables and the Places Commands Are Found',
+			'command not found',
+			'not recognized',
+			'path',
+			'command -v',
+			'missing command',
+			'which shell',
 			'environment variable',
 			'env var',
 			'$home',
@@ -749,12 +878,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-shell-config',
+		id: 'topic-section-5-5',
 		sectionId: 'section-5-5',
-		title: 'Your Shell Config',
-		part: 'Permissions & Config',
-		description: '`.bashrc` / `.zshrc`, `alias`, and `source` — make the shell your own.',
+		title: '5.5 Keep a Useful Setting',
+		part: 'Part 5',
+		description: 'Save a useful shell setting and test configuration changes carefully.',
 		keywords: [
+			'5.5 Keep a Useful Setting',
 			'bashrc',
 			'zshrc',
 			'shell config',
@@ -776,127 +906,23 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 11: Terminal for the AI Era (kept here; array order does not affect ranking) ─────
 	{
-		id: 'topic-read-before-run',
-		sectionId: 'section-11-1',
-		title: 'Read Before You Run',
-		part: 'Terminal for the AI Era',
-		description: 'Audit AI-suggested commands: identify the command, flags, and targets first.',
-		keywords: [
-			'ai command',
-			'audit',
-			'is this command safe',
-			'scary command',
-			'checksum',
-			'sha256',
-			'shasum',
-			'verify download',
-			'dangerous command',
-			'dry run',
-			'--dry-run',
-			'explainshell',
-			'verify command',
-			'copilot suggested',
-			'agent wants to run',
-			'curl | bash'
-		],
+		id: 'topic-part-6',
+		sectionId: 'part-6',
+		title: 'Scripts: Save a Routine You Understand',
+		part: 'Part 6',
+		description: 'Write a script in the file editor, save it, inspect it, and run it.',
+		keywords: ['Scripts: Save a Routine You Understand', 'part 6', 'chapter 6'],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-prompt-injection',
-		sectionId: 'section-11-1',
-		title: 'Prompt injection',
-		part: 'Terminal for the AI Era',
-		description:
-			'Text an agent reads can steer the commands it proposes — audit even commands you never asked for.',
-		keywords: [
-			'prompt injection',
-			'indirect prompt injection',
-			'injection',
-			'tricked agent',
-			'malicious readme',
-			'poisoned instructions',
-			'agent was tricked',
-			'commands the agent was tricked into'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-permission-prompt',
-		sectionId: 'section-11-1',
-		title: 'The agent permission prompt',
-		part: 'Terminal for the AI Era',
-		description:
-			'"Allow this command?" is the modern read-before-you-run — what to do in the seconds it is on screen.',
-		keywords: [
-			'permission prompt',
-			'allow this command',
-			'approve command',
-			'should i approve',
-			'should i allow',
-			'agent asks permission',
-			'yolo approve',
-			'auto approve',
-			'sandboxing',
-			'sandbox'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-coding-agents-cli',
-		sectionId: 'section-11-1',
-		title: 'Terminal coding agents (Claude Code, Codex CLI)',
-		part: 'Terminal for the AI Era',
-		description:
-			'Claude Code, Codex CLI and friends live in the terminal — install them, then audit what they propose.',
-		keywords: [
-			'claude code',
-			'codex cli',
-			'codex',
-			'install claude code',
-			'coding agent',
-			'terminal agent',
-			'cli agent',
-			'goose',
-			'amp',
-			'agent cli'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-curl-bash',
-		sectionId: 'section-11-1',
-		title: 'curl | bash — run code straight off the internet',
-		part: 'Terminal for the AI Era',
-		description:
-			'Now an official install method for trusted vendors — the rule is about the source, and the two-step version always exists.',
-		keywords: [
-			'curl | bash',
-			'curl bash',
-			'curl pipe bash',
-			'pipe to shell',
-			'install script',
-			'install.sh',
-			'one-line install',
-			'is curl bash safe',
-			'-fsSL',
-			'curl flags',
-			'follow redirects',
-			'remote code execution',
-			'sandbox',
-			'seatbelt',
-			'bubblewrap'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-first-script',
+		id: 'topic-section-6-1',
 		sectionId: 'section-6-1',
-		title: 'Your First Script',
-		part: 'Scripts & Automation',
-		description: 'Shebang, `chmod +x`, `./` — scripts are saved commands.',
+		title: '6.1 Your First Script',
+		part: 'Part 6',
+		description: 'Write a script in the file editor, save it, inspect it, and run it.',
 		keywords: [
+			'6.1 Your First Script',
 			'script',
 			'bash script',
 			'shell script',
@@ -920,12 +946,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-exit-codes',
+		id: 'topic-section-6-2',
 		sectionId: 'section-6-2',
-		title: 'Exit Codes & Chaining',
-		part: 'Scripts & Automation',
-		description: '`$?`, `&&` and `||` — 0 means success, and chains make decisions.',
+		title: '6.2 Know Whether the Work Succeeded',
+		part: 'Part 6',
+		description: 'Use exit status and command chaining to decide what should happen next.',
 		keywords: [
+			'6.2 Know Whether the Work Succeeded',
 			'exit code',
 			'$?',
 			'&&',
@@ -939,14 +966,23 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 7: Text Surgery ─────
 	{
-		id: 'topic-sed-substitute',
+		id: 'topic-part-7',
+		sectionId: 'part-7',
+		title: 'Text Surgery: Change a Word, Keep the Original',
+		part: 'Part 7',
+		description: 'Preview a text replacement with sed while preserving the input.',
+		keywords: ['Text Surgery: Change a Word, Keep the Original', 'part 7', 'chapter 7'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-7-1',
 		sectionId: 'section-7-1',
-		title: 'Find & Replace with sed',
-		part: 'Text Surgery',
-		description: '`s/old/new/g` — substitute text in a stream; the file stays untouched.',
+		title: '7.1 Find and Replace with sed',
+		part: 'Part 7',
+		description: 'Preview a text replacement with sed while preserving the input.',
 		keywords: [
+			'7.1 Find and Replace with sed',
 			'sed',
 			'find and replace',
 			'replace text',
@@ -961,12 +997,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-sed-lines',
+		id: 'topic-section-7-2',
 		sectionId: 'section-7-2',
-		title: 'Delete & Print Lines with `sed`',
-		part: 'Text Surgery',
-		description: 'Addresses pick lines; `d` drops them, `-n` + `p` prints only the selection.',
+		title: '7.2 Choose Which Lines to Keep',
+		part: 'Part 7',
+		description: 'Select, print, or omit lines using a pattern or line range.',
 		keywords: [
+			'7.2 Choose Which Lines to Keep',
 			'sed d',
 			'delete lines',
 			'remove lines',
@@ -981,12 +1018,14 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-sed-in-place',
+		id: 'topic-section-7-3',
 		sectionId: 'section-7-3',
-		title: '`sed -i` and the `.bak` Rule',
-		part: 'Text Surgery',
-		description: '`-i` rewrites the real file — `-i.bak` keeps the original as your undo button.',
+		title: '7.3 Save an Edit and Check the Difference',
+		part: 'Part 7',
+		description:
+			'Review a text transformation and preserve a recovery path before replacing a file.',
 		keywords: [
+			'7.3 Save an Edit and Check the Difference',
 			'sed -i',
 			'in place',
 			'edit file directly',
@@ -1001,12 +1040,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-awk-columns',
+		id: 'topic-section-7-4',
 		sectionId: 'section-7-4',
-		title: 'Columns & awk',
-		part: 'Text Surgery',
-		description: "`awk '{print $2}'` pulls fields out of tables; `-F` sets the separator.",
+		title: '7.4 Choose Fields with awk',
+		part: 'Part 7',
+		description: 'Extract fields from simple text and distinguish columns from real CSV parsing.',
 		keywords: [
+			'7.4 Choose Fields with awk',
 			'awk',
 			'print column',
 			'second column',
@@ -1020,14 +1060,23 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 8: Processes & Ports ─────
 	{
-		id: 'topic-processes',
+		id: 'topic-part-8',
+		sectionId: 'part-8',
+		title: 'Processes & ports: get your prompt back',
+		part: 'Part 8',
+		description: 'Identify a running program by owner, command, and process ID.',
+		keywords: ['Processes & ports: get your prompt back', 'part 8', 'chapter 8'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-8-1',
 		sectionId: 'section-8-1',
-		title: 'Processes & `ps`',
-		part: 'Processes & Ports',
-		description: 'Every running program is a row with a number — read `PID`, `%CPU` and `COMMAND`.',
+		title: '8.1 Meet a running program',
+		part: 'Part 8',
+		description: 'Identify a running program by owner, command, and process ID.',
 		keywords: [
+			'8.1 Meet a running program',
 			'ps',
 			'ps aux',
 			'process',
@@ -1054,13 +1103,20 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-kill',
+		id: 'topic-section-8-2',
 		sectionId: 'section-8-2',
-		title: '`kill` & Signals',
-		part: 'Processes & Ports',
-		description:
-			'`SIGTERM` asks politely; `kill -9` (`SIGKILL`) cannot be refused — and skips cleanup.',
+		title: '8.2 Get your prompt back',
+		part: 'Part 8',
+		description: 'Interrupt a foreground job or request termination of a verified process.',
 		keywords: [
+			'8.2 Get your prompt back',
+			'stuck',
+			'cancel',
+			'interrupt',
+			'stop running command',
+			'ctrl c',
+			'kill',
+			'sigterm',
 			'kill',
 			'kill -9',
 			'sigterm',
@@ -1086,12 +1142,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-ports',
+		id: 'topic-section-8-3',
 		sectionId: 'section-8-3',
-		title: 'Ports & `EADDRINUSE`',
-		part: 'Processes & Ports',
-		description: 'One program per port — `lsof -i :3000` names the squatter so you can kill it.',
+		title: '8.3 Find who is using a port',
+		part: 'Part 8',
+		description: 'Find the listener on a port and resolve a conflict without guessing a PID.',
 		keywords: [
+			'8.3 Find who is using a port',
 			'port',
 			'port 3000',
 			'eaddrinuse',
@@ -1107,13 +1164,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-jobs',
+		id: 'topic-section-8-4',
 		sectionId: 'section-8-4',
-		title: 'Background Jobs',
-		part: 'Processes & Ports',
-		description:
-			'`&` sends a command backstage; `jobs` lists them, `fg` brings one forward, `Ctrl+Z` pauses.',
+		title: '8.4 Give each job a place',
+		part: 'Part 8',
+		description: 'Understand foreground, background, suspended jobs, and which shell tracks them.',
 		keywords: [
+			'8.4 Give each job a place',
 			'background',
 			'&',
 			'jobs',
@@ -1129,14 +1186,28 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 9: Talking to the Network ─────
 	{
-		id: 'topic-localhost',
+		id: 'topic-part-9',
+		sectionId: 'part-9',
+		title: 'Network conversations: ask, inspect, verify',
+		part: 'Part 9',
+		description: 'Read a URL and distinguish a localhost link from the server’s listening address.',
+		keywords: ['Network conversations: ask, inspect, verify', 'part 9', 'chapter 9'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-9-1',
 		sectionId: 'section-9-1',
-		title: '`localhost` & URLs',
-		part: 'Talking to the Network',
-		description: '`localhost` is this machine; the port is which door, the path is which room.',
+		title: '9.1 Know where a request goes',
+		part: 'Part 9',
+		description: 'Read a URL and distinguish a localhost link from the server’s listening address.',
 		keywords: [
+			'9.1 Know where a request goes',
+			'localhost',
+			'loopback',
+			'0.0.0.0',
+			'bind address',
+			'exposed server',
 			'localhost',
 			'127.0.0.1',
 			'url',
@@ -1156,13 +1227,21 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-curl',
+		id: 'topic-section-9-2',
 		sectionId: 'section-9-2',
-		title: 'curl',
-		part: 'Talking to the Network',
+		title: '9.2 Ask, then inspect the answer',
+		part: 'Part 9',
 		description:
-			'Send a request, read the reply — check a server yourself instead of trusting a claim.',
+			'Send a request with curl and distinguish transfer, HTTP, and application failures.',
 		keywords: [
+			'9.2 Ask, then inspect the answer',
+			'curl',
+			'connection refused',
+			'http error',
+			'404',
+			'500',
+			'health check',
+			'request failed',
 			'curl',
 			'http request',
 			'check if server is running',
@@ -1184,13 +1263,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-jq',
+		id: 'topic-section-9-3',
 		sectionId: 'section-9-3',
-		title: 'Reading JSON with jq',
-		part: 'Talking to the Network',
-		description:
-			'`jq .key` walks into a JSON reply; `-r` prints the bare value for the next command.',
+		title: '9.3 Find one value inside JSON',
+		part: 'Part 9',
+		description: 'Inspect JSON, quote a jq filter, and extract the value your task needs.',
 		keywords: [
+			'9.3 Find one value inside JSON',
 			'jq',
 			'json',
 			'parse json',
@@ -1208,13 +1287,19 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-secrets',
+		id: 'topic-section-9-4',
 		sectionId: 'section-9-4',
-		title: 'API Keys & `.env`',
-		part: 'Talking to the Network',
-		description:
-			'Keys live in a locked-down `.env` file — never in a command, where history keeps them.',
+		title: '9.4 Keep credentials out of commands',
+		part: 'Part 9',
+		description: 'Practise with fake credentials and configure real credentials through an editor.',
 		keywords: [
+			'9.4 Keep credentials out of commands',
+			'api key',
+			'secret',
+			'credential',
+			'dotenv',
+			'source env',
+			'source executes code',
 			'api key',
 			'secret',
 			'.env',
@@ -1230,12 +1315,20 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-ssh',
+		id: 'topic-section-9-5',
 		sectionId: 'section-9-5',
-		title: 'ssh',
-		part: 'Talking to the Network',
-		description: 'The same terminal, driving another machine — the prompt tells you which one.',
+		title: '9.5 Work on another machine without losing your bearings',
+		part: 'Part 9',
+		description: 'Use SSH with a verified host identity and keep local and remote files distinct.',
 		keywords: [
+			'9.5 Work on another machine without losing your bearings',
+			'ssh',
+			'scp',
+			'rsync',
+			'host key',
+			'fingerprint',
+			'remote',
+			'local',
 			'ssh',
 			'scp',
 			'rsync',
@@ -1253,14 +1346,32 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 10: The Toolshed ─────
 	{
-		id: 'topic-package-managers',
+		id: 'topic-part-10',
+		sectionId: 'part-10',
+		title: 'The toolshed: useful tools for everyday work',
+		part: 'Part 10',
+		description: 'Install a needed tool and try rg, fd, fzf, zoxide, or bat on familiar files.',
+		keywords: ['The toolshed: useful tools for everyday work', 'part 10', 'chapter 10'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-10-1',
 		sectionId: 'section-10-1',
-		title: 'Package Managers',
-		part: 'The Toolshed',
-		description: '`brew`, `apt` and `npm` fetch a tool and put it where `$PATH` already looks.',
+		title: '10.1 Add a tool, then use it for one small job',
+		part: 'Part 10',
+		description: 'Install a needed tool and try rg, fd, fzf, zoxide, or bat on familiar files.',
 		keywords: [
+			'10.1 Add a tool, then use it for one small job',
+			'ripgrep',
+			'rg',
+			'fd',
+			'fzf',
+			'zoxide',
+			'bat',
+			'fuzzy finder',
+			'modern tools',
+			'install',
 			'install',
 			'brew',
 			'homebrew',
@@ -1282,12 +1393,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-archives',
+		id: 'topic-section-10-2',
 		sectionId: 'section-10-2',
-		title: 'Archives — tar & zip',
-		part: 'The Toolshed',
-		description: '`tar -xzf` decoded letter by letter — and `tar -tzf` to peek before unpacking.',
+		title: '10.2 Inspect an archive before unpacking it',
+		part: 'Part 10',
+		description: 'List archive contents, choose a fresh destination, and inspect extracted files.',
 		keywords: [
+			'10.2 Inspect an archive before unpacking it',
 			'tar',
 			'tar -xzf',
 			'tar flags',
@@ -1303,12 +1415,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-symlinks',
+		id: 'topic-section-10-3',
 		sectionId: 'section-10-3',
-		title: 'Symlinks',
-		part: 'The Toolshed',
-		description: 'The `->` arrow in `ls -l`: a signpost to the real file, not a copy.',
+		title: '10.3 Make a signpost, not another copy',
+		part: 'Part 10',
+		description: 'Create a symbolic link and understand how its target path is resolved.',
 		keywords: [
+			'10.3 Make a signpost, not another copy',
 			'symlink',
 			'symbolic link',
 			'ln -s',
@@ -1326,13 +1439,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-disk-usage',
+		id: 'topic-section-10-4',
 		sectionId: 'section-10-4',
-		title: 'Disk Usage — du & df',
-		part: 'The Toolshed',
-		description:
-			'`du -sh *` finds the space hog; `df -h` shows the whole disk. Measure before deleting.',
+		title: '10.4 Measure disk usage before deleting anything',
+		part: 'Part 10',
+		description: 'Measure a folder and filesystem before deciding what is safe to remove.',
 		keywords: [
+			'10.4 Measure disk usage before deleting anything',
 			'du',
 			'df',
 			'disk full',
@@ -1345,94 +1458,57 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Part 12: Your Cockpit ─────
 	{
-		id: 'tool-prompt-designer',
-		sectionId: 'prompt-designer',
-		title: 'Design Your Prompt (Starship)',
-		part: 'Your Cockpit',
-		description:
-			'Interactive prompt designer: pick a theme, customize modules, and download a real `starship.toml` for your shell.',
-		keywords: [
-			'starship',
-			'prompt',
-			'designer',
-			'design your prompt',
-			'theme',
-			'powerline',
-			'tokyo night',
-			'gruvbox',
-			'catppuccin',
-			'nerd font',
-			'customize prompt',
-			'starship.toml',
-			'ps1'
-		],
+		id: 'topic-part-11',
+		sectionId: 'part-11',
+		title: 'Work with an agent: understand the next step',
+		part: 'Part 11',
+		description: 'Review an assistant’s proposed action, exact targets, permissions, and evidence.',
+		keywords: ['Work with an agent: understand the next step', 'part 11', 'chapter 11'],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-make-it-yours',
+		id: 'topic-section-11-1',
+		sectionId: 'section-11-1',
+		title: '11.1 Turn a proposal into something you can check',
+		part: 'Part 11',
+		description: 'Review an assistant’s proposed action, exact targets, permissions, and evidence.',
+		keywords: ['11.1 Turn a proposal into something you can check'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-part-12',
+		sectionId: 'part-12',
+		title: 'Your cockpit: readable, familiar, easy to revisit',
+		part: 'Part 12',
+		description: 'Choose readable text and a useful prompt; try the optional Starship designer.',
+		keywords: ['Your cockpit: readable, familiar, easy to revisit', 'part 12', 'chapter 12'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-12-1',
 		sectionId: 'section-12-1',
-		title: 'Make It Yours',
-		part: 'Your Cockpit',
-		description: 'Themes, fonts, and prompt customization — `PS1` and `starship`.',
-		keywords: [
-			'theme',
-			'colors',
-			'font',
-			'customize',
-			'clipboard',
-			'pbcopy',
-			'xclip',
-			'copy output',
-			'appearance',
-			'prompt customization',
-			'ps1',
-			'ps2',
-			'prompt string 1',
-			'continuation prompt',
-			'starship',
-			'profiles',
-			'terminal profile',
-			'monospaced font',
-			'true color',
-			'zsh plugins',
-			'zsh-autosuggestions',
-			'zsh-syntax-highlighting',
-			'oh-my-zsh',
-			'pretty terminal'
-		],
+		title: '12.1 Make the window easy to read',
+		part: 'Part 12',
+		description: 'Choose readable text and a useful prompt; try the optional Starship designer.',
+		keywords: ['12.1 Make the window easy to read'],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-terminal-apps',
-		sectionId: 'section-12-1',
-		title: 'Terminal apps: Ghostty, iTerm2, Warp, Windows Terminal',
-		part: 'Your Cockpit',
-		description:
-			'The refreshed stock Terminal.app, iTerm2, the fast minimal Ghostty, the AI-first Warp — same shell inside every window.',
-		keywords: [
-			'ghostty',
-			'iterm',
-			'iterm2',
-			'warp',
-			'windows terminal',
-			'terminal.app',
-			'tahoe',
-			'terminal emulator',
-			'which terminal app',
-			'best terminal',
-			'starship prompt'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-history-superpowers',
+		id: 'topic-section-12-2',
 		sectionId: 'section-12-2',
-		title: 'History Superpowers',
-		part: 'Your Cockpit',
-		description: 'Up arrow, `history`, `!!`, `sudo !!`, and `Ctrl+R` reverse search.',
+		title: '12.2 Recall, inspect, and edit',
+		part: 'Part 12',
+		description:
+			'Recall and inspect an earlier command, restore a draft, and practise history search.',
 		keywords: [
+			'12.2 Recall, inspect, and edit',
+			'history',
+			'ctrl r',
+			'reverse search',
+			'unfinished draft',
+			'recall',
+			'up arrow',
 			'history',
 			'up arrow',
 			'ctrl+r',
@@ -1456,265 +1532,98 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-vscode-terminal',
+		id: 'topic-section-12-3',
 		sectionId: 'section-12-3',
-		title: 'Terminal in VS Code',
-		part: 'Your Cockpit',
-		description: 'The integrated terminal — where vibe coders live.',
-		keywords: [
-			'vscode',
-			'vs code',
-			'integrated terminal',
-			'editor terminal',
-			'ctrl+`',
-			'backtick',
-			'panel',
-			'ide terminal',
-			'cursor editor'
-		],
+		title: '12.3 Keep the editor and terminal connected',
+		part: 'Part 12',
+		description: 'Save a file in an editor and run a command that reads that saved file.',
+		keywords: ['12.3 Keep the editor and terminal connected'],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-agent-allowlist',
-		sectionId: 'section-12-3',
-		title: 'VS Code agent allowlist & denylist',
-		part: 'Your Cockpit',
-		description:
-			'Copilot agent mode runs commands with per-command approval — allowlist the safe ones, always stop the risky ones.',
-		keywords: [
-			'allowlist',
-			'allow list',
-			'denylist',
-			'deny list',
-			'agent mode',
-			'copilot agent',
-			'auto approve commands',
-			'per-command approval',
-			'vscode agent',
-			'claude code extension'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-many-terminals',
+		id: 'topic-section-12-4',
 		sectionId: 'section-12-4',
-		title: 'Many Terminals at Once',
-		part: 'Your Cockpit',
-		description: 'Tabs, splits, and a one-line introduction to `tmux`.',
+		title: '12.4 Give parallel work a clear home',
+		part: 'Part 12',
+		description: 'Organize work into tabs and learn native tmux detach, attach, and panes.',
 		keywords: [
-			'tabs',
-			'splits',
-			'split terminal',
-			'panes',
-			'multiple terminals',
+			'12.4 Give parallel work a clear home',
 			'tmux',
-			'sessions',
-			'two terminals'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-parallel-agents',
-		sectionId: 'section-12-4',
-		title: 'Parallel AI agents in split panes',
-		part: 'Your Cockpit',
-		description:
-			'One agent per pane, each on its own git worktree — an agent-fleet dashboard, with tmux or Zellij keeping sessions alive.',
-		keywords: [
-			'parallel agents',
-			'multiple agents',
-			'agent fleet',
-			'worktree',
-			'worktrees',
-			'one agent per pane',
-			'tmux',
-			'zellij',
 			'multiplexer',
-			'session survives'
+			'detach',
+			'attach',
+			'panes',
+			'split terminal',
+			'tabs'
 		],
 		kind: 'topic'
 	},
-	// ───── Part 13: Under the Hood ─────
 	{
-		id: 'topic-under-the-hood',
+		id: 'topic-part-13',
+		sectionId: 'part-13',
+		title: 'Useful machinery, dependable scripts',
+		part: 'Part 13',
+		description: 'Understand the terminal, shell, PTY, signals, and display control sequences.',
+		keywords: ['Useful machinery, dependable scripts', 'part 13', 'chapter 13'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-13-1',
 		sectionId: 'section-13-1',
-		title: 'How the Terminal Works',
-		part: 'Under the Hood',
-		description: 'TTYs, the PTY pair, and the line discipline — how the terminal actually works.',
+		title: '13.1 A small map of the machinery',
+		part: 'Part 13',
+		description: 'Understand the terminal, shell, PTY, signals, and display control sequences.',
 		keywords: [
-			'under the hood',
-			'how does the terminal work',
-			'how terminal works',
-			'tty',
-			'teletype',
+			'13.1 A small map of the machinery',
 			'pty',
-			'pseudo-terminal',
-			'pseudoterminal',
-			'terminal emulator',
-			'line discipline',
+			'canonical',
 			'raw mode',
-			'cooked mode',
-			'canonical mode',
-			'stty',
-			'internals',
-			'fork',
-			'exec',
-			'fork and exec',
-			'caret notation',
-			'^c',
-			'carriage return',
-			'newline',
-			'blocked read',
-			'trap',
-			'shell function',
-			'while read loop'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-escape-sequences',
-		sectionId: 'section-13-1',
-		title: 'Escape sequences & ANSI colors',
-		part: 'Under the Hood',
-		description: 'Colors and cursor movement are in-band bytes — `\\e[32m` turns the text green.',
-		keywords: [
-			'escape sequence',
-			'escape sequences',
 			'ansi',
-			'ansi colors',
-			'terminal colors',
-			'colored output',
-			'\\e[32m',
-			'esc',
-			'^[[a',
-			'arrow keys print characters',
-			'weird characters',
-			'cursor movement',
-			'vt100',
-			'garbled terminal'
+			'escape sequences',
+			'osc',
+			'terminal integration'
 		],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-ctrl-c-sigint',
-		sectionId: 'section-13-1',
-		title: 'What Ctrl+C really does',
-		part: 'Under the Hood',
-		description: 'The `tty` driver turns `Ctrl+C` into `SIGINT` — a kernel signal, not input.',
-		keywords: [
-			'ctrl+c',
-			'ctrl c',
-			'sigint',
-			'signal',
-			'signals',
-			'interrupt',
-			'what does ctrl+c do',
-			'how does ctrl+c work',
-			'stop a running command',
-			'kill a program'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-shell-integration',
+		id: 'topic-section-13-2',
 		sectionId: 'section-13-2',
-		title: 'Shell integration: OSC 133 & OSC 633',
-		part: 'Under the Hood',
-		description:
-			'Invisible markers in the byte stream tell terminals — and agents — where commands start, end, and how they exited.',
+		title: '13.2 Write scripts that make decisions',
+		part: 'Part 13',
+		description: 'Build Bash decisions and loops; check errors, use ShellCheck, and test cleanup.',
 		keywords: [
-			'osc 133',
-			'osc 633',
-			'shell integration',
-			'finalterm',
-			'command markers',
-			'prompt markers',
-			'success dot',
-			'failure dot',
-			'command navigation',
-			'sticky scroll',
-			'exit code marker'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-agent-terminals',
-		sectionId: 'section-13-2',
-		title: 'Agent-aware terminals: Warp, cmux, libghostty',
-		part: 'Under the Hood',
-		description:
-			'The 2026 landscape — classic emulators compete on speed while a new generation is built around AI agents.',
-		keywords: [
-			'agent terminal',
-			'agentic terminal',
-			'warp',
-			'agentic development environment',
-			'cmux',
-			'libghostty',
-			'ghostty',
-			'unix socket',
-			'agent fleet',
-			'terminal evolving',
-			'future of the terminal'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-agent-pipelines',
-		sectionId: 'section-13-2',
-		title: 'The agent as a shell command (claude -p)',
-		part: 'Under the Hood',
-		description:
-			'Headless agent CLIs read stdin, write stdout, and set exit codes — pipe intelligence like any Unix tool.',
-		keywords: [
-			'claude -p',
-			'print mode',
-			'headless agent',
-			'pipe to claude',
-			'agent in a pipeline',
-			'output-format json',
-			'jq',
-			'ai pipeline',
-			'compose ai',
-			'agent cli pipeline'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-robust-scripts',
-		sectionId: 'section-13-2',
-		title: 'Robust bash scripts: `set -euo pipefail` & `trap`',
-		part: 'Under the Hood',
-		description:
-			'The grown-up script preamble — strict mode, cleanup traps, and `mktemp` scratch dirs.',
-		keywords: [
-			'set -euo pipefail',
-			'set -e',
-			'pipefail',
-			'cron',
-			'crontab',
-			'schedule a script',
+			'13.2 Write scripts that make decisions',
+			'if',
+			'else',
 			'for loop',
+			'loop',
+			'shellcheck',
 			'strict mode',
+			'set -euo pipefail',
 			'trap',
-			'trap exit',
-			'cleanup trap',
-			'mktemp',
-			'temp directory',
-			'robust script',
-			'while read loop',
-			'production bash'
+			'cleanup',
+			'error handling',
+			'mktemp'
 		],
 		kind: 'topic'
 	},
-	// ───── Part 14: Conclusion ─────
 	{
-		id: 'topic-mindset',
+		id: 'topic-part-14',
+		sectionId: 'part-14',
+		title: 'Make it yours: independent practice and a field guide',
+		part: 'Part 14',
+		description: 'Orient, inspect, act, and verify while solving a practical task.',
+		keywords: ['Make it yours: independent practice and a field guide', 'part 14', 'chapter 14'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-section-14-1',
 		sectionId: 'section-14-1',
-		title: 'The Command-Line Mindset',
-		part: 'Conclusion',
-		description: 'Compose small tools, read before running — the AI-native interface.',
+		title: '14.1 A method you can carry into another task',
+		part: 'Part 14',
+		description: 'Orient, inspect, act, and verify while solving a practical task.',
 		keywords: [
+			'14.1 A method you can carry into another task',
 			'mindset',
 			'philosophy',
 			'small tools',
@@ -1727,12 +1636,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-quick-reference',
+		id: 'topic-section-14-2',
 		sectionId: 'section-14-2',
-		title: 'Quick Reference',
-		part: 'Conclusion',
-		description: 'The dense every-command table — the whole course at a glance.',
+		title: '14.2 Use a reference at the moment you need it',
+		part: 'Part 14',
+		description: 'Find the same maintained reference entries used by the global cheatsheet.',
 		keywords: [
+			'14.2 Use a reference at the moment you need it',
 			'quick reference',
 			'reference',
 			'cheat sheet',
@@ -1744,12 +1654,20 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-final-challenge',
+		id: 'topic-section-14-3',
 		sectionId: 'section-14-3',
-		title: 'The Final Challenge',
-		part: 'Conclusion',
-		description: 'One messy home folder — the capstone that proves you can do it.',
+		title: '14.3 Put the skills together',
+		part: 'Part 14',
+		description:
+			'Complete independent missions with references allowed and reflect on your skills.',
 		keywords: [
+			'14.3 Put the skills together',
+			'capstone',
+			'independent practice',
+			'checklist',
+			'assessment',
+			'look up',
+			'mission',
 			'final challenge',
 			'capstone',
 			'exam',
@@ -1761,12 +1679,13 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-keep-learning',
+		id: 'topic-section-14-4',
 		sectionId: 'section-14-4',
-		title: 'Keep Learning',
-		part: 'Conclusion',
-		description: 'The Linux Command Line, OverTheWire Bandit, explainshell, tldr.',
+		title: '14.4 Take one useful task into your own terminal',
+		part: 'Part 14',
+		description: 'Choose a useful native task and decide which skill to practise next.',
 		keywords: [
+			'14.4 Take one useful task into your own terminal',
 			'keep learning',
 			'resources',
 			'books',
@@ -1780,345 +1699,59 @@ const topicEntries: SearchEntry[] = [
 		],
 		kind: 'topic'
 	},
-	// ───── Playground exercises ─────
 	{
-		id: 'topic-pg-first-steps',
-		sectionId: 'first-steps',
-		title: 'Playground: Say Hello to the Machine',
-		part: 'First Contact',
-		description: 'Try `echo`, `whoami`, `pwd`, and `date` in the sandbox terminal.',
+		id: 'topic-extra-design-your-prompt-with-starship',
+		sectionId: 'prompt-designer',
+		title: 'Design your prompt with Starship',
+		part: 'Field guide',
+		description:
+			'Build and inspect a prompt configuration without installing anything automatically.',
+		keywords: ['starship', 'prompt designer', 'prompt theme', 'starship.toml'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-extra-keep-instructions-and-evidence-separate',
+		sectionId: 'section-11-1',
+		title: 'Keep instructions and evidence separate',
+		part: 'Field guide',
+		description:
+			'Review proposed commands and treat instructions inside files as untrusted task data.',
 		keywords: [
-			'playground',
-			'practice',
-			'sandbox',
-			'first steps',
-			'try it',
-			'hello',
-			'interactive'
+			'prompt injection',
+			'malicious file',
+			'ai permissions',
+			'agent approval',
+			'is this safe',
+			'scary command'
 		],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-pg-navigation',
-		sectionId: 'navigation',
-		title: 'Playground: Find the Lost API Key',
-		part: 'Moving Around',
-		description: 'A treasure hunt through nested directories with `cd` and `ls`.',
-		keywords: [
-			'playground',
-			'practice',
-			'navigation',
-			'treasure hunt',
-			'api key',
-			'cd practice',
-			'explore'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-workspace-setup',
-		sectionId: 'workspace-setup',
-		title: 'Playground: Build Your Workspace',
-		part: 'Moving Around',
-		description: 'Build a project skeleton with `mkdir -p` and `touch`.',
-		keywords: [
-			'playground',
-			'practice',
-			'workspace',
-			'skeleton',
-			'mkdir practice',
-			'setup project'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-tidy-up',
-		sectionId: 'tidy-up',
-		title: 'Playground: Clean the Downloads Mess',
-		part: 'Copy, Move, Delete',
-		description: 'Inspect, sort into folders with `mv`, and delete the junk.',
-		keywords: [
-			'playground',
-			'practice',
-			'tidy',
-			'clean up',
-			'downloads',
-			'organize files',
-			'mv practice'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-glob-practice',
-		sectionId: 'glob-practice',
-		title: 'Playground: Select the Right Files',
-		part: 'Copy, Move, Delete',
-		description: 'Target exactly the right files with `*` `?` and `[abc]` globs.',
-		keywords: ['playground', 'practice', 'glob', 'wildcard practice', 'select files', 'patterns'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-log-detective',
-		sectionId: 'log-detective',
-		title: 'Playground: Find the Crash',
-		part: 'Text & Pipes',
-		description: 'Hunt through `server.log` with `grep` and pipes.',
-		keywords: [
-			'playground',
-			'practice',
-			'log detective',
-			'crash',
-			'server.log',
-			'grep practice',
-			'debug log'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-pipeline-practice',
-		sectionId: 'pipeline-practice',
-		title: 'Playground: Build a Pipeline',
-		part: 'Text & Pipes',
-		description: 'Rank the top visitors in `access.log` with `sort`, `uniq`, and `cut`.',
-		keywords: [
-			'playground',
-			'practice',
-			'pipeline',
-			'access.log',
-			'top visitors',
-			'sort uniq practice'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-find-files',
-		sectionId: 'find-files',
-		title: 'Playground: Hunt Down Every TODO',
-		part: 'Text & Pipes',
-		description: 'Combine `find` and `grep` to sweep a whole project.',
-		keywords: ['playground', 'practice', 'find files', 'todo', 'find and grep', 'sweep project'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-fix-permissions',
-		sectionId: 'fix-permissions',
-		title: "Playground: The Script Won't Run",
-		part: 'Permissions & Config',
-		description: 'Diagnose `Permission denied` and fix it with `chmod +x`.',
-		keywords: [
-			'playground',
-			'practice',
-			'permission denied exercise',
-			'chmod practice',
-			'script wont run'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-path-repair',
-		sectionId: 'path-repair',
-		title: 'Playground: `command not found`',
-		part: 'Permissions & Config',
-		description: 'Inspect `PATH`, find the missing tool, and run it anyway.',
-		keywords: [
-			'playground',
-			'practice',
-			'path repair',
-			'command not found exercise',
-			'path practice'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-alias-workshop',
-		sectionId: 'alias-workshop',
-		title: 'Playground: Make Your Shortcuts',
-		part: 'Permissions & Config',
-		description: 'Create your own aliases and use them.',
-		keywords: ['playground', 'practice', 'alias workshop', 'shortcuts', 'alias practice'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-audit-the-agent',
-		sectionId: 'audit-the-agent',
-		title: 'Playground: Audit the Agent',
-		part: 'Scripts & Automation',
-		description: 'Three AI-proposed commands — defuse the dangerous one, run the rest.',
-		keywords: ['playground', 'practice', 'audit', 'agent commands', 'ai safety exercise', 'defuse'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-first-script',
-		sectionId: 'first-script',
-		title: 'Playground: Automate the Backup',
-		part: 'Scripts & Automation',
-		description: 'Build a backup script with `echo >>`, `chmod +x`, and run it.',
-		keywords: ['playground', 'practice', 'first script', 'backup script', 'automation exercise'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-exit-codes',
-		sectionId: 'exit-codes',
-		title: 'Playground: Deploy Only on Green',
-		part: 'Scripts & Automation',
-		description: 'Wire up `&&` and `||` so deploys only happen when tests pass.',
-		keywords: [
-			'playground',
-			'practice',
-			'exit codes exercise',
-			'deploy',
-			'green tests',
-			'and or practice'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-capstone',
-		sectionId: 'capstone',
-		title: 'Playground: One Messy Home Folder',
-		part: 'Conclusion',
-		description: 'Navigate, organize, `grep`, and script — everything combined.',
-		keywords: [
-			'playground',
-			'practice',
-			'capstone',
-			'messy home folder',
-			'final exercise',
-			'everything'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-help-lookup',
-		sectionId: 'help-lookup',
-		title: 'Playground: Read the Manual First',
-		part: 'First Contact',
-		description: 'Look up a command with `man` before you run it, then use it.',
-		keywords: ['playground', 'practice', 'man page', 'help lookup', 'read the manual', 'head'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-count-lines',
-		sectionId: 'count-lines',
-		title: 'Playground: Count Before You Fix',
-		part: 'Text & Pipes',
-		description: 'Count matching lines with `grep` piped into `wc -l`, and save the total.',
-		keywords: ['playground', 'practice', 'wc', 'count lines', 'wc -l', 'how many', 'grep wc'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-history-recall',
-		sectionId: 'history-recall',
-		title: 'Playground: Retrace Your Steps',
-		part: 'Your Cockpit',
-		description: 'Search your command history with `history | grep` and save what you find.',
-		keywords: ['playground', 'practice', 'history', 'history grep', 'recall command', 'retrace'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-quoting',
-		sectionId: 'quoting',
-		title: 'Playground: Mind the Gap',
-		part: 'Moving Around',
-		description: 'Handle spaces in file names by quoting the path.',
-		keywords: [
-			'playground',
-			'practice',
-			'quoting',
-			'spaces in names',
-			'quote path',
-			'mind the gap'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-capture-errors',
-		sectionId: 'capture-errors',
-		title: 'Playground: Catch the Red Text',
-		part: 'Text & Pipes',
-		description: 'Split stdout and stderr into separate files with `>` and `2>`.',
-		keywords: ['playground', 'practice', 'stderr', '2>', 'capture errors', 'redirect errors'],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-pg-script-args',
-		sectionId: 'script-args',
-		title: 'Playground: One Script, Any Folder',
-		part: 'Scripts & Automation',
-		description: 'Make a script reusable by swapping a hard-coded path for `$1`.',
-		keywords: ['playground', 'practice', 'script arguments', '$1', 'reusable script', 'parameters'],
-		kind: 'topic'
-	},
-	// ───── Panic queries ─────
-	{
-		id: 'topic-panic-deleted',
-		sectionId: 'section-3-3',
-		title: 'I deleted a file!',
-		part: 'Panic',
-		description: '`rm` has no trash can — but your editor history or `git` may save you.',
-		keywords: [
-			'deleted a file',
-			'accidentally deleted',
-			'undo delete',
-			'undelete',
-			'recover file',
-			'restore file',
-			'undo',
-			'oops',
-			'i messed up',
-			'trash',
-			'get file back'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-panic-frozen',
+		id: 'topic-extra-get-unstuck-in-a-pager-or-editor',
 		sectionId: 'section-1-3',
-		title: 'My terminal is frozen',
-		part: 'Panic',
-		description: 'Usually a pager or a waiting program — `q`, `Ctrl+C`, or `Esc` `:q!` for `vim`.',
+		title: 'Get unstuck in a pager or editor',
+		part: 'Field guide',
+		description: 'Identify the active program, then use its exit or cancellation command.',
 		keywords: [
 			'frozen terminal',
-			'terminal frozen',
 			'stuck',
 			'hanging',
-			'not responding',
 			'cant type',
-			'quit vim',
+			'cannot type',
 			'exit vim',
-			'trapped in vim',
-			'how do i quit',
-			'escape'
+			'quit vim',
+			'how do i quit'
 		],
 		kind: 'topic'
 	},
 	{
-		id: 'topic-panic-not-found',
-		sectionId: 'section-5-4',
-		title: '`command not found`',
-		part: 'Panic',
-		description: 'The tool is not on your `PATH` — or not installed. Here is how to tell.',
-		keywords: [
-			'command not found',
-			'not recognized',
-			'no such file or directory',
-			'npm not found',
-			'node not found',
-			'python not found',
-			'brew not found',
-			'is not recognized as an internal or external command'
-		],
-		kind: 'topic'
-	},
-	{
-		id: 'topic-panic-permission',
+		id: 'topic-extra-understand-permission-denied',
 		sectionId: 'section-5-2',
-		title: '`Permission denied`',
-		part: 'Panic',
-		description: 'Missing execute bit or wrong owner — `chmod +x` fixes the common case.',
+		title: 'Understand permission denied',
+		part: 'Field guide',
+		description: 'Inspect ownership, operation, and permissions before choosing a change.',
 		keywords: [
 			'permission denied',
-			'cannot execute',
 			'operation not permitted',
 			'access denied',
 			'not executable',
@@ -2127,21 +1760,408 @@ const topicEntries: SearchEntry[] = [
 		kind: 'topic'
 	},
 	{
-		id: 'topic-panic-scary-command',
-		sectionId: 'section-11-1',
-		title: 'Is this command safe to run?',
-		part: 'Panic',
-		description: 'Read before you run: decode any AI-suggested command before Enter.',
+		id: 'topic-extra-recover-after-an-unwanted-file-change',
+		sectionId: 'section-3-3',
+		title: 'Recover after an unwanted file change',
+		part: 'Field guide',
+		description:
+			'Stop making unrelated changes and check the copies or history that can restore the file.',
+		keywords: ['deleted file', 'i deleted a file', 'recover file', 'undo delete', 'lost file'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-extra-modern-tools-for-familiar-jobs',
+		sectionId: 'section-10-1',
+		title: 'Modern tools for familiar jobs',
+		part: 'Field guide',
+		description: 'Try rg, fd, fzf, zoxide, and bat with standard-command alternatives.',
 		keywords: [
-			'is this safe',
-			'what does this command do',
-			'what does rm -rf do',
-			'scary command',
-			'should i run this',
-			'ai gave me a command',
-			'decode command',
-			'typed a scary command'
+			'modern terminal tools',
+			'ripgrep',
+			'fuzzy search',
+			'fzf',
+			'fd',
+			'zoxide',
+			'bat',
+			'fdfind',
+			'batcat'
 		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-extra-test-a-script-before-scheduling-it',
+		sectionId: 'section-13-2',
+		title: 'Test a script before scheduling it',
+		part: 'Field guide',
+		description: 'Check missing input, existing output, filenames with spaces, and failure paths.',
+		keywords: [
+			'script tests',
+			'automation',
+			'shellcheck',
+			'for loop',
+			'if statement',
+			'trap cleanup'
+		],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-first-steps',
+		sectionId: 'first-steps',
+		title: 'Practice: Say hello to the machine',
+		part: 'Practice',
+		description:
+			'A fresh terminal, a blinking cursor, and nothing to break — commands only act when you press Enter. Ask the machine who you are, where you are, and what time it is, then make it say something back.',
+		keywords: ['Say hello to the machine', 'first steps', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-navigation',
+		sectionId: 'navigation',
+		title: 'Practice: Find the hidden garden note',
+		part: 'Practice',
+		description:
+			'A planting note is tucked inside the garden folder. Look around, reveal the hidden folder, and read the note.',
+		keywords: ['Find the hidden garden note', 'navigation', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-workspace-setup',
+		sectionId: 'workspace-setup',
+		title: 'Practice: Make a garden notebook',
+		part: 'Practice',
+		description:
+			'Give your garden notes a home: make garden-notebook with notes, recipes, and photos folders, then create the first three empty notes.',
+		keywords: ['Make a garden notebook', 'workspace setup', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-edit-notes',
+		sectionId: 'edit-notes',
+		title: 'Practice: Edit, save, and read your note',
+		part: 'Practice',
+		description:
+			'Open Edit a file, load notes/seeds.txt, and add thyme on a new line after mint. Save and close the editor. Then read the file in the terminal to check your change.',
+		keywords: ['Edit, save, and read your note', 'edit notes', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-tidy-up',
+		sectionId: 'tidy-up',
+		title: 'Practice: Clean the downloads mess',
+		part: 'Practice',
+		description:
+			'Months of clicking "Save" left your downloads folder a junk drawer: photos, invoices, and a stale installer all in one pile. Sort the keepers into ~/pictures and ~/documents, then delete the junk — remember, rm has no trash can.',
+		keywords: ['Clean the downloads mess', 'tidy up', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-glob-practice',
+		sectionId: 'glob-practice',
+		title: 'Practice: Select exactly the right files',
+		part: 'Practice',
+		description:
+			'The staging folder mixes rotated logs, markdown drafts, a finished article and leftover .tmp files. Use wildcards to grab exactly the right group each time — and echo the glob first, so you see what a pattern matches before rm or mv acts on it.',
+		keywords: ['Select exactly the right files', 'glob practice', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-log-detective',
+		sectionId: 'log-detective',
+		title: 'Practice: Find the crash in server.log',
+		part: 'Practice',
+		description:
+			'Your side project went down at 9:14 last night and the AI on call left you a 300-line server.log. Nobody reads logs top to bottom — grep for the ERROR, then save the evidence to a report file with >.',
+		keywords: ['Find the crash in server.log', 'log detective', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-pipeline-practice',
+		sectionId: 'pipeline-practice',
+		title: 'Practice: Top visitors from access.log',
+		part: 'Practice',
+		description:
+			'Someone is hammering your little site and access.log knows who. No single command answers "which IP visits most?" — but a pipeline does. Build it one stage at a time: cut the IP column, sort it, count duplicates, sort by count.',
+		keywords: ['Top visitors from access.log', 'pipeline practice', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-find-files',
+		sectionId: 'find-files',
+		title: 'Practice: Hunt down every TODO',
+		part: 'Practice',
+		description:
+			'Before shipping orbit, you want every TODO your AI pair sprinkled through the codebase in one place. find locates files by name; grep -r searches inside them. Sweep the project and save the list.',
+		keywords: ['Hunt down every TODO', 'find files', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-fix-permissions',
+		sectionId: 'fix-permissions',
+		title: "Practice: The script won't run",
+		part: 'Practice',
+		description:
+			'Your AI assistant wrote setup.sh for you — but ./setup.sh answers "Permission denied". Nothing is broken: the file just lacks the executable bit. Read ls -l, grant +x, and run it for real.',
+		keywords: ["The script won't run", 'fix permissions', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-path-repair',
+		sectionId: 'path-repair',
+		title: 'Practice: command not found',
+		part: 'Practice',
+		description:
+			'An agent built you a deploy tool yesterday, but typing "deploy" earns only "command not found". The shell isn\'t lying — it only searches the directories in $PATH. Inspect $PATH, hunt the tool down, and run it by its path.',
+		keywords: ['command not found', 'path repair', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-alias-workshop',
+		sectionId: 'alias-workshop',
+		title: 'Practice: Make your own shortcuts',
+		part: 'Practice',
+		description:
+			'You type ls -l and cd ~/projects a dozen times a day. An alias is a nickname the shell expands for you — define ll and proj and use them, then make one permanent the way real aliases live: appended to ~/.bashrc, the file every new shell reads on startup.',
+		keywords: ['Make your own shortcuts', 'alias workshop', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-audit-the-agent',
+		sectionId: 'audit-the-agent',
+		title: 'Practice: The agent wants to run 3 commands',
+		part: 'Practice',
+		description:
+			'Your AI agent left a proposal in agent-plan.txt: three commands to "tidy the workspace and back up your notes". Two are helpful. One would erase your entire home directory. Read the plan, run the safe ones, and leave the dangerous one unrun.',
+		keywords: ['The agent wants to run 3 commands', 'audit the agent', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-first-script',
+		sectionId: 'first-script',
+		title: 'Practice: Automate the backup',
+		part: 'Practice',
+		description:
+			'Every day you copy notes.txt somewhere safe "later" — and forget. A script is a saved command sequence: use Edit a file to save the lesson’s three lines as backup.sh, make it executable, and run it.',
+		keywords: ['Automate the backup', 'first script', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-exit-codes',
+		sectionId: 'exit-codes',
+		title: 'Practice: Only deploy when tests pass',
+		part: 'Practice',
+		description:
+			'Every command reports back: exit code 0 means success, anything else means failure — and $? holds the last verdict. Chain with && so deploy runs only after tests succeed, and watch false stop the chain cold.',
+		keywords: ['Only deploy when tests pass', 'exit codes', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-capstone',
+		sectionId: 'capstone',
+		title: 'Practice: One messy home folder',
+		part: 'Practice',
+		description:
+			'The final challenge: a home directory that needs everything you have learned. Sort the downloads with globs, grep the crash out of the app log, then write and run a backup script. Navigate, organize, search, automate.',
+		keywords: ['One messy home folder', 'capstone', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-quoting',
+		sectionId: 'quoting',
+		title: 'Practice: Mind the gap: spaces in names',
+		part: 'Practice',
+		description:
+			'Two folders here have spaces in their names — the classic trap. Type one without quotes and the shell hears two separate words. Quote it, and the space is just a space. Get inside "My Projects" and leave a shipped.txt behind.',
+		keywords: ['Mind the gap: spaces in names', 'quoting', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-capture-errors',
+		sectionId: 'capture-errors',
+		title: 'Practice: Catch the red text',
+		part: 'Practice',
+		description:
+			'A command can produce two streams at once: normal output (stdout) and errors (stderr). List one real file and one missing one, then split the streams — the useful listing into found.txt, the scary error into errors.txt — with > and 2>.',
+		keywords: ['Catch the red text', 'capture errors', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-script-args',
+		sectionId: 'script-args',
+		title: 'Practice: One script, any folder',
+		part: 'Practice',
+		description:
+			'A script with a hard-coded path only ever backs up one thing. Swap the path for $1 — "the first word after the script\'s name" — and the same backup.sh works on any folder you hand it. Build it, then back up notes/ by running ./backup.sh notes.',
+		keywords: ['One script, any folder', 'script args', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-help-lookup',
+		sectionId: 'help-lookup',
+		title: 'Practice: Find one answer in the manual',
+		part: 'Practice',
+		description:
+			'The head command shows the beginning of a file. Read its short practice manual, then display just the first three lines of garden-notes.txt.',
+		keywords: ['Find one answer in the manual', 'help lookup', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-count-lines',
+		sectionId: 'count-lines',
+		title: 'Practice: Count before you fix',
+		part: 'Practice',
+		description:
+			"Before digging into a noisy log, quantify the problem: how many ERROR lines are in it? `wc -l` counts lines, and a pipe feeds grep's matches straight into it — so you count the errors instead of reading them. Save the total to error-count.txt.",
+		keywords: ['Count before you fix', 'count lines', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-history-recall',
+		sectionId: 'history-recall',
+		title: 'Practice: Retrace your steps',
+		part: 'Practice',
+		description:
+			'Every command you run this session is remembered. Instead of retyping a long one, ask your history for it. Run a couple of commands, then pipe `history` into `grep` to dig one back out — and save the line you found to recall.txt.',
+		keywords: ['Retrace your steps', 'history recall', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-sed-rename',
+		sectionId: 'sed-rename',
+		title: 'Practice: Rebrand the menu',
+		part: 'Practice',
+		description:
+			"Marketing renamed the mango everything — it's kiwi now. Rewrite menu.txt with sed's s/old/new/g and put the result in kiwi-menu.txt. The original file must survive untouched: sed rewrites the stream, and > catches it.",
+		keywords: ['Rebrand the menu', 'sed rename', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-log-surgery',
+		sectionId: 'log-surgery',
+		title: 'Practice: Silence the debug noise',
+		part: 'Practice',
+		description:
+			"app.log is drowning in DEBUG chatter and you need the story without it. Drop every DEBUG line with sed's d command and save what remains as clean.log — the original log stays intact for the postmortem.",
+		keywords: ['Silence the debug noise', 'log surgery', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-in-place-audit',
+		sectionId: 'in-place-audit',
+		title: "Practice: The agent's mass edit",
+		part: 'Practice',
+		description:
+			'Your agent proposes a mass find-and-replace: sed -i over every config file, switching http: to https:. Good idea — but its command has no backup, and -i rewrites the real files. Amend it to -i.bak, run it, and keep the undo button.',
+		keywords: ["The agent's mass edit", 'in place audit', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-column-pull',
+		sectionId: 'column-pull',
+		title: 'Practice: Pull the column',
+		part: 'Practice',
+		description:
+			'signups.csv has three columns and you only need one: the email addresses, for the launch announcement. Pull column 2 out of the commas — awk -F, or cut -d, both speak CSV — and save it as emails.txt.',
+		keywords: ['Pull the column', 'column pull', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-free-the-port',
+		sectionId: 'free-the-port',
+		title: 'Practice: Free port 3000',
+		part: 'Practice',
+		description:
+			"You start your dev server and the terminal says EADDRINUSE — address already in use. Yesterday's server never died and it is still holding port 3000. Find out who has the port, stop it, and get your own server listening.",
+		keywords: ['Free port 3000', 'free the port', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-runaway-process',
+		sectionId: 'runaway-process',
+		title: 'Practice: Stop the runaway',
+		part: 'Practice',
+		description:
+			'Your laptop fans are screaming. A stray script is burning 97% of a CPU core and it is not listening to reason — a polite kill bounces right off it. Find it, ask nicely first, then escalate.',
+		keywords: ['Stop the runaway', 'runaway process', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-backstage-jobs',
+		sectionId: 'backstage-jobs',
+		title: 'Practice: Two things at once',
+		part: 'Practice',
+		description:
+			'A slow build is about to hog your only terminal. Send it backstage with & so you get your prompt back, check what is running with jobs, then bring it into the spotlight with fg when you are ready to watch it finish.',
+		keywords: ['Two things at once', 'backstage jobs', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-health-check',
+		sectionId: 'health-check',
+		title: 'Practice: Is it alive?',
+		part: 'Practice',
+		description:
+			'Your agent says "the server is running." Maybe. A promise is not evidence — ask the server yourself with curl, and save the answer so you can show it to someone.',
+		keywords: ['Is it alive?', 'health check', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-api-detective',
+		sectionId: 'api-detective',
+		title: 'Practice: Question the API',
+		part: 'Practice',
+		description:
+			'You need the latest released version number, and the API answers in JSON — a nested pile of braces. Ask it with curl, pull out just the version with jq, and leave the answer in version.txt.',
+		keywords: ['Question the API', 'api detective', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-secret-keeper',
+		sectionId: 'secret-keeper',
+		title: 'Practice: Practise a private settings file',
+		part: 'Practice',
+		description:
+			'This lab uses a fake practice value. Copy the supplied example to .env, restrict its permissions, and inspect the script that reads the API_KEY variable. Never paste a real key into this terminal.',
+		keywords: ['Practise a private settings file', 'secret keeper', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-open-the-crate',
+		sectionId: 'open-the-crate',
+		title: 'Practice: Peek, then unpack',
+		part: 'Practice',
+		description:
+			'A release archive landed in your downloads. Before you scatter its contents across your folder, look inside — tar -t lists an archive without unpacking it. Then extract it for real.',
+		keywords: ['Peek, then unpack', 'open the crate', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-summon-a-tool',
+		sectionId: 'summon-a-tool',
+		title: 'Practice: Install a tool',
+		part: 'Practice',
+		description:
+			'A command your machine has never heard of is not a mystery — it is a file that is not there yet. Watch cowsay fail, install it, and watch the same command start working. Installing really is just "put a file where $PATH looks".',
+		keywords: ['Install a tool', 'summon a tool', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-space-hog',
+		sectionId: 'space-hog',
+		title: 'Practice: Find the space hog',
+		part: 'Practice',
+		description:
+			'Your disk is nearly full and you are about to delete things. Measure first: du -sh */ sizes every folder here, so you delete the one that actually matters instead of guessing.',
+		keywords: ['Find the space hog', 'space hog', 'playground', 'practice'],
+		kind: 'topic'
+	},
+	{
+		id: 'topic-pg-midnight-deploy',
+		sectionId: 'midnight-deploy',
+		title: 'Practice: The midnight deploy',
+		part: 'Practice',
+		description:
+			"It's late, the release is due, and nothing works. A stale server squats on port 3000, config.yml still points at insecure http, and you refuse to ship without proof. Free the port, fix the config safely, start the server, and verify with your own eyes.",
+		keywords: ['The midnight deploy', 'midnight deploy', 'playground', 'practice'],
 		kind: 'topic'
 	}
 ];

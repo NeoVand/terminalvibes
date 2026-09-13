@@ -5,6 +5,7 @@ import { defineConfig } from '@playwright/test';
 const PORT = Number(process.env.PORT) || 4173;
 
 export default defineConfig({
+	use: { baseURL: `http://localhost:${PORT}` },
 	webServer: {
 		command: 'npm run build && npm run preview',
 		port: PORT,

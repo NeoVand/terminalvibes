@@ -15,10 +15,11 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:e2e": "playwright test",
-		"test:unit": "vitest run && npm run test:catalog",
+		"test:unit": "vitest run && npm run test:catalog && npm run test:content",
 		"test": "npm run test:unit && npm run test:e2e",
 		"models:update": "node scripts/update-model-catalog.mjs",
-		"test:catalog": "node --test scripts/model-catalog.test.mjs"
+		"test:catalog": "node --test scripts/model-catalog.test.mjs",
+		"test:content": "node --test scripts/course-source.test.mjs"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.1.0",

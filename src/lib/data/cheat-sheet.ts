@@ -1,4 +1,8 @@
 export interface CheatSheetCommand {
+	id?: string;
+	kind?: 'command' | 'shortcut';
+	keywords?: string[];
+	lessonId?: string;
 	command: string;
 	description: string;
 	/**
@@ -54,22 +58,145 @@ export const cheatSheetLegend: CheatSheetLegend = {
 
 export const cheatSheet: CheatSheetCategory[] = [
 	{
+		label: 'Keyboard & recovery',
+		icon: 'life-buoy',
+		commands: [
+			{
+				id: 'key-start',
+				kind: 'shortcut',
+				command: 'Ctrl+A',
+				description: 'Jump to the beginning of the command',
+				keywords: ['start of line', 'move cursor left', 'beginning of a line'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-end',
+				kind: 'shortcut',
+				command: 'Ctrl+E',
+				description: 'Jump to the end of the command',
+				keywords: ['end of line', 'move cursor right'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-whole-line',
+				kind: 'shortcut',
+				command: 'Ctrl+E then Ctrl+U',
+				description: 'Remove the whole single-line command for editing',
+				detail:
+					'Move to the end, then remove backward. Bash Ctrl+U alone removes only text before the cursor; zsh Emacs mode removes the whole line. Ctrl+C abandons the command instead.',
+				keywords: ['delete whole line', 'delete a whole line', 'erase entire line', 'clear input'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-kill-end',
+				kind: 'shortcut',
+				command: 'Ctrl+K',
+				description: 'Remove from the cursor to the end',
+				keywords: ['delete suffix', 'clear rest of line'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-word',
+				kind: 'shortcut',
+				command: 'Ctrl+W',
+				description: 'Remove the word before the cursor',
+				keywords: ['replace word', 'delete word', 'fix argument'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-yank',
+				kind: 'shortcut',
+				command: 'Ctrl+Y',
+				description: 'Bring back text removed with a kill shortcut',
+				detail: 'This is the line editor’s text buffer. It does not restore deleted files.',
+				keywords: ['undo line deletion', 'restore word', 'paste killed text'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-history',
+				kind: 'shortcut',
+				command: 'Up arrow',
+				description: 'Recall the previous command so you can edit it',
+				keywords: ['previous command', 'repeat last command', 'history'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-cancel',
+				kind: 'shortcut',
+				command: 'Ctrl+C',
+				description: 'Discard an unfinished command or interrupt a foreground task',
+				detail:
+					'At a prompt, the unfinished line does not run. During a running task it requests interruption; the task may handle it differently.',
+				keywords: ['cancel', 'stuck', 'stop', 'get prompt back'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-redraw',
+				kind: 'shortcut',
+				command: 'Ctrl+L',
+				description: 'Redraw a cluttered terminal display',
+				detail:
+					'Keeps your files and command history. Browsers may select their address bar instead; use clear in this practice terminal.',
+				keywords: ['clear screen', 'clean screen'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-search',
+				kind: 'shortcut',
+				command: 'Ctrl+R',
+				description: 'Search command history in your real shell',
+				detail:
+					'Browsers often reserve this for reload. Practise it in your native terminal; inspect a recalled command before executing it.',
+				keywords: ['find old command', 'search history'],
+				lessonId: 'keyboard-workshop'
+			},
+			{
+				id: 'key-complete',
+				kind: 'shortcut',
+				command: 'Tab',
+				description: 'Complete a command or filename',
+				detail:
+					'In the practice terminal, Shift+Tab leaves the input; Escape then Tab moves forward through controls.',
+				keywords: ['autocomplete', 'finish filename'],
+				lessonId: 'keyboard-workshop'
+			}
+		]
+	},
+	{
 		label: 'Orientation',
 		icon: 'compass',
 		commands: [
 			{
+				id: 'say-hello',
+				command: 'echo "Hello, world!"',
+				description: 'Print a message',
+				detail:
+					'Change the words inside the quotation marks. The terminal prints your message on the next line.',
+				keywords: ['hello', 'print text', 'say something'],
+				lessonId: 'hero'
+			},
+			{
+				id: 'current-date',
+				command: 'date',
+				description: 'Show the current date and time',
+				lessonId: 'section-1-2'
+			},
+			{
+				id: 'where-am-i',
 				command: 'pwd',
 				description: 'Print the directory you are standing in',
 				detail:
 					'The full absolute path from `/` down to here. Half of all terminal confusion is being in the wrong folder — when anything misbehaves, `pwd` first.'
 			},
 			{
+				id: 'list-files',
 				command: 'ls',
 				description: 'List the files and folders here',
 				detail:
 					'Names only by default. Give it a path (`ls src`) to peek inside a folder without moving into it.'
 			},
 			{
+				id: 'hidden-files',
 				command: 'ls -a',
 				description: 'List everything, including hidden dotfiles',
 				detail:
@@ -82,18 +209,21 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'One file per line with the full story. The two names in the middle are the owner and its group — `vibe staff` means owner `vibe`, group `staff`. Single-letter flags cluster: `ls -la` is `ls -l -a`.'
 			},
 			{
+				id: 'my-user',
 				command: 'whoami',
 				description: 'Print your username',
 				detail:
 					'A quick identity check — most useful after `sudo`, over `ssh`, or when a script behaves as if it belongs to someone else.'
 			},
 			{
+				id: 'clear-screen',
 				command: 'clear',
-				description: 'Wipe the screen (`Ctrl+L` does the same)',
+				description: 'Clear the display; keep your files and command history',
 				detail:
-					'Only clears the view — nothing is undone or lost, and you can still scroll up. On Windows cmd the equivalent is `cls`, but in WSL and Git Bash `clear` works as shown.'
+					'Changes the display, not files or command history. Whether scrollback is cleared depends on your terminal. On Windows cmd the equivalent is `cls`, but in WSL and Git Bash `clear` works as shown.'
 			},
 			{
+				id: 'command-help',
 				command: 'man <command>',
 				description: 'Open the full manual page for a command',
 				detail:
@@ -112,17 +242,20 @@ export const cheatSheet: CheatSheetCategory[] = [
 		icon: 'route',
 		commands: [
 			{
+				id: 'change-folder',
 				command: 'cd <dir>',
 				description: 'Move into a directory',
 				detail:
 					'Takes a relative path (`cd projects`) or an absolute one (`cd /usr/local`). Press TAB while typing — completion prevents the typos that cause most `cd` failures.'
 			},
 			{
+				id: 'parent-folder',
 				command: 'cd ..',
 				description: 'Go up one level to the parent directory',
 				detail: 'Chain it to climb faster: `cd ../..` goes up two levels in one hop.'
 			},
 			{
+				id: 'home-folder',
 				command: 'cd',
 				description: 'Jump home from anywhere (same as `cd ~`)',
 				detail:
@@ -153,11 +286,13 @@ export const cheatSheet: CheatSheetCategory[] = [
 		icon: 'folder-plus',
 		commands: [
 			{
+				id: 'make-folder',
 				command: 'mkdir <name>',
 				description: 'Create a new directory',
 				detail: 'Errors if it already exists — harmless, but `mkdir -p` stays quiet instead.'
 			},
 			{
+				id: 'make-parent-folders',
 				command: 'mkdir -p src/app/utils',
 				description: 'Create nested directories in one go',
 				detail:
@@ -170,6 +305,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'Braces are not globs — the shell expands `{components,lib}` into both names before `mkdir` runs, so nothing needs to exist first. Agents scaffold projects with this shape constantly.'
 			},
 			{
+				id: 'make-file',
 				command: 'touch <file>',
 				description: 'Create an empty file (or update its timestamp)',
 				detail:
@@ -224,6 +360,7 @@ export const cheatSheet: CheatSheetCategory[] = [
 		icon: 'eye',
 		commands: [
 			{
+				id: 'read-file',
 				command: 'cat <file>',
 				description: 'Print a whole file to the screen',
 				detail:
@@ -236,12 +373,14 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'Space or arrows scroll, `/` searches forward, `n` repeats the search, `q` quits. `man` uses the same pager, so these keys work there too.'
 			},
 			{
+				id: 'edit-file',
 				command: 'nano <file>',
 				description: 'Edit a file right in the terminal',
 				detail:
 					'The friendly editor: type normally, `Ctrl+O` then Enter saves ("write out"), `Ctrl+X` leaves — both printed at the bottom of its screen the whole time. On a server with no GUI, this is the tool.'
 			},
 			{
+				id: 'file-start',
 				command: 'head <file>',
 				description: 'Show the first 10 lines',
 				detail:
@@ -488,6 +627,8 @@ export const cheatSheet: CheatSheetCategory[] = [
 			},
 			{
 				command: 'Ctrl+Z  then  bg',
+				kind: 'shortcut',
+				lessonId: 'section-8-4',
 				description: 'Suspend the foreground job, resume it in the background',
 				detail:
 					'The rescue for when you started something long and forgot the `&`. `Ctrl+Z` hands your prompt back but stops the job dead — `jobs` shows it as `Stopped`, and no work happens until `bg` restarts it backstage (or `fg` brings it back).'
@@ -505,20 +646,20 @@ export const cheatSheet: CheatSheetCategory[] = [
 					'The one-line way to check "is it actually running?" instead of trusting a claim. `Connection refused` means nothing is listening — check with `lsof -i :3000`.'
 			},
 			{
-				command: 'curl -s -o out.json URL',
+				command: 'curl -sS -o out.json URL',
 				description: 'Save the reply to a file, quietly',
 				detail:
 					'`-o` writes the body to a file instead of the screen; `-s` hides the progress meter, which you always want inside scripts and pipelines. `-I` asks for just the headers.'
 			},
 			{
-				command: 'curl -s URL | jq -r .field',
+				command: "curl -sS URL | jq -r '.field'",
 				description: 'Fetch JSON and pull one value out of it',
 				detail:
 					'A `jq` filter is a path: `.` is everything, `.latest` is a key, `.server.port` goes deeper, `.items[0]` indexes a list. `-r` drops the quotes so the value can feed the next command.'
 			},
 			{
-				command: "echo 'KEY=value' > .env  &&  chmod 600 .env",
-				description: 'Put a secret in a file only you can read',
+				command: 'cp .env.example .env && chmod 600 .env',
+				description: 'Create an owner-only settings file from a trusted example',
 				detail:
 					'A `.env` file is plain text: `NAME=value` lines, one per key ("env" is short for environment). Never type a key directly into a command — your shell history keeps it. Load it with `source .env` and use `"$KEY"`, and add `.env` to `.gitignore`. Note `.gitignore` only stops `git` starting to track a file: if the key is already committed, revoke and reissue it in the provider’s website.'
 			},
@@ -758,18 +899,102 @@ export const cheatSheet: CheatSheetCategory[] = [
 			}
 		]
 	},
+
+	{
+		label: 'Everyday Helpers',
+		icon: 'package',
+		commands: [
+			{
+				command: "rg -n 'basil' .",
+				description: 'Search a project with ripgrep',
+				detail:
+					'Install rg in your own terminal first. It normally respects ignore files and skips hidden files; use -F for literal text. The course practice shell does not run rg.',
+				lessonId: 'section-10-1',
+				keywords: ['ripgrep', 'fast search', 'find text']
+			},
+			{
+				command: "fd '\\.md$'",
+				description: 'Find Markdown filenames with fd',
+				detail:
+					'Native tool: this pattern matches names ending in .md. Check fd --help for hidden and ignored files; Debian and Ubuntu may name the command fdfind.',
+				lessonId: 'section-10-1',
+				keywords: ['fd', 'find file', 'filename']
+			},
+			{
+				command: 'fzf',
+				description: 'Choose from a fuzzy-search list',
+				detail:
+					'Native interactive tool. Type a few letters, use the arrow keys, and press Enter to select or Escape to cancel. Selecting a path prints it; it does not automatically open it.',
+				lessonId: 'section-10-1',
+				keywords: ['fuzzy finder', 'fzf']
+			},
+			{
+				command: 'bat <file>',
+				description: 'Read a file with highlighting and line numbers',
+				detail:
+					'Native tool. If it opens a pager, q leaves the view. Some Linux distributions call it batcat. cat remains useful for plain text and pipelines.',
+				lessonId: 'section-10-1',
+				keywords: ['bat', 'batcat', 'highlight file']
+			},
+			{
+				command: 'z <folder-fragment>',
+				description: 'Return to a folder remembered by zoxide',
+				detail:
+					'Install and initialize zoxide for your shell first. Its z command learns directories you visit. Run pwd afterward to check where it took you.',
+				lessonId: 'section-10-1',
+				keywords: ['zoxide', 'jump directory']
+			},
+			{
+				command: 'tmux new -s garden',
+				description: 'Start a named terminal session',
+				detail:
+					'Native tool. Use one meaningful name per task. A session can keep running after you detach; it is not a backup for files or protection against a reboot.',
+				lessonId: 'section-12-4',
+				keywords: ['tmux', 'session', 'multiplexer']
+			},
+			{
+				command: 'Ctrl+B then D',
+				kind: 'shortcut',
+				description: 'Detach from a tmux session',
+				detail:
+					'Release Ctrl+B, then press D. tmux leaves its programs running and returns you to the outer shell.',
+				lessonId: 'section-12-4',
+				keywords: ['detach', 'tmux', 'leave session']
+			},
+			{
+				command: 'tmux attach -t garden',
+				description: 'Return to the named tmux session',
+				detail:
+					'Run tmux ls first if you forgot the name. Use the same machine where the session was created.',
+				lessonId: 'section-12-4',
+				keywords: ['reattach', 'tmux']
+			},
+			{
+				command: 'shellcheck <script>',
+				description: 'Check a shell script for common mistakes',
+				detail:
+					'Native tool; install it first. Read each finding and test the result after editing. A clean report does not prove a script is safe or correct.',
+				lessonId: 'section-13-2',
+				keywords: ['shellcheck', 'lint', 'script bug']
+			}
+		]
+	},
 	{
 		label: 'Panic Button',
 		icon: 'life-buoy',
 		commands: [
 			{
 				command: 'Ctrl+C',
+				kind: 'shortcut',
+				lessonId: 'keyboard-workshop',
 				description: 'Cancel the running command — or discard a typed line',
 				detail:
 					'Typed a scary command? Just don’t press Enter — `Ctrl+C` throws the line away unrun. Nothing you type executes until you press Enter.'
 			},
 			{
 				command: 'q',
+				kind: 'shortcut',
+				lessonId: 'section-1-3',
 				description: 'Quit a full-screen pager (`less`, `man`, `git log`)',
 				detail:
 					'A “frozen” terminal is very often just a pager waiting politely. If `q` does nothing, try `Ctrl+C` first, then `q`.'
@@ -782,12 +1007,16 @@ export const cheatSheet: CheatSheetCategory[] = [
 			},
 			{
 				command: ':q!',
+				kind: 'shortcut',
+				lessonId: 'section-12-3',
 				description: 'Trapped in vim? Press Esc, then type `:q!` and Enter',
 				detail:
 					'Quits without saving (`:wq` saves instead). Git and other tools open `vim` as an editor without warning — this is the universal exit. The `nano` equivalent is `Ctrl+X`.'
 			},
 			{
 				command: 'Ctrl+D',
+				kind: 'shortcut',
+				lessonId: 'section-1-3',
 				description: 'Close the shell (same as typing `exit`)',
 				detail:
 					'Sends “end of input”. If a program is waiting for input you did not intend to give, `Ctrl+D` on an empty line often releases it.'
@@ -815,13 +1044,38 @@ export const cheatSheet: CheatSheetCategory[] = [
 				description: 'What did I actually run? Read the record',
 				detail:
 					'Numbered list of your recent commands — the first step of any post-incident investigation, and `Ctrl+R` searches it interactively.'
-			},
-			{
-				command: 'Ctrl+U',
-				description: 'Wipe the line you are typing',
-				detail:
-					'The kernel’s own line-wipe (`kill = ^U` in `stty -a`) — for when something scary is sitting at the prompt half-typed. Its friends: `Ctrl+A`/`Ctrl+E` jump to line start/end, `Ctrl+W` eats the word behind the cursor.'
 			}
 		]
 	}
 ];
+
+/** Intent search: all query words can match the explanation or curated synonyms. */
+export function matchesReference(entry: CheatSheetCommand, query: string): boolean {
+	const text = [entry.command, entry.description, entry.detail ?? '', ...(entry.keywords ?? [])]
+		.join(' ')
+		.toLowerCase();
+	return query
+		.toLowerCase()
+		.trim()
+		.split(/\s+/)
+		.every((word) => text.includes(word));
+}
+
+function normalizeReferenceQuery(query: string): string {
+	return query
+		.trim()
+		.toLowerCase()
+		.replace(/[.!?]+$/, '')
+		.replace(/\s+/g, ' ');
+}
+
+/** Prefer a deliberately taught intent over coincidental words in long notes. */
+export function searchReferences(query: string): CheatSheetCommand[] {
+	const entries = cheatSheet.flatMap((category) => category.commands);
+	const normalized = normalizeReferenceQuery(query);
+	if (!normalized) return entries;
+	const exact = entries.filter((entry) =>
+		entry.keywords?.some((keyword) => normalizeReferenceQuery(keyword) === normalized)
+	);
+	return exact.length ? exact : entries.filter((entry) => matchesReference(entry, normalized));
+}

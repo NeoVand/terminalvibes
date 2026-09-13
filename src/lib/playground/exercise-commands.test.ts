@@ -1,5 +1,11 @@
+import { cheatSheet, matchesReference } from '../data/cheat-sheet';
 import { describe, expect, it } from 'vitest';
-import { commandWordsOf, exerciseFocusOf, rowUsesWords } from './exercise-commands';
+import {
+	commandWordsOf,
+	exerciseFocusOf,
+	referenceMatchesExercise,
+	rowUsesWords
+} from './exercise-commands';
 
 describe('commandWordsOf', () => {
 	it('takes the first word of a simple command', () => {
@@ -41,7 +47,7 @@ describe('exerciseFocusOf', () => {
 
 	it('returns null for ordinary sections and null input', () => {
 		expect(exerciseFocusOf('section-3-2')).toBeNull();
-		expect(exerciseFocusOf('hero')).toBeNull();
+		expect(exerciseFocusOf('hero')?.references?.has('say-hello')).toBe(true);
 		expect(exerciseFocusOf(null)).toBeNull();
 	});
 });
@@ -57,5 +63,44 @@ describe('rowUsesWords', () => {
 	it('rejects rows outside the set, including key chords', () => {
 		expect(rowUsesWords('mkdir <folder>', words)).toBe(false);
 		expect(rowUsesWords('Ctrl+C', words)).toBe(false);
+	});
+});
+
+describe('beginner reference focus', () => {
+	const entries = cheatSheet.flatMap((category) => category.commands);
+	it('all curated references resolve to an actual row', () => {
+		for (const id of [
+			'hero',
+			'hello-first-command',
+			'keyboard-workshop',
+			'first-steps',
+			'help-lookup',
+			'navigation',
+			'workspace-setup',
+			'edit-notes'
+		]) {
+			const focus = exerciseFocusOf(id)!;
+			for (const reference of focus.references ?? [])
+				expect(
+					entries.some((entry) => entry.id === reference),
+					`${id}: ${reference}`
+				).toBe(true);
+		}
+	});
+	it('hello focuses on printing, recall, and cancel, without unrelated echo examples', () => {
+		const focus = exerciseFocusOf('hero')!;
+		expect(
+			entries.filter((entry) => referenceMatchesExercise(entry, focus)).map((entry) => entry.id)
+		).toEqual(['key-history', 'key-cancel', 'say-hello']);
+	});
+	it('finds a shortcut by a learner’s problem rather than its key name', () => {
+		expect(
+			entries
+				.filter((entry) => matchesReference(entry, 'delete a whole line'))
+				.map((entry) => entry.id)
+		).toContain('key-whole-line');
+		expect(
+			entries.filter((entry) => matchesReference(entry, 'replace word')).map((entry) => entry.id)
+		).toContain('key-word');
 	});
 });

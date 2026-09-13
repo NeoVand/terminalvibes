@@ -47,7 +47,7 @@ const MAIN_PY = [
 ].join('\n');
 
 /** The flag letters this sandbox's ls actually accepts (shell-commands.ts: flagSplit(args, 'laFRht', 'ls')). */
-const LS_FLAGS = 'laFRht';
+const LS_FLAGS = 'laAFRht';
 
 /** The three facets the brief asks for. */
 const REQUIRED = ['a', 'l', 'h'] as const;
@@ -59,7 +59,7 @@ export const challengePart1: Challenge = {
 	title: 'Read before you run',
 
 	description:
-		"Your coding assistant has offered to 'tidy up' this project folder and pasted a one-liner at you. You cannot read it — you do not know what its flags mean — and Part 1's habit is to find that out before you press Enter, not after. So start with the folder itself. Open the built-in manual for the tool that lists a directory, and use what it teaches you to see all three things a plain listing will not show you: the entries it hides, the full details of every entry (permissions, owner, size, date), and those sizes written for a human — K and M, not raw bytes. This directory, not one inside it. Every wrong guess is an Enter you did not have to press; the manual is free.",
+		'Practise looking up one useful option. Open man ls, then use what you find to show hidden files, full details, and readable sizes in this folder. You can use separate commands or combine options. Look around and retry as often as you like; completing the task is what matters.',
 
 	goal: 'You looked it up first, then saw this folder in full: hidden entries, long details, human sizes',
 
@@ -104,24 +104,12 @@ export const challengePart1: Challenge = {
 			role: 'distractor',
 			kind: 'typo',
 			teaches: 'section-1-2',
-			trap: 'bash: sl: command not found — read it back in three parts: bash is who is complaining, sl is the word it choked on, command not found is the complaint. Two letters transposed, nothing broken, and you paid an Enter for it.'
+			trap: 'bash: sl: command not found — read it back in three parts: bash is who is complaining, sl is the word it choked on, command not found is the complaint. Two letters were transposed. Recall the line, repair it, and try again.'
 		},
 		{ command: 'ls -a', role: 'solution' },
-		{
-			command: 'ls -A',
-			role: 'distractor',
-			kind: 'misconception',
-			teaches: 'section-1-3',
-			trap: '-a and -A are two different requests: capitals are separate flags, and this ls has never heard of -A. It refused the whole line, so you did not even get the listing you would have got from plain ls.'
-		},
+		{ command: 'ls -A', role: 'solution' },
 		{ command: 'ls -l', role: 'solution' },
-		{
-			command: 'ls -a --all',
-			role: 'distractor',
-			kind: 'misconception',
-			teaches: 'section-1-3',
-			trap: 'When a manual prints "-a, --all", the comma means one flag with two names — use either, never both. Here it means neither: this ls only speaks the short spelling, and it rejected the line rather than guessing what you meant.'
-		},
+		{ command: 'ls -a --all', role: 'solution' },
 		{ command: 'ls -h', role: 'solution' },
 		{
 			command: 'man -k hidden',
@@ -177,6 +165,10 @@ export const challengePart1: Challenge = {
 			const letters: string[] = [];
 			let usable = true;
 			for (const token of tokens.slice(1)) {
+				if (token === '--all' || token === '--almost-all') {
+					letters.push('a');
+					continue;
+				}
 				if (token === '.') continue; // this directory, spelled out
 				if (!token.startsWith('-') || token.length < 2 || token.startsWith('--')) {
 					usable = false; // an operand, or a long option this ls rejects
@@ -187,7 +179,7 @@ export const challengePart1: Challenge = {
 						usable = false; // the sandbox threw "invalid option"; nothing was listed
 						break;
 					}
-					letters.push(ch);
+					letters.push(ch === 'A' ? 'a' : ch);
 				}
 				if (!usable) break;
 			}
@@ -200,7 +192,7 @@ export const challengePart1: Challenge = {
 	scoring: {
 		great: {
 			lines: ['man ls', 'ls -lah'],
-			note: 'Read the page once — free — and the three requests collapse into one Enter, because single letters cluster (1.3). One lookup, one command, nothing guessed.',
+			note: 'Read the page once — free — and the three requests collapse into one Enter, because single letters cluster (1.3). One lookup, one command, several separate listings are equally valid while you practise.',
 			expect: { enters: 1, elements: 1, cost: 2 }
 		},
 		greatAlternates: [

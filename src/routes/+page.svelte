@@ -29,6 +29,7 @@
 	import { createReflowWatcher, measureOffsets, scrollFraction } from '$lib/timeline/measure';
 	import type { PlacedItem } from '$lib/timeline/mapping';
 	import { readingContext } from '$lib/ai/reading-context.svelte';
+	import { focusAnchor, revealAnchor } from '$lib/navigation/reveal-anchor';
 	import { decodeSharedFromHash, type SharedSession } from '$lib/playground/share';
 	import {
 		loadThemePreference,
@@ -92,7 +93,7 @@
 	}
 
 	function scrollToSection(id: string, behavior: ScrollBehavior = 'smooth') {
-		const el = document.getElementById(id);
+		const el = revealAnchor(id);
 		if (el) {
 			window.scrollTo({ top: sectionScrollTop(el), behavior });
 		}
@@ -152,6 +153,51 @@
 			});
 		}
 
+		// Native fragment links also occur inside lessons. Reveal optional depth
+		// before the browser tries to scroll to a heading inside closed details.
+		function onAnchorClick(event: MouseEvent) {
+			if (
+				event.defaultPrevented ||
+				event.button !== 0 ||
+				event.metaKey ||
+				event.ctrlKey ||
+				event.shiftKey ||
+				event.altKey
+			)
+				return;
+			const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
+			if (!(link instanceof HTMLAnchorElement) || link.target || link.hasAttribute('download'))
+				return;
+			const url = new URL(link.href, location.href);
+			if (
+				url.origin !== location.origin ||
+				url.pathname !== location.pathname ||
+				url.search !== location.search ||
+				!url.hash
+			)
+				return;
+			let id: string;
+			try {
+				id = decodeURIComponent(url.hash.slice(1));
+			} catch {
+				return;
+			}
+			if (!document.getElementById(id)) return;
+			event.preventDefault();
+			handleNavigate(id);
+		}
+		function onHashChange() {
+			let id: string;
+			try {
+				id = decodeURIComponent(location.hash.slice(1));
+			} catch {
+				return;
+			}
+			if (document.getElementById(id)) handleNavigate(id);
+		}
+		document.addEventListener('click', onAnchorClick);
+		window.addEventListener('hashchange', onHashChange);
+
 		// `anchorIds` is sectionIds ++ playgroundAnchorIds ++ toolAnchorIds, which
 		// is NOT document order — every playground sits after every section. The
 		// scan below walks forward and breaks at the first anchor still below the
@@ -172,6 +218,7 @@
 			const offset = window.innerHeight * 0.2;
 			let best: string | null = null;
 			for (const el of sectionEls) {
+				if (el.getClientRects().length === 0) continue;
 				if (el.getBoundingClientRect().top <= offset) {
 					best = el.id;
 				} else {
@@ -215,8 +262,29 @@
 		const clearNavClick = () => {
 			navClickActive = false;
 		};
+		function onPageScrollKey(event: KeyboardEvent) {
+			if (
+				event.defaultPrevented ||
+				event.ctrlKey ||
+				event.metaKey ||
+				event.altKey ||
+				!['PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)
+			)
+				return;
+			// Editors, buttons, disclosure controls, and composite widgets own
+			// these keys. A key that scrolls the document resumes reading tracking.
+			if (
+				event.target instanceof Element &&
+				event.target.closest(
+					'input, textarea, select, button, summary, a[href], [contenteditable]:not([contenteditable="false"]), [data-terminal-input], [role="slider"], [role="listbox"], [role="combobox"], [role="menu"], [role="tablist"]'
+				)
+			)
+				return;
+			clearNavClick();
+		}
 		window.addEventListener('wheel', clearNavClick, { passive: true });
 		window.addEventListener('touchmove', clearNavClick, { passive: true });
+		window.addEventListener('keydown', onPageScrollKey);
 
 		// Decorate every section anchor's heading with a copy-permalink button.
 		for (const el of sectionEls) {
@@ -249,17 +317,22 @@
 		});
 
 		return () => {
+			document.removeEventListener('click', onAnchorClick);
+			window.removeEventListener('hashchange', onHashChange);
 			window.removeEventListener('scroll', onScroll);
 			cancelAnimationFrame(rafId);
 			clearTimeout(scrollbarTimer);
 			window.removeEventListener('wheel', clearNavClick);
 			window.removeEventListener('touchmove', clearNavClick);
+			window.removeEventListener('keydown', onPageScrollKey);
 			stopWatcher();
 			progressSets.destroy();
 		};
 	});
 
 	function handleNavigate(id: string) {
+		const target = revealAnchor(id);
+		if (!target) return;
 		activeSection = id;
 		navClickActive = true;
 		// Jump instantly: a smooth scroll across a page this tall takes long
@@ -267,6 +340,7 @@
 		// drifts. The alignment loop absorbs any shifts that land afterwards.
 		scrollToSection(id, 'instant');
 		keepSectionAligned(id, 2500);
+		focusAnchor(target);
 	}
 
 	function toggleSidebar() {
@@ -341,34 +415,34 @@
 </script>
 
 <svelte:head>
-	<title>TerminalVibes -- The Terminal for Vibe Coders</title>
+	<title>TerminalVibes — Learn the terminal by doing</title>
 	<meta
 		name="description"
-		content="An interactive guide to the terminal for developers using AI tools. Learn to read, verify, and run shell commands with confidence on macOS, Linux, and Windows."
+		content="A free, visual terminal course for absolute beginners. Practise your first command, keyboard shortcuts, files, and shell scripts in a safe browser sandbox."
 	/>
 	<link rel="canonical" href="https://neovand.github.io/terminalvibes/" />
-	<meta property="og:title" content="TerminalVibes — The Terminal for Vibe Coders" />
+	<meta property="og:title" content="TerminalVibes — Learn the terminal by doing" />
 	<meta
 		property="og:description"
-		content="An interactive, visual terminal tutorial for AI-assisted developers. Learn navigation, pipes, permissions, and command auditing."
+		content="Start with a command, then build practical terminal skills through small lessons, keyboard practice, and safe browser exercises."
 	/>
 	<meta property="og:image" content="https://neovand.github.io/terminalvibes/og-image.png" />
 	<meta
 		property="og:image:alt"
-		content="The Terminal for Vibe Coders — read, verify, and run shell commands with confidence"
+		content="TerminalVibes — Learn the terminal by doing, from your first command to confident keyboard shortcuts."
 	/>
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://neovand.github.io/terminalvibes/" />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="TerminalVibes — The Terminal for Vibe Coders" />
+	<meta name="twitter:title" content="TerminalVibes — Learn the terminal by doing" />
 	<meta
 		name="twitter:description"
-		content="An interactive, visual terminal tutorial for AI-assisted developers."
+		content="Learn terminal commands, keyboard shortcuts, and everyday file skills through small lessons and browser practice."
 	/>
 	<meta name="twitter:image" content="https://neovand.github.io/terminalvibes/og-image.png" />
 	<meta
 		name="twitter:image:alt"
-		content="The Terminal for Vibe Coders — read, verify, and run shell commands with confidence"
+		content="TerminalVibes — Learn the terminal by doing, from your first command to confident keyboard shortcuts."
 	/>
 	<!-- Safe {@html}: the payload is JSON.stringify of a static literal — no
 	     user input can reach it. It exists only to emit the JSON-LD script tag,
@@ -377,9 +451,9 @@
 	{@html `<script type="application/ld+json">${JSON.stringify({
 		'@context': 'https://schema.org',
 		'@type': 'Course',
-		name: 'TerminalVibes — The Terminal for Vibe Coders',
+		name: 'TerminalVibes — Learn the terminal by doing',
 		description:
-			'A free, interactive terminal course for developers who work with AI coding agents: navigating the filesystem, managing files safely, pipes and text tools, permissions and environment, and auditing AI-proposed commands — with 21 hands-on exercises in a sandboxed in-browser bash playground.',
+			'A free, visual terminal course for absolute beginners. Start by running a command, learn keyboard shortcuts and recovery, then practise navigation, file editing, pipes, permissions, scripts, processes, and everyday tools through browser exercises and clearly marked activities in your own terminal.',
 		url: 'https://neovand.github.io/terminalvibes/',
 		provider: {
 			'@type': 'Organization',
@@ -389,8 +463,9 @@
 		isAccessibleForFree: true,
 		educationalLevel: 'Beginner',
 		teaches: [
-			'Terminal fundamentals (prompt, commands, getting help)',
-			'Navigating and managing files (cd, ls, cp, mv, rm)',
+			'Running a first command, reading the prompt, and getting help',
+			'Keyboard shortcuts for moving, editing, recalling, and cancelling commands',
+			'Navigating, editing, and managing files (cd, ls, cat, cp, mv, rm)',
 			'Pipes, redirection, and text tools (grep, sort, uniq, find)',
 			'Permissions, sudo, and environment variables',
 			'Reading and auditing shell commands proposed by AI agents'
@@ -427,7 +502,7 @@
 	{agentOpen}
 />
 <Sidebar open={sidebarOpen} {activeSection} onToggle={toggleSidebar} onNavigate={handleNavigate} />
-<CheatSheet open={cheatSheetOpen} onToggle={toggleCheatSheet} />
+<CheatSheet open={cheatSheetOpen} onToggle={toggleCheatSheet} onNavigate={handleNavigate} />
 <PlaygroundPanel open={playgroundOpen} onToggle={togglePlayground} shared={sharedSession} />
 <AgentPanel open={agentOpen} onToggle={toggleAgent} onNavigate={handleNavigate} />
 
