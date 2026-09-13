@@ -415,7 +415,7 @@
 						<h2 id="concept-title">{current.title}</h2>
 						<p class="purpose">{current.purpose}</p>
 						<div class="lesson-links">
-							{#each [...new Set([...current.sourceRefs, ...current.placements].map((reference) => reference.section))] as section (section)}<a
+							{#each [...new Set((current.placements.length ? current.placements : current.sourceRefs).map((reference) => reference.section))] as section (section)}<a
 									href={resolve(`/#${section}`)}
 									target="_blank"
 									rel="noreferrer">Read this lesson ↗ <span class="section-id">{section}</span></a

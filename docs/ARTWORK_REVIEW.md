@@ -2,13 +2,15 @@
 
 **Current scope: ten new teaching concepts, fifty alternatives, in the original course style.** The owner ended the replacement-art work. Keep existing course artwork. Generate only the keyboard workshop, editor/save, script arguments, conditions, loops, checked copying, and modern finding, choosing, revisiting, and reading concepts. Each receives five actual generated compositions for owner choice.
 
-The full inventory still records 64 concepts and all 56 current raster usages for traceability. `reviewScope` restricts the local gallery and prompt generator to the ten requested concepts. The other 54 concepts are outside this task.
+The full inventory records 64 concepts and all 65 current raster usages for traceability. `reviewScope` restricts the local gallery and prompt generator to the ten requested concepts. The other 54 concepts are outside this task.
 
 Use the original course files as direct style references: near-black woodland, aged brass, warm parchment, green terminal lettering, and intricate natural hermit crabs. Preserve their palette, exposure, and rendering. Vary composition within that style. The ten briefs supply exact lesson-grounded text and technical checks.
 
 The abandoned replacement experiments and their prompts remain under ignored `output/artwork-rejected/`, outside static output. Do not resume old generation plans. No candidate is selected automatically.
 
-**Generation complete:** all fifty candidates are available locally. `static/art-candidates/provenance-audit.json` records the successful file, hash, uniqueness, prompt, and full-frame checks. The actual prompt and source fingerprint for every alternative are saved beside it. `corrections-original-style.json` records targeted text edits; prior attempts remain in the ignored archive. Owner selection and lesson insertion remain outstanding.
+**Owner choices installed:** all ten decisions from `docs/artwork/choices-2026-09-13.json` were verified against the candidate hashes and added to their lessons. `docs/artwork/installed-2026-09-13.json` records the approved primary files, mobile derivatives, hashes, dimensions, and placements. Primary files are byte-for-byte copies of the selected candidates; mobile files preserve the full frame at 768 pixels wide. The keyboard and saved-file rail thumbnails are refreshed. The other original course images remain in place.
+
+All fifty candidates remain available locally. `static/art-candidates/provenance-audit.json` records the successful generation checks. Actual prompts and source fingerprints are saved beside the candidates. `corrections-original-style.json` records targeted text edits; prior attempts remain in the ignored archive. Only the ten selected images and their responsive derivatives ship in the course.
 
 ## Inventory and generation handoff
 
@@ -39,7 +41,7 @@ static/art-candidates/<concept-id>/05.webp
 
 The whole `static/art-candidates/` directory is ignored by Git, including generation provenance and review metadata. Never place drafts in `static/images/`. The early v2 workbench drafts are archived under `output/artwork-rejected/early-workbench-drafts/` and are outside this review.
 
-Existing logos, favicons, social previews, and timeline thumbnails are outside the current image scope. Final lesson insertion follows the owner’s choices.
+Existing logos, favicons, and social previews are outside the current image scope. Timeline thumbnails change only where the approved lesson image supplies that anchor's banner.
 
 ## Review locally
 

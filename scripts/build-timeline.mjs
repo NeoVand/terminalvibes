@@ -172,6 +172,9 @@ for (const file of files) {
 		file: m[1],
 		at: m.index
 	}));
+	const subsectionStarts = [...scan.matchAll(/<h[1-4]\b[^>]*\bid="[a-z0-9-]+"/g)].map(
+		(match) => match.index
+	);
 
 	const comp = file.replace('.svelte', '');
 
@@ -180,6 +183,10 @@ for (const file of files) {
 		const end = i + 1 < anchors.length ? anchors[i + 1].at : scan.length;
 		const kind = kindOf(id);
 		const between = (list) => list.find((x) => x.at > at && x.at < end);
+		// A later subsection can start before the next rail anchor. Its picture
+		// must not become the preceding playground's banner.
+		const nextSubsection = subsectionStarts.find((start) => start > at && start < end);
+		const imageEnd = kind === 'playground' ? (nextSubsection ?? end) : end;
 
 		// Both activity kinds name themselves on the tag. A challenge especially
 		// must not fall through to `between(titles)`: it is the LAST thing in its
@@ -192,7 +199,7 @@ for (const file of files) {
 			id,
 			kind,
 			title,
-			image: between(images)?.file ?? null,
+			image: images.find((image) => image.at > at && image.at < imageEnd)?.file ?? null,
 			comp
 		});
 	}

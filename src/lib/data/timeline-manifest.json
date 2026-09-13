@@ -21,7 +21,7 @@
 		"id": "keyboard-workshop",
 		"kind": "section",
 		"title": "Fix a line. Keep your flow.",
-		"image": "history-superpowers.webp",
+		"image": "keyboard-line-editing.webp",
 		"thumb": "keyboard-workshop",
 		"inherited": false,
 		"comp": "Hero"
@@ -201,7 +201,7 @@
 		"id": "edit-notes",
 		"kind": "playground",
 		"title": "Add to Your Seed List",
-		"image": "looking-inside.webp",
+		"image": "file-editor-save.webp",
 		"thumb": "edit-notes",
 		"inherited": false,
 		"comp": "Part2"
@@ -210,7 +210,7 @@
 		"id": "workspace-setup",
 		"kind": "playground",
 		"title": "Build Your Notebook Workspace",
-		"image": "looking-inside.webp",
+		"image": "file-editor-save.webp",
 		"thumb": "edit-notes",
 		"inherited": true,
 		"comp": "Part2"
@@ -219,7 +219,7 @@
 		"id": "ch-2-scaffold",
 		"kind": "challenge",
 		"title": "Scaffold It From Here",
-		"image": "looking-inside.webp",
+		"image": "file-editor-save.webp",
 		"thumb": "edit-notes",
 		"inherited": true,
 		"comp": "Part2"

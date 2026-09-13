@@ -200,6 +200,13 @@ printf 'Copied %s to %s\\n' "$source_folder" "$destination"`;
 				the script, <Code code="$1" /> holds the first argument. <Code code="$2" /> holds the second.
 				Quotes keep an argument with spaces together.
 			</p>
+			<ExpandableImage
+				src="{base}/images/script-arguments.webp"
+				srcset="{base}/images/script-arguments-768.webp 768w, {base}/images/script-arguments.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="An arrow carries the quoted My Notes argument from ./backup.sh into the script’s $1 value as one folder name."
+				caption="Quotes keep My Notes together. The quote characters themselves are not part of the argument."
+			/>
 			<CodeBlock code={argumentBackup} title="Contents of backup.sh · a small argument exercise" />
 			<p>
 				This version creates the backup folder and only copies if that step succeeds. The quoted <Code
@@ -234,6 +241,13 @@ printf 'Copied %s to %s\\n' "$source_folder" "$destination"`;
 					code="[ -f notes.txt ]"
 				/> are required: the brackets and their arguments are separate words.
 			</p>
+			<ExpandableImage
+				src="{base}/images/script-conditions.webp"
+				srcset="{base}/images/script-conditions-768.webp 768w, {base}/images/script-conditions.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="A file test, [ -f notes.txt ], splits into Yes and No branches. Yes prints The note exists; No prints Create notes.txt first."
+				caption="Predict the branch, then try the check with and without notes.txt. Only one branch runs."
+			/>
 			<p>
 				<Code code="-f" /> checks for a regular file. <Code code="-d" /> checks for a directory. <Code
 					code="!"
@@ -255,6 +269,13 @@ printf 'Copied %s to %s\\n' "$source_folder" "$destination"`;
 				value. The commands between do and done run once for that value. The quoted variable remains one
 				argument even when the value contains spaces.
 			</p>
+			<ExpandableImage
+				src="{base}/images/script-loops.webp"
+				srcset="{base}/images/script-loops-768.webp 768w, {base}/images/script-loops.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="A loop visits basil, mint, and thyme. Three arrows lead to three output lines: Remember to water basil, mint, and thyme, one plant per line."
+				caption="Each item gets one turn. The same printf command runs with a different value of plant."
+			/>
 			<p>
 				Add <Code code="&quot;lemon balm&quot;" /> to the list and predict how many lines will print.
 				It should produce one line for that two-word plant, not two separate plants.
@@ -281,6 +302,13 @@ printf 'Copied %s to %s\\n' "$source_folder" "$destination"`;
 				> destination name. It refuses to overwrite an existing destination and only announces completion
 				after the copy succeeds.
 			</p>
+			<ExpandableImage
+				src="{base}/images/script-safe-copy.webp"
+				srcset="{base}/images/script-safe-copy-768.webp 768w, {base}/images/script-safe-copy.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="Check two arguments, an existing source folder, and a new destination; copy with quoted paths; then read the copied seeds.txt and confirm basil."
+				caption="Check the inputs, check whether copying succeeded, then inspect the result. The source folder can have any name."
+			/>
 			<CodeBlock code={safeBackup} title="Real Bash · save as backup-safe.sh" />
 			<ol>
 				<li>

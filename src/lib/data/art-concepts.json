@@ -3,7 +3,7 @@
 	"version": "2026-09-new-sections-original-style",
 	"title": "New-section artwork review",
 	"minimumAlternatives": 5,
-	"artDirection": "Match the supplied ORIGINAL TerminalVibes artwork exactly in visual style: near-black forest and warm brown shadows, aged golden brass, dark green glass, weathered wood, small areas of warm aged parchment, softly luminous green monospaced terminal text, large antique gold serif headings, moss, ferns and tiny fireflies. Use the same richly rendered natural hermit crab with intricately fitted brass shell details. This is a mature, tactile, cinematic botanical workshop, not a cartoon. Match the references’ restrained exposure and warm palette. Keep the explanation spacious and readable. Do not introduce blue-charcoal, cyan, bright white backgrounds, a new palette, or a different illustration medium.",
+	"artDirection": "Match the supplied ORIGINAL TerminalVibes artwork exactly in visual style: near-black forest and warm brown shadows, aged golden brass, dark green glass, weathered wood, small areas of warm aged parchment, softly luminous green monospaced terminal text, large antique gold serif headings, moss, ferns and tiny fireflies. Use the same richly rendered natural hermit crab with intricately fitted brass shell details. This is a mature, tactile, cinematic botanical workshop, not a cartoon. Match the references\u2019 restrained exposure and warm palette. Keep the explanation spacious and readable. Do not introduce blue-charcoal, cyan, bright white backgrounds, a new palette, or a different illustration medium.",
 	"guardrails": [
 		"Commands, paths, keyboard shortcuts, labels, and before/after results are welcome and expected when they teach the concept. Supply their exact text in the brief, render it legibly, and verify spelling, syntax, and technical relationships against the lesson. Do not replace meaningful text with blank surfaces or decorative pseudo-writing.",
 		"Rich illustration is supporting evidence, never the only explanation. Match the visual checks for the concept.",
@@ -28,8 +28,8 @@
 		},
 		{
 			"id": "04",
-			"name": "Archivist’s desk",
-			"brief": "A slightly overhead view of a dark wood archivist’s desk. Arrange the teaching content in an intentional reading order on a few brass-edged plates and a small parchment inset, with a detailed crab in a corner. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
+			"name": "Archivist\u2019s desk",
+			"brief": "A slightly overhead view of a dark wood archivist\u2019s desk. Arrange the teaching content in an intentional reading order on a few brass-edged plates and a small parchment inset, with a detailed crab in a corner. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
 		},
 		{
 			"id": "05",
@@ -228,15 +228,15 @@
 				"Show the exact same command once, with a start marker immediately before echo and an end marker immediately after garden. Labels must clearly attach to their respective endpoints. These are two possible cursor destinations, not two simultaneous cursors.",
 				"The clear-line shortcut is a sequence: first move to the end, then cut back to the beginning. Do not imply Ctrl+U always removes an entire line from the middle."
 			],
-			"altSuggestion": "Teach cursor movement, deleting part of a line, restoring text, and recalling a command as separate actions.",
+			"altSuggestion": "Ctrl+A points before echo hello garden; Ctrl+E points after it. Ctrl+E followed by Ctrl+U clears the whole line.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [
 				{
 					"file": "src/lib/components/playground/KeyboardWorkshop.svelte",
 					"section": "keyboard-workshop",
-					"src": "images/history-superpowers.webp",
-					"alt": "A hermit crab follows a ribbon of earlier commands. Command history lets you return to something you typed.",
-					"caption": ""
+					"src": "images/keyboard-line-editing.webp",
+					"alt": "Ctrl+A points before echo hello garden; Ctrl+E points after it. Ctrl+E followed by Ctrl+U clears the whole line.",
+					"caption": "The two markers show possible cursor destinations. Move to the end before clearing the whole line."
 				}
 			],
 			"placements": [],
@@ -277,7 +277,13 @@
 			"styleReferences": [
 				"static/images/history-superpowers.webp",
 				"static/images/first-script.webp"
-			]
+			],
+			"installedArtwork": {
+				"variantId": "05",
+				"path": "images/keyboard-line-editing.webp",
+				"sha256": "3b1f6594aeb0d9bc537515b3bb961abe6bf9fdac8650c3ed67d678d7a0fb302c",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "first-commands",
@@ -397,13 +403,13 @@
 			"chapter": 2,
 			"kind": "replacement",
 			"purpose": "Show absolute and relative paths as two ways to describe one destination.",
-			"visualBrief": "Teach one idea: an absolute path and a relative path can reach the same file. Create one spacious folder diagram, two directly labeled routes, and one current-location marker. Root / leads through home, vibe, and garden; garden branches to notes.txt and photos. Place both route labels next to the diagram. The title and short subtitle establish the idea. Preserve the original’s intricate craftsmanship in materials and a small guide crab, with restrained botanical framing and ample open space.",
+			"visualBrief": "Teach one idea: an absolute path and a relative path can reach the same file. Create one spacious folder diagram, two directly labeled routes, and one current-location marker. Root / leads through home, vibe, and garden; garden branches to notes.txt and photos. Place both route labels next to the diagram. The title and short subtitle establish the idea. Preserve the original\u2019s intricate craftsmanship in materials and a small guide crab, with restrained botanical framing and ample open space.",
 			"visualChecks": [
-				"Draw the folder hierarchy once: / → home → vibe → garden, then branch to notes.txt and photos. Mark photos as You are here. notes.txt is the single destination.",
+				"Draw the folder hierarchy once: / \u2192 home \u2192 vibe \u2192 garden, then branch to notes.txt and photos. Mark photos as You are here. notes.txt is the single destination.",
 				"Trace the absolute route from / through home, vibe, and garden to notes.txt. Trace the relative route from photos up to garden, then down to that same notes.txt. Carry both route colors all the way to the target, using parallel tracks on the shared final edge. Arrows must agree with these directions.",
 				"Use exactly the supplied teaching text. No extra slogans, decorative writing, repeated diagram, terminal transcript, shortcut legend, or additional explanatory panel in this particular figure.",
 				"Make path strings large and fully legible. Keep two dots and the slash in ../notes.txt. Separate connectors, labels, and decoration so they do not overlap.",
-				"Keep substantial open space around the diagram. Use the original’s mature mechanical hermit crab at a small supporting scale. Avoid crowds of props and ornamental boxes competing with the route comparison.",
+				"Keep substantial open space around the diagram. Use the original\u2019s mature mechanical hermit crab at a small supporting scale. Avoid crowds of props and ornamental boxes competing with the route comparison.",
 				"Place photos directly below garden and notes.txt to the right of garden. The amber route must visibly touch garden before continuing to notes.txt; no direct shortcut from photos to notes.txt."
 			],
 			"altSuggestion": "One folder diagram shows an absolute route from root and a relative route from the current photos folder reaching the same notes.txt file.",
@@ -630,9 +636,17 @@
 				"Draft text is basil, mint, thyme on separate lines; the readback after Save has exactly the same three lines.",
 				"Do not imply typing alone saves the file. Arrows run Draft to Save to Read. Do not add a misleading command prompt to output lines."
 			],
-			"altSuggestion": "Make the difference between an editor draft and the saved sandbox file visible.",
+			"altSuggestion": "Three panels show a draft of notes/seeds.txt containing basil, mint, and thyme, Ctrl+S to save, and cat printing the saved list.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part2.svelte",
+					"section": "section-2-5",
+					"src": "images/file-editor-save.webp",
+					"alt": "Three panels show a draft of notes/seeds.txt containing basil, mint, and thyme, Ctrl+S to save, and cat printing the saved list.",
+					"caption": "In this course\u2019s file editor, Ctrl+S saves the draft. Read it back in the terminal to check."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part2.svelte",
@@ -673,7 +687,13 @@
 				}
 			],
 			"teachingText": "Title: Edit, save, read it back\nFirst stage: Draft\nnotes/seeds.txt\nbasil\nmint\nthyme\nMiddle action: Save\nLast stage: Read the saved file\ncat notes/seeds.txt\nbasil\nmint\nthyme",
-			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"]
+			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"],
+			"installedArtwork": {
+				"variantId": "05",
+				"path": "images/file-editor-save.webp",
+				"sha256": "52b5a3c93b9dd574cc8a0565fa95c0a13c34422d673ddc0c686dde7f561b4594",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "copying",
@@ -916,7 +936,7 @@
 					"file": "src/lib/components/sections/Part4.svelte",
 					"section": "section-4-1",
 					"src": "images/redirection.webp",
-					"alt": "A command’s output going into a file instead of the terminal display.",
+					"alt": "A command\u2019s output going into a file instead of the terminal display.",
 					"caption": "The destination is the filename after the arrow."
 				}
 			],
@@ -1582,9 +1602,17 @@
 				"The command uses straight double quotes around My Notes. The value of $1 is My Notes without literal surrounding quote characters.",
 				"Show one argument, not two. The $1 slot and quoted phrase are directly connected. Do not imply the script is edited by supplying an argument."
 			],
-			"altSuggestion": "Show how one quoted filename argument reaches the script as one value.",
+			"altSuggestion": "An arrow carries the quoted My Notes argument from ./backup.sh into the script\u2019s $1 value as one folder name.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-arguments.webp",
+					"alt": "An arrow carries the quoted My Notes argument from ./backup.sh into the script\u2019s $1 value as one folder name.",
+					"caption": "Quotes keep My Notes together. The quote characters themselves are not part of the argument."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part6.svelte",
@@ -1625,7 +1653,13 @@
 				}
 			],
 			"teachingText": "Title: Arguments\nOne script, different inputs.\nCommand: ./backup.sh \"My Notes\"\nInside the script\n$1\nMy Notes\nQuotes keep one name together.",
-			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"]
+			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"],
+			"installedArtwork": {
+				"variantId": "04",
+				"path": "images/script-arguments.webp",
+				"sha256": "72e74bfa5886a77d13eb16894c84855c03d3d0f158ed3aabff61de13eaedae9c",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "script-conditions",
@@ -1638,9 +1672,17 @@
 				"The yes branch connects only to The note exists; the no branch connects only to Create notes.txt first.",
 				"Required spaces appear between [, -f, notes.txt, and ]. Label the bracket expression as the test, not a complete if program. No route should execute both branches."
 			],
-			"altSuggestion": "Show that a test chooses one branch and the failure path deserves practice too.",
+			"altSuggestion": "A file test, [ -f notes.txt ], splits into Yes and No branches. Yes prints The note exists; No prints Create notes.txt first.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-conditions.webp",
+					"alt": "A file test, [ -f notes.txt ], splits into Yes and No branches. Yes prints The note exists; No prints Create notes.txt first.",
+					"caption": "Predict the branch, then try the check with and without notes.txt. Only one branch runs."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part6.svelte",
@@ -1681,7 +1723,13 @@
 				}
 			],
 			"teachingText": "Title: Make a decision\nTest: [ -f notes.txt ]\nYes\necho \"The note exists\"\nNo\necho \"Create notes.txt first\"\nOne test. One branch runs.",
-			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"]
+			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"],
+			"installedArtwork": {
+				"variantId": "01",
+				"path": "images/script-conditions.webp",
+				"sha256": "3deda984595521f2ffdc5eeac1e37973e735802d91159f05c17af062c6f7b3e8",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "script-loops",
@@ -1694,9 +1742,17 @@
 				"Render printf format with a literal backslash and n inside the single quotes; render \"$plant\" exactly.",
 				"The loop has three values and exactly three output lines in the same order. Code and output must be visibly separate."
 			],
-			"altSuggestion": "Make a loop an understandable series of iterations over a finite set.",
+			"altSuggestion": "A loop visits basil, mint, and thyme. Three arrows lead to three output lines: Remember to water basil, mint, and thyme, one plant per line.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-loops.webp",
+					"alt": "A loop visits basil, mint, and thyme. Three arrows lead to three output lines: Remember to water basil, mint, and thyme, one plant per line.",
+					"caption": "Each item gets one turn. The same printf command runs with a different value of plant."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part6.svelte",
@@ -1737,7 +1793,13 @@
 				}
 			],
 			"teachingText": "Title: One at a time\nBash code:\nfor plant in basil mint thyme; do\n  printf 'Remember to water %s\\n' \"$plant\"\ndone\nOutput:\nRemember to water basil\nRemember to water mint\nRemember to water thyme",
-			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"]
+			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"],
+			"installedArtwork": {
+				"variantId": "03",
+				"path": "images/script-loops.webp",
+				"sha256": "a680584f6405dd5888d0cec61b241dc659450c787be0bc7a76217c51369dd321",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "script-safe-copy",
@@ -1751,9 +1813,17 @@
 				"The quoted source and destination must remain intact and ordered correctly. The verify example reads the actual copied seeds.txt file; basil is output, not another command.",
 				"This is a workflow excerpt, not a complete standalone script. Do not suggest copying guarantees verified contents or automatic rollback."
 			],
-			"altSuggestion": "Link argument validation, source checks, fresh destination checks, copying, and result evidence.",
+			"altSuggestion": "Check two arguments, an existing source folder, and a new destination; copy with quoted paths; then read the copied seeds.txt and confirm basil.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part6.svelte",
+					"section": "section-6-2",
+					"src": "images/script-safe-copy.webp",
+					"alt": "Check two arguments, an existing source folder, and a new destination; copy with quoted paths; then read the copied seeds.txt and confirm basil.",
+					"caption": "Check the inputs, check whether copying succeeded, then inspect the result. The source folder can have any name."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part6.svelte",
@@ -1794,7 +1864,13 @@
 				}
 			],
 			"teachingText": "Title: Copy with checks\n1. Check\nTwo arguments\nSource folder exists\nDestination is new\n2. Copy\ncp -R -- \"$source\" \"$destination\"\nContinue only if copying succeeds.\n3. Verify\ncat \"practice copy/seeds.txt\"\nbasil",
-			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"]
+			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"],
+			"installedArtwork": {
+				"variantId": "02",
+				"path": "images/script-safe-copy.webp",
+				"sha256": "eb03cf9fca24f20bdd8d9004e1bb918100b2dbf023ec986210451c30352dd4fc",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "find-replace",
@@ -1982,7 +2058,7 @@
 					"section": "section-7-4",
 					"src": "images/columns-awk.webp",
 					"alt": "A text table divided into numbered fields and selected output columns.",
-					"caption": "First inspect the table’s separators; then choose the fields."
+					"caption": "First inspect the table\u2019s separators; then choose the fields."
 				}
 			],
 			"placements": [],
@@ -2206,7 +2282,7 @@
 					"section": "section-8-4",
 					"src": "images/background-jobs.webp",
 					"alt": "One program works on a stage while two others work behind the curtain.",
-					"caption": "Foreground and background describe how a job shares this shell’s terminal."
+					"caption": "Foreground and background describe how a job shares this shell\u2019s terminal."
 				}
 			],
 			"placements": [],
@@ -2760,13 +2836,21 @@
 				"The fd command has all four arguments: -e, md, ., notes. Avoid fabricated result lists or implying hidden and ignored files are always searched.",
 				"The example word watering must start with lowercase w: this command is case-sensitive. Do not show uppercase Watering as its match."
 			],
-			"altSuggestion": "Distinguish ripgrep content search from fd filename search.",
+			"altSuggestion": "ripgrep finds the word watering inside a note, while fd finds Markdown filenames such as garden.md and ideas.md.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-find.webp",
+					"alt": "ripgrep finds the word watering inside a note, while fd finds Markdown filenames such as garden.md and ideas.md.",
+					"caption": "Decide what you are looking for: words inside files, or the names of files."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part10.svelte",
-					"section": "section-10-1"
+					"section": "modern-find"
 				}
 			],
 			"derivedAssets": [
@@ -2806,7 +2890,13 @@
 			"styleReferences": [
 				"static/images/looking-inside.webp",
 				"static/images/package-managers.webp"
-			]
+			],
+			"installedArtwork": {
+				"variantId": "05",
+				"path": "images/modern-find.webp",
+				"sha256": "ee487c2743199489fe8fa6d067a518efe09d79ed427602cf48d34bf293f0e2f1",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "modern-select",
@@ -2819,13 +2909,21 @@
 				"Exactly one row is selected: notes/watering.md. That exact filename is the sole returned selection.",
 				"Selection does not open, execute, delete, or modify the file. The pipeline must include the | character."
 			],
-			"altSuggestion": "Show fzf filtering an existing list and returning a selection without executing it.",
+			"altSuggestion": "rg --files notes feeds three filenames into fzf. Selecting notes/watering.md and pressing Enter prints that filename.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-select.webp",
+					"alt": "rg --files notes feeds three filenames into fzf. Selecting notes/watering.md and pressing Enter prints that filename.",
+					"caption": "This pipeline returns the selected name. It does not open, edit, or run the file."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part10.svelte",
-					"section": "section-10-1"
+					"section": "modern-select"
 				}
 			],
 			"derivedAssets": [
@@ -2865,7 +2963,13 @@
 			"styleReferences": [
 				"static/images/looking-inside.webp",
 				"static/images/history-superpowers.webp"
-			]
+			],
+			"installedArtwork": {
+				"variantId": "01",
+				"path": "images/modern-select.webp",
+				"sha256": "d70dad1de5665c03d67d423c5ce87ec9f39ebe9b52c4c95853bba55c1ff2b657",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "modern-revisit",
@@ -2878,13 +2982,21 @@
 				"The result /home/vibe/garden/notes belongs to pwd, not output printed by z notes. Display it immediately below pwd.",
 				"Do not imply zoxide knows all folders before setup or a first visit, or that a short name always identifies the intended destination."
 			],
-			"altSuggestion": "Show zoxide as remembered navigation followed by a location check.",
+			"altSuggestion": "After setup and a previous visit, z notes returns to a remembered folder. pwd confirms /home/vibe/garden/notes beside a garden map and doorway.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-revisit.webp",
+					"alt": "After setup and a previous visit, z notes returns to a remembered folder. pwd confirms /home/vibe/garden/notes beside a garden map and doorway.",
+					"caption": "Let the shortcut take you there, then use pwd to check where you landed."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part10.svelte",
-					"section": "section-10-1"
+					"section": "modern-revisit"
 				}
 			],
 			"derivedAssets": [
@@ -2924,7 +3036,13 @@
 			"styleReferences": [
 				"static/images/history-superpowers.webp",
 				"static/images/package-managers.webp"
-			]
+			],
+			"installedArtwork": {
+				"variantId": "04",
+				"path": "images/modern-revisit.webp",
+				"sha256": "a0b7751c327c00a239a6a3bac15bf9ac1159387407b799a4ad594caf1d4a1d70",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "modern-read",
@@ -2937,13 +3055,21 @@
 				"Line numbers 1, 2, 3 align with basil, mint, thyme respectively. The numbers are reader decoration, not file content.",
 				"No Save button, text cursor, changed contents, or editing operation. The pager note is conditional, since short files may not open one."
 			],
-			"altSuggestion": "Show bat as a reader with highlighting and optional paging, separate from editing.",
+			"altSuggestion": "bat notes.txt displays basil, mint, and thyme with line numbers 1, 2, and 3. A note says to press q if a pager opens.",
 			"aspectRatio": "16:9",
-			"sourceRefs": [],
+			"sourceRefs": [
+				{
+					"file": "src/lib/components/sections/Part10.svelte",
+					"section": "section-10-1",
+					"src": "images/modern-read.webp",
+					"alt": "bat notes.txt displays basil, mint, and thyme with line numbers 1, 2, and 3. A note says to press q if a pager opens.",
+					"caption": "Line numbers help you keep your place. If bat opens a pager, q returns you to the prompt."
+				}
+			],
 			"placements": [
 				{
 					"file": "src/lib/components/sections/Part10.svelte",
-					"section": "section-10-1"
+					"section": "modern-read"
 				}
 			],
 			"derivedAssets": [
@@ -2980,7 +3106,13 @@
 				}
 			],
 			"teachingText": "Title: Read with bat\nbat notes.txt\nnotes.txt\n1  basil\n2  mint\n3  thyme\nLine numbers help you keep your place.\nIf a pager opens: q to quit",
-			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"]
+			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"],
+			"installedArtwork": {
+				"variantId": "04",
+				"path": "images/modern-read.webp",
+				"sha256": "9cc4ea03f12c90a89a2a6cf60cb888b418a445376d669f8233c280d29c323ec4",
+				"approvalExport": "docs/artwork/choices-2026-09-13.json"
+			}
 		},
 		{
 			"id": "read-before-you-run",

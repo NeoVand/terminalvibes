@@ -22,11 +22,12 @@ test('every active illustration is inventoried and every concept has at least fi
 	missing.concepts.shift();
 	assert.ok(validateCatalog(missing).some((error) => error.includes('Uncatalogued illustration')));
 });
-test('keyboard and history get separate choices despite sharing an old image', () => {
+test('keyboard and history retain separate artwork and review choices', () => {
 	const keyboard = catalog.concepts.find((concept) => concept.id === 'keyboard-line-editing');
 	const history = catalog.concepts.find((concept) => concept.id === 'history-superpowers');
 	assert.equal(keyboard.sourceRefs[0].section, 'keyboard-workshop');
 	assert.equal(history.sourceRefs[0].section, 'section-12-2');
+	assert.notEqual(keyboard.sourceRefs[0].src, history.sourceRefs[0].src);
 	assert.notEqual(keyboard.variants[0].path, history.variants[0].path);
 });
 test('each prompt combines its teaching brief with a distinct visual direction', () => {

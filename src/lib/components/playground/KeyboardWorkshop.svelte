@@ -3,6 +3,7 @@
 	import { base } from '$app/paths';
 	import { ArrowRight, Check, RotateCcw, Keyboard } from 'lucide-svelte';
 	import { actionForKey, editLine, type LineAction } from '$lib/playground/line-editor';
+	import ExpandableImage from '../ui/ExpandableImage.svelte';
 
 	const steps: {
 		title: string;
@@ -213,12 +214,12 @@
 				here changes your files.
 			</p>
 		</div>
-		<img
-			src={`${base}/images/history-superpowers.webp`}
-			width="2560"
-			height="1440"
-			loading="lazy"
-			alt="A hermit crab follows a ribbon of earlier commands. Command history lets you return to something you typed."
+		<ExpandableImage
+			src="{base}/images/keyboard-line-editing.webp"
+			srcset="{base}/images/keyboard-line-editing-768.webp 768w, {base}/images/keyboard-line-editing.webp 1672w"
+			sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+			alt="Ctrl+A points before echo hello garden; Ctrl+E points after it. Ctrl+E followed by Ctrl+U clears the whole line."
+			caption="The two markers show possible cursor destinations. Move to the end before clearing the whole line."
 		/>
 	</div>
 
@@ -394,15 +395,10 @@
 	}
 	.workshop-heading {
 		display: grid;
-		grid-template-columns: 1.3fr 0.8fr;
+		grid-template-columns: 1fr;
 		gap: 1.5rem;
 		align-items: center;
 		margin-bottom: 1.5rem;
-	}
-	.workshop-heading img {
-		width: 100%;
-		height: auto;
-		border-radius: 1rem;
 	}
 	.eyebrow {
 		display: flex;
@@ -677,10 +673,6 @@
 		.workshop-heading {
 			grid-template-columns: 1fr;
 			gap: 0.5rem;
-		}
-		.workshop-heading img {
-			max-height: 210px;
-			object-fit: cover;
 		}
 		.workshop-card {
 			padding: 1rem;

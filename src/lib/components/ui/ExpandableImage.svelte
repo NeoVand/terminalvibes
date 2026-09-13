@@ -3,6 +3,8 @@
 
 	let {
 		src,
+		srcset,
+		sizes,
 		alt,
 		caption = '',
 		class: className = 'w-full rounded-xl',
@@ -14,6 +16,8 @@
 		height = 941
 	}: {
 		src: string;
+		srcset?: string;
+		sizes?: string;
 		alt: string;
 		caption?: string;
 		class?: string;
@@ -43,6 +47,8 @@
 		>
 			<img
 				{src}
+				{srcset}
+				{sizes}
 				{alt}
 				class="h-auto {className}"
 				{loading}

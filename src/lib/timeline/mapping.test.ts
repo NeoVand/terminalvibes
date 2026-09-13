@@ -135,6 +135,15 @@ describe('navigation space', () => {
 });
 
 describe('manifest', () => {
+	it('keeps a later teaching diagram out of the preceding playground banner', () => {
+		for (const [id, image] of [
+			['exit-codes', 'exit-codes.webp'],
+			['script-args', 'exit-codes.webp'],
+			['summon-a-tool', 'package-managers.webp']
+		]) {
+			expect(items.find((item) => item.id === id)?.image).toBe(image);
+		}
+	});
 	it('is in document order and covers every anchor exactly once', () => {
 		expect(items.map((i) => i.id)).toEqual(measured.a.map((x) => x.id));
 		expect(new Set(items.map((i) => i.id)).size).toBe(items.length);

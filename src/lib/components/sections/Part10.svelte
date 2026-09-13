@@ -63,7 +63,7 @@
 				an installation command for a different operating system, and do not add sudo to an
 				unexplained failure.
 			</p>
-			<h4>Find text with ripgrep</h4>
+			<h4 id="modern-find">Find text with ripgrep</h4>
 			<p>
 				Suppose you keep a folder named notes and want the lines mentioning watering. Your familiar
 				baseline is <Code code="grep -R -n -F 'watering' notes" />. Recursive search looks through
@@ -93,39 +93,67 @@
 				/>. Read the <a href="https://github.com/sharkdp/fd">fd guide</a> before deciding a missing result
 				means the file is gone.
 			</p>
-			<h4>Choose from a list with fzf</h4>
+			<ExpandableImage
+				src="{base}/images/modern-find.webp"
+				srcset="{base}/images/modern-find-768.webp 768w, {base}/images/modern-find.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="ripgrep finds the word watering inside a note, while fd finds Markdown filenames such as garden.md and ideas.md."
+				caption="Decide what you are looking for: words inside files, or the names of files."
+			/>
+			<h4 id="modern-select">Choose from a list with fzf</h4>
 			<p>
 				Sometimes you recognize a name when you see it. <Code code="fzf" /> lets you narrow a list interactively.
 				Try <Code code="rg --files notes | fzf" />: type part of a name, use the arrow keys, and
 				press Enter. The selected filename is printed. It is not automatically opened or executed.
 				Press Esc to leave.
 			</p>
+			<ExpandableImage
+				src="{base}/images/modern-select.webp"
+				srcset="{base}/images/modern-select-768.webp 768w, {base}/images/modern-select.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="rg --files notes feeds three filenames into fzf. Selecting notes/watering.md and pressing Enter prints that filename."
+				caption="This pipeline returns the selected name. It does not open, edit, or run the file."
+			/>
 			<p>
 				This small example connects two jobs: one tool lists files; another helps you choose. The <a
 					href="https://github.com/junegunn/fzf">fzf guide</a
 				> shows optional shell integration. You can learn that later; do not assume an installation has
 				already configured its shortcuts.
 			</p>
-			<h4>Return to a familiar folder with zoxide</h4>
+			<h4 id="modern-revisit">Return to a familiar folder with zoxide</h4>
 			<p>
 				Tab completion helps with a path you are typing. zoxide learns folders you visit and can
 				help you return to one by name. After installation and the setup for your shell, visit a
 				folder normally; later <Code code="z notes" /> can jump to a matching remembered location. Run
 				<Code code="pwd" /> afterwards so you know where it chose.
 			</p>
+			<ExpandableImage
+				src="{base}/images/modern-revisit.webp"
+				srcset="{base}/images/modern-revisit-768.webp 768w, {base}/images/modern-revisit.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="After setup and a previous visit, z notes returns to a remembered folder. pwd confirms /home/vibe/garden/notes beside a garden map and doorway."
+				caption="Let the shortcut take you there, then use pwd to check where you landed."
+			/>
 			<p>
 				Setup adds shell initialization code, and differs for Bash and zsh. Follow the <a
 					href="https://github.com/ajeetdsouza/zoxide">zoxide instructions</a
 				>; it is optional, and ordinary cd always remains available. A short name is convenient, but
 				two folders can have similar names.
 			</p>
-			<h4>Read comfortably with bat</h4>
+			<h4 id="modern-read">Read comfortably with bat</h4>
 			<p>
 				<Code code="cat notes.txt" /> prints a file. <Code code="less notes.txt" /> lets you scroll. <Code
 					code="bat notes.txt"
 				/> can add syntax highlighting and line numbers, and may open a pager; press q to leave that pager.
 				It reads the file rather than editing it.
 			</p>
+			<ExpandableImage
+				src="{base}/images/modern-read.webp"
+				srcset="{base}/images/modern-read-768.webp 768w, {base}/images/modern-read.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="bat notes.txt displays basil, mint, and thyme with line numbers 1, 2, and 3. A note says to press q if a pager opens."
+				caption="Line numbers help you keep your place. If bat opens a pager, q returns you to the prompt."
+			/>
 			<p>
 				Use <Code code="bat --paging=never notes.txt" /> if you want it to print and finish. Some distributions
 				call the command batcat. Check the

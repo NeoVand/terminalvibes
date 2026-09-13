@@ -1,0 +1,204 @@
+{
+	"schemaVersion": 1,
+	"catalogVersion": "2026-09-new-sections-original-style",
+	"exportedAt": "2026-09-13T19:27:08.934Z",
+	"decisions": {
+		"keyboard-line-editing": {
+			"status": "chosen",
+			"variant": "05",
+			"sha256": "3b1f6594aeb0d9bc537515b3bb961abe6bf9fdac8650c3ed67d678d7a0fb302c",
+			"note": "",
+			"updatedAt": "2026-09-13T18:29:07.575Z"
+		},
+		"file-editor-save": {
+			"status": "chosen",
+			"variant": "05",
+			"sha256": "52b5a3c93b9dd574cc8a0565fa95c0a13c34422d673ddc0c686dde7f561b4594",
+			"note": "",
+			"updatedAt": "2026-09-13T19:18:02.333Z"
+		},
+		"script-arguments": {
+			"status": "chosen",
+			"variant": "04",
+			"sha256": "72e74bfa5886a77d13eb16894c84855c03d3d0f158ed3aabff61de13eaedae9c",
+			"note": "",
+			"updatedAt": "2026-09-13T19:18:35.183Z"
+		},
+		"script-conditions": {
+			"status": "chosen",
+			"variant": "01",
+			"sha256": "3deda984595521f2ffdc5eeac1e37973e735802d91159f05c17af062c6f7b3e8",
+			"note": "",
+			"updatedAt": "2026-09-13T19:22:16.616Z"
+		},
+		"script-loops": {
+			"status": "chosen",
+			"variant": "03",
+			"sha256": "a680584f6405dd5888d0cec61b241dc659450c787be0bc7a76217c51369dd321",
+			"note": "",
+			"updatedAt": "2026-09-13T19:22:58.817Z"
+		},
+		"script-safe-copy": {
+			"status": "chosen",
+			"variant": "02",
+			"sha256": "eb03cf9fca24f20bdd8d9004e1bb918100b2dbf023ec986210451c30352dd4fc",
+			"note": "",
+			"updatedAt": "2026-09-13T19:23:21.250Z"
+		},
+		"modern-find": {
+			"status": "chosen",
+			"variant": "05",
+			"sha256": "ee487c2743199489fe8fa6d067a518efe09d79ed427602cf48d34bf293f0e2f1",
+			"note": "",
+			"updatedAt": "2026-09-13T19:24:08.383Z"
+		},
+		"modern-select": {
+			"status": "chosen",
+			"variant": "01",
+			"sha256": "d70dad1de5665c03d67d423c5ce87ec9f39ebe9b52c4c95853bba55c1ff2b657",
+			"note": "",
+			"updatedAt": "2026-09-13T19:25:01.400Z"
+		},
+		"modern-revisit": {
+			"status": "chosen",
+			"variant": "04",
+			"sha256": "a0b7751c327c00a239a6a3bac15bf9ac1159387407b799a4ad594caf1d4a1d70",
+			"note": "",
+			"updatedAt": "2026-09-13T19:25:53.416Z"
+		},
+		"modern-read": {
+			"status": "chosen",
+			"variant": "04",
+			"sha256": "9cc4ea03f12c90a89a2a6cf60cb888b418a445376d669f8233c280d29c323ec4",
+			"note": "",
+			"updatedAt": "2026-09-13T19:27:01.850Z"
+		}
+	},
+	"selections": [
+		{
+			"conceptId": "keyboard-line-editing",
+			"title": "Fix a line without starting over",
+			"status": "chosen",
+			"variant": "05",
+			"sha256": "3b1f6594aeb0d9bc537515b3bb961abe6bf9fdac8650c3ed67d678d7a0fb302c",
+			"note": "",
+			"updatedAt": "2026-09-13T18:29:07.575Z",
+			"candidatePath": "art-candidates/keyboard-line-editing/05.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": [
+				{
+					"src": "images/history-superpowers.webp",
+					"section": "keyboard-workshop"
+				}
+			]
+		},
+		{
+			"conceptId": "file-editor-save",
+			"title": "Edit, save, read it back",
+			"status": "chosen",
+			"variant": "05",
+			"sha256": "52b5a3c93b9dd574cc8a0565fa95c0a13c34422d673ddc0c686dde7f561b4594",
+			"note": "",
+			"updatedAt": "2026-09-13T19:18:02.333Z",
+			"candidatePath": "art-candidates/file-editor-save/05.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "script-arguments",
+			"title": "One routine, different inputs",
+			"status": "chosen",
+			"variant": "04",
+			"sha256": "72e74bfa5886a77d13eb16894c84855c03d3d0f158ed3aabff61de13eaedae9c",
+			"note": "",
+			"updatedAt": "2026-09-13T19:18:35.183Z",
+			"candidatePath": "art-candidates/script-arguments/04.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "script-conditions",
+			"title": "Check before choosing a branch",
+			"status": "chosen",
+			"variant": "01",
+			"sha256": "3deda984595521f2ffdc5eeac1e37973e735802d91159f05c17af062c6f7b3e8",
+			"note": "",
+			"updatedAt": "2026-09-13T19:22:16.616Z",
+			"candidatePath": "art-candidates/script-conditions/01.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "script-loops",
+			"title": "Repeat a small action for each item",
+			"status": "chosen",
+			"variant": "03",
+			"sha256": "a680584f6405dd5888d0cec61b241dc659450c787be0bc7a76217c51369dd321",
+			"note": "",
+			"updatedAt": "2026-09-13T19:22:58.817Z",
+			"candidatePath": "art-candidates/script-loops/03.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "script-safe-copy",
+			"title": "Check assumptions before copying",
+			"status": "chosen",
+			"variant": "02",
+			"sha256": "eb03cf9fca24f20bdd8d9004e1bb918100b2dbf023ec986210451c30352dd4fc",
+			"note": "",
+			"updatedAt": "2026-09-13T19:23:21.250Z",
+			"candidatePath": "art-candidates/script-safe-copy/02.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "modern-find",
+			"title": "Find text or find a filename",
+			"status": "chosen",
+			"variant": "05",
+			"sha256": "ee487c2743199489fe8fa6d067a518efe09d79ed427602cf48d34bf293f0e2f1",
+			"note": "",
+			"updatedAt": "2026-09-13T19:24:08.383Z",
+			"candidatePath": "art-candidates/modern-find/05.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "modern-select",
+			"title": "Narrow a list, then choose",
+			"status": "chosen",
+			"variant": "01",
+			"sha256": "d70dad1de5665c03d67d423c5ce87ec9f39ebe9b52c4c95853bba55c1ff2b657",
+			"note": "",
+			"updatedAt": "2026-09-13T19:25:01.400Z",
+			"candidatePath": "art-candidates/modern-select/01.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "modern-revisit",
+			"title": "Return to a familiar folder",
+			"status": "chosen",
+			"variant": "04",
+			"sha256": "a0b7751c327c00a239a6a3bac15bf9ac1159387407b799a4ad594caf1d4a1d70",
+			"note": "",
+			"updatedAt": "2026-09-13T19:25:53.416Z",
+			"candidatePath": "art-candidates/modern-revisit/04.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		},
+		{
+			"conceptId": "modern-read",
+			"title": "Read with useful visual help",
+			"status": "chosen",
+			"variant": "04",
+			"sha256": "9cc4ea03f12c90a89a2a6cf60cb888b418a445376d669f8233c280d29c323ec4",
+			"note": "",
+			"updatedAt": "2026-09-13T19:27:01.850Z",
+			"candidatePath": "art-candidates/modern-read/04.webp",
+			"verifiedAgainstCurrentFile": true,
+			"originals": []
+		}
+	]
+}

@@ -349,6 +349,13 @@
 				the draft; saving changes the file. Reading it with cat confirms what the terminal will
 				actually see.
 			</p>
+			<ExpandableImage
+				src="{base}/images/file-editor-save.webp"
+				srcset="{base}/images/file-editor-save-768.webp 768w, {base}/images/file-editor-save.webp 1672w"
+				sizes="(max-width: 768px) calc(100vw - 3rem), 896px"
+				alt="Three panels show a draft of notes/seeds.txt containing basil, mint, and thyme, Ctrl+S to save, and cat printing the saved list."
+				caption="In this course’s file editor, Ctrl+S saves the draft. Read it back in the terminal to check."
+			/>
 			<h4>Write a note on your own computer</h4>
 			<p>
 				This is a <strong>real-terminal practice</strong>; the embedded sandbox does not provide

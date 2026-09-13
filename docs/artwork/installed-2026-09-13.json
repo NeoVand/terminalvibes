@@ -1,0 +1,248 @@
+{
+	"schemaVersion": 1,
+	"approvalExport": "docs/artwork/choices-2026-09-13.json",
+	"approvalExportSha256": "68dcc7a32cf167f541d4c4c547de0abe2ae53fc6c83a75b0d63cecb5317c89af",
+	"images": [
+		{
+			"conceptId": "keyboard-line-editing",
+			"variant": "05",
+			"path": "static/images/keyboard-line-editing.webp",
+			"sha256": "3b1f6594aeb0d9bc537515b3bb961abe6bf9fdac8650c3ed67d678d7a0fb302c",
+			"bytes": 367062,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "dfcc447eef7e8161bdd6b2cc8cf91f7908c64b93ff5f803c08750a97cd996ffc",
+			"mobile": {
+				"path": "static/images/keyboard-line-editing-768.webp",
+				"sha256": "972bb36facb704d8c8a8980a93f7e46653d091b842a7446fa945b8674526e332",
+				"width": 768,
+				"height": 432,
+				"bytes": 89788
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/playground/KeyboardWorkshop.svelte",
+				"section": "keyboard-workshop",
+				"alt": "Ctrl+A points before echo hello garden; Ctrl+E points after it. Ctrl+E followed by Ctrl+U clears the whole line.",
+				"caption": "The two markers show possible cursor destinations. Move to the end before clearing the whole line."
+			}
+		},
+		{
+			"conceptId": "file-editor-save",
+			"variant": "05",
+			"path": "static/images/file-editor-save.webp",
+			"sha256": "52b5a3c93b9dd574cc8a0565fa95c0a13c34422d673ddc0c686dde7f561b4594",
+			"bytes": 425320,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "9efce3ddd1fe275435d7f16bd8c641dc572dca708f0a26c1f2e5b2689e4eaf90",
+			"mobile": {
+				"path": "static/images/file-editor-save-768.webp",
+				"sha256": "300d8ab5ffa0355c2d330fbfd2a0dbf4169e38bb4807bebd7a886756954a0219",
+				"width": 768,
+				"height": 432,
+				"bytes": 100172
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part2.svelte",
+				"section": "section-2-5",
+				"alt": "Three panels show a draft of notes/seeds.txt containing basil, mint, and thyme, Ctrl+S to save, and cat printing the saved list.",
+				"caption": "In this course’s file editor, Ctrl+S saves the draft. Read it back in the terminal to check."
+			}
+		},
+		{
+			"conceptId": "script-arguments",
+			"variant": "04",
+			"path": "static/images/script-arguments.webp",
+			"sha256": "72e74bfa5886a77d13eb16894c84855c03d3d0f158ed3aabff61de13eaedae9c",
+			"bytes": 460846,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "22c46fef3cdf9c544cc9a5f5a24c638978488bc249f8882d916bc138c552ed66",
+			"mobile": {
+				"path": "static/images/script-arguments-768.webp",
+				"sha256": "1d144960e7189c74c59cce53db2cbdbc4a9994dc34bf5febcee43b3e827bdcfa",
+				"width": 768,
+				"height": 432,
+				"bytes": 107786
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part6.svelte",
+				"section": "section-6-2",
+				"alt": "An arrow carries the quoted My Notes argument from ./backup.sh into the script’s $1 value as one folder name.",
+				"caption": "Quotes keep My Notes together. The quote characters themselves are not part of the argument."
+			}
+		},
+		{
+			"conceptId": "script-conditions",
+			"variant": "01",
+			"path": "static/images/script-conditions.webp",
+			"sha256": "3deda984595521f2ffdc5eeac1e37973e735802d91159f05c17af062c6f7b3e8",
+			"bytes": 361456,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "4c6b59a3ffaa58c51995b3b2e526f042c8a1f7d7ec9537828d7173b2d14a66da",
+			"mobile": {
+				"path": "static/images/script-conditions-768.webp",
+				"sha256": "ece97f17b1fd3d6095ac482d4fc232d79f0b16d2f870afa71a4f06e7aeec2f8b",
+				"width": 768,
+				"height": 432,
+				"bytes": 88470
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part6.svelte",
+				"section": "section-6-2",
+				"alt": "A file test, [ -f notes.txt ], splits into Yes and No branches. Yes prints The note exists; No prints Create notes.txt first.",
+				"caption": "Predict the branch, then try the check with and without notes.txt. Only one branch runs."
+			}
+		},
+		{
+			"conceptId": "script-loops",
+			"variant": "03",
+			"path": "static/images/script-loops.webp",
+			"sha256": "a680584f6405dd5888d0cec61b241dc659450c787be0bc7a76217c51369dd321",
+			"bytes": 446506,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "0181e26dc58887c8231f6d56b6345a657daafb36827833813bd22268d0a7ce26",
+			"mobile": {
+				"path": "static/images/script-loops-768.webp",
+				"sha256": "d1955d0892adafb4c34c531b41ed85ad898f0347b6403dbabe4f54beac67b7c8",
+				"width": 768,
+				"height": 432,
+				"bytes": 104164
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part6.svelte",
+				"section": "section-6-2",
+				"alt": "A loop visits basil, mint, and thyme. Three arrows lead to three output lines: Remember to water basil, mint, and thyme, one plant per line.",
+				"caption": "Each item gets one turn. The same printf command runs with a different value of plant."
+			}
+		},
+		{
+			"conceptId": "script-safe-copy",
+			"variant": "02",
+			"path": "static/images/script-safe-copy.webp",
+			"sha256": "eb03cf9fca24f20bdd8d9004e1bb918100b2dbf023ec986210451c30352dd4fc",
+			"bytes": 445986,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "1a8550a6459370969020102a96cbbb3599fbac647a46fd51d13b2348c6cbef92",
+			"mobile": {
+				"path": "static/images/script-safe-copy-768.webp",
+				"sha256": "12f15a1edef20519a730bf3b57b00f6d4eb99bd4123da5c4462516b53b28b3e3",
+				"width": 768,
+				"height": 432,
+				"bytes": 101348
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part6.svelte",
+				"section": "section-6-2",
+				"alt": "Check two arguments, an existing source folder, and a new destination; copy with quoted paths; then read the copied seeds.txt and confirm basil.",
+				"caption": "Check the inputs, check whether copying succeeded, then inspect the result. The source folder can have any name."
+			}
+		},
+		{
+			"conceptId": "modern-find",
+			"variant": "05",
+			"path": "static/images/modern-find.webp",
+			"sha256": "ee487c2743199489fe8fa6d067a518efe09d79ed427602cf48d34bf293f0e2f1",
+			"bytes": 385322,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "6413bbf5a0a3b6482dae5073e0b8fd331fd59112de9ae2a0f28402646ff99a85",
+			"mobile": {
+				"path": "static/images/modern-find-768.webp",
+				"sha256": "1409dd38a13a47e0099b3f22b94241d1f2fbe28a9080e36b60978e5a2f67b6b1",
+				"width": 768,
+				"height": 432,
+				"bytes": 101266
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part10.svelte",
+				"section": "section-10-1",
+				"alt": "ripgrep finds the word watering inside a note, while fd finds Markdown filenames such as garden.md and ideas.md.",
+				"caption": "Decide what you are looking for: words inside files, or the names of files."
+			}
+		},
+		{
+			"conceptId": "modern-select",
+			"variant": "01",
+			"path": "static/images/modern-select.webp",
+			"sha256": "d70dad1de5665c03d67d423c5ce87ec9f39ebe9b52c4c95853bba55c1ff2b657",
+			"bytes": 385226,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "1c05390f317844572ecc11e7ce2072fe6acb9b08bd6e7bc17fbe16509e25a8f1",
+			"mobile": {
+				"path": "static/images/modern-select-768.webp",
+				"sha256": "7ee8acb27d6f072ffdaf176c32d4aa14ee52232d6950db5ec2de0537a5874a50",
+				"width": 768,
+				"height": 432,
+				"bytes": 97896
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part10.svelte",
+				"section": "section-10-1",
+				"alt": "rg --files notes feeds three filenames into fzf. Selecting notes/watering.md and pressing Enter prints that filename.",
+				"caption": "This pipeline returns the selected name. It does not open, edit, or run the file."
+			}
+		},
+		{
+			"conceptId": "modern-revisit",
+			"variant": "04",
+			"path": "static/images/modern-revisit.webp",
+			"sha256": "a0b7751c327c00a239a6a3bac15bf9ac1159387407b799a4ad594caf1d4a1d70",
+			"bytes": 436604,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "caab46f36174dd1dd5e64bac286b6d5a3ae17b69198ce14fc7aa821b76ca7c4d",
+			"mobile": {
+				"path": "static/images/modern-revisit-768.webp",
+				"sha256": "59056aad323afe71501eeda7c7b83c91441fde32b7d3ec701365ee24b48d5e0a",
+				"width": 768,
+				"height": 432,
+				"bytes": 110874
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part10.svelte",
+				"section": "section-10-1",
+				"alt": "After setup and a previous visit, z notes returns to a remembered folder. pwd confirms /home/vibe/garden/notes beside a garden map and doorway.",
+				"caption": "Let the shortcut take you there, then use pwd to check where you landed."
+			}
+		},
+		{
+			"conceptId": "modern-read",
+			"variant": "04",
+			"path": "static/images/modern-read.webp",
+			"sha256": "9cc4ea03f12c90a89a2a6cf60cb888b418a445376d669f8233c280d29c323ec4",
+			"bytes": 437210,
+			"width": 1672,
+			"height": 941,
+			"generatedOriginalSha256": "d94900d8b604aa09b55433ed810e6f0ad2c1ecf755453eca03abfa6fb9d27214",
+			"mobile": {
+				"path": "static/images/modern-read-768.webp",
+				"sha256": "99e3c36b7f7ccada5a17ee2e624ea1bf80536a9e73183a930c76f83646a8fbf8",
+				"width": 768,
+				"height": 432,
+				"bytes": 110282
+			},
+			"transformation": "Primary is a byte-for-byte copy of the owner-selected candidate; mobile derivative preserves the complete frame at 768px wide.",
+			"placement": {
+				"file": "src/lib/components/sections/Part10.svelte",
+				"section": "section-10-1",
+				"alt": "bat notes.txt displays basil, mint, and thyme with line numbers 1, 2, and 3. A note says to press q if a pager opens.",
+				"caption": "Line numbers help you keep your place. If bat opens a pager, q returns you to the prompt."
+			}
+		}
+	],
+	"sourceExportSha256": "6f675b30a0300dc97b6cf1b241e1a3097b2e2abb204fa048fbfca121266ac87f"
+}
