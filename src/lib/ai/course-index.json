@@ -879,7 +879,7 @@
 		"id": "hello-first-command",
 		"part": 0,
 		"title": "Your First Command",
-		"text": "Make it say hello Type this command, then press Enter. echo \"Hello, world!\" Make it yours Keep echo and the quotes. Change the message to anything you like. echo \"I am growing something\" Try a small typo Type ech instead of echo. Let’s see how the terminal tells us what happened. ech \"Hello again\" Repair your command Press ↑ to bring back your command. Fix ech to echo, then press Enter. echo \"Hello again\" Change your mind Type a new command, but do not run it. Press Ctrl+C to discard that unfinished line. echo \"I changed my mind\" You can start, edit, and try again You ran a command, changed its message, fixed a typo, and discarded a draft. Keep exploring here, or try the keyboard workshop below."
+		"text": "Make it say hello Type this command, then press Enter. echo \"Hello, world!\" Make it yours Keep echo and the quotes. Change the message to anything you like. echo \"I am growing something\" Try a small typo Type ech instead of echo. Let’s see how the terminal tells us what happened. ech \"Hello again\" Repair your command Press ↑ or click Recall to bring back your command. Press ← until the cursor is just after ech. Type o to make echo, then press Enter. echo \"Hello again\" Change your mind Type a new command, but do not run it. Press Ctrl+C to discard that unfinished line. echo \"I changed my mind\" You can start, edit, and try again You ran a command, changed its message, fixed a typo, and discarded a draft. Keep exploring here, or try the keyboard workshop below."
 	},
 	{
 		"id": "keyboard-workshop",

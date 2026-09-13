@@ -31,7 +31,8 @@
 		},
 		{
 			title: 'Repair your command',
-			instruction: 'Press ↑ to bring back your command. Fix ech to echo, then press Enter.',
+			instruction:
+				'Press ↑ or click Recall to bring back your command. Press ← until the cursor is just after ech. Type o to make echo, then press Enter.',
 			example: 'echo "Hello again"'
 		},
 		{
