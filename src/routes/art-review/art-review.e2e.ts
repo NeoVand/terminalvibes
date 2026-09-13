@@ -128,4 +128,55 @@ test.describe('local artwork review', () => {
 		await expect(page.getByRole('alert')).toContainText('chosen file has changed or is missing');
 		await expect(page.locator('button[aria-pressed="true"]')).toHaveCount(0);
 	});
+	test('preview arrows cycle alternatives without changing choices and skip missing images', async ({
+		page
+	}) => {
+		const files = await candidates(page);
+		await page.goto('/art-review');
+		await page.getByRole('button', { name: 'Choose 03' }).click();
+		const saved = await page.evaluate(() => localStorage.getItem('tv-art-review-selections-v1'));
+		const opener = page.getByRole('button', {
+			name: 'Preview Alternative 1: Fix a line without starting over'
+		});
+		const dialog = page.getByRole('dialog');
+		const image = dialog.locator('img');
+		await opener.click();
+		await page.keyboard.press('ArrowRight');
+		await expect(image).toHaveAttribute('src', /\/02\.webp\?/);
+		await expect(dialog.getByRole('status')).toContainText('2 of 5');
+		await page.keyboard.press('ArrowLeft');
+		await expect(image).toHaveAttribute('src', /\/01\.webp\?/);
+		await page.keyboard.press('ArrowLeft');
+		await expect(image).toHaveAttribute('src', /\/05\.webp\?/);
+		await page.keyboard.press('ArrowRight');
+		await expect(image).toHaveAttribute('src', /\/01\.webp\?/);
+		await dialog.getByRole('button', { name: 'Next image' }).click();
+		await expect(image).toHaveAttribute('src', /\/02\.webp\?/);
+		await dialog.getByRole('button', { name: 'Previous image' }).click();
+		await expect(image).toHaveAttribute('src', /\/01\.webp\?/);
+		await page.keyboard.press('Escape');
+		await expect(dialog).not.toBeVisible();
+		await expect(opener).toBeFocused();
+		await page.keyboard.press('ArrowRight');
+		await expect(dialog).not.toBeVisible();
+		expect(await page.evaluate(() => localStorage.getItem('tv-art-review-selections-v1'))).toBe(
+			saved
+		);
+
+		files.splice(1, 1);
+		await page.getByRole('button', { name: 'Refresh images' }).click();
+		await expect(page.getByRole('button', { name: 'Choose 02' })).toBeDisabled();
+		await opener.click();
+		await page.keyboard.press('ArrowRight');
+		await expect(image).toHaveAttribute('src', /\/03\.webp\?/);
+		await expect(dialog.getByRole('status')).toContainText('2 of 4');
+		await page.keyboard.press('Escape');
+
+		await page.getByText('Current artwork and source references', { exact: true }).click();
+		await page.getByRole('button', { name: 'Preview current artwork:' }).click();
+		const originalSrc = await image.getAttribute('src');
+		await page.keyboard.press('ArrowRight');
+		await expect(image).toHaveAttribute('src', originalSrc!);
+		await expect(dialog.getByRole('navigation')).toHaveCount(0);
+	});
 });

@@ -52,7 +52,7 @@ Open `/art-review` on that development server. If a base path is configured, inc
 
 The scanner records readable WebP files, actual pixel dimensions, byte sizes, and SHA256 hashes in the ignored `static/art-candidates/availability.json`. Run it again after adding or replacing files, then use **Refresh images**. Missing, unreadable, or unindexed candidates cannot be chosen. Unknown WebP paths and unreadable expected files cause the scanner to report an error.
 
-The gallery preserves the whole frame. A 1536 × 1024 generation stays that size even if the brief requested 16:9; it is shown with its actual dimensions, never silently cropped. Open a preview to inspect fine details. Escape closes the dialog and returns keyboard focus to its opener.
+The gallery preserves the whole frame. A 1536 × 1024 generation stays that size even if the brief requested 16:9; it is shown with its actual dimensions, never silently cropped. Open a preview to inspect fine details. Left and Right arrow keys, or the Previous/Next image buttons, cycle through the current concept's available alternatives and wrap at either end. Missing images are skipped. Browsing does not choose an image. Escape closes the dialog and returns keyboard focus to its opener. Current artwork and style-reference previews remain single-image views.
 
 Filter by concept, chapter, or review state. **Choose** records an explicit choice, **Request changes** records the note without approving an image, and **Clear choice & notes** removes that concept's decision. Notes save while typing. A missing or changed file invalidates its previous choice until the reviewer explicitly chooses again.
 

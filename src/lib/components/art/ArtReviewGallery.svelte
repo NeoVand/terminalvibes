@@ -34,7 +34,13 @@
 	let notice = $state('');
 	let storageNotice = $state('');
 	let availabilityNotice = $state('');
-	let preview = $state<{ src: string; alt: string; title: string } | null>(null);
+	let preview = $state<{
+		src: string;
+		alt: string;
+		title: string;
+		conceptId?: string;
+		variantId?: string;
+	} | null>(null);
 	let previewDialog: HTMLDialogElement;
 	let feedback = $state<HTMLTextAreaElement>();
 	const usableFiles = $derived(files.filter((file) => !failedPaths.includes(file.path)));
@@ -69,6 +75,15 @@
 	const currentIndex = $derived(current ? filtered.indexOf(current) : -1);
 	const currentDecision = $derived(current ? decisions[current.id] : undefined);
 	const original = $derived(current?.sourceRefs[0]);
+	const previewConcept = $derived(
+		catalog.concepts.find((concept) => concept.id === preview?.conceptId)
+	);
+	const previewVariants = $derived(
+		previewConcept?.variants.filter((variant) => available(variant)) ?? []
+	);
+	const previewIndex = $derived(
+		previewVariants.findIndex((variant) => variant.id === preview?.variantId)
+	);
 
 	onMount(() => {
 		try {
@@ -186,10 +201,43 @@
 		const file = available(variant);
 		return `${base}/${variant.path}?v=${file?.sha256.slice(0, 12) ?? ''}`;
 	}
-	async function openPreview(src: string, alt: string, title: string) {
-		preview = { src, alt, title };
+	async function openPreview(
+		src: string,
+		alt: string,
+		title: string,
+		candidate?: { conceptId: string; variantId: string }
+	) {
+		preview = { src, alt, title, ...candidate };
 		await tick();
 		previewDialog.showModal();
+	}
+	function movePreview(direction: number) {
+		if (!previewConcept || previewIndex < 0 || previewVariants.length < 2) return;
+		const variant =
+			previewVariants[(previewIndex + direction + previewVariants.length) % previewVariants.length];
+		preview = {
+			src: imagePath(variant),
+			alt: `${previewConcept.title}, unapproved ${variant.label.toLowerCase()}`,
+			title: `${previewConcept.title} · ${variant.label}`,
+			conceptId: previewConcept.id,
+			variantId: variant.id
+		};
+	}
+	function handlePreviewKeydown(event: KeyboardEvent) {
+		if (
+			!previewDialog?.open ||
+			!previewConcept ||
+			event.defaultPrevented ||
+			event.altKey ||
+			event.ctrlKey ||
+			event.metaKey ||
+			event.shiftKey
+		)
+			return;
+		if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+			event.preventDefault();
+			movePreview(event.key === 'ArrowLeft' ? -1 : 1);
+		}
 	}
 	function exportChoices() {
 		const payload = selectionExport(catalog, decisions, usableFiles);
@@ -204,6 +252,8 @@
 		notice = 'Selection JSON exported. No artwork has been replaced or uploaded.';
 	}
 </script>
+
+<svelte:window onkeydown={handlePreviewKeydown} />
 
 <main class="art-review">
 	<header class="review-header">
@@ -356,7 +406,8 @@
 										openPreview(
 											imagePath(variant),
 											`${current.title}, unapproved ${variant.label.toLowerCase()}`,
-											`${current.title} · ${variant.label}`
+											`${current.title} · ${variant.label}`,
+											{ conceptId: current.id, variantId: variant.id }
 										)}
 								>
 									<img
@@ -535,8 +586,31 @@
 			<h2 id="preview-title">{preview.title}</h2>
 			<button type="button" onclick={() => previewDialog.close()}>Close preview</button>
 		</div>
+		{#if previewConcept}
+			<nav class="preview-navigation" aria-label="Preview alternatives">
+				<button
+					type="button"
+					disabled={previewVariants.length < 2}
+					onclick={() => movePreview(-1)}
+					aria-keyshortcuts="ArrowLeft">← Previous image</button
+				>
+				<p role="status" aria-atomic="true">
+					{previewVariants[previewIndex]?.label} · {previewIndex + 1} of {previewVariants.length}
+					available
+				</p>
+				<button
+					type="button"
+					disabled={previewVariants.length < 2}
+					onclick={() => movePreview(1)}
+					aria-keyshortcuts="ArrowRight">Next image →</button
+				>
+			</nav>
+		{/if}
 		<img src={preview.src} alt={preview.alt} />
-		<p>Inspect the details at a larger size. Press Escape or Close preview to return.</p>
+		<p>
+			{#if previewConcept}Use ← and → to cycle through this concept’s available alternatives.{/if}
+			Press Escape or Close preview to return.
+		</p>
 	{/if}
 </dialog>
 
@@ -975,6 +1049,19 @@
 	}
 	.preview-heading h2 {
 		font-size: 1rem;
+	}
+	.preview-navigation {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+		margin-bottom: 0.75rem;
+	}
+	.preview-navigation p {
+		font-size: 0.8rem;
+		flex: 1 1 12rem;
+		text-align: center;
 	}
 	.preview-dialog > img {
 		width: 100%;
