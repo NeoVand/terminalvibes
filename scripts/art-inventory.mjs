@@ -124,6 +124,20 @@ export function validateCatalog(catalog, illustrations = scanIllustrations()) {
 			errors.push(`Uncatalogued illustration: ${usage.file}#${usage.section} (${usage.src})`);
 		}
 	}
+	if (catalog.reviewScope) {
+		if (new Set(catalog.reviewScope).size !== catalog.reviewScope.length)
+			errors.push('Duplicate concept in review scope');
+		for (const id of catalog.reviewScope) {
+			const concept = catalog.concepts.find((entry) => entry.id === id);
+			if (!concept) errors.push(`Unknown review concept: ${id}`);
+			else if (!concept.teachingText || !concept.styleReferences?.length)
+				errors.push(`${id}: missing teaching text or original style references`);
+			for (const path of concept?.styleReferences ?? []) {
+				if (!path.startsWith('static/images/') || !existsSync(resolve(root, path)))
+					errors.push(`${id}: missing original style reference ${path}`);
+			}
+		}
+	}
 	return errors;
 }
 
@@ -168,6 +182,9 @@ export async function scanAvailability(catalog, directory = candidateDirectory) 
 }
 
 export function promptFor(catalog, concept, variant) {
+	if (catalog.reviewScope && !catalog.reviewScope.includes(concept.id)) {
+		throw new Error(`${concept.id}: outside the owner's current artwork scope`);
+	}
 	return [
 		...(concept.id === 'crab-guide-logo'
 			? [
@@ -179,10 +196,15 @@ export function promptFor(catalog, concept, variant) {
 		`TerminalVibes artwork candidate ${concept.id}/${variant.id}. ${concept.title}.`,
 		`Teaching purpose: ${concept.purpose}`,
 		`Scene: ${concept.visualBrief}`,
+		...(concept.teachingText
+			? [
+					`Teaching text to render verbatim as integrated typography, diagram labels, and code:\n${concept.teachingText}`
+				]
+			: []),
 		`Concept-specific details: ${concept.visualChecks.join(' ')}`,
 		`Format: ${concept.aspectRatio}. ${catalog.artDirection}`,
 		`Accuracy guardrails: ${catalog.guardrails.join(' ')}`,
-		'Study the original course illustration before generation. Preserve its instructional substance and intricate craftsmanship while improving its composition, clarity, and color range. Render the specified teaching text as part of the artwork.'
+		`Input images are style references, not edit targets. Match their existing illustration style exactly while teaching this new concept. References: ${(concept.styleReferences ?? []).join(', ')}. Render the specified teaching text as part of the artwork; do not copy unrelated text or technical errors from reference images.`
 	].join('\n\n');
 }
 
@@ -203,7 +225,7 @@ async function main() {
 			`${JSON.stringify(result, null, 2)}\n`
 		);
 		console.log(
-			`${result.files.length}/${catalog.concepts.reduce((sum, concept) => sum + concept.variants.length, 0)} candidates available. Local index: static/art-candidates/availability.json`
+			`${result.files.length}/${catalog.concepts.filter((concept) => !catalog.reviewScope || catalog.reviewScope.includes(concept.id)).reduce((sum, concept) => sum + concept.variants.length, 0)} candidates available in the current review scope. Local index: static/art-candidates/availability.json`
 		);
 		if (result.errors.length) throw new Error(result.errors.join('\n'));
 	} else if (command === '--prompt') {

@@ -38,6 +38,13 @@ test('each prompt combines its teaching brief with a distinct visual direction',
 		assert.ok(prompt.includes(`Teaching purpose: ${concept.purpose}`));
 	}
 });
+test('the new-section scope prevents generating abandoned replacements', () => {
+	const paths = catalog.concepts.find((concept) => concept.id === 'paths');
+	assert.throws(() => promptFor(catalog, paths, paths.variants[0]), /outside.*scope/);
+	const invalid = structuredClone(catalog);
+	invalid.reviewScope.push('unknown-concept');
+	assert.ok(validateCatalog(invalid).some((error) => error.includes('Unknown review concept')));
+});
 test('availability accepts real WebP bytes only, preserves dimensions, and rejects unlisted files', async () => {
 	const dir = mkdtempSync(resolve(tmpdir(), 'terminalvibes-art-test-'));
 	try {

@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"version": "2026-09-content-consolidation-1",
-	"title": "TerminalVibes artwork review",
+	"version": "2026-09-new-sections-original-style",
+	"title": "New-section artwork review",
 	"minimumAlternatives": 5,
-	"artDirection": "Create richly detailed instructional artwork for adult learners. Preserve the original course’s intricate botanical and mechanical craftsmanship, integrated typography, labeled diagrams, and practical terminal examples. The hermit crab is a guide within the explanation. Expand the color range while retaining visual complexity and readable hierarchy. Render useful teaching text directly in the image, using exact lesson wording and commands supplied in its brief. Simple explanations do not mean juvenile styling or empty props.",
+	"artDirection": "Match the supplied ORIGINAL TerminalVibes artwork exactly in visual style: near-black forest and warm brown shadows, aged golden brass, dark green glass, weathered wood, small areas of warm aged parchment, softly luminous green monospaced terminal text, large antique gold serif headings, moss, ferns and tiny fireflies. Use the same richly rendered natural hermit crab with intricately fitted brass shell details. This is a mature, tactile, cinematic botanical workshop, not a cartoon. Match the references’ restrained exposure and warm palette. Keep the explanation spacious and readable. Do not introduce blue-charcoal, cyan, bright white backgrounds, a new palette, or a different illustration medium.",
 	"guardrails": [
 		"Commands, paths, keyboard shortcuts, labels, and before/after results are welcome and expected when they teach the concept. Supply their exact text in the brief, render it legibly, and verify spelling, syntax, and technical relationships against the lesson. Do not replace meaningful text with blank surfaces or decorative pseudo-writing.",
 		"Rich illustration is supporting evidence, never the only explanation. Match the visual checks for the concept.",
@@ -13,36 +13,36 @@
 	"variantDirections": [
 		{
 			"id": "01",
-			"name": "Daylight storybook",
-			"brief": "Detailed painterly editorial illustration in a sunlit garden, warm ivory and terracotta balanced by cobalt and fresh foliage. Use an intimate eye-level composition with one strong central teaching action and a few rich supporting details."
+			"name": "Workshop board",
+			"brief": "A large upright brass-framed dark glass teaching board on a weathered wooden garden workbench. Title at upper left; crab near the lower right. Make the explanatory content dominant. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
 		},
 		{
 			"id": "02",
-			"name": "Colorful miniature",
-			"brief": "Tactile miniature diorama, broad three-quarter perspective, ceramic tools and paper notes, coral and turquoise accented with golden yellow. Give objects real depth and make the before/after relationship readable spatially."
+			"name": "Field notebook",
+			"brief": "A close view of an open aged field notebook beside a brass-framed terminal. Use the notebook and terminal to organize the supplied explanation; keep the parchment warm and subdued, with broad dark surroundings. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
 		},
 		{
 			"id": "03",
-			"name": "Open workshop",
-			"brief": "An intricate cutaway or overhead workshop arrangement, indigo, peach, mint, and natural wood. Use clear spatial connections and repeated object identity to explain the process, with generous pale breathing room around the main action."
+			"name": "Garden display",
+			"brief": "An eye-level brass instrument display among dark ferns. A centered title and balanced teaching areas form one coherent scene; the small crab sits at the edge of the display. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
 		},
 		{
 			"id": "04",
-			"name": "Layered field guide",
-			"brief": "Sophisticated layered paper-and-ink field-guide illustration with tangible paper edges, violet, russet, sea glass, and warm white. Create a connected sequence of generous vignettes; preserve expressive character and botanical detail without tiny text."
+			"name": "Archivist’s desk",
+			"brief": "A slightly overhead view of a dark wood archivist’s desk. Arrange the teaching content in an intentional reading order on a few brass-edged plates and a small parchment inset, with a detailed crab in a corner. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
 		},
 		{
 			"id": "05",
-			"name": "Lantern evening",
-			"brief": "Luminous blue-hour garden scene, deep cobalt and plum balanced by amber lanterns, coral flowers, and cyan reflections. Use a cinematic close foreground and softly lit depth; keep the essential action brighter and clearer than the decorative surroundings."
+			"name": "Conservatory window",
+			"brief": "A single wide antique green-glass display in the shadowed garden conservatory. Fine brass divisions organize the explanation, with the crab beside the display and controlled botanical detail around the perimeter. Preserve the exact original reference style, materials, palette, and level of detail; vary composition only."
 		}
 	],
 	"reviewNotes": [
-		"Generation stopped after the owner rejected the text-free, juvenile direction on September 13, 2026. Existing candidate prompts remain historical evidence, not approved guidance. Rework the concept briefs around the original instructional artwork and calibrate five alternatives for one concept with the owner before another course-wide run. No generated candidate is approved.",
-		"No alternative is selected initially. Choices are local to the review browser until exported.",
-		"Existing alt text is preserved as inventory evidence; proposed alt text must be revised against the actual selected image.",
-		"The two earlier v2 drafts and the interrupted text-free batch remain unapproved. Preserve their original prompts as evidence; do not reuse them as the direction for a new generation run.",
-		"The current og-image.png is a branded social preview; its replacement is derived from the approved hero. Favicons are derived from the approved logo. UI screenshots and generated timeline crops are derived assets, not independent illustration concepts."
+		"Current scope: only the ten new teaching concepts listed in reviewScope. Keep all existing course artwork. The owner ended the replacement-art calibration and requested the exact original course style.",
+		"Generate five actual distinct compositions per concept. The owner chooses; no image is selected automatically.",
+		"Use original course illustrations as direct style references. Preserve their warm brass, green, woodland palette and intricate craftsmanship.",
+		"Previous decorative, overcrowded, bright, and blue-charcoal experiments are archived outside static output. Do not resume those generation plans.",
+		"All candidate images and selection notes remain local and outside the deployed static site."
 	],
 	"concepts": [
 		{
@@ -221,13 +221,14 @@
 			"id": "keyboard-line-editing",
 			"title": "Fix a line without starting over",
 			"chapter": 0,
-			"kind": "replacement",
-			"purpose": "Teach cursor movement, deleting part of a line, restoring text, and recalling a command as separate actions.",
-			"visualBrief": "A close view of the crab at a keyboard shows a single command line as movable word tiles. A clear cursor can jump to the beginning or end; a selected word is removed and a saved strip can be restored. Use calm connected vignettes with rich tactile keyboard and garden details.",
+			"kind": "new",
+			"purpose": "Show how to jump to either end of a command and clear the whole line from the end.",
+			"visualBrief": "Explain cursor movement with one large command line, beginning and end markers, and directly attached shortcut labels. A small separate brass strip gives the two-key sequence for clearing the whole line. One detailed guide crab observes the line. Do not make a keyboard shortcut encyclopedia.",
 			"visualChecks": [
-				"The cursor is an insertion point, not a letter. Moving it does not execute or delete text. Exact shortcuts, platform differences, and line states belong in live HTML."
+				"Show the exact same command once, with a start marker immediately before echo and an end marker immediately after garden. Labels must clearly attach to their respective endpoints. These are two possible cursor destinations, not two simultaneous cursors.",
+				"The clear-line shortcut is a sequence: first move to the end, then cut back to the beginning. Do not imply Ctrl+U always removes an entire line from the middle."
 			],
-			"altSuggestion": "A close view of the crab at a keyboard shows a single command line as movable word tiles.",
+			"altSuggestion": "Teach cursor movement, deleting part of a line, restoring text, and recalling a command as separate actions.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [
 				{
@@ -271,6 +272,11 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/keyboard-line-editing/05.webp"
 				}
+			],
+			"teachingText": "Title: Move around a line\nCommand line: echo hello garden\nAt the beginning, before e: Ctrl+A\nAt the end, after n: Ctrl+E\nBottom strip: Clear the whole line\nCtrl+E, then Ctrl+U",
+			"styleReferences": [
+				"static/images/history-superpowers.webp",
+				"static/images/first-script.webp"
 			]
 		},
 		{
@@ -391,11 +397,16 @@
 			"chapter": 2,
 			"kind": "replacement",
 			"purpose": "Show absolute and relative paths as two ways to describe one destination.",
-			"visualBrief": "A branching garden with one root gate and several folder beds. One colored route begins at the root; another begins at a clear current-location marker. Both end at the same small notebook.",
+			"visualBrief": "Teach one idea: an absolute path and a relative path can reach the same file. Create one spacious folder diagram, two directly labeled routes, and one current-location marker. Root / leads through home, vibe, and garden; garden branches to notes.txt and photos. Place both route labels next to the diagram. The title and short subtitle establish the idea. Preserve the original’s intricate craftsmanship in materials and a small guide crab, with restrained botanical framing and ample open space.",
 			"visualChecks": [
-				"Both routes reach exactly the same notebook. Do not imply that slash is a literal folder stored inside another folder."
+				"Draw the folder hierarchy once: / → home → vibe → garden, then branch to notes.txt and photos. Mark photos as You are here. notes.txt is the single destination.",
+				"Trace the absolute route from / through home, vibe, and garden to notes.txt. Trace the relative route from photos up to garden, then down to that same notes.txt. Carry both route colors all the way to the target, using parallel tracks on the shared final edge. Arrows must agree with these directions.",
+				"Use exactly the supplied teaching text. No extra slogans, decorative writing, repeated diagram, terminal transcript, shortcut legend, or additional explanatory panel in this particular figure.",
+				"Make path strings large and fully legible. Keep two dots and the slash in ../notes.txt. Separate connectors, labels, and decoration so they do not overlap.",
+				"Keep substantial open space around the diagram. Use the original’s mature mechanical hermit crab at a small supporting scale. Avoid crowds of props and ornamental boxes competing with the route comparison.",
+				"Place photos directly below garden and notes.txt to the right of garden. The amber route must visibly touch garden before continuing to notes.txt; no direct shortcut from photos to notes.txt."
 			],
-			"altSuggestion": "A branching garden with one root gate and several folder beds.",
+			"altSuggestion": "One folder diagram shows an absolute route from root and a relative route from the current photos folder reaching the same notes.txt file.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [
 				{
@@ -439,7 +450,8 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/paths/05.webp"
 				}
-			]
+			],
+			"teachingText": "Title: Paths\nSubtitle: Two routes to the same file.\n\nDiagram node labels: /, home, vibe, garden, notes.txt, photos\nCurrent-location marker, attached only to photos: You are here\n\nFirst route label:\nAbsolute path\n/home/vibe/garden/notes.txt\nStart at the root.\n\nSecond route label:\nRelative path\n../notes.txt\nStart in photos."
 		},
 		{
 			"id": "changing-directories",
@@ -613,11 +625,12 @@
 			"chapter": 2,
 			"kind": "new",
 			"purpose": "Make the difference between an editor draft and the saved sandbox file visible.",
-			"visualBrief": "Three connected views of one garden note: a draft on the editor desk, an explicit save into the named file on a shelf, and the same saved lines read back at a terminal. The crab compares the draft and readback, with the filename path represented by consistent colored folder tabs.",
+			"visualBrief": "A three-step explanation with clear left-to-right arrows: an editor draft, a Save action into the same named file, and a terminal reading the saved text. The draft and terminal show the same three short plant names. A small crab compares them; the Save transition is the visual hinge.",
 			"visualChecks": [
-				"The draft and saved file are separate until Save. Editing this practice sandbox does not change files on the learner's computer."
+				"Draft text is basil, mint, thyme on separate lines; the readback after Save has exactly the same three lines.",
+				"Do not imply typing alone saves the file. Arrows run Draft to Save to Read. Do not add a misleading command prompt to output lines."
 			],
-			"altSuggestion": "Three connected views of one garden note: a draft on the editor desk, an explicit save into the named file on a shelf, and the same saved lines read back at a terminal.",
+			"altSuggestion": "Make the difference between an editor draft and the saved sandbox file visible.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -658,7 +671,9 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/file-editor-save/05.webp"
 				}
-			]
+			],
+			"teachingText": "Title: Edit, save, read it back\nFirst stage: Draft\nnotes/seeds.txt\nbasil\nmint\nthyme\nMiddle action: Save\nLast stage: Read the saved file\ncat notes/seeds.txt\nbasil\nmint\nthyme",
+			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"]
 		},
 		{
 			"id": "copying",
@@ -1562,11 +1577,12 @@
 			"chapter": 6,
 			"kind": "new",
 			"purpose": "Show how one quoted filename argument reaches the script as one value.",
-			"visualBrief": "A reusable script workshop accepts a sealed input parcel containing one folder name with spaces. Inside, that same intact parcel moves into the first argument slot, and the routine works on the corresponding folder. Two alternate input parcels wait outside for later runs.",
+			"visualBrief": "A single precise mapping from an invocation on a dark terminal panel to the first argument inside a script. Highlight the quoted phrase as one intact value, with one arrow to a labeled script argument slot. The crab holds the matching folder label. No whole backup script is needed.",
 			"visualChecks": [
-				"A name with spaces stays one argument when quoted. Do not imply changing the argument edits the script itself; exact dollar notation stays in live code."
+				"The command uses straight double quotes around My Notes. The value of $1 is My Notes without literal surrounding quote characters.",
+				"Show one argument, not two. The $1 slot and quoted phrase are directly connected. Do not imply the script is edited by supplying an argument."
 			],
-			"altSuggestion": "A reusable script workshop accepts a sealed input parcel containing one folder name with spaces.",
+			"altSuggestion": "Show how one quoted filename argument reaches the script as one value.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -1607,7 +1623,9 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/script-arguments/05.webp"
 				}
-			]
+			],
+			"teachingText": "Title: Arguments\nOne script, different inputs.\nCommand: ./backup.sh \"My Notes\"\nInside the script\n$1\nMy Notes\nQuotes keep one name together.",
+			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"]
 		},
 		{
 			"id": "script-conditions",
@@ -1615,11 +1633,12 @@
 			"chapter": 6,
 			"kind": "new",
 			"purpose": "Show that a test chooses one branch and the failure path deserves practice too.",
-			"visualBrief": "A garden path reaches an inspection gate where the crab checks whether the expected note exists. One branch proceeds with the actual note; the other ends at a helpful missing-item notice. Distinct shapes and lighting identify the routes without relying on red and green.",
+			"visualBrief": "One spacious branching diagram: the regular-file test at the top splits to two clearly labeled outcomes. The branches end at the corresponding exact echo commands. A small crab examines the test. Keep routes separated and unambiguous.",
 			"visualChecks": [
-				"Only one branch runs for a given test. A failed check does not silently continue into the work branch."
+				"The yes branch connects only to The note exists; the no branch connects only to Create notes.txt first.",
+				"Required spaces appear between [, -f, notes.txt, and ]. Label the bracket expression as the test, not a complete if program. No route should execute both branches."
 			],
-			"altSuggestion": "A garden path reaches an inspection gate where the crab checks whether the expected note exists.",
+			"altSuggestion": "Show that a test chooses one branch and the failure path deserves practice too.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -1660,7 +1679,9 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/script-conditions/05.webp"
 				}
-			]
+			],
+			"teachingText": "Title: Make a decision\nTest: [ -f notes.txt ]\nYes\necho \"The note exists\"\nNo\necho \"Create notes.txt first\"\nOne test. One branch runs.",
+			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"]
 		},
 		{
 			"id": "script-loops",
@@ -1668,11 +1689,12 @@
 			"chapter": 6,
 			"kind": "new",
 			"purpose": "Make a loop an understandable series of iterations over a finite set.",
-			"visualBrief": "Three garden note cards wait in an ordered tray. One moving work window handles a single card, then advances to the next; small before and after views show the same action applied once to each. The crab keeps track of the current item with a visible marker.",
+			"visualBrief": "One short three-line Bash loop sits beside three ordered output lines. Three small botanical labels mark basil, mint, thyme in that order and connect the finite input list to its three outputs. The illustration explains repeated action without an elaborate mechanical machine.",
 			"visualChecks": [
-				"Show a finite number of items and a clear ending. Do not imply all actions run at once or that an empty list necessarily creates a real matching file."
+				"Render printf format with a literal backslash and n inside the single quotes; render \"$plant\" exactly.",
+				"The loop has three values and exactly three output lines in the same order. Code and output must be visibly separate."
 			],
-			"altSuggestion": "Three garden note cards wait in an ordered tray.",
+			"altSuggestion": "Make a loop an understandable series of iterations over a finite set.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -1713,7 +1735,9 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/script-loops/05.webp"
 				}
-			]
+			],
+			"teachingText": "Title: One at a time\nBash code:\nfor plant in basil mint thyme; do\n  printf 'Remember to water %s\\n' \"$plant\"\ndone\nOutput:\nRemember to water basil\nRemember to water mint\nRemember to water thyme",
+			"styleReferences": ["static/images/first-script.webp", "static/images/looking-inside.webp"]
 		},
 		{
 			"id": "script-safe-copy",
@@ -1721,11 +1745,13 @@
 			"chapter": 6,
 			"kind": "new",
 			"purpose": "Link argument validation, source checks, fresh destination checks, copying, and result evidence.",
-			"visualBrief": "A careful garden delivery passes several open inspection stations before a copy is made: the required parcels are present, the source exists, and the destination tray is empty. A failed check leads to a clear stop; a separate final inspection checks the new copy.",
+			"visualBrief": "A readable three-stage workflow on one wide brass-framed display: Check, Copy, Verify. The Check area contains three short prerequisite lines. Copy has one command and the qualifier that it must succeed. Verify has a readback command and its one-line result. A quiet crab inspects the copied note. No dense full script or maze of error branches.",
 			"visualChecks": [
-				"No success marker appears before the copy succeeds. A leftover partial destination after failure must not be depicted as an automatically clean rollback."
+				"Show stage order Check then Copy then Verify. No success label appears before Copy.",
+				"The quoted source and destination must remain intact and ordered correctly. The verify example reads the actual copied seeds.txt file; basil is output, not another command.",
+				"This is a workflow excerpt, not a complete standalone script. Do not suggest copying guarantees verified contents or automatic rollback."
 			],
-			"altSuggestion": "A careful garden delivery passes several open inspection stations before a copy is made: the required parcels are present, the source exists, and the destination tray is empty.",
+			"altSuggestion": "Link argument validation, source checks, fresh destination checks, copying, and result evidence.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -1766,7 +1792,9 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/script-safe-copy/05.webp"
 				}
-			]
+			],
+			"teachingText": "Title: Copy with checks\n1. Check\nTwo arguments\nSource folder exists\nDestination is new\n2. Copy\ncp -R -- \"$source\" \"$destination\"\nContinue only if copying succeeds.\n3. Verify\ncat \"practice copy/seeds.txt\"\nbasil",
+			"styleReferences": ["static/images/first-script.webp", "static/images/package-managers.webp"]
 		},
 		{
 			"id": "find-replace",
@@ -2726,11 +2754,12 @@
 			"chapter": 10,
 			"kind": "new",
 			"purpose": "Distinguish ripgrep content search from fd filename search.",
-			"visualBrief": "A split garden desk shows two related searches: one magnifier finds a leaf-shaped mark inside notebook lines, while another finds matching shapes on notebook name tabs. Results trays hold full line excerpts on one side and file paths on the other.",
+			"visualBrief": "Two side-by-side search panels compare searching inside files with searching their names. A magnifier over a short note line supports ripgrep; a filename tab supports fd. Each panel has one exact command and a concise explanation. One crab guides the comparison.",
 			"visualChecks": [
-				"Do not swap content search with filename search. Hidden and ignored drawers are visible but closed, suggesting defaults can omit files; exact rg and fd commands stay in HTML."
+				"ripgrep is paired with file contents and fd with filenames, never reversed.",
+				"The fd command has all four arguments: -e, md, ., notes. Avoid fabricated result lists or implying hidden and ignored files are always searched."
 			],
-			"altSuggestion": "A split garden desk shows two related searches: one magnifier finds a leaf-shaped mark inside notebook lines, while another finds matching shapes on notebook name tabs.",
+			"altSuggestion": "Distinguish ripgrep content search from fd filename search.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -2771,6 +2800,11 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/modern-find/05.webp"
 				}
+			],
+			"teachingText": "Title: Two kinds of search\nripgrep\nFind text inside files\nrg -n -F 'watering' notes\nfd\nFind filenames\nfd -e md . notes",
+			"styleReferences": [
+				"static/images/looking-inside.webp",
+				"static/images/package-managers.webp"
 			]
 		},
 		{
@@ -2779,11 +2813,12 @@
 			"chapter": 10,
 			"kind": "new",
 			"purpose": "Show fzf filtering an existing list and returning a selection without executing it.",
-			"visualBrief": "A list of file cards slides through a progressively narrower viewing frame as a crab types. One chosen card is returned to the desk as a filename, while the corresponding file remains unopened on a shelf.",
+			"visualBrief": "Show a small supplied list of three filenames entering one fzf selection window and one selected filename returning below it. The chosen row is highlighted; Enter indicates selection. The crab points at the choice, not at an opened document.",
 			"visualChecks": [
-				"Selecting a filename does not open, run, or delete it. The input list exists before the selection step."
+				"Exactly one row is selected: notes/watering.md. That exact filename is the sole returned selection.",
+				"Selection does not open, execute, delete, or modify the file. The pipeline must include the | character."
 			],
-			"altSuggestion": "A list of file cards slides through a progressively narrower viewing frame as a crab types.",
+			"altSuggestion": "Show fzf filtering an existing list and returning a selection without executing it.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -2824,6 +2859,11 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/modern-select/05.webp"
 				}
+			],
+			"teachingText": "Title: Choose from a list\nrg --files notes | fzf\nnotes/seeds.txt\nnotes/watering.md\nnotes/plan.md\nEnter\nSelected filename\nnotes/watering.md\nSelecting prints the name.",
+			"styleReferences": [
+				"static/images/looking-inside.webp",
+				"static/images/history-superpowers.webp"
 			]
 		},
 		{
@@ -2832,11 +2872,12 @@
 			"chapter": 10,
 			"kind": "new",
 			"purpose": "Show zoxide as remembered navigation followed by a location check.",
-			"visualBrief": "A garden map highlights several previously visited folder beds with footprints. A short remembered name guides the crab to one bed, where it checks a full location marker before starting work. Similar-looking names appear on separate beds.",
+			"visualBrief": "A remembered garden location plaque and a clear terminal transcript explain returning to a previously visited folder, then checking its full path. Use one modest path through moss, a destination labeled notes, and the crab arriving at it. The terminal transcript is the focal explanation, not a complicated filesystem tree.",
 			"visualChecks": [
-				"This tool learns visited locations after shell setup. A short match is not guaranteed to identify the intended folder; the location check remains visible."
+				"The result /home/vibe/garden/notes belongs to pwd, not output printed by z notes. Display it immediately below pwd.",
+				"Do not imply zoxide knows all folders before setup or a first visit, or that a short name always identifies the intended destination."
 			],
-			"altSuggestion": "A garden map highlights several previously visited folder beds with footprints.",
+			"altSuggestion": "Show zoxide as remembered navigation followed by a location check.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -2877,6 +2918,11 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/modern-revisit/05.webp"
 				}
+			],
+			"teachingText": "Title: Return to a familiar folder\nzoxide\nAfter setup and a previous visit:\nz notes\npwd\n/home/vibe/garden/notes\nCheck where you landed.",
+			"styleReferences": [
+				"static/images/history-superpowers.webp",
+				"static/images/package-managers.webp"
 			]
 		},
 		{
@@ -2885,11 +2931,12 @@
 			"chapter": 10,
 			"kind": "new",
 			"purpose": "Show bat as a reader with highlighting and optional paging, separate from editing.",
-			"visualBrief": "A long garden configuration note rests in a comfortable reading frame with aligned line markers, distinct syntax colors, and a clear visible page window. The crab studies the note with a magnifier while the original file stays on its shelf.",
+			"visualBrief": "A single large brass-framed file reader demonstrates bat with line numbers. Show exactly three numbered garden-note lines and a separate command above the reader. A small crab reads through a magnifier; no editor controls. Keep the notes readable and the background dark.",
 			"visualChecks": [
-				"Do not depict a save button or changed contents. Exact colors must preserve contrast; show that only part of a longer document may be visible."
+				"Line numbers 1, 2, 3 align with basil, mint, thyme respectively. The numbers are reader decoration, not file content.",
+				"No Save button, text cursor, changed contents, or editing operation. The pager note is conditional, since short files may not open one."
 			],
-			"altSuggestion": "A long garden configuration note rests in a comfortable reading frame with aligned line markers, distinct syntax colors, and a clear visible page window.",
+			"altSuggestion": "Show bat as a reader with highlighting and optional paging, separate from editing.",
 			"aspectRatio": "16:9",
 			"sourceRefs": [],
 			"placements": [
@@ -2930,7 +2977,9 @@
 					"label": "Alternative 5",
 					"path": "art-candidates/modern-read/05.webp"
 				}
-			]
+			],
+			"teachingText": "Title: Read with bat\nbat notes.txt\nnotes.txt\n1  basil\n2  mint\n3  thyme\nLine numbers help you keep your place.\nIf a pager opens: q to quit",
+			"styleReferences": ["static/images/looking-inside.webp", "static/images/first-script.webp"]
 		},
 		{
 			"id": "read-before-you-run",
@@ -3619,5 +3668,17 @@
 				}
 			]
 		}
+	],
+	"reviewScope": [
+		"keyboard-line-editing",
+		"file-editor-save",
+		"script-arguments",
+		"script-conditions",
+		"script-loops",
+		"script-safe-copy",
+		"modern-find",
+		"modern-select",
+		"modern-revisit",
+		"modern-read"
 	]
 }

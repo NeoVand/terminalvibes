@@ -18,6 +18,7 @@ export interface ArtConcept {
 	purpose: string;
 	visualBrief: string;
 	visualChecks: string[];
+	styleReferences?: string[];
 	altSuggestion: string;
 	aspectRatio: string;
 	sourceRefs: ArtReference[];
@@ -34,6 +35,7 @@ export interface ArtCatalog {
 	guardrails: string[];
 	variantDirections: { id: string; name: string; brief: string }[];
 	reviewNotes: string[];
+	reviewScope?: string[];
 	concepts: ArtConcept[];
 }
 export interface AvailableArt {

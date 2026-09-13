@@ -16,7 +16,13 @@
 		type AvailableArt
 	} from './art-review';
 
-	const catalog = rawCatalog as ArtCatalog;
+	const inventory = rawCatalog as ArtCatalog;
+	const catalog: ArtCatalog = {
+		...inventory,
+		concepts: inventory.concepts.filter(
+			(concept) => !inventory.reviewScope || inventory.reviewScope.includes(concept.id)
+		)
+	};
 	let search = $state('');
 	let chapter = $state('all');
 	let reviewFilter = $state('all');
@@ -203,10 +209,10 @@
 	<header class="review-header">
 		<div>
 			<p class="eyebrow">TerminalVibes · local artwork studio</p>
-			<h1>Give every idea its best picture.</h1>
+			<h1>New sections, familiar artwork.</h1>
 			<p class="intro">
-				Compare five real alternatives. Choose what works, or describe what needs another pass.
-				Nothing is chosen automatically.
+				Five alternatives for each new concept, in the original course style. Existing course
+				artwork stays in place. Nothing is chosen automatically.
 			</p>
 		</div>
 		<div class="header-actions">
@@ -470,6 +476,19 @@
 							</div>
 						</div>
 					{/if}
+					{#each current.styleReferences ?? [] as reference (reference)}
+						<button
+							type="button"
+							onclick={() =>
+								openPreview(
+									`${base}/${reference.replace(/^static\//, '')}`,
+									'Original course style reference',
+									reference.split('/').at(-1) ?? reference
+								)}
+						>
+							Style reference: {reference.split('/').at(-1)}
+						</button>
+					{/each}
 					<ul class="source-list">
 						{#each [...current.sourceRefs, ...current.placements] as reference, index (index)}<li>
 								<code>{reference.file}#{reference.section}</code>

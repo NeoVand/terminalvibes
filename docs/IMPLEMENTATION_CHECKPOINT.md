@@ -33,8 +33,8 @@ The provider tests use mocked API responses. No authenticated paid-provider run 
 
 ## Artwork phase
 
-The content is consolidated before generation. The catalog identifies 64 illustration concepts: replacements for the active illustration library and nine additional teaching scenes. Each concept has five distinct generation briefs and five candidate slots. Responsive crops, social derivatives, and icons derived from selected originals do not count as separate concepts.
+The owner has narrowed this phase to new sections only, matching the existing artwork exactly. Existing course illustrations remain. Ten teaching concepts each receive five generated alternatives: keyboard movement, saving an editor draft, four scripting explanations, and four modern-tool explanations. The gallery and prompt generator use an explicit review scope so earlier replacement plans cannot restart accidentally.
 
-Generation is not selection. All existing course artwork remains until the owner chooses a replacement. Candidates, exact prompts, provenance, fingerprints, and local selection notes stay outside the deployed site. The two earlier workbench generations are unselected drafts; their existence does not approve them for the course.
+The original reference style is near-black woodland, aged brass, warm parchment, green terminal lettering, and intricate natural hermit crabs. Each new brief includes original-file references, exact teaching text, and technical checks. The rejected replacement-art rounds remain archived outside static output. No image is selected automatically; final insertion follows owner choice.
 
-The next deliverable is the complete review gallery, followed by the owner's choices and any requested revisions. Final selected asset replacement and regenerated derivatives follow those choices.
+Generation is in progress. Do not report fifty completed candidates until actual files and their provenance have been checked. Candidate images and local selections remain excluded from GitHub Pages output. All core content and implementation work above remains complete.

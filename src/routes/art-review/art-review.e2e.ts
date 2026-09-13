@@ -10,7 +10,7 @@ const hash = createHash('sha256').update(originalImage).digest('hex');
 async function candidates(page: Page) {
 	const metadata = await sharp(originalImage).metadata();
 	const files = Array.from({ length: 5 }, (_, index) => ({
-		path: `art-candidates/hello-first-command/0${index + 1}.webp`,
+		path: `art-candidates/keyboard-line-editing/0${index + 1}.webp`,
 		sha256: hash,
 		bytes: originalImage.length,
 		width: metadata.width,
@@ -20,7 +20,7 @@ async function candidates(page: Page) {
 		route.fulfill({ json: { schemaVersion: 1, files } })
 	);
 	// Existing art is a test fixture only. No fake candidate is written to the project.
-	await page.route('**/art-candidates/hello-first-command/*.webp?*', (route) =>
+	await page.route('**/art-candidates/keyboard-line-editing/*.webp?*', (route) =>
 		route.fulfill({ contentType: 'image/webp', body: originalImage })
 	);
 	return files;
@@ -86,7 +86,7 @@ test.describe('local artwork review', () => {
 			variant: '03',
 			sha256: hash,
 			verifiedAgainstCurrentFile: true,
-			candidatePath: 'art-candidates/hello-first-command/03.webp'
+			candidatePath: 'art-candidates/keyboard-line-editing/03.webp'
 		});
 	});
 	test('requests changes without approving and clears local decisions', async ({ page }) => {
@@ -111,7 +111,7 @@ test.describe('local artwork review', () => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto('/art-review');
 		const opener = page.getByRole('button', {
-			name: 'Preview Alternative 1: Your first small success'
+			name: 'Preview Alternative 1: Fix a line without starting over'
 		});
 		await opener.click();
 		await expect(page.getByRole('dialog')).toBeVisible();

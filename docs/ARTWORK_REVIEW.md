@@ -1,10 +1,12 @@
 # Local artwork review
 
-**Generation stopped — direction rejected by the owner.** The interrupted batch used an assistant-imposed text ban and an overly juvenile visual style. Do not resume its generation plan. The original images combine intricate illustration with commands, labels, diagrams, and before/after examples; future briefs must preserve that teaching substance and expand the palette. Calibrate five alternatives for one concept with the owner before scaling across the course. Existing drafts and exact prompts are retained as historical evidence, with no selections or replacements.
+**Current scope: ten new teaching concepts, fifty alternatives, in the original course style.** The owner ended the replacement-art work. Keep existing course artwork. Generate only the keyboard workshop, editor/save, script arguments, conditions, loops, checked copying, and modern finding, choosing, revisiting, and reading concepts. Each receives five actual generated compositions for owner choice.
 
-The consolidated inventory has **64 illustration concepts and 320 candidate slots**. It covers all 56 active raster usages in the opening, Parts 1–14, keyboard workshop, and header. The two header logo usages share one logo concept. The keyboard workshop and later history lesson get separate concepts, even though they currently share an old image.
+The full inventory still records 64 concepts and all 56 current raster usages for traceability. `reviewScope` restricts the local gallery and prompt generator to the ten requested concepts. The other 54 concepts are outside this task.
 
-Nine new explanations cover saving an editor draft, script arguments, conditions, loops, checked copying, and modern tools for finding, choosing, revisiting, and reading files. These have explicit lesson placements. No candidate is selected initially, and no course image is replaced by the review UI.
+Use the original course files as direct style references: near-black woodland, aged brass, warm parchment, green terminal lettering, and intricate natural hermit crabs. Preserve their palette, exposure, and rendering. Vary composition within that style. The ten briefs supply exact lesson-grounded text and technical checks.
+
+The abandoned replacement experiments and their prompts remain under ignored `output/artwork-rejected/`, outside static output. Do not resume old generation plans. No candidate is selected automatically.
 
 ## Inventory and generation handoff
 
@@ -21,7 +23,7 @@ node scripts/art-inventory.mjs --scan
 node scripts/art-inventory.mjs --prompt file-editor-save 01
 ```
 
-Generate five genuinely distinct compositions, not five crops or recolors. The per-alternative direction is combined with the concept's specific teaching scene and accuracy checks. The crab and garden provide continuity; materials, lighting, framing, and palettes vary. Render exact commands, shortcuts, labels, and results directly in the generated artwork when they help teach the concept. Supply the exact lesson-grounded text in each brief and check its accuracy and legibility. Accessible course prose remains alongside the image. The old concept briefs still need revision; changing a global rule alone does not repair the interrupted batch.
+Generate five distinct compositions per in-scope concept, not crops or recolors. Pass the listed `styleReferences` to the built-in image generator after inspecting them. Check text, code, connections, and visual fit against both the lesson and original artwork. The model can render text, diagrams, and code; choose the amount required for the explanation. Preserve the complete generated frame.
 
 Save candidates at these exact local paths:
 
@@ -35,7 +37,7 @@ static/art-candidates/<concept-id>/05.webp
 
 The whole `static/art-candidates/` directory is ignored by Git, including generation provenance and review metadata. Never place drafts in `static/images/`. Existing v2 drafts are unapproved and may be deliberately imported into a suitable slot; they are never automatically selected.
 
-Favicons are derived from the approved crab logo. The social preview is derived from the approved opening illustration with real brand typography. Timeline thumbnails are derived from their approved lesson artwork. Inspect these crops at their actual display size; approval of a full illustration is not automatic approval of its crops. UI screenshots are captured from the product rather than generated.
+Existing logos, favicons, social previews, and timeline thumbnails are outside the current image scope. Final lesson insertion follows the owner’s choices.
 
 ## Review locally
 
