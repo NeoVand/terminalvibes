@@ -72,4 +72,4 @@ npx vitest run src/lib/components/art/art-review.test.ts
 npx playwright test --config playwright.art-review.config.ts
 ```
 
-`src/routes/art-review/art-review.e2e.ts` includes a normal production assertion plus four development-only browser checks. The dedicated Playwright configuration starts a Vite development server and enables those checks. Tests mock existing artwork in memory; they never write pretend generations into the candidate directory.
+`src/routes/art-review/art-review.e2e.ts` includes a normal production assertion plus five development-only browser checks, including preview navigation, wraparound, missing images, focus restoration, and unchanged owner choices. The dedicated Playwright configuration starts a Vite development server and enables those checks. Tests mock existing artwork in memory; they never write pretend generations into the candidate directory.
