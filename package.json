@@ -48,7 +48,7 @@
 		"vitest": "^4.1.10"
 	},
 	"dependencies": {
-		"@huggingface/transformers": "^4.2.0",
+		"@huggingface/transformers": "^4.3.0",
 		"@langchain/core": "^1.2.3",
 		"@langchain/langgraph": "^1.4.8",
 		"lucide-svelte": "^1.0.1",
